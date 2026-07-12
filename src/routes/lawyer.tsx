@@ -3,7 +3,7 @@ import { ChevronLeft, MapPin, Scale, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
-import { Seal } from "../components/Seal";
+import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
 
 export const Route = createFileRoute("/lawyer")({
@@ -18,21 +18,22 @@ function LawyerFeed() {
     <AppShell withNav bare>
       <Page>
         {/* Header */}
-        <div className="relative overflow-hidden rounded-b-[2rem] bg-primary px-6 pb-8 pt-12 text-primary-foreground shadow-luxe">
-          <div className="pointer-events-none absolute -left-16 -top-10 size-52 rounded-full bg-gold/15 blur-3xl" />
+        <div className="relative overflow-hidden rounded-b-[2rem] bg-gradient-to-br from-[#0e1a38] via-[#0a1226] to-[#050915] px-6 pb-8 pt-12 shadow-2xl">
+          <div className="pointer-events-none absolute -left-16 -top-10 size-52 rounded-full bg-gold/20 blur-3xl" />
+          <div className="pointer-events-none absolute -right-10 bottom-0 size-40 rounded-full bg-blue-500/10 blur-3xl" />
           <div className="relative flex items-center gap-3">
-            <Seal size={52} float={false} />
+            <BrandMark size={52} glow={false} />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-light text-gold-light/80">שלום, עו״ד</p>
-              <h1 className="text-xl font-black">פניות רלוונטיות עבורך</h1>
+              <h1 className="text-xl font-black text-white">פניות רלוונטיות עבורך</h1>
             </div>
           </div>
           <div className="relative mt-6 flex gap-3">
-            <div className="flex-1 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="liquid-glass flex-1 rounded-2xl px-4 py-3">
               <p className="text-2xl font-black text-gold">{feed.length}</p>
               <p className="text-xs text-gold-light/80">פניות חדשות</p>
             </div>
-            <div className="flex-1 rounded-2xl bg-white/10 px-4 py-3 backdrop-blur">
+            <div className="liquid-glass flex-1 rounded-2xl px-4 py-3">
               <p className="text-2xl font-black text-gold">
                 {feed.filter((f) => f.expressed).length}
               </p>
@@ -52,15 +53,15 @@ function LawyerFeed() {
                       params: { caseId: f.id },
                     })
                   }
-                  className="w-full rounded-3xl border border-border bg-card p-5 shadow-luxe"
+                  className="liquid-glass w-full rounded-3xl p-5"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-bold text-primary">
+                      <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
                         {f.category}
                       </span>
                       {f.urgency === "דחוף" && (
-                        <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive">
+                        <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
                           דחוף
                         </span>
                       )}
@@ -85,7 +86,7 @@ function LawyerFeed() {
                     <span className="ms-auto">{f.postedAgo}</span>
                   </div>
                   {f.expressed && (
-                    <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-success/10 px-3 py-2 text-xs font-bold text-success">
+                    <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-success/15 px-3 py-2 text-xs font-bold text-success">
                       <Scale className="size-3.5" />
                       הבעת עניין — ממתין לבחירת הלקוח
                     </div>
