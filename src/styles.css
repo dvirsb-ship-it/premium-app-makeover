@@ -229,14 +229,16 @@
 
 /* ---------------------------------------------------------------------------
  * Liquid glass design language (Apple-style frosted surfaces)
- * Use on dark / photographic backdrops. `.liquid-glass` for resting surfaces,
- * `.liquid-glass-selected` for the active / chosen state.
+ * Theme-aware: light surfaces by default, luminous glass on the dark theme.
  * ------------------------------------------------------------------------- */
 .liquid-glass {
   position: relative;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(10px) saturate(140%);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.05),
+    0 18px 40px -22px rgba(15, 23, 42, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 0.7);
 }
 
 .liquid-glass::before {
@@ -247,12 +249,10 @@
   padding: 1.4px;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.45) 0%,
-    rgba(255, 255, 255, 0.15) 20%,
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0) 60%,
-    rgba(255, 255, 255, 0.15) 80%,
-    rgba(255, 255, 255, 0.45) 100%
+    rgba(255, 255, 255, 0.9) 0%,
+    rgba(15, 23, 42, 0.06) 30%,
+    rgba(15, 23, 42, 0.03) 70%,
+    rgba(15, 23, 42, 0.1) 100%
   );
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -263,9 +263,12 @@
 
 .liquid-glass-selected {
   position: relative;
-  background: rgba(255, 255, 255, 0.14);
-  backdrop-filter: blur(14px) saturate(160%);
-  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.22);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(18px) saturate(160%);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 20px 44px -20px rgba(212, 175, 55, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.8);
 }
 
 .liquid-glass-selected::before {
@@ -273,7 +276,45 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1.4px;
+  padding: 1.6px;
+  background: linear-gradient(
+    180deg,
+    rgba(212, 175, 55, 0.85) 0%,
+    rgba(212, 175, 55, 0.25) 35%,
+    rgba(212, 175, 55, 0.25) 65%,
+    rgba(212, 175, 55, 0.85) 100%
+  );
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* Dark theme = luminous glass over the cinematic studio backdrop */
+.dark .liquid-glass {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.dark .liquid-glass::before {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.45) 0%,
+    rgba(255, 255, 255, 0.15) 20%,
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.15) 80%,
+    rgba(255, 255, 255, 0.45) 100%
+  );
+}
+
+.dark .liquid-glass-selected {
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: inset 0 1px 2px rgba(255, 255, 255, 0.22);
+}
+
+.dark .liquid-glass-selected::before {
   background: linear-gradient(
     180deg,
     rgba(212, 175, 55, 0.75) 0%,
@@ -283,11 +324,29 @@
     rgba(255, 255, 255, 0.3) 80%,
     rgba(212, 175, 55, 0.75) 100%
   );
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------------
+ * Studio backdrop — a product shot lit in a photography studio.
+ * `.studio-stage` paints the seamless sweep + white key/rim lighting.
+ * ------------------------------------------------------------------------- */
+.studio-stage {
+  background-color: #e8ebf0;
+  background-image:
+    radial-gradient(120% 60% at 50% -8%, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0) 55%),
+    radial-gradient(80% 50% at 8% 12%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 45%),
+    radial-gradient(80% 50% at 92% 12%, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 45%),
+    linear-gradient(180deg, #eef1f6 0%, #d7dce6 60%, #c3cad8 100%);
+}
+
+.dark .studio-stage {
+  background-color: #040609;
+  background-image:
+    radial-gradient(110% 55% at 50% -6%, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0) 55%),
+    radial-gradient(60% 45% at 10% 8%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(60% 45% at 90% 8%, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0) 50%),
+    radial-gradient(90% 60% at 50% 120%, rgba(56, 89, 168, 0.18) 0%, rgba(4, 6, 9, 0) 60%),
+    linear-gradient(180deg, #06080f 0%, #04060b 55%, #010204 100%);
 }
 
 /* Staggered entrance used across screens */
