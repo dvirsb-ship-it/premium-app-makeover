@@ -58,7 +58,7 @@ export function BottomNav() {
                   active ? "text-primary-foreground" : "text-muted-foreground",
                 )}
               >
-                {tab.label}
+                {t(tab.key)}
               </span>
             </Link>
           );
