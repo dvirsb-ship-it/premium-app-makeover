@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidatingRouteImport } from './routes/validating'
+import { Route as SubmittedRouteImport } from './routes/submitted'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as IndexRouteImport } from './routes/index'
 const ValidatingRoute = ValidatingRouteImport.update({
   id: '/validating',
   path: '/validating',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubmittedRoute = SubmittedRouteImport.update({
+  id: '/submitted',
+  path: '/submitted',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/intake' | '/onboarding' | '/validating'
+  fullPaths: '/' | '/intake' | '/onboarding' | '/submitted' | '/validating'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/intake' | '/onboarding' | '/validating'
-  id: '__root__' | '/' | '/intake' | '/onboarding' | '/validating'
+  to: '/' | '/intake' | '/onboarding' | '/submitted' | '/validating'
+  id:
+    | '__root__'
+    | '/'
+    | '/intake'
+    | '/onboarding'
+    | '/submitted'
+    | '/validating'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IntakeRoute: typeof IntakeRoute
   OnboardingRoute: typeof OnboardingRoute
+  SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
 }
 
@@ -76,6 +92,13 @@ declare module '@tanstack/react-router' {
       path: '/validating'
       fullPath: '/validating'
       preLoaderRoute: typeof ValidatingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/submitted': {
+      id: '/submitted'
+      path: '/submitted'
+      fullPath: '/submitted'
+      preLoaderRoute: typeof SubmittedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IntakeRoute: IntakeRoute,
   OnboardingRoute: OnboardingRoute,
+  SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
 }
 export const routeTree = rootRouteImport
