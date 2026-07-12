@@ -60,6 +60,11 @@ function Index() {
   });
   const glareX = useTransform(px, [-0.5, 0.5], ["30%", "70%"]);
   const glareY = useTransform(py, [-0.5, 0.5], ["25%", "75%"]);
+  const glareBg = useTransform(
+    [glareX, glareY],
+    ([x, y]: string[]) =>
+      `radial-gradient(60% 50% at ${x} ${y}, rgba(255,255,255,0.5), transparent 60%)`,
+  );
 
   function handlePointer(e: React.PointerEvent<HTMLDivElement>) {
     const r = e.currentTarget.getBoundingClientRect();
