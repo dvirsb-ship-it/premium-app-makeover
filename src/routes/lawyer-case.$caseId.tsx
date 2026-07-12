@@ -106,7 +106,7 @@ function LawyerCaseDetail() {
                   expressInterest(item.id);
                   window.setTimeout(() => router.history.back(), 900);
                 }}
-                className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-gold"
+                className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
                 אני מעוניין/ת בתיק זה
               </motion.button>
