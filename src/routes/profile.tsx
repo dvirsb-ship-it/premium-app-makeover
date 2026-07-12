@@ -135,7 +135,7 @@ function Profile() {
                             stiffness: 500,
                             damping: 34,
                           }}
-                          className="absolute inset-0 rounded-lg bg-card shadow-sm"
+                          className="absolute inset-0 rounded-lg bg-white/20 shadow-sm"
                         />
                       )}
                       <span
