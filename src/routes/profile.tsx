@@ -65,14 +65,14 @@ function Profile() {
 
           {/* ===== Settings card ===== */}
           <Rise>
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-luxe">
+            <div className="liquid-glass overflow-hidden rounded-3xl">
               <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 {t("settings")}
               </p>
 
               {/* Dark mode toggle */}
-              <div className="flex items-center gap-3 border-b border-border/60 p-4">
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/8 text-primary">
+              <div className="flex items-center gap-3 border-b border-white/10 p-4">
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
                   {theme === "dark" ? (
                     <Moon className="size-5" />
                   ) : (
