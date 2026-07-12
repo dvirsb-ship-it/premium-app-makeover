@@ -9,38 +9,208 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidatingRouteImport } from './routes/validating'
+import { Route as SubmittedRouteImport } from './routes/submitted'
+import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as LawyerRouteImport } from './routes/lawyer'
+import { Route as IntakeRouteImport } from './routes/intake'
+import { Route as CasesRouteImport } from './routes/cases'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
+import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
 
+const ValidatingRoute = ValidatingRouteImport.update({
+  id: '/validating',
+  path: '/validating',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SubmittedRoute = SubmittedRouteImport.update({
+  id: '/submitted',
+  path: '/submitted',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OnboardingRoute = OnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LawyerRoute = LawyerRouteImport.update({
+  id: '/lawyer',
+  path: '/lawyer',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IntakeRoute = IntakeRouteImport.update({
+  id: '/intake',
+  path: '/intake',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CasesRoute = CasesRouteImport.update({
+  id: '/cases',
+  path: '/cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LawyerCaseCaseIdRoute = LawyerCaseCaseIdRouteImport.update({
+  id: '/lawyer-case/$caseId',
+  path: '/lawyer-case/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
+  id: '/case/$caseId',
+  path: '/case/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/cases': typeof CasesRoute
+  '/intake': typeof IntakeRoute
+  '/lawyer': typeof LawyerRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/submitted': typeof SubmittedRoute
+  '/validating': typeof ValidatingRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/cases': typeof CasesRoute
+  '/intake': typeof IntakeRoute
+  '/lawyer': typeof LawyerRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/submitted': typeof SubmittedRoute
+  '/validating': typeof ValidatingRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/cases': typeof CasesRoute
+  '/intake': typeof IntakeRoute
+  '/lawyer': typeof LawyerRoute
+  '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
+  '/submitted': typeof SubmittedRoute
+  '/validating': typeof ValidatingRoute
+  '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/cases'
+    | '/intake'
+    | '/lawyer'
+    | '/onboarding'
+    | '/profile'
+    | '/submitted'
+    | '/validating'
+    | '/case/$caseId'
+    | '/lawyer-case/$caseId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/cases'
+    | '/intake'
+    | '/lawyer'
+    | '/onboarding'
+    | '/profile'
+    | '/submitted'
+    | '/validating'
+    | '/case/$caseId'
+    | '/lawyer-case/$caseId'
+  id:
+    | '__root__'
+    | '/'
+    | '/cases'
+    | '/intake'
+    | '/lawyer'
+    | '/onboarding'
+    | '/profile'
+    | '/submitted'
+    | '/validating'
+    | '/case/$caseId'
+    | '/lawyer-case/$caseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  CasesRoute: typeof CasesRoute
+  IntakeRoute: typeof IntakeRoute
+  LawyerRoute: typeof LawyerRoute
+  OnboardingRoute: typeof OnboardingRoute
+  ProfileRoute: typeof ProfileRoute
+  SubmittedRoute: typeof SubmittedRoute
+  ValidatingRoute: typeof ValidatingRoute
+  CaseCaseIdRoute: typeof CaseCaseIdRoute
+  LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validating': {
+      id: '/validating'
+      path: '/validating'
+      fullPath: '/validating'
+      preLoaderRoute: typeof ValidatingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/submitted': {
+      id: '/submitted'
+      path: '/submitted'
+      fullPath: '/submitted'
+      preLoaderRoute: typeof SubmittedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/onboarding': {
+      id: '/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lawyer': {
+      id: '/lawyer'
+      path: '/lawyer'
+      fullPath: '/lawyer'
+      preLoaderRoute: typeof LawyerRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/intake': {
+      id: '/intake'
+      path: '/intake'
+      fullPath: '/intake'
+      preLoaderRoute: typeof IntakeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cases': {
+      id: '/cases'
+      path: '/cases'
+      fullPath: '/cases'
+      preLoaderRoute: typeof CasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +218,35 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lawyer-case/$caseId': {
+      id: '/lawyer-case/$caseId'
+      path: '/lawyer-case/$caseId'
+      fullPath: '/lawyer-case/$caseId'
+      preLoaderRoute: typeof LawyerCaseCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/case/$caseId': {
+      id: '/case/$caseId'
+      path: '/case/$caseId'
+      fullPath: '/case/$caseId'
+      preLoaderRoute: typeof CaseCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  CasesRoute: CasesRoute,
+  IntakeRoute: IntakeRoute,
+  LawyerRoute: LawyerRoute,
+  OnboardingRoute: OnboardingRoute,
+  ProfileRoute: ProfileRoute,
+  SubmittedRoute: SubmittedRoute,
+  ValidatingRoute: ValidatingRoute,
+  CaseCaseIdRoute: CaseCaseIdRoute,
+  LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
