@@ -35,7 +35,7 @@ function Cases() {
 
         {cases.length === 0 ? (
           <div className="mt-16 flex flex-col items-center text-center">
-            <span className="grid size-16 place-items-center rounded-3xl bg-muted text-muted-foreground">
+            <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-blue-100/70">
               <FolderOpen className="size-8" />
             </span>
             <p className="mt-4 text-base font-semibold text-foreground">
@@ -43,7 +43,7 @@ function Cases() {
             </p>
             <Link
               to="/onboarding"
-              className="mt-5 rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground shadow-luxe"
+              className="btn-gold mt-5 rounded-2xl px-6 py-3 text-sm font-bold"
             >
               שיתוף מקרה חדש
             </Link>
