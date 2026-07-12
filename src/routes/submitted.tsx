@@ -83,7 +83,7 @@ function Submitted() {
                   : { to: "/cases" },
               )
             }
-            className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-luxe transition active:scale-[0.98]"
+            className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
           >
             צפייה בסטטוס המקרה
           </button>
