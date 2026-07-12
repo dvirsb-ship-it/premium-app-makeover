@@ -31,12 +31,12 @@ function Index() {
 
       {/* Foreground content */}
       <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
-        {/* Centered brand lockup + floating 3D iPhone showing the real app */}
-        <div className="relative flex flex-1 flex-col items-center justify-start text-center">
+        {/* Centered brand lockup in the studio spotlight */}
+        <div className="relative flex flex-1 flex-col items-center justify-center text-center">
           {/* legibility halo behind the wordmark */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-24 -z-10 h-56 w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_25%,transparent_80%)] opacity-80"
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-[140%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_30%,transparent_85%)] opacity-90"
           />
 
           <motion.div
@@ -60,9 +60,6 @@ function Index() {
               {t("heroTagline")}
             </motion.p>
           </motion.div>
-
-          {/* The 3D iPhone with real app screens, floating in the studio */}
-          <HeroPhone className="mt-8 w-full max-w-[220px] scale-90" />
         </div>
 
 
