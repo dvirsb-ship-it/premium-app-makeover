@@ -165,7 +165,7 @@ function Intake() {
         </div>
 
         {/* Composer / submit */}
-        <div className="sticky bottom-0 border-t border-white/10 bg-[#050915]/80 px-5 py-4 backdrop-blur-xl">
+        <div className="sticky bottom-0 border-t border-border bg-background/80 px-5 py-4 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {ready ? (
               <motion.button
