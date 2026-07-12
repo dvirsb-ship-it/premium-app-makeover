@@ -4,7 +4,7 @@ import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { BrandMark } from "../components/BrandMark";
-import { PhoneShowcase } from "../components/PhoneShowcase";
+import { HeroVideo } from "../components/HeroVideo";
 import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
@@ -26,16 +26,8 @@ function Index() {
 
   return (
     <AppShell withNav bare outerClassName="studio-stage">
-      {/* Studio corner falloff — darkens edges like a lit studio sweep */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(130%_120%_at_50%_45%,transparent_45%,rgba(2,4,8,0.55)_100%)] opacity-0 dark:opacity-100"
-      />
-
-      {/* 3D iPhone product shot — floating centered backdrop */}
-      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-        <PhoneShowcase className="mt-[26%] scale-[0.86]" />
-      </div>
+      {/* Cinematic studio product clip — floating 3D iPhone backdrop */}
+      <HeroVideo className="z-0" />
 
       {/* Foreground content */}
       <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
