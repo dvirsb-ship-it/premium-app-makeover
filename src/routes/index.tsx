@@ -34,13 +34,13 @@ function Index() {
 
       {/* 3D iPhone product shot — floating centered backdrop */}
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-        <PhoneShowcase className="mt-6 scale-[0.92]" />
+        <PhoneShowcase className="mt-[26%] scale-[0.86]" />
       </div>
 
       {/* Foreground content */}
-      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-10">
+      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
         {/* Centered brand lockup */}
-        <div className="relative flex flex-1 flex-col items-center justify-center text-center">
+        <div className="relative flex flex-1 flex-col items-center justify-start text-center">
           {/* legibility halo behind the wordmark */}
           <div
             aria-hidden
