@@ -125,8 +125,8 @@ function Intake() {
                 <div
                   className={
                     m.from === "assistant"
-                      ? "max-w-[80%] rounded-2xl rounded-br-md border border-border bg-card px-4 py-3 text-sm leading-relaxed text-foreground shadow-luxe"
-                      : "ms-auto max-w-[80%] rounded-2xl rounded-bl-md bg-primary px-4 py-3 text-sm leading-relaxed text-primary-foreground shadow-luxe"
+                      ? "liquid-glass max-w-[80%] rounded-2xl rounded-br-md px-4 py-3 text-sm leading-relaxed text-foreground"
+                      : "ms-auto max-w-[80%] rounded-2xl rounded-bl-md bg-gradient-to-b from-gold to-[#B8912B] px-4 py-3 text-sm leading-relaxed text-[#0F172A] shadow-lg shadow-gold/25"
                   }
                 >
                   {m.text}
