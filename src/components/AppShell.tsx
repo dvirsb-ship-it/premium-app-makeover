@@ -8,16 +8,18 @@ import { cn } from "../lib/utils";
 export function AppShell({
   children,
   className,
+  outerClassName,
   withNav = false,
   bare = false,
 }: {
   children: ReactNode;
   className?: string;
+  outerClassName?: string;
   withNav?: boolean;
   bare?: boolean;
 }) {
   return (
-    <div className="relative min-h-screen w-full bg-background">
+    <div className={cn("relative min-h-screen w-full bg-background", outerClassName)}>
       {/* soft ambient gold aura */}
       <div
         aria-hidden
