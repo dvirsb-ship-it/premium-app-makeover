@@ -71,6 +71,27 @@ export const strings = {
   terms: { he: "תנאי שימוש", en: "Terms of use" },
   help: { he: "עזרה ותמיכה", en: "Help & support" },
   logout: { he: "התנתקות", en: "Log out" },
+
+  // Auth / sign-up
+  authTitle: { he: "יצירת חשבון", en: "Create your account" },
+  authSub: {
+    he: "התחברו בכמה שניות והתחילו לקבל ייעוץ משפטי",
+    en: "Sign in within seconds and start getting legal advice",
+  },
+  continueGoogle: { he: "המשך עם Google", en: "Continue with Google" },
+  continueApple: { he: "המשך עם Apple", en: "Continue with Apple" },
+  continueEmail: { he: "המשך עם אימייל", en: "Continue with email" },
+  continuePhone: { he: "המשך עם טלפון", en: "Continue with phone" },
+  authOr: { he: "או", en: "or" },
+  emailLabel: { he: "כתובת אימייל", en: "Email address" },
+  emailPlaceholder: { he: "name@email.com", en: "name@email.com" },
+  phoneLabel: { he: "מספר טלפון", en: "Phone number" },
+  phonePlaceholder: { he: "050-000-0000", en: "050-000-0000" },
+  authContinueBtn: { he: "המשך", en: "Continue" },
+  authTerms: {
+    he: "בהמשך אני מאשר/ת את תנאי השימוש ומדיניות הפרטיות",
+    en: "By continuing you agree to the Terms and Privacy Policy",
+  },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

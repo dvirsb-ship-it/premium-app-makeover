@@ -48,14 +48,14 @@ export function BottomNav() {
               <Icon
                 className={cn(
                   "relative z-10 size-5 transition-colors",
-                  active ? "text-[#0F172A]" : "text-blue-100/60",
+                  active ? "text-[#0F172A]" : "text-muted-foreground",
                 )}
                 strokeWidth={active ? 2.4 : 2}
               />
               <span
                 className={cn(
                   "relative z-10 text-[11px] font-semibold transition-colors",
-                  active ? "text-[#0F172A]" : "text-blue-100/60",
+                  active ? "text-[#0F172A]" : "text-muted-foreground",
                 )}
               >
                 {t(tab.key)}

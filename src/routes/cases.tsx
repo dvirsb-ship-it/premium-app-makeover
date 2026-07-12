@@ -35,7 +35,7 @@ function Cases() {
 
         {cases.length === 0 ? (
           <div className="mt-16 flex flex-col items-center text-center">
-            <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-blue-100/70">
+            <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-muted-foreground">
               <FolderOpen className="size-8" />
             </span>
             <p className="mt-4 text-base font-semibold text-foreground">

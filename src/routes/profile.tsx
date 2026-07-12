@@ -71,7 +71,7 @@ function Profile() {
               </p>
 
               {/* Dark mode toggle */}
-              <div className="flex items-center gap-3 border-b border-white/10 p-4">
+              <div className="flex items-center gap-3 border-b border-border p-4">
                 <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
                   {theme === "dark" ? (
                     <Moon className="size-5" />
@@ -182,7 +182,7 @@ function Profile() {
                     key={it.key}
                     type="button"
                     className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-white/5 ${
-                      i !== items.length - 1 ? "border-b border-white/10" : ""
+                      i !== items.length - 1 ? "border-b border-border" : ""
                     }`}
                   >
                     <span className="grid size-10 place-items-center rounded-xl bg-white/10 text-foreground">

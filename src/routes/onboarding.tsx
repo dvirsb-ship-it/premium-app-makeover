@@ -67,7 +67,7 @@ function Onboarding() {
         </div>
 
         {/* Sticky footer */}
-        <div className="sticky bottom-0 space-y-4 border-t border-white/10 bg-[#050915]/80 px-5 py-5 backdrop-blur-xl">
+        <div className="sticky bottom-0 space-y-4 border-t border-border bg-background/80 px-5 py-5 backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setAgreed((v) => !v)}
