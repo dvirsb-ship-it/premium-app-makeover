@@ -66,7 +66,7 @@ function LawyerCaseDetail() {
             <span>{item.postedAgo}</span>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-luxe">
+          <div className="liquid-glass mt-6 rounded-3xl p-5">
             <h3 className="text-sm font-bold text-foreground">תיאור המקרה</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
               {item.summary}
