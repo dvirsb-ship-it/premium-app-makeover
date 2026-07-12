@@ -166,7 +166,7 @@ function LawyerChoiceCard({
         type="button"
         whileTap={{ scale: 0.98 }}
         onClick={onChoose}
-        className="mt-4 w-full rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-luxe"
+        className="btn-gold mt-4 w-full rounded-2xl py-3 text-sm font-bold"
       >
         בחירת עורך דין זה
       </motion.button>
