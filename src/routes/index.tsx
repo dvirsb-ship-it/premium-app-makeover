@@ -116,13 +116,7 @@ function Index() {
           <motion.div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-60 mix-blend-soft-light"
-            style={{
-              background: useTransform(
-                [glareX, glareY],
-                ([x, y]) =>
-                  `radial-gradient(60% 50% at ${x} ${y}, rgba(255,255,255,0.5), transparent 60%)`,
-              ),
-            }}
+            style={{ background: glareBg }}
           />
 
           {/* Floating content lifted in 3D space */}
