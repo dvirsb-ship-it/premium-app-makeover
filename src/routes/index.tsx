@@ -1,111 +1,93 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { BrandMark } from "../components/BrandMark";
+import { PhoneShowcase } from "../components/PhoneShowcase";
 import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
-import heroColumns from "../assets/hero/hero-columns.jpg";
-import heroLibrary from "../assets/hero/hero-library.jpg";
-import heroScales from "../assets/hero/hero-scales.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const heroImages = [heroScales, heroColumns, heroLibrary];
-
 function Index() {
   const navigate = useNavigate();
   const { setRole } = useAppStore();
   const t = useT();
-  const [slide, setSlide] = useState(0);
-
-  useEffect(() => {
-    const id = window.setInterval(
-      () => setSlide((s) => (s + 1) % heroImages.length),
-      4500,
-    );
-    return () => window.clearInterval(id);
-  }, []);
 
   function choose(role: Role) {
     setRole(role);
-    navigate({ to: role === "client" ? "/onboarding" : "/lawyer" });
+    navigate({ to: role === "client" ? "/auth" : "/lawyer" });
   }
 
   return (
-    <AppShell withNav bare outerClassName="bg-[#050915]">
-      {/* Cross-fading cinematic hero imagery */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
-        <AnimatePresence mode="sync">
-          <motion.div
-            key={slide}
-            initial={{ opacity: 0, scale: 1.18 }}
-            animate={{ opacity: 1, scale: 1.05 }}
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ opacity: { duration: 1.6 }, scale: { duration: 5 } }}
-            className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${heroImages[slide]})` }}
-          />
-        </AnimatePresence>
+    <AppShell withNav bare outerClassName="studio-stage">
+      {/* Studio corner falloff — darkens edges like a lit studio sweep */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-0 bg-[radial-gradient(130%_120%_at_50%_45%,transparent_45%,rgba(2,4,8,0.55)_100%)] opacity-0 dark:opacity-100"
+      />
+
+      {/* 3D iPhone product shot — floating centered backdrop */}
+      <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
+        <PhoneShowcase className="mt-6 scale-[0.92]" />
       </div>
-      {/* darkening + color grade over the imagery */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#050915]/70 via-[#050915]/80 to-[#050915]"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.18)_0%,rgba(5,9,21,0)_65%)] blur-3xl"
-      />
 
-      {/* Main content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-14">
-        {/* Brand block */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center text-center"
-        >
-          <BrandMark size={96} />
+      {/* Foreground content */}
+      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-10">
+        {/* Centered brand lockup */}
+        <div className="relative flex flex-1 flex-col items-center justify-center text-center">
+          {/* legibility halo behind the wordmark */}
+          <div
+            aria-hidden
+            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_20%,transparent_78%)] opacity-80"
+          />
 
-          <h1 className="mt-6 text-5xl font-black tracking-tight text-white">
-            Just
-            <span className="text-gradient-gold">Ask</span>
-          </h1>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.45, duration: 0.6 }}
-            className="mt-3 max-w-[18rem] text-lg font-light leading-snug text-blue-100/70"
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="flex flex-col items-center"
           >
-            {t("heroTagline")}
-          </motion.p>
-        </motion.div>
+            <BrandMark size={84} />
+
+            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-foreground drop-shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+              Just<span className="text-gradient-gold">Ask</span>
+            </h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.45, duration: 0.6 }}
+              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-muted-foreground"
+            >
+              {t("heroTagline")}
+            </motion.p>
+          </motion.div>
+        </div>
 
         {/* Role selection cards — liquid glass */}
-        <Stagger className="w-full max-w-sm space-y-4 pb-4">
+        <Stagger className="w-full max-w-sm space-y-4 self-center pb-4">
           <Rise>
             <Pressable
               onClick={() => choose("client")}
               className="liquid-glass group block w-full rounded-[26px] p-5 text-right"
             >
               <div className="relative flex items-center gap-5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10 text-white">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
                   <UserRound className="size-6" strokeWidth={1.8} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold leading-tight text-white">
+                  <h3 className="text-lg font-bold leading-tight text-foreground">
                     {t("clientCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-blue-100/60">{t("clientCTASub")}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("clientCTASub")}
+                  </p>
                 </div>
               </div>
             </Pressable>
@@ -121,17 +103,19 @@ function Index() {
                   <Scale className="size-6" strokeWidth={2} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold leading-tight text-gold">
+                  <h3 className="text-lg font-bold leading-tight text-foreground">
                     {t("lawyerCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-gold/70">{t("lawyerCTASub")}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {t("lawyerCTASub")}
+                  </p>
                 </div>
               </div>
             </Pressable>
           </Rise>
 
           <Rise>
-            <p className="pt-3 text-center text-xs font-medium uppercase tracking-wider text-slate-400/80">
+            <p className="pt-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
               {t("trustBadge")}
             </p>
           </Rise>
