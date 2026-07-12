@@ -207,7 +207,7 @@ function Profile() {
                 setRole(null);
                 navigate({ to: "/" });
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-3xl border border-border bg-card p-4 text-sm font-bold text-destructive shadow-luxe transition active:scale-[0.99]"
+              className="liquid-glass flex w-full items-center justify-center gap-2 rounded-3xl p-4 text-sm font-bold text-destructive transition active:scale-[0.99]"
             >
               <LogOut className="size-5" />
               {t("logout")}
