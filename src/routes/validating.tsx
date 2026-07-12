@@ -101,7 +101,7 @@ function Validating() {
                   x: 0,
                 }}
                 transition={{ delay: 0.1 * i }}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-luxe"
+                className="liquid-glass flex items-center gap-3 rounded-2xl px-4 py-3"
               >
                 <span className="relative grid size-6 shrink-0 place-items-center">
                   <AnimatePresence mode="wait">
