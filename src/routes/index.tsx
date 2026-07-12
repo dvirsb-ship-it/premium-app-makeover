@@ -44,7 +44,7 @@ function Index() {
           {/* legibility halo behind the wordmark */}
           <div
             aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-64 w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_20%,transparent_78%)] opacity-80"
+            className="pointer-events-none absolute left-1/2 top-24 -z-10 h-56 w-[120%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_25%,transparent_80%)] opacity-80"
           />
 
           <motion.div
