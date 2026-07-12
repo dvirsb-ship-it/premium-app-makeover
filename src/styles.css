@@ -152,6 +152,13 @@
   --sidebar-accent-foreground: oklch(0.984 0.003 247.858);
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.551 0.027 264.364);
+  --navy: oklch(0.208 0.042 265.755);
+  --navy-foreground: oklch(0.984 0.003 247.858);
+  --gold: oklch(0.76 0.13 85);
+  --gold-foreground: oklch(0.208 0.042 265.755);
+  --gold-light: oklch(0.92 0.045 90);
+  --success: oklch(0.7 0.14 162);
+  --success-foreground: oklch(0.984 0.003 247.858);
 }
 
 @layer base {
