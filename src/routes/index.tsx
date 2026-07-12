@@ -41,7 +41,7 @@ function Index() {
           >
             <BrandMark size={84} />
 
-            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-foreground drop-shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.55)]">
               Just<span className="text-gradient-gold">Ask</span>
             </h1>
 
@@ -49,7 +49,7 @@ function Index() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.45, duration: 0.6 }}
-              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-muted-foreground"
+              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)]"
             >
               {t("heroTagline")}
             </motion.p>
