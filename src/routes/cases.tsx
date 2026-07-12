@@ -56,7 +56,7 @@ function Cases() {
                 <Rise key={c.id}>
                   <Pressable
                     onClick={() =>
-                      navigate({ to: "/cases/$caseId", params: { caseId: c.id } })
+                      navigate({ to: "/case/$caseId", params: { caseId: c.id } })
                     }
                     className="w-full rounded-3xl border border-border bg-card p-5 shadow-luxe"
                   >
