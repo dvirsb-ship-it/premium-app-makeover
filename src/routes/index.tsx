@@ -55,7 +55,7 @@ function Index() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45, duration: 0.6 }}
-            className="mt-3 max-w-[16rem] text-lg font-light leading-snug text-blue-100/60"
+            className="mt-3 max-w-[18rem] text-lg font-light leading-snug text-blue-100/60"
           >
             {t("heroTagline")}
           </motion.p>
