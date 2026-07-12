@@ -3,21 +3,24 @@ import { motion } from "motion/react";
 import { Home, FolderOpen, Scale, User } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../lib/store";
+import { useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 
-const clientTabs = [
-  { to: "/", label: "ראשי", icon: Home },
-  { to: "/cases", label: "התיקים שלי", icon: FolderOpen },
-  { to: "/profile", label: "פרופיל", icon: User },
+const clientTabs: { to: string; key: StringKey; icon: typeof Home }[] = [
+  { to: "/", key: "navHome", icon: Home },
+  { to: "/cases", key: "navCases", icon: FolderOpen },
+  { to: "/profile", key: "navProfile", icon: User },
 ];
 
-const lawyerTabs = [
-  { to: "/lawyer", label: "תיקים", icon: Scale },
-  { to: "/profile", label: "פרופיל", icon: User },
+const lawyerTabs: { to: string; key: StringKey; icon: typeof Home }[] = [
+  { to: "/lawyer", key: "navLawyerCases", icon: Scale },
+  { to: "/profile", key: "navProfile", icon: User },
 ];
 
 export function BottomNav() {
   const location = useLocation();
   const { role } = useAppStore();
+  const t = useT();
   const tabs = role === "lawyer" ? lawyerTabs : clientTabs;
 
   return (
@@ -55,7 +58,7 @@ export function BottomNav() {
                   active ? "text-primary-foreground" : "text-muted-foreground",
                 )}
               >
-                {tab.label}
+                {t(tab.key)}
               </span>
             </Link>
           );

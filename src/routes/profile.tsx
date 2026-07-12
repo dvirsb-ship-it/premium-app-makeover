@@ -1,53 +1,155 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { motion } from "motion/react";
 import {
   Bell,
   ChevronLeft,
   FileText,
   HelpCircle,
   LogOut,
+  Moon,
   Repeat,
   Shield,
+  Sun,
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
+import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const items = [
-  { icon: Bell, label: "התראות" },
-  { icon: Shield, label: "פרטיות ואבטחה" },
-  { icon: FileText, label: "תנאי שימוש" },
-  { icon: HelpCircle, label: "עזרה ותמיכה" },
+const items: { icon: typeof Bell; key: StringKey }[] = [
+  { icon: Bell, key: "notifications" },
+  { icon: Shield, key: "privacy" },
+  { icon: FileText, key: "terms" },
+  { icon: HelpCircle, key: "help" },
 ];
 
 function Profile() {
   const navigate = useNavigate();
   const { role, setRole } = useAppStore();
+  const { theme, toggleTheme, lang, setLang, dir } = useSettings();
+  const t = useT();
+  const flip = dir === "ltr" ? "rotate-180" : "";
 
   return (
     <AppShell withNav>
       <Page>
-        <h1 className="pb-6 pt-8 text-2xl font-black text-foreground">פרופיל</h1>
+        <h1 className="pb-6 pt-8 text-2xl font-black text-foreground">
+          {t("profile")}
+        </h1>
 
         <Stagger className="space-y-4">
           <Rise>
             <div className="flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-luxe">
               <span className="grid size-14 place-items-center rounded-2xl bg-primary text-lg font-black text-gold">
-                {role === "lawyer" ? "עו״ד" : "אני"}
+                {role === "lawyer" ? t("lawyerBadge") : t("meBadge")}
               </span>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 text-start">
                 <h2 className="text-lg font-bold text-foreground">
-                  {role === "lawyer" ? "חשבון עורך דין" : "חשבון לקוח"}
+                  {role === "lawyer" ? t("lawyerAccount") : t("clientAccount")}
                 </h2>
                 <p className="text-sm text-muted-foreground">
                   {role === "lawyer"
-                    ? "קבלת פניות וניהול תיקים"
-                    : "שיתוף מקרים ומעקב סטטוס"}
+                    ? t("lawyerAccountSub")
+                    : t("clientAccountSub")}
                 </p>
+              </div>
+            </div>
+          </Rise>
+
+          {/* ===== Settings card ===== */}
+          <Rise>
+            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-luxe">
+              <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                {t("settings")}
+              </p>
+
+              {/* Dark mode toggle */}
+              <div className="flex items-center gap-3 border-b border-border/60 p-4">
+                <span className="grid size-10 place-items-center rounded-xl bg-primary/8 text-primary">
+                  {theme === "dark" ? (
+                    <Moon className="size-5" />
+                  ) : (
+                    <Sun className="size-5" />
+                  )}
+                </span>
+                <div className="min-w-0 flex-1 text-start">
+                  <p className="text-sm font-bold text-foreground">
+                    {t("darkMode")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("darkModeSub")}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  role="switch"
+                  aria-checked={theme === "dark"}
+                  onClick={toggleTheme}
+                  className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
+                    theme === "dark" ? "bg-gold" : "bg-muted"
+                  }`}
+                >
+                  <motion.span
+                    layout
+                    transition={{ type: "spring", stiffness: 500, damping: 32 }}
+                    className={`absolute top-1 size-5 rounded-full bg-card shadow-md ${
+                      theme === "dark" ? "start-6" : "start-1"
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {/* Language segmented control */}
+              <div className="flex items-center gap-3 p-4">
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold text-sm font-black">
+                  {lang === "he" ? "עב" : "EN"}
+                </span>
+                <div className="min-w-0 flex-1 text-start">
+                  <p className="text-sm font-bold text-foreground">
+                    {t("language")}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {t("languageSub")}
+                  </p>
+                </div>
+                <div className="relative flex shrink-0 rounded-xl bg-muted p-1">
+                  {(["he", "en"] as const).map((l) => (
+                    <button
+                      key={l}
+                      type="button"
+                      onClick={() => setLang(l)}
+                      className="relative z-10 w-11 rounded-lg py-1.5 text-xs font-bold"
+                    >
+                      {lang === l && (
+                        <motion.span
+                          layoutId="lang-pill"
+                          transition={{
+                            type: "spring",
+                            stiffness: 500,
+                            damping: 34,
+                          }}
+                          className="absolute inset-0 rounded-lg bg-card shadow-sm"
+                        />
+                      )}
+                      <span
+                        className={`relative ${
+                          lang === l
+                            ? "text-foreground"
+                            : "text-muted-foreground"
+                        }`}
+                      >
+                        {l === "he" ? "עברית" : "EN"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </Rise>
@@ -59,15 +161,15 @@ function Profile() {
                 setRole(null);
                 navigate({ to: "/" });
               }}
-              className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-4 text-right shadow-luxe transition active:scale-[0.99]"
+              className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-4 text-start shadow-luxe transition active:scale-[0.99]"
             >
               <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold">
                 <Repeat className="size-5" />
               </span>
               <span className="flex-1 text-sm font-bold text-foreground">
-                החלפת תפקיד
+                {t("switchRole")}
               </span>
-              <ChevronLeft className="size-5 text-muted-foreground/50" />
+              <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
             </button>
           </Rise>
 
@@ -77,9 +179,9 @@ function Profile() {
                 const Icon = it.icon;
                 return (
                   <button
-                    key={it.label}
+                    key={it.key}
                     type="button"
-                    className={`flex w-full items-center gap-3 p-4 text-right transition active:bg-muted ${
+                    className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-muted ${
                       i !== items.length - 1 ? "border-b border-border/60" : ""
                     }`}
                   >
@@ -87,9 +189,11 @@ function Profile() {
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1 text-sm font-semibold text-foreground">
-                      {it.label}
+                      {t(it.key)}
                     </span>
-                    <ChevronLeft className="size-5 text-muted-foreground/50" />
+                    <ChevronLeft
+                      className={`size-5 text-muted-foreground/50 ${flip}`}
+                    />
                   </button>
                 );
               })}
@@ -106,7 +210,7 @@ function Profile() {
               className="flex w-full items-center justify-center gap-2 rounded-3xl border border-border bg-card p-4 text-sm font-bold text-destructive shadow-luxe transition active:scale-[0.99]"
             >
               <LogOut className="size-5" />
-              התנתקות
+              {t("logout")}
             </button>
           </Rise>
         </Stagger>
