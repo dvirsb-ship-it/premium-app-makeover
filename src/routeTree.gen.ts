@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as ValidatingRouteImport } from './routes/validating'
 import { Route as SubmittedRouteImport } from './routes/submitted'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LawyerRouteImport } from './routes/lawyer'
 import { Route as IntakeRouteImport } from './routes/intake'
@@ -27,6 +28,11 @@ const ValidatingRoute = ValidatingRouteImport.update({
 const SubmittedRoute = SubmittedRouteImport.update({
   id: '/submitted',
   path: '/submitted',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OnboardingRoute = OnboardingRouteImport.update({
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
   '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
@@ -82,6 +89,7 @@ export interface FileRoutesByTo {
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
   '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
@@ -94,6 +102,7 @@ export interface FileRoutesById {
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
   '/onboarding': typeof OnboardingRoute
+  '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/lawyer'
     | '/onboarding'
+    | '/profile'
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/lawyer'
     | '/onboarding'
+    | '/profile'
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/lawyer'
     | '/onboarding'
+    | '/profile'
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
@@ -141,6 +153,7 @@ export interface RootRouteChildren {
   IntakeRoute: typeof IntakeRoute
   LawyerRoute: typeof LawyerRoute
   OnboardingRoute: typeof OnboardingRoute
+  ProfileRoute: typeof ProfileRoute
   SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
@@ -161,6 +174,13 @@ declare module '@tanstack/react-router' {
       path: '/submitted'
       fullPath: '/submitted'
       preLoaderRoute: typeof SubmittedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/onboarding': {
@@ -221,6 +241,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntakeRoute: IntakeRoute,
   LawyerRoute: LawyerRoute,
   OnboardingRoute: OnboardingRoute,
+  ProfileRoute: ProfileRoute,
   SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
