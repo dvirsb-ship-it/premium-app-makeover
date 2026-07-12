@@ -106,7 +106,7 @@ function CaseDetail() {
                 </div>
 
                 {item.interested.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-border bg-card/60 p-8 text-center text-sm text-muted-foreground">
+                  <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
                     עדיין אין התעניינות. נעדכן אותך ברגע שעורך דין יביע עניין.
                   </div>
                 ) : (
