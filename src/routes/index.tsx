@@ -1,35 +1,21 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import {
-  AnimatePresence,
-  motion,
-  useMotionValue,
-  useSpring,
-  useTransform,
-} from "motion/react";
-import { useEffect, useState } from "react";
-import { ChevronLeft, ShieldCheck, Scale, UserRound } from "lucide-react";
+import { motion } from "motion/react";
+import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
-import { Seal } from "../components/Seal";
-import { Stagger, Rise, Pressable } from "../components/motion";
-import { useAppStore } from "../lib/store";
-import { useSettings } from "../lib/settings";
+import { GlassLogo } from "../components/GlassLogo";
+import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
+import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
-import heroColumns from "../assets/hero/hero-columns.jpg";
-import heroScales from "../assets/hero/hero-scales.jpg";
-import heroLibrary from "../assets/hero/hero-library.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-const HERO_IMAGES = [heroColumns, heroScales, heroLibrary];
-
 function Index() {
   const navigate = useNavigate();
   const { setRole } = useAppStore();
-  const { dir } = useSettings();
   const t = useT();
 
   function choose(role: Role) {
@@ -37,163 +23,63 @@ function Index() {
     navigate({ to: role === "client" ? "/onboarding" : "/lawyer" });
   }
 
-  // ---- Cross-fading background slideshow ----
-  const [active, setActive] = useState(0);
-  useEffect(() => {
-    const id = setInterval(
-      () => setActive((i) => (i + 1) % HERO_IMAGES.length),
-      4200,
-    );
-    return () => clearInterval(id);
-  }, []);
-
-  // ---- 3D pointer parallax ----
-  const px = useMotionValue(0);
-  const py = useMotionValue(0);
-  const rotateX = useSpring(useTransform(py, [-0.5, 0.5], [8, -8]), {
-    stiffness: 120,
-    damping: 18,
-  });
-  const rotateY = useSpring(useTransform(px, [-0.5, 0.5], [-10, 10]), {
-    stiffness: 120,
-    damping: 18,
-  });
-  const glareX = useTransform(px, [-0.5, 0.5], ["30%", "70%"]);
-  const glareY = useTransform(py, [-0.5, 0.5], ["25%", "75%"]);
-  const glareBg = useTransform(
-    [glareX, glareY],
-    ([x, y]: string[]) =>
-      `radial-gradient(60% 50% at ${x} ${y}, rgba(255,255,255,0.5), transparent 60%)`,
-  );
-
-  function handlePointer(e: React.PointerEvent<HTMLDivElement>) {
-    const r = e.currentTarget.getBoundingClientRect();
-    px.set((e.clientX - r.left) / r.width - 0.5);
-    py.set((e.clientY - r.top) / r.height - 0.5);
-  }
-  function resetPointer() {
-    px.set(0);
-    py.set(0);
-  }
-
   return (
-    <AppShell withNav bare>
-      {/* ============ CINEMATIC 3D HERO ============ */}
+    <AppShell withNav bare className="dark" outerClassName="bg-[#020617]">
+      {/* Cinematic gold glow from above */}
       <div
-        className="relative px-4 pt-4"
-        style={{ perspective: 1400 }}
-        onPointerMove={handlePointer}
-        onPointerLeave={resetPointer}
-      >
+        aria-hidden
+        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.14)_0%,rgba(15,23,42,0)_65%)] blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-[#020617] to-transparent"
+      />
+
+      {/* Main content */}
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-10">
+        {/* Brand block */}
         <motion.div
-          initial={{ opacity: 0, y: 24, scale: 0.96 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-          style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-          className="relative aspect-[3/4.05] w-full overflow-hidden rounded-[2.25rem] shadow-luxe"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center text-center"
         >
-          {/* Cross-fading images with slow Ken-Burns zoom */}
-          <AnimatePresence>
-            <motion.img
-              key={active}
-              src={HERO_IMAGES[active]}
-              alt=""
-              width={1024}
-              height={1280}
-              initial={{ opacity: 0, scale: 1.12 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ opacity: { duration: 1.4 }, scale: { duration: 6 } }}
-              className="absolute inset-0 size-full object-cover"
-            />
-          </AnimatePresence>
+          <GlassLogo size={120} />
 
-          {/* Navy + gold cinematic overlays */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-primary via-primary/45 to-transparent" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_-10%,color-mix(in_oklab,var(--gold)_22%,transparent),transparent_55%)]" />
+          <h1 className="mt-5 text-5xl font-black tracking-tight text-white">
+            Just
+            <span className="text-gradient-gold">Ask</span>
+          </h1>
 
-          {/* Moving glare that follows pointer */}
-          <motion.div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-60 mix-blend-soft-light"
-            style={{ background: glareBg }}
-          />
-
-          {/* Floating content lifted in 3D space */}
-          <div
-            className="absolute inset-x-0 bottom-0 flex flex-col items-center px-6 pb-9 text-center"
-            style={{ transform: "translateZ(60px)" }}
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.45, duration: 0.6 }}
+            className="mt-3 max-w-[18rem] text-lg font-light leading-snug text-blue-100/60"
           >
-            <Seal size={92} />
-            <motion.span
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.6 }}
-              className="mt-4 rounded-full border border-gold/40 bg-primary/30 px-3 py-1 text-[11px] font-semibold tracking-wide text-gold-light backdrop-blur-sm"
-            >
-              {t("heroKicker")}
-            </motion.span>
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="mt-3 text-4xl font-black leading-[1.1] tracking-tight text-primary-foreground drop-shadow-[0_2px_16px_rgba(0,0,0,0.4)]"
-            >
-              Just<span className="text-gradient-gold">Ask</span>
-            </motion.h1>
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.75, duration: 0.6 }}
-              className="mt-2 max-w-[16rem] text-sm font-light text-primary-foreground/80"
-            >
-              {t("heroHeadline")}
-            </motion.p>
-
-            {/* slideshow progress dots */}
-            <div className="mt-5 flex items-center gap-1.5">
-              {HERO_IMAGES.map((_, i) => (
-                <span
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all duration-500 ${
-                    i === active ? "w-6 bg-gold" : "w-1.5 bg-primary-foreground/40"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+            {t("heroTagline")}
+          </motion.p>
         </motion.div>
-      </div>
 
-      {/* ============ ROLE SELECTION ============ */}
-      <div className="px-5">
-        <Stagger className="mt-6 space-y-4">
-          <Rise>
-            <h2 className="px-1 pb-1 text-center text-sm font-semibold text-muted-foreground">
-              {t("howCanWeHelp")}
-            </h2>
-          </Rise>
-
+        {/* Role selection cards */}
+        <Stagger className="w-full max-w-sm space-y-4 pb-4">
           <Rise>
             <Pressable
               onClick={() => choose("client")}
-              className="w-full rounded-3xl border border-border bg-card p-5 shadow-luxe"
+              className="group relative block w-full rounded-2xl p-px"
             >
-              <div className="flex items-center gap-4">
-                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-gold/12 text-gold">
-                  <UserRound className="size-7" strokeWidth={2.2} />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/25 to-transparent" />
+              <div className="relative flex items-center gap-5 rounded-[15px] bg-[#1E293B]/80 p-5 text-right backdrop-blur-xl transition-colors group-hover:bg-[#1E293B]/95">
+                <div className="absolute inset-0 rounded-[15px] bg-gradient-to-r from-gold/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+                <span className="relative grid size-12 shrink-0 place-items-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+                  <UserRound className="size-6" strokeWidth={1.8} />
                 </span>
-                <div className="min-w-0 flex-1 text-start">
-                  <h3 className="text-lg font-bold leading-tight text-foreground">
-                    {t("clientTitle")}
+                <div className="relative min-w-0 flex-1">
+                  <h3 className="text-lg font-bold leading-tight text-white">
+                    {t("clientCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("clientSub")}
-                  </p>
+                  <p className="mt-1 text-sm text-slate-400">{t("clientCTASub")}</p>
                 </div>
-                <ChevronLeft
-                  className={`size-5 shrink-0 text-gold ${dir === "ltr" ? "rotate-180" : ""}`}
-                />
               </div>
             </Pressable>
           </Rise>
@@ -201,35 +87,31 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("lawyer")}
-              className="w-full rounded-3xl border border-border bg-card p-5 shadow-luxe"
+              className="group relative block w-full rounded-2xl p-px"
             >
-              <div className="flex items-center gap-4">
-                <span className="grid size-14 shrink-0 place-items-center rounded-2xl bg-primary/8 text-primary">
-                  <Scale className="size-7" strokeWidth={2.2} />
+              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-gold/40 to-transparent" />
+              <div className="relative flex items-center gap-5 rounded-[15px] border border-gold/20 bg-[#0F172A] p-5 text-right shadow-[0_10px_30px_-10px_rgba(212,175,55,0.3)]">
+                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold text-[#0F172A] shadow-lg shadow-gold/20">
+                  <Scale className="size-6" strokeWidth={2} />
                 </span>
-                <div className="min-w-0 flex-1 text-start">
-                  <h3 className="text-lg font-bold leading-tight text-foreground">
-                    {t("lawyerTitle")}
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-lg font-bold leading-tight text-gold">
+                    {t("lawyerCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {t("lawyerSub")}
-                  </p>
+                  <p className="mt-1 text-sm text-gold/60">{t("lawyerCTASub")}</p>
                 </div>
-                <ChevronLeft
-                  className={`size-5 shrink-0 text-muted-foreground/50 ${dir === "ltr" ? "rotate-180" : ""}`}
-                />
               </div>
             </Pressable>
           </Rise>
 
           <Rise>
-            <div className="flex items-center justify-center gap-2 pt-3 text-xs text-muted-foreground">
-              <ShieldCheck className="size-4 text-success" />
-              <span>{t("secureNote")}</span>
-            </div>
+            <p className="pt-3 text-center text-xs font-medium tracking-wider text-slate-500/80 uppercase">
+              {t("trustBadge")}
+            </p>
           </Rise>
         </Stagger>
       </div>
+
       <BottomNav />
     </AppShell>
   );
