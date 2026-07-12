@@ -118,13 +118,9 @@ function Intake() {
                 }
               >
                 {m.from === "assistant" && (
-                  <img
-                    src={sealUrl}
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="size-7 shrink-0 rounded-full"
-                  />
+                  <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full">
+                    <Scale className="size-4" strokeWidth={2} />
+                  </span>
                 )}
                 <div
                   className={
