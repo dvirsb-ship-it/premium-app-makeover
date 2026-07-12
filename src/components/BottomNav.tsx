@@ -25,7 +25,7 @@ export function BottomNav() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-5 pb-4">
-      <nav className="flex w-full max-w-md items-center justify-around rounded-3xl border border-border/60 bg-card/80 px-2 py-2 shadow-luxe backdrop-blur-xl">
+      <nav className="liquid-glass flex w-full max-w-md items-center justify-around rounded-[26px] px-2 py-2">
         {tabs.map((tab) => {
           const active =
             tab.to === "/"
@@ -41,21 +41,21 @@ export function BottomNav() {
               {active && (
                 <motion.span
                   layoutId="nav-active"
-                  className="absolute inset-0 rounded-2xl bg-primary"
+                  className="absolute inset-0 rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] shadow-lg shadow-gold/25"
                   transition={{ type: "spring", stiffness: 380, damping: 30 }}
                 />
               )}
               <Icon
                 className={cn(
                   "relative z-10 size-5 transition-colors",
-                  active ? "text-gold" : "text-muted-foreground",
+                  active ? "text-[#0F172A]" : "text-blue-100/60",
                 )}
                 strokeWidth={active ? 2.4 : 2}
               />
               <span
                 className={cn(
                   "relative z-10 text-[11px] font-semibold transition-colors",
-                  active ? "text-primary-foreground" : "text-muted-foreground",
+                  active ? "text-[#0F172A]" : "text-blue-100/60",
                 )}
               >
                 {t(tab.key)}
