@@ -5,6 +5,7 @@ import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { BrandMark } from "../components/BrandMark";
 import { HeroVideo } from "../components/HeroVideo";
+import { HeroPhone } from "../components/HeroPhone";
 import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
