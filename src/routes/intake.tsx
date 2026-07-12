@@ -1,10 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { SendHorizonal, ShieldCheck } from "lucide-react";
+import { Scale, SendHorizonal, ShieldCheck } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
-import sealUrl from "../assets/justask-seal.png";
 import type { ChatMessage } from "../lib/types";
 
 export const Route = createFileRoute("/intake")({
