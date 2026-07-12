@@ -24,12 +24,8 @@ function Index() {
   }
 
   return (
-    <AppShell withNav bare className="dark">
-      {/* Cinematic dark canvas — always dark on the landing page */}
-      <div
-        aria-hidden
-        className="absolute inset-0 -z-10 bg-[#020617]"
-      />
+    <AppShell withNav bare className="dark" outerClassName="bg-[#020617]">
+      {/* Cinematic gold glow from above */}
       <div
         aria-hidden
         className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.14)_0%,rgba(15,23,42,0)_65%)] blur-3xl"
