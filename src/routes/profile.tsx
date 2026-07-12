@@ -174,18 +174,18 @@ function Profile() {
           </Rise>
 
           <Rise>
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-luxe">
+            <div className="liquid-glass overflow-hidden rounded-3xl">
               {items.map((it, i) => {
                 const Icon = it.icon;
                 return (
                   <button
                     key={it.key}
                     type="button"
-                    className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-muted ${
-                      i !== items.length - 1 ? "border-b border-border/60" : ""
+                    className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-white/5 ${
+                      i !== items.length - 1 ? "border-b border-white/10" : ""
                     }`}
                   >
-                    <span className="grid size-10 place-items-center rounded-xl bg-muted text-foreground">
+                    <span className="grid size-10 place-items-center rounded-xl bg-white/10 text-foreground">
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1 text-sm font-semibold text-foreground">
