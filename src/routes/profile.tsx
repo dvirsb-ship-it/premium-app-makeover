@@ -119,7 +119,7 @@ function Profile() {
                     {t("languageSub")}
                   </p>
                 </div>
-                <div className="relative flex shrink-0 rounded-xl bg-muted p-1">
+                <div className="relative flex shrink-0 rounded-xl bg-white/10 p-1">
                   {(["he", "en"] as const).map((l) => (
                     <button
                       key={l}
