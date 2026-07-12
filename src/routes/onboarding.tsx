@@ -51,8 +51,8 @@ function Onboarding() {
                 const Icon = t.icon;
                 return (
                   <Rise key={t.text}>
-                    <div className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 shadow-luxe">
-                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold/12 text-gold">
+                    <div className="liquid-glass flex items-start gap-3 rounded-2xl p-4">
+                      <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold">
                         <Icon className="size-5" />
                       </span>
                       <p className="pt-1 text-sm leading-relaxed text-foreground">
