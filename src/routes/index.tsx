@@ -33,12 +33,6 @@ function Index() {
       <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
         {/* Centered brand lockup in the studio spotlight */}
         <div className="relative flex flex-1 flex-col items-center justify-center text-center">
-          {/* legibility halo behind the wordmark */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-[140%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_30%,transparent_85%)] opacity-90"
-          />
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
