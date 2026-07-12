@@ -46,8 +46,8 @@ function Profile() {
 
         <Stagger className="space-y-4">
           <Rise>
-            <div className="flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-luxe">
-              <span className="grid size-14 place-items-center rounded-2xl bg-primary text-lg font-black text-gold">
+            <div className="liquid-glass flex items-center gap-4 rounded-3xl p-5">
+              <span className="chip-gold grid size-14 place-items-center rounded-2xl text-lg font-black">
                 {role === "lawyer" ? t("lawyerBadge") : t("meBadge")}
               </span>
               <div className="min-w-0 flex-1 text-start">
