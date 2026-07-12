@@ -99,7 +99,7 @@ function Profile() {
                   <motion.span
                     layout
                     transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                    className={`absolute top-1 size-5 rounded-full bg-card shadow-md ${
+                    className={`absolute top-1 size-5 rounded-full bg-white shadow-md ${
                       theme === "dark" ? "start-6" : "start-1"
                     }`}
                   />
