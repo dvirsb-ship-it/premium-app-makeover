@@ -37,7 +37,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
       <AnimatePresence mode="sync">
         <motion.video
           key={active}
-          className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-110 object-cover blur-[3px]"
+          className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
           poster={clips[active].poster}
           autoPlay
@@ -51,10 +51,8 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           transition={{ duration: 1.6, ease: "easeInOut" }}
         />
       </AnimatePresence>
-      {/* Studio corner falloff — vignette to seat the phone in the dark set */}
-      <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_45%,transparent_35%,rgba(2,4,8,0.82)_100%)]" />
-      {/* Light-mode wash so the dark clip reads against a bright UI */}
-      <div className="absolute inset-0 bg-background/65 dark:bg-background/25" />
+      {/* Subtle dark vignette to keep the edges cinematic without hiding the video */}
+      <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_45%,transparent_45%,rgba(2,4,8,0.55)_100%)]" />
     </motion.div>
   );
 }

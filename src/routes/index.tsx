@@ -33,12 +33,6 @@ function Index() {
       <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
         {/* Centered brand lockup in the studio spotlight */}
         <div className="relative flex flex-1 flex-col items-center justify-center text-center">
-          {/* legibility halo behind the wordmark */}
-          <div
-            aria-hidden
-            className="pointer-events-none absolute left-1/2 top-1/2 -z-10 h-72 w-[140%] -translate-x-1/2 -translate-y-1/2 bg-[radial-gradient(closest-side,var(--background)_30%,transparent_85%)] opacity-90"
-          />
-
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -47,7 +41,7 @@ function Index() {
           >
             <BrandMark size={84} />
 
-            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-foreground drop-shadow-[0_4px_24px_rgba(0,0,0,0.25)]">
+            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.55)]">
               Just<span className="text-gradient-gold">Ask</span>
             </h1>
 
@@ -55,7 +49,7 @@ function Index() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.45, duration: 0.6 }}
-              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-muted-foreground"
+              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)]"
             >
               {t("heroTagline")}
             </motion.p>
