@@ -142,14 +142,10 @@ function Intake() {
                 exit={{ opacity: 0 }}
                 className="flex items-end gap-2"
               >
-                <img
-                  src={sealUrl}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="size-7 shrink-0 rounded-full"
-                />
-                <div className="flex gap-1 rounded-2xl rounded-br-md border border-border bg-card px-4 py-4 shadow-luxe">
+                <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full">
+                  <Scale className="size-4" strokeWidth={2} />
+                </span>
+                <div className="liquid-glass flex gap-1 rounded-2xl rounded-br-md px-4 py-4">
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
