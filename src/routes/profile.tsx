@@ -161,7 +161,7 @@ function Profile() {
                 setRole(null);
                 navigate({ to: "/" });
               }}
-              className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-4 text-start shadow-luxe transition active:scale-[0.99]"
+              className="liquid-glass flex w-full items-center gap-3 rounded-3xl p-4 text-start transition active:scale-[0.99]"
             >
               <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold">
                 <Repeat className="size-5" />
