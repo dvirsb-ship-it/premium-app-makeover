@@ -16,6 +16,7 @@ import { Route as LawyerRouteImport } from './routes/lawyer'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
 
 const ValidatingRoute = ValidatingRouteImport.update({
@@ -53,6 +54,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LawyerCaseCaseIdRoute = LawyerCaseCaseIdRouteImport.update({
+  id: '/lawyer-case/$caseId',
+  path: '/lawyer-case/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
   id: '/case/$caseId',
   path: '/case/$caseId',
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
+    | '/lawyer-case/$caseId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
+    | '/lawyer-case/$caseId'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/case/$caseId'
+    | '/lawyer-case/$caseId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
+  LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -185,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/lawyer-case/$caseId': {
+      id: '/lawyer-case/$caseId'
+      path: '/lawyer-case/$caseId'
+      fullPath: '/lawyer-case/$caseId'
+      preLoaderRoute: typeof LawyerCaseCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/case/$caseId': {
       id: '/case/$caseId'
       path: '/case/$caseId'
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
+  LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
