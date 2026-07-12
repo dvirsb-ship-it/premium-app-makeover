@@ -40,11 +40,11 @@ function LawyerCaseDetail() {
 
         <div className="flex-1 px-5 pt-6">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-bold text-primary">
+            <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
               {item.category}
             </span>
             {item.urgency === "דחוף" && (
-              <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive">
+              <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
                 דחוף
               </span>
             )}
