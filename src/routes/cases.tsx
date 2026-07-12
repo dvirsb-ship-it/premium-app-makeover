@@ -58,7 +58,7 @@ function Cases() {
                     onClick={() =>
                       navigate({ to: "/case/$caseId", params: { caseId: c.id } })
                     }
-                    className="w-full rounded-3xl border border-border bg-card p-5 shadow-luxe"
+                    className="liquid-glass w-full rounded-3xl p-5"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span
