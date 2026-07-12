@@ -44,7 +44,7 @@ function CaseDetail() {
 
         <div className="px-5 pt-6">
           {/* Summary card */}
-          <div className="rounded-3xl border border-border bg-card p-5 shadow-luxe">
+          <div className="liquid-glass rounded-3xl p-5">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[meta.tone]}`}
             >
