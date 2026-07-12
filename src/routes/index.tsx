@@ -27,12 +27,12 @@ function Index() {
 
   return (
     <AppShell withNav bare outerClassName="studio-stage">
-      {/* Cinematic studio product clip — floating 3D iPhone backdrop */}
+      {/* Cinematic studio backdrop — two clips cross-fading behind the phone */}
       <HeroVideo className="z-0" />
 
       {/* Foreground content */}
       <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
-        {/* Centered brand lockup */}
+        {/* Centered brand lockup + floating 3D iPhone showing the real app */}
         <div className="relative flex flex-1 flex-col items-center justify-start text-center">
           {/* legibility halo behind the wordmark */}
           <div
@@ -61,7 +61,11 @@ function Index() {
               {t("heroTagline")}
             </motion.p>
           </motion.div>
+
+          {/* The 3D iPhone with real app screens, floating in the studio */}
+          <HeroPhone className="mt-8 w-full max-w-[220px] scale-90" />
         </div>
+
 
         {/* Role selection cards — liquid glass */}
         <Stagger className="w-full max-w-sm space-y-4 self-center pb-4">
