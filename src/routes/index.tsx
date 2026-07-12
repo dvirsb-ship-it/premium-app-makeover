@@ -25,7 +25,7 @@ function Index() {
   }
 
   return (
-    <AppShell withNav bare className="dark" outerClassName="bg-[#050915]">
+    <AppShell withNav bare className="dark" outerClassName="bg-[#050915] overflow-hidden">
       {/* Cinematic blurred photographic backdrop */}
       <div
         aria-hidden
