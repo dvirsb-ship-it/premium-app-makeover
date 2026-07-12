@@ -3,11 +3,12 @@ import { motion } from "motion/react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
-import { GlassLogo } from "../components/GlassLogo";
+import { BrandMark } from "../components/BrandMark";
 import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
+import heroBg from "../assets/hero/hero-columns.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -24,19 +25,29 @@ function Index() {
   }
 
   return (
-    <AppShell withNav bare className="dark" outerClassName="bg-[#020617]">
-      {/* Cinematic gold glow from above */}
+    <AppShell withNav bare className="dark" outerClassName="bg-[#050915]">
+      {/* Cinematic blurred photographic backdrop */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.14)_0%,rgba(15,23,42,0)_65%)] blur-3xl"
+        className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center opacity-40"
+        style={{ backgroundImage: `url(${heroBg})`, filter: "blur(14px) saturate(120%)", transform: "scale(1.15)" }}
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-[#020617] to-transparent"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[#050915]/70"
+      />
+      {/* Gold glow from above */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.16)_0%,rgba(5,9,21,0)_65%)] blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-[#050915] to-transparent"
       />
 
       {/* Main content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-10">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-12">
         {/* Brand block */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -44,9 +55,9 @@ function Index() {
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="flex flex-col items-center text-center"
         >
-          <GlassLogo size={120} />
+          <BrandMark size={96} />
 
-          <h1 className="mt-5 text-5xl font-black tracking-tight text-white">
+          <h1 className="mt-6 text-5xl font-black tracking-tight text-white">
             Just
             <span className="text-gradient-gold">Ask</span>
           </h1>
@@ -61,24 +72,22 @@ function Index() {
           </motion.p>
         </motion.div>
 
-        {/* Role selection cards */}
+        {/* Role selection cards — liquid glass */}
         <Stagger className="w-full max-w-sm space-y-4 pb-4">
           <Rise>
             <Pressable
               onClick={() => choose("client")}
-              className="group relative block w-full rounded-2xl p-px"
+              className="liquid-glass group block w-full rounded-[26px] p-5 text-right"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-white/25 to-transparent" />
-              <div className="relative flex items-center gap-5 rounded-[15px] bg-[#1E293B]/80 p-5 text-right backdrop-blur-xl transition-colors group-hover:bg-[#1E293B]/95">
-                <div className="absolute inset-0 rounded-[15px] bg-gradient-to-r from-gold/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                <span className="relative grid size-12 shrink-0 place-items-center rounded-xl border border-gold/20 bg-gold/10 text-gold">
+              <div className="relative flex items-center gap-5">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-white/15 bg-white/10 text-white">
                   <UserRound className="size-6" strokeWidth={1.8} />
                 </span>
-                <div className="relative min-w-0 flex-1">
+                <div className="min-w-0 flex-1">
                   <h3 className="text-lg font-bold leading-tight text-white">
                     {t("clientCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-slate-400">{t("clientCTASub")}</p>
+                  <p className="mt-1 text-sm text-blue-100/60">{t("clientCTASub")}</p>
                 </div>
               </div>
             </Pressable>
@@ -87,11 +96,10 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("lawyer")}
-              className="group relative block w-full rounded-2xl p-px"
+              className="liquid-glass-selected group block w-full rounded-[26px] p-5 text-right"
             >
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-b from-gold/40 to-transparent" />
-              <div className="relative flex items-center gap-5 rounded-[15px] border border-gold/20 bg-[#0F172A] p-5 text-right shadow-[0_10px_30px_-10px_rgba(212,175,55,0.3)]">
-                <span className="grid size-12 shrink-0 place-items-center rounded-xl bg-gold text-[#0F172A] shadow-lg shadow-gold/20">
+              <div className="relative flex items-center gap-5">
+                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
                   <Scale className="size-6" strokeWidth={2} />
                 </span>
                 <div className="min-w-0 flex-1">
@@ -105,7 +113,7 @@ function Index() {
           </Rise>
 
           <Rise>
-            <p className="pt-3 text-center text-xs font-medium tracking-wider text-slate-500/80 uppercase">
+            <p className="pt-3 text-center text-xs font-medium uppercase tracking-wider text-slate-400/80">
               {t("trustBadge")}
             </p>
           </Rise>
