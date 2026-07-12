@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { Seal } from "../components/Seal";
+import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
 import { LAWYERS } from "../lib/store";
 import type { Case } from "../lib/types";
