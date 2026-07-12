@@ -67,8 +67,8 @@ function CaseDetail() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6"
               >
-                <div className="rounded-3xl border border-success/30 bg-success/8 p-5 text-center">
-                  <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-success-foreground">
+                <div className="liquid-glass rounded-3xl p-5 text-center">
+                  <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-success-foreground shadow-lg shadow-success/30">
                     <Check className="size-6" strokeWidth={3} />
                   </span>
                   <h3 className="mt-3 text-base font-bold text-foreground">
@@ -78,11 +78,11 @@ function CaseDetail() {
                     עורך הדין יצור איתך קשר בהקדם. אפשר גם לפנות ישירות:
                   </p>
                   <div className="mt-4 flex gap-3">
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground">
-                      <MessageCircle className="size-4 text-gold" />
+                    <button className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold">
+                      <MessageCircle className="size-4" />
                       הודעה
                     </button>
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-bold text-foreground">
+                    <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
                       <Phone className="size-4 text-gold" />
                       התקשרות
                     </button>
