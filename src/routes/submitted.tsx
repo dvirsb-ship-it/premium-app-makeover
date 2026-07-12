@@ -38,14 +38,14 @@ function Submitted() {
             initial={{ scale: 0, rotate: -30 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: "spring", stiffness: 200, damping: 14 }}
-            className="grid size-24 place-items-center rounded-full bg-primary shadow-gold"
+            className="grid size-24 place-items-center rounded-full bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] shadow-[0_20px_50px_-12px_rgba(212,175,55,0.6)]"
           >
             <motion.span
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.25, type: "spring", stiffness: 400 }}
             >
-              <Check className="size-12 text-gold" strokeWidth={2.6} />
+              <Check className="size-12 text-[#0F172A]" strokeWidth={2.6} />
             </motion.span>
           </motion.div>
         </div>
