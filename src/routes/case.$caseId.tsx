@@ -138,9 +138,9 @@ function LawyerChoiceCard({
   onChoose: () => void;
 }) {
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-luxe">
+    <div className="liquid-glass rounded-3xl p-5">
       <div className="flex items-start gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-sm font-black text-gold">
+        <span className="chip-gold grid size-12 shrink-0 place-items-center rounded-2xl text-sm font-black">
           {lawyer.initials}
         </span>
         <div className="min-w-0 flex-1">
