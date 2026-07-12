@@ -2,8 +2,9 @@ import type { ReactNode } from "react";
 import { cn } from "../lib/utils";
 
 /**
- * Mobile-first app canvas. Every screen sits on a shared cinematic dark
- * backdrop so the liquid-glass surfaces read consistently across the app.
+ * Mobile-first app canvas. Follows the global theme (light "studio white" or
+ * the cinematic dark theme) via design tokens so every screen has a matching
+ * white and dark version.
  */
 export function AppShell({
   children,
@@ -21,19 +22,19 @@ export function AppShell({
   return (
     <div
       className={cn(
-        "dark relative min-h-screen w-full overflow-hidden bg-[#050915] text-foreground",
+        "relative min-h-screen w-full overflow-hidden bg-background text-foreground",
         outerClassName,
       )}
     >
-      {/* cinematic gold aura from above */}
+      {/* soft gold aura from above */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.14),transparent_60%)]"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.12),transparent_60%)]"
       />
-      {/* cool blue depth from below */}
+      {/* cool depth from below */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(110%_70%_at_50%_120%,rgba(56,89,168,0.16),transparent_55%)]"
+        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(110%_70%_at_50%_120%,rgba(56,89,168,0.12),transparent_55%)]"
       />
       <div
         className={cn(
