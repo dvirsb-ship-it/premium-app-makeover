@@ -66,7 +66,7 @@ function Validating() {
   return (
     <AppShell className="items-center justify-center">
       <div className="flex min-h-screen w-full flex-col items-center justify-center py-16">
-        <Seal size={96} />
+        <BrandMark size={96} />
 
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
