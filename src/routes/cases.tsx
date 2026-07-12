@@ -26,7 +26,7 @@ function Cases() {
           </div>
           <Link
             to="/onboarding"
-            className="grid size-11 place-items-center rounded-2xl bg-primary text-gold shadow-luxe transition active:scale-95"
+            className="chip-gold grid size-11 place-items-center rounded-2xl transition active:scale-95"
             aria-label="מקרה חדש"
           >
             <Plus className="size-5" />
