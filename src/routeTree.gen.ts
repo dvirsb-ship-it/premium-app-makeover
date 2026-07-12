@@ -9,10 +9,16 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ValidatingRouteImport } from './routes/validating'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as IndexRouteImport } from './routes/index'
 
+const ValidatingRoute = ValidatingRouteImport.update({
+  id: '/validating',
+  path: '/validating',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
@@ -33,34 +39,45 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/validating': typeof ValidatingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/validating': typeof ValidatingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/intake': typeof IntakeRoute
   '/onboarding': typeof OnboardingRoute
+  '/validating': typeof ValidatingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/intake' | '/onboarding'
+  fullPaths: '/' | '/intake' | '/onboarding' | '/validating'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/intake' | '/onboarding'
-  id: '__root__' | '/' | '/intake' | '/onboarding'
+  to: '/' | '/intake' | '/onboarding' | '/validating'
+  id: '__root__' | '/' | '/intake' | '/onboarding' | '/validating'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   IntakeRoute: typeof IntakeRoute
   OnboardingRoute: typeof OnboardingRoute
+  ValidatingRoute: typeof ValidatingRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/validating': {
+      id: '/validating'
+      path: '/validating'
+      fullPath: '/validating'
+      preLoaderRoute: typeof ValidatingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/onboarding': {
       id: '/onboarding'
       path: '/onboarding'
@@ -89,6 +106,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   IntakeRoute: IntakeRoute,
   OnboardingRoute: OnboardingRoute,
+  ValidatingRoute: ValidatingRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
