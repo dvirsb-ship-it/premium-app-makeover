@@ -46,8 +46,8 @@ function Profile() {
 
         <Stagger className="space-y-4">
           <Rise>
-            <div className="flex items-center gap-4 rounded-3xl border border-border bg-card p-5 shadow-luxe">
-              <span className="grid size-14 place-items-center rounded-2xl bg-primary text-lg font-black text-gold">
+            <div className="liquid-glass flex items-center gap-4 rounded-3xl p-5">
+              <span className="chip-gold grid size-14 place-items-center rounded-2xl text-lg font-black">
                 {role === "lawyer" ? t("lawyerBadge") : t("meBadge")}
               </span>
               <div className="min-w-0 flex-1 text-start">
@@ -65,14 +65,14 @@ function Profile() {
 
           {/* ===== Settings card ===== */}
           <Rise>
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-luxe">
+            <div className="liquid-glass overflow-hidden rounded-3xl">
               <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                 {t("settings")}
               </p>
 
               {/* Dark mode toggle */}
-              <div className="flex items-center gap-3 border-b border-border/60 p-4">
-                <span className="grid size-10 place-items-center rounded-xl bg-primary/8 text-primary">
+              <div className="flex items-center gap-3 border-b border-white/10 p-4">
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
                   {theme === "dark" ? (
                     <Moon className="size-5" />
                   ) : (
@@ -99,7 +99,7 @@ function Profile() {
                   <motion.span
                     layout
                     transition={{ type: "spring", stiffness: 500, damping: 32 }}
-                    className={`absolute top-1 size-5 rounded-full bg-card shadow-md ${
+                    className={`absolute top-1 size-5 rounded-full bg-white shadow-md ${
                       theme === "dark" ? "start-6" : "start-1"
                     }`}
                   />
@@ -119,7 +119,7 @@ function Profile() {
                     {t("languageSub")}
                   </p>
                 </div>
-                <div className="relative flex shrink-0 rounded-xl bg-muted p-1">
+                <div className="relative flex shrink-0 rounded-xl bg-white/10 p-1">
                   {(["he", "en"] as const).map((l) => (
                     <button
                       key={l}
@@ -135,7 +135,7 @@ function Profile() {
                             stiffness: 500,
                             damping: 34,
                           }}
-                          className="absolute inset-0 rounded-lg bg-card shadow-sm"
+                          className="absolute inset-0 rounded-lg bg-white/20 shadow-sm"
                         />
                       )}
                       <span
@@ -161,7 +161,7 @@ function Profile() {
                 setRole(null);
                 navigate({ to: "/" });
               }}
-              className="flex w-full items-center gap-3 rounded-3xl border border-border bg-card p-4 text-start shadow-luxe transition active:scale-[0.99]"
+              className="liquid-glass flex w-full items-center gap-3 rounded-3xl p-4 text-start transition active:scale-[0.99]"
             >
               <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold">
                 <Repeat className="size-5" />
@@ -174,18 +174,18 @@ function Profile() {
           </Rise>
 
           <Rise>
-            <div className="overflow-hidden rounded-3xl border border-border bg-card shadow-luxe">
+            <div className="liquid-glass overflow-hidden rounded-3xl">
               {items.map((it, i) => {
                 const Icon = it.icon;
                 return (
                   <button
                     key={it.key}
                     type="button"
-                    className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-muted ${
-                      i !== items.length - 1 ? "border-b border-border/60" : ""
+                    className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-white/5 ${
+                      i !== items.length - 1 ? "border-b border-white/10" : ""
                     }`}
                   >
-                    <span className="grid size-10 place-items-center rounded-xl bg-muted text-foreground">
+                    <span className="grid size-10 place-items-center rounded-xl bg-white/10 text-foreground">
                       <Icon className="size-5" />
                     </span>
                     <span className="flex-1 text-sm font-semibold text-foreground">
@@ -207,7 +207,7 @@ function Profile() {
                 setRole(null);
                 navigate({ to: "/" });
               }}
-              className="flex w-full items-center justify-center gap-2 rounded-3xl border border-border bg-card p-4 text-sm font-bold text-destructive shadow-luxe transition active:scale-[0.99]"
+              className="liquid-glass flex w-full items-center justify-center gap-2 rounded-3xl p-4 text-sm font-bold text-destructive transition active:scale-[0.99]"
             >
               <LogOut className="size-5" />
               {t("logout")}

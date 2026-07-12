@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Check, Loader2 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { Seal } from "../components/Seal";
+import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
 import { LAWYERS } from "../lib/store";
 import type { Case } from "../lib/types";
@@ -66,7 +66,7 @@ function Validating() {
   return (
     <AppShell className="items-center justify-center">
       <div className="flex min-h-screen w-full flex-col items-center justify-center py-16">
-        <Seal size={96} />
+        <BrandMark size={96} />
 
         <motion.h1
           initial={{ opacity: 0, y: 12 }}
@@ -101,7 +101,7 @@ function Validating() {
                   x: 0,
                 }}
                 transition={{ delay: 0.1 * i }}
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-luxe"
+                className="liquid-glass flex items-center gap-3 rounded-2xl px-4 py-3"
               >
                 <span className="relative grid size-6 shrink-0 place-items-center">
                   <AnimatePresence mode="wait">

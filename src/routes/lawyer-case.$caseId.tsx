@@ -24,7 +24,7 @@ function LawyerCaseDetail() {
           <p className="text-muted-foreground">הפנייה המבוקשת אינה קיימת.</p>
           <Link
             to="/lawyer"
-            className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+            className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
           >
             לרשימת הפניות
           </Link>
@@ -40,11 +40,11 @@ function LawyerCaseDetail() {
 
         <div className="flex-1 px-5 pt-6">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-primary/8 px-2.5 py-1 text-[11px] font-bold text-primary">
+            <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
               {item.category}
             </span>
             {item.urgency === "דחוף" && (
-              <span className="rounded-full bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive">
+              <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
                 דחוף
               </span>
             )}
@@ -66,7 +66,7 @@ function LawyerCaseDetail() {
             <span>{item.postedAgo}</span>
           </div>
 
-          <div className="mt-6 rounded-3xl border border-border bg-card p-5 shadow-luxe">
+          <div className="liquid-glass mt-6 rounded-3xl p-5">
             <h3 className="text-sm font-bold text-foreground">תיאור המקרה</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
               {item.summary}
@@ -106,7 +106,7 @@ function LawyerCaseDetail() {
                   expressInterest(item.id);
                   window.setTimeout(() => router.history.back(), 900);
                 }}
-                className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-gold"
+                className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
                 אני מעוניין/ת בתיק זה
               </motion.button>

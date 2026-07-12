@@ -25,7 +25,7 @@ function CaseDetail() {
           <p className="text-muted-foreground">התיק המבוקש אינו קיים.</p>
           <Link
             to="/cases"
-            className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+            className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
           >
             לתיקים שלי
           </Link>
@@ -44,7 +44,7 @@ function CaseDetail() {
 
         <div className="px-5 pt-6">
           {/* Summary card */}
-          <div className="rounded-3xl border border-border bg-card p-5 shadow-luxe">
+          <div className="liquid-glass rounded-3xl p-5">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[meta.tone]}`}
             >
@@ -67,8 +67,8 @@ function CaseDetail() {
                 animate={{ opacity: 1, y: 0 }}
                 className="mt-6"
               >
-                <div className="rounded-3xl border border-success/30 bg-success/8 p-5 text-center">
-                  <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-success-foreground">
+                <div className="liquid-glass rounded-3xl p-5 text-center">
+                  <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-success-foreground shadow-lg shadow-success/30">
                     <Check className="size-6" strokeWidth={3} />
                   </span>
                   <h3 className="mt-3 text-base font-bold text-foreground">
@@ -78,11 +78,11 @@ function CaseDetail() {
                     עורך הדין יצור איתך קשר בהקדם. אפשר גם לפנות ישירות:
                   </p>
                   <div className="mt-4 flex gap-3">
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground">
-                      <MessageCircle className="size-4 text-gold" />
+                    <button className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold">
+                      <MessageCircle className="size-4" />
                       הודעה
                     </button>
-                    <button className="flex flex-1 items-center justify-center gap-2 rounded-2xl border border-border bg-card py-3 text-sm font-bold text-foreground">
+                    <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
                       <Phone className="size-4 text-gold" />
                       התקשרות
                     </button>
@@ -106,7 +106,7 @@ function CaseDetail() {
                 </div>
 
                 {item.interested.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-border bg-card/60 p-8 text-center text-sm text-muted-foreground">
+                  <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
                     עדיין אין התעניינות. נעדכן אותך ברגע שעורך דין יביע עניין.
                   </div>
                 ) : (
@@ -138,9 +138,9 @@ function LawyerChoiceCard({
   onChoose: () => void;
 }) {
   return (
-    <div className="rounded-3xl border border-border bg-card p-5 shadow-luxe">
+    <div className="liquid-glass rounded-3xl p-5">
       <div className="flex items-start gap-3">
-        <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-primary text-sm font-black text-gold">
+        <span className="chip-gold grid size-12 shrink-0 place-items-center rounded-2xl text-sm font-black">
           {lawyer.initials}
         </span>
         <div className="min-w-0 flex-1">
@@ -166,7 +166,7 @@ function LawyerChoiceCard({
         type="button"
         whileTap={{ scale: 0.98 }}
         onClick={onChoose}
-        className="mt-4 w-full rounded-2xl bg-primary py-3 text-sm font-bold text-primary-foreground shadow-luxe"
+        className="btn-gold mt-4 w-full rounded-2xl py-3 text-sm font-bold"
       >
         בחירת עורך דין זה
       </motion.button>

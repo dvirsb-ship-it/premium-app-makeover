@@ -1,10 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { SendHorizonal, ShieldCheck } from "lucide-react";
+import { Scale, SendHorizonal, ShieldCheck } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
-import sealUrl from "../assets/justask-seal.png";
 import type { ChatMessage } from "../lib/types";
 
 export const Route = createFileRoute("/intake")({
@@ -119,19 +118,15 @@ function Intake() {
                 }
               >
                 {m.from === "assistant" && (
-                  <img
-                    src={sealUrl}
-                    alt=""
-                    width={28}
-                    height={28}
-                    className="size-7 shrink-0 rounded-full"
-                  />
+                  <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full">
+                    <Scale className="size-4" strokeWidth={2} />
+                  </span>
                 )}
                 <div
                   className={
                     m.from === "assistant"
-                      ? "max-w-[80%] rounded-2xl rounded-br-md border border-border bg-card px-4 py-3 text-sm leading-relaxed text-foreground shadow-luxe"
-                      : "ms-auto max-w-[80%] rounded-2xl rounded-bl-md bg-primary px-4 py-3 text-sm leading-relaxed text-primary-foreground shadow-luxe"
+                      ? "liquid-glass max-w-[80%] rounded-2xl rounded-br-md px-4 py-3 text-sm leading-relaxed text-foreground"
+                      : "ms-auto max-w-[80%] rounded-2xl rounded-bl-md bg-gradient-to-b from-gold to-[#B8912B] px-4 py-3 text-sm leading-relaxed text-[#0F172A] shadow-lg shadow-gold/25"
                   }
                 >
                   {m.text}
@@ -147,14 +142,10 @@ function Intake() {
                 exit={{ opacity: 0 }}
                 className="flex items-end gap-2"
               >
-                <img
-                  src={sealUrl}
-                  alt=""
-                  width={28}
-                  height={28}
-                  className="size-7 shrink-0 rounded-full"
-                />
-                <div className="flex gap-1 rounded-2xl rounded-br-md border border-border bg-card px-4 py-4 shadow-luxe">
+                <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full">
+                  <Scale className="size-4" strokeWidth={2} />
+                </span>
+                <div className="liquid-glass flex gap-1 rounded-2xl rounded-br-md px-4 py-4">
                   {[0, 1, 2].map((i) => (
                     <motion.span
                       key={i}
@@ -174,7 +165,7 @@ function Intake() {
         </div>
 
         {/* Composer / submit */}
-        <div className="sticky bottom-0 border-t border-border/60 bg-background/90 px-5 py-4 backdrop-blur-xl">
+        <div className="sticky bottom-0 border-t border-white/10 bg-[#050915]/80 px-5 py-4 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {ready ? (
               <motion.button
@@ -184,7 +175,7 @@ function Intake() {
                 animate={{ opacity: 1, y: 0 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={submit}
-                className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-gold"
+                className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
                 שליחה לבדיקת התאמה
               </motion.button>
@@ -193,21 +184,21 @@ function Intake() {
                 key="composer"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center gap-2 rounded-2xl border border-border bg-card p-2 shadow-luxe"
+                className="liquid-glass flex items-center gap-2 rounded-2xl p-2"
               >
                 <input
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && send()}
                   placeholder="כתוב/י כאן…"
-                  className="flex-1 bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground"
+                  className="flex-1 bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
                 />
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.9 }}
                   onClick={send}
                   disabled={!input.trim()}
-                  className="grid size-10 shrink-0 place-items-center rounded-xl bg-primary text-gold transition disabled:opacity-40"
+                  className="chip-gold grid size-10 shrink-0 place-items-center rounded-xl transition disabled:opacity-40"
                   aria-label="שליחה"
                 >
                   <SendHorizonal className="size-5 -scale-x-100" />
