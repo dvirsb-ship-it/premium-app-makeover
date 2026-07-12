@@ -25,7 +25,7 @@ function CaseDetail() {
           <p className="text-muted-foreground">התיק המבוקש אינו קיים.</p>
           <Link
             to="/cases"
-            className="rounded-2xl bg-primary px-6 py-3 text-sm font-bold text-primary-foreground"
+            className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
           >
             לתיקים שלי
           </Link>
