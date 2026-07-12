@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
@@ -8,16 +9,29 @@ import { Pressable, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
-import heroBg from "../assets/hero/hero-columns.jpg";
+import heroColumns from "../assets/hero/hero-columns.jpg";
+import heroLibrary from "../assets/hero/hero-library.jpg";
+import heroScales from "../assets/hero/hero-scales.jpg";
 
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
+const heroImages = [heroScales, heroColumns, heroLibrary];
+
 function Index() {
   const navigate = useNavigate();
   const { setRole } = useAppStore();
   const t = useT();
+  const [slide, setSlide] = useState(0);
+
+  useEffect(() => {
+    const id = window.setInterval(
+      () => setSlide((s) => (s + 1) % heroImages.length),
+      4500,
+    );
+    return () => window.clearInterval(id);
+  }, []);
 
   function choose(role: Role) {
     setRole(role);
@@ -25,29 +39,33 @@ function Index() {
   }
 
   return (
-    <AppShell withNav bare className="dark" outerClassName="bg-[#050915] overflow-hidden">
-      {/* Cinematic blurred photographic backdrop */}
+    <AppShell withNav bare outerClassName="bg-[#050915]">
+      {/* Cross-fading cinematic hero imagery */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
+        <AnimatePresence mode="sync">
+          <motion.div
+            key={slide}
+            initial={{ opacity: 0, scale: 1.18 }}
+            animate={{ opacity: 1, scale: 1.05 }}
+            exit={{ opacity: 0, scale: 1.02 }}
+            transition={{ opacity: { duration: 1.6 }, scale: { duration: 5 } }}
+            className="absolute inset-0 bg-cover bg-center"
+            style={{ backgroundImage: `url(${heroImages[slide]})` }}
+          />
+        </AnimatePresence>
+      </div>
+      {/* darkening + color grade over the imagery */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-20 bg-cover bg-center opacity-40"
-        style={{ backgroundImage: `url(${heroBg})`, filter: "blur(14px) saturate(120%)", transform: "scale(1.15)" }}
+        className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-[#050915]/70 via-[#050915]/80 to-[#050915]"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 bg-[#050915]/70"
-      />
-      {/* Gold glow from above */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.16)_0%,rgba(5,9,21,0)_65%)] blur-3xl"
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 -z-10 h-1/2 bg-gradient-to-t from-[#050915] to-transparent"
+        className="pointer-events-none absolute -top-1/4 left-1/2 -z-10 h-[70vh] w-[140vw] -translate-x-1/2 bg-[radial-gradient(circle_at_center,rgba(212,175,55,0.18)_0%,rgba(5,9,21,0)_65%)] blur-3xl"
       />
 
       {/* Main content */}
-      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-12">
+      <div className="relative z-10 flex min-h-screen flex-col items-center justify-between px-6 pb-6 pt-14">
         {/* Brand block */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -66,7 +84,7 @@ function Index() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.45, duration: 0.6 }}
-            className="mt-3 max-w-[18rem] text-lg font-light leading-snug text-blue-100/60"
+            className="mt-3 max-w-[18rem] text-lg font-light leading-snug text-blue-100/70"
           >
             {t("heroTagline")}
           </motion.p>
@@ -106,7 +124,7 @@ function Index() {
                   <h3 className="text-lg font-bold leading-tight text-gold">
                     {t("lawyerCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-gold/60">{t("lawyerCTASub")}</p>
+                  <p className="mt-1 text-sm text-gold/70">{t("lawyerCTASub")}</p>
                 </div>
               </div>
             </Pressable>
