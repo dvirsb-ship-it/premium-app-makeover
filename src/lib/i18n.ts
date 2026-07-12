@@ -10,6 +10,10 @@ export const strings = {
     he: "צדק מתחיל בשאלה אחת",
     en: "Justice begins with a single question",
   },
+  heroTagline: {
+    he: "המהפכה המשפטית שלך מתחילה כאן",
+    en: "Your legal revolution starts here",
+  },
   enter: { he: "כניסה לאפליקציה", en: "Enter the app" },
   howCanWeHelp: { he: "כיצד נוכל לסייע לך היום?", en: "How can we help you today?" },
   clientTitle: { he: "אני זקוק/ה לייעוץ משפטי", en: "I need legal advice" },
@@ -25,6 +29,21 @@ export const strings = {
   secureNote: {
     he: "הפרטים שלך מאובטחים ומועברים רק לעורכי דין מתאימים",
     en: "Your details are secure and shared only with matching lawyers",
+  },
+  // Cinematic hero CTA cards
+  clientCTA: { he: "אני מחפש ייעוץ", en: "I'm seeking advice" },
+  clientCTASub: {
+    he: "מצא את עורך הדין המתאים לך ביותר",
+    en: "Find the best lawyer for you",
+  },
+  lawyerCTA: { he: "אני עורך דין", en: "I'm a lawyer" },
+  lawyerCTASub: {
+    he: "הצטרף לנבחרת המומחים המובילה",
+    en: "Join the leading experts",
+  },
+  trustBadge: {
+    he: "2,500+ עורכי דין מומחים כבר איתנו",
+    en: "2,500+ expert lawyers already with us",
   },
 
   // Bottom nav
