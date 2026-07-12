@@ -67,17 +67,17 @@ function Onboarding() {
         </div>
 
         {/* Sticky footer */}
-        <div className="sticky bottom-0 space-y-4 border-t border-border/60 bg-background/90 px-5 py-5 backdrop-blur-xl">
+        <div className="sticky bottom-0 space-y-4 border-t border-white/10 bg-[#050915]/80 px-5 py-5 backdrop-blur-xl">
           <button
             type="button"
             onClick={() => setAgreed((v) => !v)}
-            className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card p-4 text-right transition active:scale-[0.99]"
+            className="liquid-glass flex w-full items-center gap-3 rounded-2xl p-4 text-right transition active:scale-[0.99]"
           >
             <motion.span
               animate={
                 agreed
                   ? { backgroundColor: "var(--gold)", borderColor: "var(--gold)" }
-                  : { backgroundColor: "transparent", borderColor: "var(--border)" }
+                  : { backgroundColor: "transparent", borderColor: "rgba(255,255,255,0.3)" }
               }
               className="grid size-6 shrink-0 place-items-center rounded-md border-2"
             >
@@ -101,7 +101,7 @@ function Onboarding() {
             disabled={!agreed}
             onClick={() => navigate({ to: "/intake" })}
             whileTap={agreed ? { scale: 0.98 } : undefined}
-            className="w-full rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-luxe transition disabled:opacity-40"
+            className="btn-gold w-full rounded-2xl py-4 text-base font-bold transition disabled:opacity-40"
           >
             אני מאשר/ת וממשיך/ה
           </motion.button>
