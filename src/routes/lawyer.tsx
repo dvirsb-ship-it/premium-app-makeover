@@ -1,110 +1,139 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, MapPin, Scale, Users } from "lucide-react";
-import { AppShell } from "../components/AppShell";
+import { motion } from "motion/react";
+import { useEffect, useState } from "react";
+import { Calendar, ChevronDown, MoreHorizontal } from "lucide-react";
 import { BottomNav } from "../components/BottomNav";
-import { Page, Stagger, Rise, Pressable } from "../components/motion";
-import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
+import injuryImg from "../assets/categories/personal-injury.jpg";
+import employmentImg from "../assets/categories/employment.jpg";
+import realEstateImg from "../assets/categories/real-estate.jpg";
+import civilImg from "../assets/categories/civil.jpg";
 
 export const Route = createFileRoute("/lawyer")({
   component: LawyerFeed,
 });
 
+const CATEGORY_IMAGE: Record<string, string> = {
+  "דיני עבודה": employmentImg,
+  נזיקין: injuryImg,
+  "נזיקין ותאונות דרכים": injuryImg,
+  מקרקעין: realEstateImg,
+};
+
+function pickImage(category: string) {
+  return CATEGORY_IMAGE[category] ?? civilImg;
+}
+
 function LawyerFeed() {
   const navigate = useNavigate();
   const { feed } = useAppStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    const t = window.setTimeout(() => setMounted(true), 60);
+    return () => window.clearTimeout(t);
+  }, []);
 
   return (
-    <AppShell withNav bare>
-      <Page>
-        {/* Header */}
-        <div className="relative overflow-hidden rounded-b-[2rem] bg-gradient-to-br from-[#0e1a38] via-[#0a1226] to-[#050915] px-6 pb-8 pt-12 shadow-2xl">
-          <div className="pointer-events-none absolute -left-16 -top-10 size-52 rounded-full bg-gold/20 blur-3xl" />
-          <div className="pointer-events-none absolute -right-10 bottom-0 size-40 rounded-full bg-blue-500/10 blur-3xl" />
-          <div className="relative flex items-center gap-3">
-            <BrandMark size={52} glow={false} />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-light text-gold-light/80">שלום, עו״ד</p>
-              <h1 className="text-xl font-black text-white">פניות רלוונטיות עבורך</h1>
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/lawyer-subscription" })}
-              className="rounded-full bg-gradient-to-b from-[#f1e4c3] via-gold to-[#a8862a] px-3 py-1.5 text-[11px] font-bold tracking-wide text-[#1a1305] shadow-lg shadow-gold/30"
-            >
-              Pro
-            </button>
-          </div>
-          <div className="relative mt-6 flex gap-3">
-            <div className="liquid-glass flex-1 rounded-2xl px-4 py-3">
-              <p className="text-2xl font-black text-gold">{feed.length}</p>
-              <p className="text-xs text-gold-light/80">פניות חדשות</p>
-            </div>
-            <div className="liquid-glass flex-1 rounded-2xl px-4 py-3">
-              <p className="text-2xl font-black text-gold">
-                {feed.filter((f) => f.expressed).length}
-              </p>
-              <p className="text-xs text-gold-light/80">הבעת עניין</p>
-            </div>
-          </div>
-        </div>
+    <div className="relative min-h-[100dvh] overflow-hidden bg-[#0a0a0c] text-white">
+      {/* Header */}
+      <div
+        className="absolute inset-x-0 top-0 z-30 flex items-center justify-between px-6 pt-8 pb-4 backdrop-blur-xl"
+        style={{ backgroundColor: "rgba(10,10,12,0.75)" }}
+      >
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/lawyer-subscription" })}
+          className="flex items-center gap-1 text-white"
+        >
+          <span className="text-lg font-semibold">כל הפניות</span>
+          <ChevronDown className="size-[18px] text-white/70" strokeWidth={2} />
+        </button>
+        <button
+          type="button"
+          className="grid size-9 place-items-center rounded-full text-white/70"
+          aria-label="לוח שנה"
+        >
+          <Calendar className="size-[22px]" strokeWidth={1.8} />
+        </button>
+      </div>
 
-        <div className="px-5 pt-6">
-          <Stagger className="space-y-4">
-            {feed.map((f) => (
-              <Rise key={f.id}>
-                <Pressable
-                  onClick={() =>
-                    navigate({
-                      to: "/lawyer-case/$caseId",
-                      params: { caseId: f.id },
-                    })
-                  }
-                  className="liquid-glass w-full rounded-3xl p-5"
+      {/* Scrollable feed */}
+      <div className="relative z-10 space-y-4 overflow-y-auto px-6 pb-28 pt-24">
+        {feed.map((f, i) => {
+          const delay = 0.15 + i * 0.12;
+          return (
+            <motion.button
+              key={f.id}
+              type="button"
+              onClick={() =>
+                navigate({
+                  to: "/lawyer-case/$caseId",
+                  params: { caseId: f.id },
+                })
+              }
+              initial={{ opacity: 0, y: 24 }}
+              animate={mounted ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+              transition={{ duration: 0.7, delay, ease: [0.16, 1, 0.3, 1] }}
+              className="relative block h-[200px] w-full overflow-hidden rounded-2xl text-start"
+            >
+              <img
+                src={pickImage(f.category)}
+                alt=""
+                loading="lazy"
+                width={1024}
+                height={1024}
+                className="absolute inset-0 h-full w-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/25 to-transparent" />
+
+              {/* Top badges */}
+              <div className="absolute inset-x-0 top-0 flex items-start justify-between p-3">
+                <span className="liquid-glass rounded-full px-3 py-1 text-[11px] font-normal text-white/90">
+                  {f.interestedCount} מתעניינים · {f.postedAgo}
+                </span>
+                <span className="liquid-glass grid size-8 place-items-center rounded-full">
+                  <MoreHorizontal className="size-4 text-white/80" />
+                </span>
+              </div>
+
+              {/* Urgency chip */}
+              {f.urgency === "דחוף" && (
+                <span className="absolute right-3 top-12 rounded-full bg-[#d4af37] px-2.5 py-1 text-[10px] font-bold text-[#1a1305]">
+                  דחוף
+                </span>
+              )}
+
+              {/* Huge display title */}
+              <div className="absolute inset-x-0 bottom-0 h-[80px] overflow-hidden">
+                <h2
+                  className="text-center leading-none tracking-tight"
+                  style={{
+                    fontSize: "72px",
+                    marginTop: "2px",
+                    color: "rgba(255,255,255,0.6)",
+                    fontWeight: 700,
+                  }}
                 >
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
-                        {f.category}
-                      </span>
-                      {f.urgency === "דחוף" && (
-                        <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
-                          דחוף
-                        </span>
-                      )}
-                    </div>
-                    <ChevronLeft className="size-5 shrink-0 text-muted-foreground/50" />
-                  </div>
-                  <h3 className="mt-3 text-base font-bold leading-snug text-foreground">
-                    {f.title}
-                  </h3>
-                  <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                    {f.summary}
-                  </p>
-                  <div className="mt-4 flex items-center gap-3 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="size-3.5 text-gold" />
-                      {f.location}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Users className="size-3.5 text-gold" />
-                      {f.interestedCount} מתעניינים
-                    </span>
-                    <span className="ms-auto">{f.postedAgo}</span>
-                  </div>
-                  {f.expressed && (
-                    <div className="mt-3 flex items-center gap-1.5 rounded-xl bg-success/15 px-3 py-2 text-xs font-bold text-success">
-                      <Scale className="size-3.5" />
-                      הבעת עניין — ממתין לבחירת הלקוח
-                    </div>
-                  )}
-                </Pressable>
-              </Rise>
-            ))}
-          </Stagger>
-        </div>
-      </Page>
+                  {f.category}
+                </h2>
+              </div>
+
+              {/* Title strip */}
+              <div className="absolute inset-x-3 bottom-3 rounded-xl bg-black/50 px-3 py-2 backdrop-blur-md">
+                <p className="truncate text-[13px] font-semibold text-white">
+                  {f.title}
+                </p>
+                <p className="truncate text-[11px] text-white/60">
+                  {f.location}
+                </p>
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+
       <BottomNav />
-    </AppShell>
+    </div>
   );
 }

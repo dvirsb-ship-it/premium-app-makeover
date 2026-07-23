@@ -1,6 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { Check, MessageCircle, Phone, Star } from "lucide-react";
+import { ArrowLeft, Check, MessageCircle, Phone, Star } from "lucide-react";
+
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -14,8 +15,10 @@ export const Route = createFileRoute("/case/$caseId")({
 
 function CaseDetail() {
   const { caseId } = Route.useParams();
+  const navigate = useNavigate();
   const { getCase, chooseLawyer } = useAppStore();
   const item = getCase(caseId);
+
 
   if (!item) {
     return (
@@ -75,11 +78,24 @@ function CaseDetail() {
                     נוצר חיבור עם {chosen.name}
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    עורך הדין יצור איתך קשר בהקדם. אפשר גם לפנות ישירות:
+                    צפייה בפרופיל המלא או פנייה ישירה:
                   </p>
-                  <div className="mt-4 flex gap-3">
-                    <button className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold">
-                      <MessageCircle className="size-4" />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate({
+                        to: "/lawyer-profile/$lawyerId",
+                        params: { lawyerId: chosen.id },
+                      })
+                    }
+                    className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
+                  >
+                    צפייה בפרופיל המלא
+                    <ArrowLeft className="size-4" />
+                  </button>
+                  <div className="mt-3 flex gap-3">
+                    <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
+                      <MessageCircle className="size-4 text-gold" />
                       הודעה
                     </button>
                     <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
@@ -89,6 +105,7 @@ function CaseDetail() {
                   </div>
                 </div>
               </motion.div>
+
             ) : (
               <motion.div
                 key="choose"

@@ -17,8 +17,10 @@ import { Route as LawyerSubscriptionRouteImport } from './routes/lawyer-subscrip
 import { Route as LawyerRouteImport } from './routes/lawyer'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
+import { Route as CaseStartRouteImport } from './routes/case-start'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
 
@@ -62,6 +64,11 @@ const CasesRoute = CasesRouteImport.update({
   path: '/cases',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CaseStartRoute = CaseStartRouteImport.update({
+  id: '/case-start',
+  path: '/case-start',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -70,6 +77,11 @@ const AuthRoute = AuthRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LawyerProfileLawyerIdRoute = LawyerProfileLawyerIdRouteImport.update({
+  id: '/lawyer-profile/$lawyerId',
+  path: '/lawyer-profile/$lawyerId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LawyerCaseCaseIdRoute = LawyerCaseCaseIdRouteImport.update({
@@ -86,6 +98,7 @@ const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -96,10 +109,12 @@ export interface FileRoutesByFullPath {
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
+  '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -110,11 +125,13 @@ export interface FileRoutesByTo {
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
+  '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -125,12 +142,14 @@ export interface FileRoutesById {
   '/validating': typeof ValidatingRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
+  '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -141,10 +160,12 @@ export interface FileRouteTypes {
     | '/validating'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
+    | '/lawyer-profile/$lawyerId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -155,10 +176,12 @@ export interface FileRouteTypes {
     | '/validating'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
+    | '/lawyer-profile/$lawyerId'
   id:
     | '__root__'
     | '/'
     | '/auth'
+    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -169,11 +192,13 @@ export interface FileRouteTypes {
     | '/validating'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
+    | '/lawyer-profile/$lawyerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
+  CaseStartRoute: typeof CaseStartRoute
   CasesRoute: typeof CasesRoute
   IntakeRoute: typeof IntakeRoute
   LawyerRoute: typeof LawyerRoute
@@ -184,6 +209,7 @@ export interface RootRouteChildren {
   ValidatingRoute: typeof ValidatingRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
+  LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -244,6 +270,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasesRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/case-start': {
+      id: '/case-start'
+      path: '/case-start'
+      fullPath: '/case-start'
+      preLoaderRoute: typeof CaseStartRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -256,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lawyer-profile/$lawyerId': {
+      id: '/lawyer-profile/$lawyerId'
+      path: '/lawyer-profile/$lawyerId'
+      fullPath: '/lawyer-profile/$lawyerId'
+      preLoaderRoute: typeof LawyerProfileLawyerIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lawyer-case/$caseId': {
@@ -278,6 +318,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
+  CaseStartRoute: CaseStartRoute,
   CasesRoute: CasesRoute,
   IntakeRoute: IntakeRoute,
   LawyerRoute: LawyerRoute,
@@ -288,6 +329,7 @@ const rootRouteChildren: RootRouteChildren = {
   ValidatingRoute: ValidatingRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
+  LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
