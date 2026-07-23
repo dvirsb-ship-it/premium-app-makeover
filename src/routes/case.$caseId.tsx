@@ -15,8 +15,10 @@ export const Route = createFileRoute("/case/$caseId")({
 
 function CaseDetail() {
   const { caseId } = Route.useParams();
+  const navigate = useNavigate();
   const { getCase, chooseLawyer } = useAppStore();
   const item = getCase(caseId);
+
 
   if (!item) {
     return (
