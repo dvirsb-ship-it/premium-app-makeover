@@ -99,7 +99,7 @@ function Onboarding() {
           <motion.button
             type="button"
             disabled={!agreed}
-            onClick={() => navigate({ to: "/intake" })}
+            onClick={() => navigate({ to: "/case-start" })}
             whileTap={agreed ? { scale: 0.98 } : undefined}
             className="btn-gold w-full rounded-2xl py-4 text-base font-bold transition disabled:opacity-40"
           >
