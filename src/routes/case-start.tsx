@@ -213,6 +213,8 @@ function SlideToConfirm({
   const trackRef = useRef<HTMLDivElement>(null);
   const x = useMotionValue(0);
   const [max, setMax] = useState(0);
+  const { dir } = useSettings();
+  const rtl = dir === "rtl";
 
   useEffect(() => {
     const el = trackRef.current;
@@ -222,6 +224,14 @@ function SlideToConfirm({
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
   }, []);
+
+  // In RTL, thumb starts on the right and drags leftward (negative x).
+  // In LTR, thumb starts on the left and drags rightward (positive x).
+  const constraints = rtl
+    ? { left: -max, right: 0 }
+    : { left: 0, right: max };
+  const threshold = rtl ? -max * 0.85 : max * 0.85;
+  const endTarget = rtl ? -max : max;
 
   return (
     <motion.div
@@ -235,7 +245,11 @@ function SlideToConfirm({
         גררו לאישור
       </span>
 
-      <div className="pointer-events-none absolute inset-y-0 end-4 flex items-center gap-1">
+      <div
+        className={`pointer-events-none absolute inset-y-0 flex items-center gap-1 ${
+          rtl ? "start-4" : "end-4"
+        }`}
+      >
         {[0.4, 0.55, 0.7].map((op, i) => (
           <ChevronLeft
             key={i}
@@ -248,34 +262,32 @@ function SlideToConfirm({
       <motion.button
         type="button"
         drag="x"
-        dragConstraints={{ left: 0, right: max }}
+        dragConstraints={constraints}
         dragElastic={0}
         dragMomentum={false}
         style={{ x }}
         onDragEnd={() => {
           const current = x.get();
-          if (current > max * 0.85) {
-            animate(x, max, { type: "spring", stiffness: 260, damping: 26 });
+          const past = rtl ? current < threshold : current > threshold;
+          if (past) {
+            animate(x, endTarget, {
+              type: "spring",
+              stiffness: 260,
+              damping: 26,
+            });
             setTimeout(onConfirm, 220);
           } else {
             animate(x, 0, { type: "spring", stiffness: 260, damping: 26 });
           }
         }}
-        className="absolute inset-y-1.5 start-1.5 z-10 grid size-11 cursor-grab place-items-center rounded-full bg-white text-gray-800 shadow-lg active:cursor-grabbing"
+        className={`absolute inset-y-1.5 z-10 grid size-11 cursor-grab place-items-center rounded-full bg-white text-gray-800 shadow-lg active:cursor-grabbing ${
+          rtl ? "end-1.5" : "start-1.5"
+        }`}
         aria-label="גררו לאישור"
       >
-        <ChevronLeft
-          className={`size-5 -translate-x-px ${dir_arrow(flip)}`}
-          strokeWidth={2.4}
-        />
+        <ChevronLeft className={`size-5 ${flip}`} strokeWidth={2.4} />
       </motion.button>
     </motion.div>
   );
 }
 
-// The slide thumb icon should point forward regardless of language.
-function dir_arrow(flip: string) {
-  // In RTL, forward is left → default ChevronLeft.
-  // In LTR, we rotate to point right.
-  return flip;
-}
