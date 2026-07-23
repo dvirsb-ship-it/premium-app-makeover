@@ -27,6 +27,13 @@ function LawyerFeed() {
               <p className="text-xs font-light text-gold-light/80">שלום, עו״ד</p>
               <h1 className="text-xl font-black text-white">פניות רלוונטיות עבורך</h1>
             </div>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/lawyer-subscription" })}
+              className="rounded-full bg-gradient-to-b from-[#f1e4c3] via-gold to-[#a8862a] px-3 py-1.5 text-[11px] font-bold tracking-wide text-[#1a1305] shadow-lg shadow-gold/30"
+            >
+              Pro
+            </button>
           </div>
           <div className="relative mt-6 flex gap-3">
             <div className="liquid-glass flex-1 rounded-2xl px-4 py-3">
