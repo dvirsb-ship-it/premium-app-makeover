@@ -24,6 +24,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
+import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 
 const WelcomeRoute = WelcomeRouteImport.update({
   id: '/welcome',
@@ -100,6 +101,11 @@ const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
   path: '/case/$caseId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminVerificationsRoute = AdminVerificationsRouteImport.update({
+  id: '/admin/verifications',
+  path: '/admin/verifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -114,6 +120,7 @@ export interface FileRoutesByFullPath {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -131,6 +138,7 @@ export interface FileRoutesByTo {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
+  '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/welcome'
+    | '/admin/verifications'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/welcome'
+    | '/admin/verifications'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/submitted'
     | '/validating'
     | '/welcome'
+    | '/admin/verifications'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -220,6 +232,7 @@ export interface RootRouteChildren {
   SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
   WelcomeRoute: typeof WelcomeRoute
+  AdminVerificationsRoute: typeof AdminVerificationsRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
@@ -332,6 +345,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CaseCaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/verifications': {
+      id: '/admin/verifications'
+      path: '/admin/verifications'
+      fullPath: '/admin/verifications'
+      preLoaderRoute: typeof AdminVerificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -348,6 +368,7 @@ const rootRouteChildren: RootRouteChildren = {
   SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
   WelcomeRoute: WelcomeRoute,
+  AdminVerificationsRoute: AdminVerificationsRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
