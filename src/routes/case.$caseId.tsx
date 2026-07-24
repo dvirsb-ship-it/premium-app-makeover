@@ -10,13 +10,15 @@ import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { Lawyer } from "../lib/types";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/case/$caseId")({
   component: CaseDetail,
 });
 
 function CaseDetail() {
-  const { caseId } = Route.useParams();
+
+  useRequireAuth();  const { caseId } = Route.useParams();
   const navigate = useNavigate();
   const { getCase, chooseLawyer } = useAppStore();
   const { dir } = useSettings();

@@ -6,13 +6,15 @@ import { TopBar } from "../components/TopBar";
 import { Page } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer-case/$caseId")({
   component: LawyerCaseDetail,
 });
 
 function LawyerCaseDetail() {
-  const { caseId } = Route.useParams();
+
+  useRequireAuth();  const { caseId } = Route.useParams();
   const router = useRouter();
   const { getFeedCase, expressInterest } = useAppStore();
   const t = useT();
