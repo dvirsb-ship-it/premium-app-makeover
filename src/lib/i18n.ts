@@ -323,6 +323,21 @@ export const strings = {
   issueFixIn: { he: "מעבר לשלב הרלוונטי", en: "Jump to the step" },
   officialSummary: { he: "סיכום רשמי להגשה", en: "Official submission summary" },
   submittedOn: { he: "הוגש בתאריך", en: "Submitted on" },
+  downloadPdf: { he: "הורדת PDF רשמי", en: "Download official PDF" },
+  pdfExported: { he: "המסמך הרשמי הורד", en: "Official document downloaded" },
+
+  // Admin verification queue
+  adminQueueTitle: { he: "תור אימות עורכי דין", en: "Lawyer verification queue" },
+  adminQueueSub: { he: "בדיקה ואישור של בקשות חדשות", en: "Review and approve incoming applications" },
+  queueEmpty: { he: "אין בקשות ממתינות", en: "No pending applications" },
+  queueEmptySub: { he: "בקשות חדשות יופיעו כאן אוטומטית.", en: "New applications will appear here automatically." },
+  statusPending: { he: "ממתין", en: "Pending" },
+  statusApproved: { he: "מאושר", en: "Approved" },
+  statusRejected: { he: "נדחה", en: "Rejected" },
+  approve: { he: "אישור", en: "Approve" },
+  reject: { he: "דחייה", en: "Reject" },
+  approvedToast: { he: "הבקשה אושרה", en: "Application approved" },
+  rejectedToast: { he: "הבקשה נדחתה", en: "Application rejected" },
 
 } satisfies Dict;
 
