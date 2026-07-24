@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Apple, Mail, Phone } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
-import { HeroVideo } from "../components/HeroVideo";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
