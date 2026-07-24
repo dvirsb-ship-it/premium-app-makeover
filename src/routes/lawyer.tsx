@@ -4,6 +4,8 @@ import { Calendar, Clock, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { useAppStore } from "../lib/store";
+import { useT, translate } from "../lib/i18n";
+import { useSettings } from "../lib/settings";
 import injuryImg from "../assets/categories/personal-injury.jpg";
 import employmentImg from "../assets/categories/employment.jpg";
 import realEstateImg from "../assets/categories/real-estate.jpg";
@@ -12,15 +14,15 @@ import civilImg from "../assets/categories/civil.jpg";
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
     meta: [
-      { title: "JustAsk — פיד עורכי דין" },
+      { title: "JustAsk — Lawyer feed" },
       {
         name: "description",
-        content: "פניות משפטיות טריות המחכות להבעת עניין מעורכי דין מומחים.",
+        content: "Fresh legal requests waiting for expert lawyers to express interest.",
       },
-      { property: "og:title", content: "JustAsk — פיד עורכי דין" },
+      { property: "og:title", content: "JustAsk — Lawyer feed" },
       {
         property: "og:description",
-        content: "פניות משפטיות איכותיות בזמן אמת לעורכי דין ב-JustAsk.",
+        content: "Quality real-time legal requests for lawyers on JustAsk.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -34,6 +36,9 @@ const CATEGORY_IMAGE: Record<string, string> = {
   נזיקין: injuryImg,
   "נזיקין ותאונות דרכים": injuryImg,
   מקרקעין: realEstateImg,
+  "Employment Law": employmentImg,
+  "Personal Injury & Traffic": injuryImg,
+  "Real Estate": realEstateImg,
 };
 
 function pickImage(category: string) {
@@ -43,10 +48,11 @@ function pickImage(category: string) {
 function LawyerFeed() {
   const navigate = useNavigate();
   const { feed } = useAppStore();
-
+  const { lang } = useSettings();
+  const t = useT();
+  const urgentLabel = translate("urgent", "he"); // still used to test underlying data
   return (
     <AppShell withNav>
-      {/* Header */}
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -58,20 +64,19 @@ function LawyerFeed() {
             JUSTASK · PRO
           </p>
           <h1 className="mt-1 text-2xl font-bold text-foreground">
-            פניות חדשות
+            {t("newLeads")}
           </h1>
         </div>
         <button
           type="button"
           onClick={() => navigate({ to: "/lawyer-subscription" })}
           className="liquid-glass grid size-11 place-items-center rounded-full text-foreground"
-          aria-label="מנוי Pro"
+          aria-label={t("proSubscriptionAria")}
         >
           <Sparkles className="size-5 text-gold" strokeWidth={2} />
         </button>
       </motion.header>
 
-      {/* Stat pills */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -80,15 +85,14 @@ function LawyerFeed() {
       >
         <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
           <Users className="size-3.5 text-gold" strokeWidth={2} />
-          {feed.length} פניות פתוחות
+          {feed.length} {t("openLeads")}
         </span>
         <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
           <Calendar className="size-3.5 text-gold" strokeWidth={2} />
-          היום
+          {t("today")}
         </span>
       </motion.div>
 
-      {/* Feed */}
       <div className="mt-6 space-y-3">
         {feed.map((f, i) => (
           <motion.button
@@ -110,7 +114,6 @@ function LawyerFeed() {
             whileTap={{ scale: 0.98 }}
             className="liquid-glass relative flex w-full items-stretch gap-3 overflow-hidden rounded-[24px] p-3 text-start"
           >
-            {/* Thumbnail */}
             <div className="relative size-[88px] shrink-0 overflow-hidden rounded-2xl">
               <img
                 src={pickImage(f.category)}
@@ -123,16 +126,15 @@ function LawyerFeed() {
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
             </div>
 
-            {/* Content */}
             <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
                   <span className="text-[11px] font-semibold uppercase tracking-wider text-gold">
                     {f.category}
                   </span>
-                  {f.urgency === "דחוף" && (
+                  {f.urgency === urgentLabel && (
                     <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold">
-                      דחוף
+                      {t("urgent")}
                     </span>
                   )}
                 </div>
@@ -159,6 +161,8 @@ function LawyerFeed() {
       </div>
 
       <BottomNav />
+      {/* silence unused var warnings when lang changes */}
+      <span hidden>{lang}</span>
     </AppShell>
   );
 }

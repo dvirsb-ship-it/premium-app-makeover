@@ -1,12 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { ArrowLeft, Check, MessageCircle, Phone, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, MessageCircle, Phone, Star } from "lucide-react";
 
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { statusMeta, toneClasses } from "../lib/status";
+import { toneClasses, useStatusMeta } from "../lib/status";
+import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
 import type { Lawyer } from "../lib/types";
 
 export const Route = createFileRoute("/case/$caseId")({
@@ -17,36 +19,38 @@ function CaseDetail() {
   const { caseId } = Route.useParams();
   const navigate = useNavigate();
   const { getCase, chooseLawyer } = useAppStore();
+  const { dir } = useSettings();
+  const t = useT();
+  const statusMeta = useStatusMeta();
   const item = getCase(caseId);
-
+  const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   if (!item) {
     return (
       <AppShell>
-        <TopBar title="תיק לא נמצא" />
+        <TopBar title={t("caseNotFound")} />
         <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
-          <p className="text-muted-foreground">התיק המבוקש אינו קיים.</p>
+          <p className="text-muted-foreground">{t("caseNotExist")}</p>
           <Link
             to="/cases"
             className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
           >
-            לתיקים שלי
+            {t("toMyCases")}
           </Link>
         </div>
       </AppShell>
     );
   }
 
-  const meta = statusMeta[item.status];
+  const meta = statusMeta(item.status);
   const chosen = item.interested.find((l) => l.id === item.chosenLawyerId);
 
   return (
     <AppShell bare>
       <Page className="min-h-screen">
-        <TopBar title="פרטי המקרה" subtitle={item.category} />
+        <TopBar title={t("caseDetailsTitle")} subtitle={item.category} />
 
         <div className="px-5 pt-6">
-          {/* Summary card */}
           <div className="liquid-glass rounded-3xl p-5">
             <span
               className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[meta.tone]}`}
@@ -61,7 +65,6 @@ function CaseDetail() {
             </p>
           </div>
 
-          {/* Connected state */}
           <AnimatePresence mode="wait">
             {chosen ? (
               <motion.div
@@ -75,10 +78,10 @@ function CaseDetail() {
                     <Check className="size-6" strokeWidth={3} />
                   </span>
                   <h3 className="mt-3 text-base font-bold text-foreground">
-                    נוצר חיבור עם {chosen.name}
+                    {t("connectedWith")} {chosen.name}
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    צפייה בפרופיל המלא או פנייה ישירה:
+                    {t("orDirectContact")}
                   </p>
                   <button
                     type="button"
@@ -90,22 +93,21 @@ function CaseDetail() {
                     }
                     className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
                   >
-                    צפייה בפרופיל המלא
-                    <ArrowLeft className="size-4" />
+                    {t("viewFullProfile")}
+                    <Arrow className="size-4" />
                   </button>
                   <div className="mt-3 flex gap-3">
                     <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
                       <MessageCircle className="size-4 text-gold" />
-                      הודעה
+                      {t("messageAction")}
                     </button>
                     <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
                       <Phone className="size-4 text-gold" />
-                      התקשרות
+                      {t("callAction")}
                     </button>
                   </div>
                 </div>
               </motion.div>
-
             ) : (
               <motion.div
                 key="choose"
@@ -115,7 +117,7 @@ function CaseDetail() {
               >
                 <div className="mb-4 flex items-baseline justify-between">
                   <h3 className="text-base font-bold text-foreground">
-                    עורכי דין שהביעו עניין
+                    {t("lawyersInterestedHeader")}
                   </h3>
                   <span className="text-sm font-bold text-gold">
                     {item.interested.length}
@@ -124,7 +126,7 @@ function CaseDetail() {
 
                 {item.interested.length === 0 ? (
                   <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
-                    עדיין אין התעניינות. נעדכן אותך ברגע שעורך דין יביע עניין.
+                    {t("noInterestYet")}
                   </div>
                 ) : (
                   <Stagger className="space-y-4">
@@ -154,6 +156,7 @@ function LawyerChoiceCard({
   lawyer: Lawyer;
   onChoose: () => void;
 }) {
+  const t = useT();
   return (
     <div className="liquid-glass rounded-3xl p-5">
       <div className="flex items-start gap-3">
@@ -171,7 +174,7 @@ function LawyerChoiceCard({
               {lawyer.rating}
             </span>
             <span className="text-muted-foreground">
-              ({lawyer.reviews}) · {lawyer.years} שנות ניסיון
+              ({lawyer.reviews}) · {lawyer.years} {t("yearsExperience")}
             </span>
           </div>
         </div>
@@ -185,7 +188,7 @@ function LawyerChoiceCard({
         onClick={onChoose}
         className="btn-gold mt-4 w-full rounded-2xl py-3 text-sm font-bold"
       >
-        בחירת עורך דין זה
+        {t("chooseThisLawyer")}
       </motion.button>
     </div>
   );

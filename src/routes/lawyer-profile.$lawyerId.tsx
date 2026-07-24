@@ -4,20 +4,21 @@ import { Award, Briefcase, MessageCircle, Phone, Star } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
+import { useT } from "../lib/i18n";
 import lawyerPortrait from "../assets/lawyer-portrait.jpg";
 
 export const Route = createFileRoute("/lawyer-profile/$lawyerId")({
   head: () => ({
     meta: [
-      { title: "JustAsk — פרופיל עורך דין" },
+      { title: "JustAsk — Lawyer profile" },
       {
         name: "description",
-        content: "פרופיל עורך הדין: התמחות, ניסיון, ביקורות ופרטי יצירת קשר.",
+        content: "Lawyer profile: expertise, experience, reviews and contact.",
       },
-      { property: "og:title", content: "JustAsk — פרופיל עורך דין" },
+      { property: "og:title", content: "JustAsk — Lawyer profile" },
       {
         property: "og:description",
-        content: "כרטיס פרופיל מלא של עורך הדין שבחרתם ב-JustAsk.",
+        content: "Full profile card for the lawyer you chose on JustAsk.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,6 +31,7 @@ function LawyerProfile() {
   const { lawyerId } = Route.useParams();
   const navigate = useNavigate();
   const { cases } = useAppStore();
+  const t = useT();
 
   const chosenCase = cases.find((c) => c.chosenLawyerId === lawyerId);
   const lawyer =
@@ -39,17 +41,17 @@ function LawyerProfile() {
   if (!lawyer) {
     return (
       <AppShell>
-        <TopBar title="פרופיל" onBack={() => navigate({ to: "/cases" })} />
+        <TopBar title={t("profileTitle")} onBack={() => navigate({ to: "/cases" })} />
         <div className="grid flex-1 place-items-center py-24 text-center">
           <div>
             <p className="text-lg font-semibold text-foreground">
-              עורך הדין לא נמצא
+              {t("lawyerNotFound")}
             </p>
             <Link
               to="/cases"
               className="btn-gold mt-4 inline-flex rounded-full px-5 py-2 text-sm font-bold"
             >
-              לתיקים שלי
+              {t("toMyCases")}
             </Link>
           </div>
         </div>
@@ -58,20 +60,19 @@ function LawyerProfile() {
   }
 
   const stats = [
-    { n: `${lawyer.reviews}`, label: "לקוחות מרוצים", icon: Star },
-    { n: `${lawyer.rating}`, label: "דירוג ממוצע", icon: Award },
+    { n: `${lawyer.reviews}`, label: t("happyClients"), icon: Star },
+    { n: `${lawyer.rating}`, label: t("avgRating"), icon: Award },
     {
       n: `${Math.round(lawyer.years * 8.4)}`,
-      label: "תיקים שנוהלו",
+      label: t("casesHandled"),
       icon: Briefcase,
     },
   ];
 
   return (
     <AppShell>
-      <TopBar title="פרופיל עורך דין" onBack={() => navigate({ to: "/cases" })} />
+      <TopBar title={t("lawyerProfileTitle")} onBack={() => navigate({ to: "/cases" })} />
 
-      {/* Portrait card */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -100,13 +101,12 @@ function LawyerProfile() {
             </p>
             <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold">
               <Award className="size-3.5" strokeWidth={2.2} />
-              {lawyer.years} שנות ניסיון
+              {lawyer.years} {t("yearsExperience")}
             </span>
           </div>
         </div>
       </motion.div>
 
-      {/* Stats grid */}
       <div className="mt-3 grid grid-cols-3 gap-2.5">
         {stats.map((s, i) => {
           const Icon = s.icon;
@@ -136,7 +136,6 @@ function LawyerProfile() {
         })}
       </div>
 
-      {/* Specialty / blurb */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -144,7 +143,7 @@ function LawyerProfile() {
         className="liquid-glass mt-3 rounded-[24px] p-4"
       >
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
-          התמחות
+          {t("expertiseHeader")}
         </p>
         <p className="mt-1 text-[16px] font-semibold text-foreground">
           {lawyer.specialty}
@@ -154,7 +153,6 @@ function LawyerProfile() {
         </p>
       </motion.div>
 
-      {/* CTAs */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -166,14 +164,14 @@ function LawyerProfile() {
           className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-bold"
         >
           <MessageCircle className="size-4" strokeWidth={2.4} />
-          שליחת הודעה
+          {t("sendMessage")}
         </button>
         <button
           type="button"
           className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-semibold text-foreground"
         >
           <Phone className="size-4 text-gold" strokeWidth={2.2} />
-          התקשרות
+          {t("callAction")}
         </button>
       </motion.div>
     </AppShell>

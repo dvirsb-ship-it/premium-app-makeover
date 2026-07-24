@@ -5,6 +5,8 @@ import { ChevronLeft, Scale } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 import injuryImg from "../assets/categories/personal-injury.jpg";
 import employmentImg from "../assets/categories/employment.jpg";
 import realEstateImg from "../assets/categories/real-estate.jpg";
@@ -13,15 +15,15 @@ import civilImg from "../assets/categories/civil.jpg";
 export const Route = createFileRoute("/lawyer-onboarding")({
   head: () => ({
     meta: [
-      { title: "JustAsk — הרשמת עורך דין" },
+      { title: "JustAsk — Lawyer signup" },
       {
         name: "description",
-        content: "בחרו את תחומי ההתמחות שלכם כדי לקבל פניות רלוונטיות ב-JustAsk.",
+        content: "Choose your practice areas to receive relevant leads on JustAsk.",
       },
-      { property: "og:title", content: "JustAsk — הרשמת עורך דין" },
+      { property: "og:title", content: "JustAsk — Lawyer signup" },
       {
         property: "og:description",
-        content: "בחירת תחומי התמחות להצטרפות לנבחרת עורכי הדין של JustAsk.",
+        content: "Pick practice areas to join the JustAsk lawyer roster.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,22 +32,23 @@ export const Route = createFileRoute("/lawyer-onboarding")({
   component: LawyerOnboarding,
 });
 
-type Spec = { id: string; label: string; image: string };
+type Spec = { id: string; labelKey: StringKey; image: string };
 
 const SPECIALTIES: Spec[] = [
-  { id: "injury", label: "נזיקין ותאונות", image: injuryImg },
-  { id: "employment", label: "דיני עבודה", image: employmentImg },
-  { id: "estate", label: "מקרקעין", image: realEstateImg },
-  { id: "civil", label: "אזרחי כללי", image: civilImg },
-  { id: "family", label: "דיני משפחה", image: civilImg },
-  { id: "criminal", label: "פלילי", image: employmentImg },
-  { id: "commercial", label: "מסחרי וחוזים", image: realEstateImg },
-  { id: "tax", label: "מיסים", image: injuryImg },
+  { id: "injury", labelKey: "specInjury", image: injuryImg },
+  { id: "employment", labelKey: "specEmployment", image: employmentImg },
+  { id: "estate", labelKey: "specEstate", image: realEstateImg },
+  { id: "civil", labelKey: "specCivil", image: civilImg },
+  { id: "family", labelKey: "specFamily", image: civilImg },
+  { id: "criminal", labelKey: "specCriminal", image: employmentImg },
+  { id: "commercial", labelKey: "specCommercial", image: realEstateImg },
+  { id: "tax", labelKey: "specTax", image: injuryImg },
 ];
 
 function LawyerOnboarding() {
   const navigate = useNavigate();
   const { dir } = useSettings();
+  const t = useT();
   const [selected, setSelected] = useState<Set<string>>(new Set(["injury"]));
   const flip = dir === "rtl" ? "" : "rotate-180";
 
@@ -73,12 +76,11 @@ function LawyerOnboarding() {
   return (
     <AppShell>
       <TopBar
-        title="הרשמת עורך דין"
-        subtitle="בחרו את תחומי ההתמחות שלכם"
+        title={t("lawyerOnboardTitle")}
+        subtitle={t("lawyerOnboardSubtitle")}
         onBack={() => navigate({ to: "/" })}
       />
 
-      {/* Intro */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -87,19 +89,18 @@ function LawyerOnboarding() {
       >
         <span className="liquid-glass inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[11px] font-medium text-foreground">
           <Scale className="size-3 text-gold" strokeWidth={2} />
-          JustAsk · הצטרפות לנבחרת
+          {t("joinRosterBadge")}
         </span>
         <h1 className="mt-4 text-[26px] font-bold leading-[1.15] tracking-tight text-foreground">
-          באילו תחומים
+          {t("onboardHeading1")}
           <br />
-          אתם מתמחים?
+          {t("onboardHeading2")}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          תקבלו רק פניות שמתאימות להתמחויות שבחרתם. ניתן לבחור יותר מתחום אחד.
+          {t("onboardDesc")}
         </p>
       </motion.div>
 
-      {/* Selection grid */}
       <div className="mt-6 grid grid-cols-2 gap-3">
         {SPECIALTIES.map((c, i) => {
           const isSel = selected.has(c.id);
@@ -135,7 +136,7 @@ function LawyerOnboarding() {
                 {String(i + 1).padStart(2, "0")}
               </span>
               <span className="relative text-[16px] font-semibold leading-tight text-white drop-shadow-lg">
-                {c.label}
+                {t(c.labelKey)}
               </span>
             </motion.button>
           );
@@ -144,7 +145,6 @@ function LawyerOnboarding() {
 
       <div className="flex-1" />
 
-      {/* Slide to confirm */}
       <div className="mt-6 pb-6">
         <SlideToConfirm
           onConfirm={confirm}
@@ -169,6 +169,7 @@ function SlideToConfirm({
   const x = useMotionValue(0);
   const [max, setMax] = useState(0);
   const { dir } = useSettings();
+  const t = useT();
   const rtl = dir === "rtl";
 
   useEffect(() => {
@@ -197,7 +198,7 @@ function SlideToConfirm({
       }`}
     >
       <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[14px] font-medium text-muted-foreground">
-        גררו להצטרפות
+        {t("dragToJoin")}
       </span>
 
       <div
@@ -238,7 +239,7 @@ function SlideToConfirm({
         className={`btn-gold absolute inset-y-1.5 z-10 grid size-11 place-items-center rounded-full ${
           disabled ? "cursor-not-allowed" : "cursor-grab active:cursor-grabbing"
         } ${rtl ? "end-1.5" : "start-1.5"}`}
-        aria-label="גררו להצטרפות"
+        aria-label={t("dragToJoin")}
       >
         <ChevronLeft className={`size-5 ${flip}`} strokeWidth={2.4} />
       </motion.button>

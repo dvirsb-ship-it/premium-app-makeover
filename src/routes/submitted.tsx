@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Check, Sparkles } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { Page } from "../components/motion";
+import { useT } from "../lib/i18n";
 
 export const Route = createFileRoute("/submitted")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -14,11 +15,11 @@ export const Route = createFileRoute("/submitted")({
 function Submitted() {
   const navigate = useNavigate();
   const { id } = Route.useSearch();
+  const t = useT();
 
   return (
     <AppShell className="items-center justify-center">
       <Page className="flex min-h-screen w-full flex-col items-center justify-center py-16 text-center">
-        {/* Success burst */}
         <div className="relative grid place-items-center">
           {[...Array(8)].map((_, i) => (
             <motion.span
@@ -56,7 +57,7 @@ function Submitted() {
           transition={{ delay: 0.4 }}
           className="mt-8 text-2xl font-black text-foreground"
         >
-          המקרה שלך נשלח בהצלחה
+          {t("submittedTitle")}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0 }}
@@ -64,8 +65,7 @@ function Submitted() {
           transition={{ delay: 0.55 }}
           className="mt-3 max-w-xs text-[15px] leading-relaxed text-muted-foreground"
         >
-          עורכי דין מתאימים בתחומך יקבלו את הפנייה. נעדכן אותך ברגע שמישהו יביע
-          עניין.
+          {t("submittedSub")}
         </motion.p>
 
         <motion.div
@@ -85,14 +85,14 @@ function Submitted() {
             }
             className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
           >
-            צפייה בסטטוס המקרה
+            {t("viewStatus")}
           </button>
           <Link
             to="/"
             className="flex items-center justify-center gap-1.5 py-2 text-sm font-semibold text-muted-foreground"
           >
             <Sparkles className="size-4 text-gold" />
-            חזרה לדף הבית
+            {t("backHome")}
           </Link>
         </motion.div>
       </Page>

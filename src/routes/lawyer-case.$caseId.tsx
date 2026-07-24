@@ -5,6 +5,7 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page } from "../components/motion";
 import { useAppStore } from "../lib/store";
+import { useT, translate } from "../lib/i18n";
 
 export const Route = createFileRoute("/lawyer-case/$caseId")({
   component: LawyerCaseDetail,
@@ -14,19 +15,21 @@ function LawyerCaseDetail() {
   const { caseId } = Route.useParams();
   const router = useRouter();
   const { getFeedCase, expressInterest } = useAppStore();
+  const t = useT();
   const item = getFeedCase(caseId);
+  const urgentSeed = translate("urgent", "he");
 
   if (!item) {
     return (
       <AppShell>
-        <TopBar title="פנייה לא נמצאה" />
+        <TopBar title={t("leadNotFound")} />
         <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
-          <p className="text-muted-foreground">הפנייה המבוקשת אינה קיימת.</p>
+          <p className="text-muted-foreground">{t("leadNotExist")}</p>
           <Link
             to="/lawyer"
             className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
           >
-            לרשימת הפניות
+            {t("toLeadsList")}
           </Link>
         </div>
       </AppShell>
@@ -36,16 +39,16 @@ function LawyerCaseDetail() {
   return (
     <AppShell bare>
       <Page className="flex min-h-screen flex-col">
-        <TopBar title="פרטי הפנייה" subtitle={item.category} />
+        <TopBar title={t("leadDetailsTitle")} subtitle={item.category} />
 
         <div className="flex-1 px-5 pt-6">
           <div className="flex items-center gap-2">
             <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
               {item.category}
             </span>
-            {item.urgency === "דחוף" && (
+            {item.urgency === urgentSeed && (
               <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
-                דחוף
+                {t("urgent")}
               </span>
             )}
           </div>
@@ -61,13 +64,13 @@ function LawyerCaseDetail() {
             </span>
             <span className="flex items-center gap-1">
               <Users className="size-3.5 text-gold" />
-              {item.interestedCount} מתעניינים
+              {item.interestedCount} {t("interestedSuffix")}
             </span>
             <span>{item.postedAgo}</span>
           </div>
 
           <div className="liquid-glass mt-6 rounded-3xl p-5">
-            <h3 className="text-sm font-bold text-foreground">תיאור המקרה</h3>
+            <h3 className="text-sm font-bold text-foreground">{t("caseDescriptionHeader")}</h3>
             <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
               {item.summary}
             </p>
@@ -75,14 +78,10 @@ function LawyerCaseDetail() {
 
           <div className="mt-4 flex items-start gap-2 rounded-2xl bg-gold/8 px-4 py-3 text-xs leading-relaxed text-foreground">
             <Scale className="mt-0.5 size-4 shrink-0 text-gold" />
-            <span>
-              הבעת עניין מציבה אותך ברשימת עורכי הדין שהלקוח בוחר מתוכה. פרטי
-              הקשר ייחשפו רק לאחר בחירת הלקוח.
-            </span>
+            <span>{t("interestNotice")}</span>
           </div>
         </div>
 
-        {/* Footer action */}
         <div className="sticky bottom-0 border-t border-border/60 bg-background/90 px-5 py-5 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {item.expressed ? (
@@ -93,7 +92,7 @@ function LawyerCaseDetail() {
                 className="flex items-center justify-center gap-2 rounded-2xl bg-success/12 py-4 text-sm font-bold text-success"
               >
                 <Check className="size-5" strokeWidth={3} />
-                הבעת עניין נשלחה בהצלחה
+                {t("interestSent")}
               </motion.div>
             ) : (
               <motion.button
@@ -108,7 +107,7 @@ function LawyerCaseDetail() {
                 }}
                 className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
-                אני מעוניין/ת בתיק זה
+                {t("imInterested")}
               </motion.button>
             )}
           </AnimatePresence>
