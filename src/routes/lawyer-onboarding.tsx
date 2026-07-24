@@ -244,25 +244,22 @@ function LawyerOnboarding() {
     // Simulated end-to-end AI review — resolves after full animation.
     window.setTimeout(() => {
       if (found.length === 0) {
+        const rec = enqueueVerification({
+          fullName: form.fullName,
+          idNumber: form.idNumber,
+          email: form.email,
+          phone: form.phone,
+          barNumber: form.barNumber,
+          barYear: form.barYear,
+          university: form.university,
+          gradYear: form.gradYear,
+          specialties: [...form.specialties],
+        });
+        setRecord(rec);
         try {
           sessionStorage.setItem(
             "justask-lawyer-specialties",
             JSON.stringify([...form.specialties]),
-          );
-          sessionStorage.setItem(
-            "justask-lawyer-verify",
-            JSON.stringify({
-              fullName: form.fullName,
-              idNumber: form.idNumber,
-              email: form.email,
-              phone: form.phone,
-              barNumber: form.barNumber,
-              barYear: form.barYear,
-              university: form.university,
-              gradYear: form.gradYear,
-              specialties: [...form.specialties],
-              submittedAt: Date.now(),
-            }),
           );
         } catch {
           /* ignore */
