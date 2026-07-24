@@ -7,13 +7,15 @@ import { TopBar } from "../components/TopBar";
 import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import type { ChatMessage } from "../lib/types";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/intake")({
   component: Intake,
 });
 
 function Intake() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const t = useT();
   const { dir } = useSettings();
 

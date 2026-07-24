@@ -4,6 +4,7 @@ import { Check, Sparkles } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { Page } from "../components/motion";
 import { useT } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/submitted")({
   validateSearch: (search: Record<string, unknown>) => ({
@@ -13,7 +14,8 @@ export const Route = createFileRoute("/submitted")({
 });
 
 function Submitted() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { id } = Route.useSearch();
   const t = useT();
 

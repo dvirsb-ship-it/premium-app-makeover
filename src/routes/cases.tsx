@@ -7,13 +7,15 @@ import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/cases")({
   component: Cases,
 });
 
 function Cases() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { cases } = useAppStore();
   const { dir } = useSettings();
   const t = useT();

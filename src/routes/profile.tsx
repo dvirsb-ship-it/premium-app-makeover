@@ -18,6 +18,7 @@ import { useAppStore } from "../lib/store";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/profile")({
   component: Profile,
@@ -31,7 +32,8 @@ const items: { icon: typeof Bell; key: StringKey }[] = [
 ];
 
 function Profile() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { role, setRole } = useAppStore();
   const { theme, toggleTheme, lang, setLang, dir } = useSettings();
   const t = useT();

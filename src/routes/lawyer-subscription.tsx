@@ -15,6 +15,7 @@ import { TopBar } from "../components/TopBar";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer-subscription")({
   head: () => ({
@@ -46,7 +47,8 @@ const features: { icon: typeof Layers; key: StringKey }[] = [
 ];
 
 function LawyerSubscription() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { dir } = useSettings();
   const t = useT();
   const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");

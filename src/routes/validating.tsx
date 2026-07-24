@@ -9,6 +9,7 @@ import { LAWYERS } from "../lib/store";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/validating")({
   component: Validating,
@@ -17,7 +18,8 @@ export const Route = createFileRoute("/validating")({
 const stepKeys: StringKey[] = ["valStep1", "valStep2", "valStep3", "valStep4"];
 
 function Validating() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { addCase } = useAppStore();
   const t = useT();
   const [current, setCurrent] = useState(0);
