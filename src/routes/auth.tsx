@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { Apple, Mail, Phone } from "lucide-react";
+import { Apple, Mail, Phone, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { TopBar } from "../components/TopBar";
@@ -48,15 +49,50 @@ function Auth() {
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState<LoadingProvider>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const busy = loading !== null;
 
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const phoneRe = /^[+\d][\d\s\-().]{6,}$/;
+
+  function validate(provider: "email" | "phone", raw: string): string | null {
+    const trimmed = raw.trim();
+    if (provider === "email" && !emailRe.test(trimmed)) return t("authErrEmail");
+    if (provider === "phone" && !phoneRe.test(trimmed)) return t("authErrPhone");
+    return null;
+  }
+
   function proceed(provider: LoadingProvider) {
-    if (busy) return;
+    if (busy || !provider) return;
+    setError(null);
+
+    if (provider === "email" || provider === "phone") {
+      const err = validate(provider, value);
+      if (err) {
+        setError(err);
+        toast.error(err);
+        return;
+      }
+    }
+
     setLoading(provider);
-    setRole("client");
     // Simulate async auth so the loading state is perceivable
     window.setTimeout(() => {
+      // Simulated failure surface — 1/25 chance for demo realism
+      const failed = Math.random() < 0.04;
+      if (failed) {
+        setLoading(null);
+        setError(t("authErrGeneric"));
+        toast.error(t("authErrGeneric"));
+        return;
+      }
+      setRole("client");
+      if (provider === "email" || provider === "phone") {
+        toast.success(t("authToastSent"), { description: t("authToastSentSub") });
+      } else {
+        toast.success(t("authToastWelcome"));
+      }
       navigate({ to: "/onboarding" });
     }, 650);
   }
