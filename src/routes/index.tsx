@@ -21,7 +21,7 @@ function Index() {
 
   function choose(role: Role) {
     setRole(role);
-    navigate({ to: role === "client" ? "/auth" : "/lawyer" });
+    navigate({ to: role === "client" ? "/auth" : "/lawyer-onboarding" });
   }
 
   return (
