@@ -873,11 +873,16 @@ function EducationStep({
 function SpecialtiesStep({
   selected,
   toggle,
+  otherText,
+  onOtherChange,
 }: {
   selected: Set<SpecId>;
   toggle: (id: SpecId) => void;
+  otherText: string;
+  onOtherChange: (v: string) => void;
 }) {
   const t = useT();
+  const showOther = selected.has("other");
   return (
     <div>
       <StepHeading titleKey="stepSpecTitle" descKey="stepSpecDesc" />
@@ -906,12 +911,30 @@ function SpecialtiesStep({
           );
         })}
       </div>
+      {showOther && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4"
+        >
+          <input
+            type="text"
+            value={otherText}
+            onChange={(e) => onOtherChange(e.target.value)}
+            placeholder={t("specOtherPlaceholder")}
+            maxLength={80}
+            aria-label={t("specOtherPlaceholder")}
+            className="liquid-glass w-full rounded-2xl border-0 bg-white/5 px-4 py-3 text-[14px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+          />
+        </motion.div>
+      )}
       <p className="mt-4 text-[11px] text-muted-foreground">
         {selected.size} · {t("stepSpecTitle")}
       </p>
     </div>
   );
 }
+
 
 function ReviewStep({ form }: { form: FormState }) {
   const t = useT();
