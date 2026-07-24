@@ -96,11 +96,16 @@
   /* navy */
   --navy: oklch(0.208 0.042 265.755);
   --navy-foreground: oklch(0.984 0.003 247.858);
-  /* gold #D4AF37 */
+  /* gold #D4AF37 — unified brand accent */
   --gold: oklch(0.76 0.13 85);
   --gold-foreground: oklch(0.208 0.042 265.755);
   /* gold-light #F1E4C3 */
   --gold-light: oklch(0.92 0.045 90);
+  /* Gold gradient stops — reference these in gradients, shadows, borders */
+  --gold-hi: #f1e4c3;
+  --gold-mid: #d4af37;
+  --gold-lo: #b8912b;
+  --gold-glow: 212 175 55;
   /* success emerald */
   --success: oklch(0.7 0.14 162);
   --success-foreground: oklch(0.984 0.003 247.858);
@@ -157,6 +162,10 @@
   --gold: oklch(0.76 0.13 85);
   --gold-foreground: oklch(0.208 0.042 265.755);
   --gold-light: oklch(0.92 0.045 90);
+  --gold-hi: #f1e4c3;
+  --gold-mid: #d4af37;
+  --gold-lo: #b8912b;
+  --gold-glow: 212 175 55;
   --success: oklch(0.7 0.14 162);
   --success-foreground: oklch(0.984 0.003 247.858);
 }
