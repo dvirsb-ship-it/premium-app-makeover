@@ -371,7 +371,7 @@ function LawyerOnboarding() {
                   toggle={toggleSpec}
                   otherText={form.otherSpecialty}
                   onOtherChange={(v) => update("otherSpecialty", v)}
-                />)
+                />
               )}
               {step === "review" && <ReviewStep form={form} />}
             </motion.div>
