@@ -319,7 +319,7 @@ function LawyerOnboarding() {
             >
               {verifyState === "running" && <VerifyRunning />}
               {verifyState === "pass" && (
-                <VerifyPass form={form} onContinue={finishOnboarding} />
+                <VerifyPass form={form} record={record} onContinue={finishOnboarding} />
               )}
               {verifyState === "fail" && (
                 <VerifyFail
