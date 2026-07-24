@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useSettings, type Lang } from "./settings";
 
 type Dict = Record<string, { he: string; en: string }>;
@@ -230,7 +231,8 @@ export function translate(key: StringKey, lang: Lang) {
   return strings[key][lang];
 }
 
+
 export function useT() {
   const { lang } = useSettings();
-  return (key: StringKey) => translate(key, lang);
+  return useCallback((key: StringKey) => translate(key, lang), [lang]);
 }

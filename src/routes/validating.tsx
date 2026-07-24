@@ -57,7 +57,8 @@ function Validating() {
     );
 
     return () => timers.forEach((tm) => window.clearTimeout(tm));
-  }, [addCase, navigate, t]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const progress = Math.min(current / stepKeys.length, 1);
 
