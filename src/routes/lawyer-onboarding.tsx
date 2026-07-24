@@ -25,6 +25,8 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { cn } from "../lib/utils";
+import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
+import { exportVerificationPdf } from "../lib/pdf-export";
 
 export const Route = createFileRoute("/lawyer-onboarding")({
   head: () => ({
