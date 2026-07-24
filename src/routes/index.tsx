@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
