@@ -51,18 +51,18 @@ function Cases() {
         </div>
 
         {cases.length === 0 ? (
-          <div className="mt-16 flex flex-col items-center text-center">
-            <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-muted-foreground">
-              <FolderOpen className="size-8" />
-            </span>
-            <p className="mt-4 text-base font-semibold text-foreground">{t("noCases")}</p>
-            <Link
-              to="/onboarding"
-              className="btn-gold mt-5 rounded-2xl px-6 py-3 text-sm font-bold"
-            >
-              {t("shareNewCase")}
-            </Link>
-          </div>
+          <EmptyState
+            icon={FolderOpen}
+            title={t("noCases")}
+            action={
+              <Link
+                to="/onboarding"
+                className="btn-gold inline-flex rounded-2xl px-6 py-3 text-sm font-bold"
+              >
+                {t("shareNewCase")}
+              </Link>
+            }
+          />
         ) : (
           <Stagger className="space-y-4">
             {cases.map((c) => {
