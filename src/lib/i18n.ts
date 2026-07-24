@@ -223,6 +223,23 @@ export const strings = {
   rootMetaTitle: { he: "JustAsk — הגישה הישירה שלך לצדק", en: "JustAsk — Your direct path to justice" },
   rootMetaDesc: { he: "JustAsk מחברת בין נפגעים לעורכי דין מומחים. שתפו את המקרה, עברו בדיקת התאמה וקבלו הצעות מעורכי דין רלוונטיים.", en: "JustAsk connects people with expert lawyers. Share your case, get matched, and receive offers from relevant lawyers." },
   rootOgDesc: { he: "פלטפורמה משפטית פרמיום המחברת בין נפגעים לעורכי דין מומחים בתחומם.", en: "A premium legal platform connecting people with expert lawyers in their field." },
+
+  // Welcome onboarding
+  welcomeSkip: { he: "דלג", en: "Skip" },
+  welcomeNext: { he: "הבא", en: "Next" },
+  welcomeStart: { he: "בואו נתחיל", en: "Let's start" },
+  welcomeSlide1Title: { he: "צדק שמתחיל בשאלה אחת", en: "Justice begins with one question" },
+  welcomeSlide1Body: { he: "שתפו את המקרה בכמה שורות. ה-AI שלנו מזהה את תחום המשפט המדויק לפנייה שלכם.", en: "Share your case in a few lines. Our AI identifies the exact legal field for you." },
+  welcomeSlide2Title: { he: "מתחברים לעורך הדין הנכון", en: "Matched with the right lawyer" },
+  welcomeSlide2Body: { he: "עורכי דין מומחים בתחום שלכם מקבלים את הפנייה ומביעים עניין — אתם בוחרים מי הכי מתאים.", en: "Expert lawyers in your field see the request and express interest — you pick the best fit." },
+  welcomeSlide3Title: { he: "פרטי, מאובטח, אישי", en: "Private, secure, personal" },
+  welcomeSlide3Body: { he: "הפרטים שלכם מוצפנים ונשלחים רק לעורכי דין רלוונטיים. אתם בשליטה מלאה.", en: "Your details are encrypted and shared only with relevant lawyers. You stay in full control." },
+
+  // Validating — retry
+  valStuckTitle: { he: "הבדיקה מתעכבת", en: "This is taking longer than usual" },
+  valStuckSub: { he: "נראה שהחיבור איטי. נסו שוב או המשיכו לתיקים שלכם.", en: "The connection seems slow. Try again or continue to your cases." },
+  valRetry: { he: "נסה שוב", en: "Try again" },
+  valGoCases: { he: "לתיקים שלי", en: "To my cases" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

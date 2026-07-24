@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
@@ -35,11 +36,27 @@ function Index() {
   const navigate = useNavigate();
   const { setRole } = useAppStore();
   const t = useT();
+  const [gateChecked, setGateChecked] = useState(false);
+
+  // First-run welcome tour gate — runs once per browser.
+  useEffect(() => {
+    try {
+      if (!localStorage.getItem("justask-welcomed")) {
+        navigate({ to: "/welcome", replace: true });
+        return;
+      }
+    } catch {
+      /* ignore */
+    }
+    setGateChecked(true);
+  }, [navigate]);
 
   function choose(role: Role) {
     setRole(role);
     navigate({ to: role === "client" ? "/auth" : "/lawyer-onboarding" });
   }
+
+  if (!gateChecked) return null;
 
   return (
     <AppShell withNav bare outerClassName="studio-stage">

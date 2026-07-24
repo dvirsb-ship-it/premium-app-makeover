@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ValidatingRouteImport } from './routes/validating'
 import { Route as SubmittedRouteImport } from './routes/submitted'
 import { Route as ProfileRouteImport } from './routes/profile'
@@ -24,6 +25,11 @@ import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profi
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
 
+const WelcomeRoute = WelcomeRouteImport.update({
+  id: '/welcome',
+  path: '/welcome',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ValidatingRoute = ValidatingRouteImport.update({
   id: '/validating',
   path: '/validating',
@@ -107,6 +113,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
+  '/welcome': typeof WelcomeRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -123,6 +130,7 @@ export interface FileRoutesByTo {
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
+  '/welcome': typeof WelcomeRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -140,6 +148,7 @@ export interface FileRoutesById {
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
+  '/welcome': typeof WelcomeRoute
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
@@ -158,6 +167,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/submitted'
     | '/validating'
+    | '/welcome'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -174,6 +184,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/submitted'
     | '/validating'
+    | '/welcome'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -190,6 +201,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/submitted'
     | '/validating'
+    | '/welcome'
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
@@ -207,6 +219,7 @@ export interface RootRouteChildren {
   ProfileRoute: typeof ProfileRoute
   SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
+  WelcomeRoute: typeof WelcomeRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
@@ -214,6 +227,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/welcome': {
+      id: '/welcome'
+      path: '/welcome'
+      fullPath: '/welcome'
+      preLoaderRoute: typeof WelcomeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/validating': {
       id: '/validating'
       path: '/validating'
@@ -327,6 +347,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileRoute: ProfileRoute,
   SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
+  WelcomeRoute: WelcomeRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
