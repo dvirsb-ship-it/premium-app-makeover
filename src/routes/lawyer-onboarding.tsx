@@ -59,7 +59,16 @@ type SpecId =
   | "family"
   | "criminal"
   | "commercial"
-  | "tax";
+  | "tax"
+  | "corporate"
+  | "ip"
+  | "immigration"
+  | "medical"
+  | "insurance"
+  | "consumer"
+  | "administrative"
+  | "military"
+  | "other";
 
 const SPECIALTIES: { id: SpecId; labelKey: StringKey }[] = [
   { id: "injury", labelKey: "specInjury" },
@@ -70,6 +79,15 @@ const SPECIALTIES: { id: SpecId; labelKey: StringKey }[] = [
   { id: "criminal", labelKey: "specCriminal" },
   { id: "commercial", labelKey: "specCommercial" },
   { id: "tax", labelKey: "specTax" },
+  { id: "corporate", labelKey: "specCorporate" },
+  { id: "ip", labelKey: "specIp" },
+  { id: "immigration", labelKey: "specImmigration" },
+  { id: "medical", labelKey: "specMedical" },
+  { id: "insurance", labelKey: "specInsurance" },
+  { id: "consumer", labelKey: "specConsumer" },
+  { id: "administrative", labelKey: "specAdministrative" },
+  { id: "military", labelKey: "specMilitary" },
+  { id: "other", labelKey: "specOther" },
 ];
 
 type StepId = "intro" | "identity" | "bar" | "education" | "specialties" | "review";
