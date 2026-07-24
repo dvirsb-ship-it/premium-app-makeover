@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
+import { EmptyState } from "../components/EmptyState";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
@@ -10,6 +11,15 @@ import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/cases")({
+  head: () => ({
+    meta: [
+      { title: "My cases — JustAsk" },
+      { name: "description", content: "Track your legal cases and lawyer offers in one place." },
+      { property: "og:title", content: "My cases — JustAsk" },
+      { property: "og:description", content: "Track your legal cases and lawyer offers in one place." },
+      { property: "og:type", content: "website" },
+    ],
+  }),
   component: Cases,
 });
 
@@ -41,18 +51,18 @@ function Cases() {
         </div>
 
         {cases.length === 0 ? (
-          <div className="mt-16 flex flex-col items-center text-center">
-            <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-muted-foreground">
-              <FolderOpen className="size-8" />
-            </span>
-            <p className="mt-4 text-base font-semibold text-foreground">{t("noCases")}</p>
-            <Link
-              to="/onboarding"
-              className="btn-gold mt-5 rounded-2xl px-6 py-3 text-sm font-bold"
-            >
-              {t("shareNewCase")}
-            </Link>
-          </div>
+          <EmptyState
+            icon={FolderOpen}
+            title={t("noCases")}
+            action={
+              <Link
+                to="/onboarding"
+                className="btn-gold inline-flex rounded-2xl px-6 py-3 text-sm font-bold"
+              >
+                {t("shareNewCase")}
+              </Link>
+            }
+          />
         ) : (
           <Stagger className="space-y-4">
             {cases.map((c) => {

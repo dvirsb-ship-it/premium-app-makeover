@@ -21,6 +21,15 @@ import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/profile")({
+  head: () => ({
+    meta: [
+      { title: "Profile — JustAsk" },
+      { name: "description", content: "Manage your account, language, and appearance preferences on JustAsk." },
+      { property: "og:title", content: "Profile — JustAsk" },
+      { property: "og:description", content: "Manage your account and preferences." },
+      { property: "og:type", content: "profile" },
+    ],
+  }),
   component: Profile,
 });
 

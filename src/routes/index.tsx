@@ -11,6 +11,23 @@ import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
 
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "JustAsk — Your direct path to justice" },
+      {
+        name: "description",
+        content:
+          "Premium legal concierge. Share your case in minutes and get matched with expert lawyers — private, secure, personal.",
+      },
+      { property: "og:title", content: "JustAsk — Your direct path to justice" },
+      {
+        property: "og:description",
+        content: "Get matched with expert lawyers in minutes. Private and secure.",
+      },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
+    ],
+  }),
   component: Index,
 });
 
