@@ -198,6 +198,17 @@ export const strings = {
   specCriminal: { he: "פלילי", en: "Criminal" },
   specCommercial: { he: "מסחרי וחוזים", en: "Commercial & Contracts" },
   specTax: { he: "מיסים", en: "Tax" },
+  specCorporate: { he: "תאגידים וחברות", en: "Corporate & Companies" },
+  specIp: { he: "קניין רוחני", en: "Intellectual Property" },
+  specImmigration: { he: "הגירה וויזות", en: "Immigration & Visas" },
+  specMedical: { he: "רשלנות רפואית", en: "Medical Malpractice" },
+  specInsurance: { he: "ביטוח", en: "Insurance" },
+  specConsumer: { he: "צרכנות", en: "Consumer Protection" },
+  specAdministrative: { he: "מנהלי וחוקתי", en: "Administrative & Constitutional" },
+  specMilitary: { he: "צבאי", en: "Military" },
+  specOther: { he: "אחר", en: "Other" },
+  specOtherPlaceholder: { he: "פרטו את תחום ההתמחות", en: "Describe your specialty" },
+  issueOtherSpec: { he: "יש לפרט את תחום ההתמחות ׳אחר׳", en: "Please describe the 'Other' specialty" },
 
   // Lawyer subscription
   subMetaTitle: { he: "JustAsk Pro — מנוי לעורכי דין", en: "JustAsk Pro — Lawyer membership" },
