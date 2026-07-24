@@ -143,7 +143,7 @@ function VerificationQueue() {
                     />
                     <Meta
                       label={t("stepSpecTitle")}
-                      value={rec.specialties.join(" · ") || "—"}
+                      value={formatSpecialties(rec)}
                     />
                   </dl>
 
