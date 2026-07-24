@@ -125,7 +125,8 @@ type IssueField =
   | "university"
   | "gradYear"
   | "diploma"
-  | "specialties";
+  | "specialties"
+  | "otherSpec";
 
 interface Issue {
   field: IssueField;
