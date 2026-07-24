@@ -64,6 +64,9 @@ export const strings = {
 
   // Common
   backAria: { he: "חזרה", en: "Back" },
+  loading: { he: "טוען…", en: "Loading…" },
+  signingIn: { he: "מתחבר…", en: "Signing in…" },
+  sending: { he: "שולח…", en: "Sending…" },
   urgent: { he: "דחוף", en: "Urgent" },
   today: { he: "היום", en: "Today" },
   active: { he: "פעיל", en: "Active" },

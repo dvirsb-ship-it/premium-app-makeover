@@ -6,8 +6,10 @@ import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
+import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
+import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/auth")({
   component: Auth,
@@ -37,6 +39,7 @@ function GoogleIcon() {
 }
 
 type Method = "email" | "phone" | null;
+type LoadingProvider = "google" | "apple" | "email" | "phone" | null;
 
 function Auth() {
   const navigate = useNavigate();
@@ -44,18 +47,29 @@ function Auth() {
   const { setRole } = useAppStore();
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
+  const [loading, setLoading] = useState<LoadingProvider>(null);
 
-  function proceed() {
+  const busy = loading !== null;
+
+  function proceed(provider: LoadingProvider) {
+    if (busy) return;
+    setLoading(provider);
     setRole("client");
-    navigate({ to: "/onboarding" });
+    // Simulate async auth so the loading state is perceivable
+    window.setTimeout(() => {
+      navigate({ to: "/onboarding" });
+    }, 650);
   }
+
+  const providerBtnBase =
+    "liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98] min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-60 disabled:cursor-not-allowed";
 
   return (
     <AppShell bare outerClassName="studio-stage">
       <Page className="relative z-10 flex min-h-screen flex-col">
         <TopBar title={t("authTitle")} subtitle={t("authSub")} />
 
-        <div className="flex flex-1 flex-col justify-center px-6 py-8">
+        <main className="flex flex-1 flex-col justify-center px-6 py-8">
           <Stagger className="w-full space-y-4">
             <Rise className="mb-2 flex flex-col items-center text-center">
               <BrandMark size={72} />
@@ -71,28 +85,52 @@ function Auth() {
             <Rise>
               <button
                 type="button"
-                onClick={proceed}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                onClick={() => proceed("google")}
+                disabled={busy}
+                aria-busy={loading === "google"}
+                aria-label={t("continueGoogle")}
+                className={cn(providerBtnBase)}
               >
-                <GoogleIcon />
-                {t("continueGoogle")}
+                {loading === "google" ? (
+                  <>
+                    <Spinner className="text-foreground" />
+                    <span>{t("signingIn")}</span>
+                  </>
+                ) : (
+                  <>
+                    <GoogleIcon />
+                    <span>{t("continueGoogle")}</span>
+                  </>
+                )}
               </button>
             </Rise>
 
             <Rise>
               <button
                 type="button"
-                onClick={proceed}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                onClick={() => proceed("apple")}
+                disabled={busy}
+                aria-busy={loading === "apple"}
+                aria-label={t("continueApple")}
+                className={cn(providerBtnBase)}
               >
-                <Apple className="size-5 fill-current" strokeWidth={0} />
-                {t("continueApple")}
+                {loading === "apple" ? (
+                  <>
+                    <Spinner className="text-foreground" />
+                    <span>{t("signingIn")}</span>
+                  </>
+                ) : (
+                  <>
+                    <Apple className="size-5 fill-current" strokeWidth={0} aria-hidden />
+                    <span>{t("continueApple")}</span>
+                  </>
+                )}
               </button>
             </Rise>
 
             {/* divider */}
             <Rise>
-              <div className="flex items-center gap-3 py-1">
+              <div className="flex items-center gap-3 py-1" aria-hidden>
                 <span className="h-px flex-1 bg-border" />
                 <span className="text-xs font-medium text-muted-foreground">
                   {t("authOr")}
@@ -106,10 +144,13 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "email" ? null : "email")}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                disabled={busy}
+                aria-expanded={method === "email"}
+                aria-controls="auth-method-panel"
+                className={cn(providerBtnBase)}
               >
-                <Mail className="size-5 text-gold" />
-                {t("continueEmail")}
+                <Mail className="size-5 text-gold" aria-hidden />
+                <span>{t("continueEmail")}</span>
               </button>
             </Rise>
 
@@ -117,10 +158,13 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "phone" ? null : "phone")}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                disabled={busy}
+                aria-expanded={method === "phone"}
+                aria-controls="auth-method-panel"
+                className={cn(providerBtnBase)}
               >
-                <Phone className="size-5 text-gold" />
-                {t("continuePhone")}
+                <Phone className="size-5 text-gold" aria-hidden />
+                <span>{t("continuePhone")}</span>
               </button>
             </Rise>
 
@@ -128,6 +172,7 @@ function Auth() {
               {method && (
                 <motion.div
                   key={method}
+                  id="auth-method-panel"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
@@ -135,12 +180,17 @@ function Auth() {
                   className="overflow-hidden"
                 >
                   <div className="space-y-3 pt-1">
-                    <label className="block text-start text-xs font-semibold text-muted-foreground">
+                    <label
+                      htmlFor="auth-method-input"
+                      className="block text-start text-xs font-semibold text-foreground/80"
+                    >
                       {method === "email" ? t("emailLabel") : t("phoneLabel")}
                     </label>
                     <input
+                      id="auth-method-input"
                       type={method === "email" ? "email" : "tel"}
                       inputMode={method === "email" ? "email" : "tel"}
+                      autoComplete={method === "email" ? "email" : "tel"}
                       dir="ltr"
                       value={value}
                       onChange={(e) => setValue(e.target.value)}
@@ -149,14 +199,23 @@ function Auth() {
                           ? t("emailPlaceholder")
                           : t("phonePlaceholder")
                       }
-                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-gold/50"
+                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-foreground/50 focus-visible:ring-2 focus-visible:ring-gold/70"
                     />
                     <button
                       type="button"
-                      onClick={proceed}
-                      className="btn-gold w-full rounded-2xl py-3.5 text-sm font-bold"
+                      onClick={() => proceed(method)}
+                      disabled={busy || value.trim().length === 0}
+                      aria-busy={loading === method}
+                      className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-bold min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {t("authContinueBtn")}
+                      {loading === method ? (
+                        <>
+                          <Spinner className="text-navy" />
+                          <span>{t("sending")}</span>
+                        </>
+                      ) : (
+                        <span>{t("authContinueBtn")}</span>
+                      )}
                     </button>
                   </div>
                 </motion.div>
@@ -164,12 +223,12 @@ function Auth() {
             </AnimatePresence>
 
             <Rise>
-              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-foreground/70">
                 {t("authTerms")}
               </p>
             </Rise>
           </Stagger>
-        </div>
+        </main>
       </Page>
     </AppShell>
   );
