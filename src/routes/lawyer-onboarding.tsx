@@ -972,6 +972,12 @@ function ReviewStep({ form }: { form: FormState }) {
           lines={[
             [...form.specialties]
               .map((id) => {
+                if (id === "other") {
+                  const label = t("specOther");
+                  return form.otherSpecialty.trim()
+                    ? `${label}: ${form.otherSpecialty.trim()}`
+                    : label;
+                }
                 const spec = SPECIALTIES.find((s) => s.id === id);
                 return spec ? t(spec.labelKey) : id;
               })
