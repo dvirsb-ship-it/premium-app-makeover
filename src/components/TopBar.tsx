@@ -23,6 +23,8 @@ export function TopBar({
   className?: string;
 }) {
   const router = useRouter();
+  const { dir } = useSettings();
+  const BackIcon = dir === "rtl" ? ChevronRight : ChevronLeft;
   return (
     <motion.header
       initial={{ opacity: 0, y: -12 }}
