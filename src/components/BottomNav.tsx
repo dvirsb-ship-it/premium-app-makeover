@@ -25,7 +25,7 @@ export function BottomNav() {
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-5 pb-4">
-      <nav className="liquid-glass flex w-full max-w-md items-center justify-around rounded-[26px] px-2 py-2">
+      <nav aria-label="Primary" className="liquid-glass flex w-full max-w-md items-center justify-around rounded-[26px] px-2 py-2">
         {tabs.map((tab) => {
           const active =
             tab.to === "/"
@@ -36,7 +36,9 @@ export function BottomNav() {
             <Link
               key={tab.to}
               to={tab.to}
-              className="relative flex flex-1 flex-col items-center gap-1 rounded-2xl py-2"
+              aria-label={t(tab.key)}
+              aria-current={active ? "page" : undefined}
+              className="relative flex min-h-11 flex-1 flex-col items-center gap-1 rounded-2xl py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
             >
               {active && (
                 <motion.span
