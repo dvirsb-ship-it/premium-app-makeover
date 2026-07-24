@@ -400,9 +400,9 @@
 
 /* Gold gradient primary CTA used across the app */
 @utility btn-gold {
-  background: linear-gradient(180deg, #f1e4c3 0%, #d4af37 55%, #b8912b 100%);
+  background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-mid) 55%, var(--gold-lo) 100%);
   color: #0f172a;
-  box-shadow: 0 14px 30px -12px rgba(212, 175, 55, 0.55);
+  box-shadow: 0 14px 30px -12px rgb(var(--gold-glow) / 0.55);
   &:active {
     transform: scale(0.98);
   }
@@ -410,7 +410,8 @@
 
 /* Icon chip with the same gold treatment */
 @utility chip-gold {
-  background: linear-gradient(180deg, #f1e4c3 0%, #d4af37 55%, #b8912b 100%);
+  background: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-mid) 55%, var(--gold-lo) 100%);
   color: #0f172a;
-  box-shadow: 0 10px 24px -10px rgba(212, 175, 55, 0.5);
+  box-shadow: 0 10px 24px -10px rgb(var(--gold-glow) / 0.5);
 }
+
