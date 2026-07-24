@@ -1,6 +1,7 @@
 import { useRouter } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
+import { useSettings } from "../lib/settings";
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils";
 
