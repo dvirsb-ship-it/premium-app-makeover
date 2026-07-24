@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
-import { Apple, Mail, Phone } from "lucide-react";
+import { Apple, Mail, Phone, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { TopBar } from "../components/TopBar";
@@ -48,15 +49,50 @@ function Auth() {
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
   const [loading, setLoading] = useState<LoadingProvider>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const busy = loading !== null;
 
+  const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+  const phoneRe = /^[+\d][\d\s\-().]{6,}$/;
+
+  function validate(provider: "email" | "phone", raw: string): string | null {
+    const trimmed = raw.trim();
+    if (provider === "email" && !emailRe.test(trimmed)) return t("authErrEmail");
+    if (provider === "phone" && !phoneRe.test(trimmed)) return t("authErrPhone");
+    return null;
+  }
+
   function proceed(provider: LoadingProvider) {
-    if (busy) return;
+    if (busy || !provider) return;
+    setError(null);
+
+    if (provider === "email" || provider === "phone") {
+      const err = validate(provider, value);
+      if (err) {
+        setError(err);
+        toast.error(err);
+        return;
+      }
+    }
+
     setLoading(provider);
-    setRole("client");
     // Simulate async auth so the loading state is perceivable
     window.setTimeout(() => {
+      // Simulated failure surface — 1/25 chance for demo realism
+      const failed = Math.random() < 0.04;
+      if (failed) {
+        setLoading(null);
+        setError(t("authErrGeneric"));
+        toast.error(t("authErrGeneric"));
+        return;
+      }
+      setRole("client");
+      if (provider === "email" || provider === "phone") {
+        toast.success(t("authToastSent"), { description: t("authToastSentSub") });
+      } else {
+        toast.success(t("authToastWelcome"));
+      }
       navigate({ to: "/onboarding" });
     }, 650);
   }
@@ -193,14 +229,37 @@ function Auth() {
                       autoComplete={method === "email" ? "email" : "tel"}
                       dir="ltr"
                       value={value}
-                      onChange={(e) => setValue(e.target.value)}
+                      onChange={(e) => {
+                        setValue(e.target.value);
+                        if (error) setError(null);
+                      }}
+                      aria-invalid={error ? true : undefined}
+                      aria-describedby={error ? "auth-method-error" : undefined}
                       placeholder={
                         method === "email"
                           ? t("emailPlaceholder")
                           : t("phonePlaceholder")
                       }
-                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-foreground/50 focus-visible:ring-2 focus-visible:ring-gold/70"
+                      className={cn(
+                        "liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-foreground/50 focus-visible:ring-2 focus-visible:ring-gold/70",
+                        error && "ring-2 ring-destructive/70"
+                      )}
                     />
+                    <AnimatePresence initial={false}>
+                      {error && (
+                        <motion.p
+                          id="auth-method-error"
+                          role="alert"
+                          initial={{ opacity: 0, y: -4 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -4 }}
+                          className="flex items-center gap-1.5 text-start text-xs font-medium text-destructive"
+                        >
+                          <AlertCircle className="size-3.5" aria-hidden />
+                          {error}
+                        </motion.p>
+                      )}
+                    </AnimatePresence>
                     <button
                       type="button"
                       onClick={() => proceed(method)}

@@ -10,6 +10,7 @@ import injuryImg from "../assets/categories/personal-injury.jpg";
 import employmentImg from "../assets/categories/employment.jpg";
 import realEstateImg from "../assets/categories/real-estate.jpg";
 import civilImg from "../assets/categories/civil.jpg";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
@@ -46,7 +47,8 @@ function pickImage(category: string) {
 }
 
 function LawyerFeed() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { feed } = useAppStore();
   const { lang } = useSettings();
   const t = useT();

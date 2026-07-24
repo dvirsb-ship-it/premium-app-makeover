@@ -11,6 +11,7 @@ import injuryImg from "../assets/categories/personal-injury.jpg";
 import employmentImg from "../assets/categories/employment.jpg";
 import realEstateImg from "../assets/categories/real-estate.jpg";
 import civilImg from "../assets/categories/civil.jpg";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer-onboarding")({
   head: () => ({
@@ -46,7 +47,8 @@ const SPECIALTIES: Spec[] = [
 ];
 
 function LawyerOnboarding() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const { dir } = useSettings();
   const t = useT();
   const [selected, setSelected] = useState<Set<string>>(new Set(["injury"]));

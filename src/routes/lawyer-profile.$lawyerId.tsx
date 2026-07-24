@@ -6,6 +6,7 @@ import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
 import lawyerPortrait from "../assets/lawyer-portrait.jpg";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer-profile/$lawyerId")({
   head: () => ({
@@ -28,7 +29,8 @@ export const Route = createFileRoute("/lawyer-profile/$lawyerId")({
 });
 
 function LawyerProfile() {
-  const { lawyerId } = Route.useParams();
+
+  useRequireAuth();  const { lawyerId } = Route.useParams();
   const navigate = useNavigate();
   const { cases } = useAppStore();
   const t = useT();

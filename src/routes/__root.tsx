@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStoreProvider } from "../lib/store";
 import { SettingsProvider } from "../lib/settings";
+import { Toaster } from "../components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -143,6 +144,7 @@ function RootComponent() {
         <AppStoreProvider>
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
+          <Toaster />
         </AppStoreProvider>
       </SettingsProvider>
     </QueryClientProvider>

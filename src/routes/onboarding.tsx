@@ -8,6 +8,7 @@ import { Page, Stagger, Rise } from "../components/motion";
 import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
+import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
@@ -21,7 +22,8 @@ const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
 ];
 
 function Onboarding() {
-  const navigate = useNavigate();
+
+  useRequireAuth();  const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const t = useT();
