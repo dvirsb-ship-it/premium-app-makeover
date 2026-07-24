@@ -187,6 +187,8 @@ function collectIssues(form: FormState): Issue[] {
 
   if (form.specialties.size === 0)
     issues.push({ field: "specialties", messageKey: "issueSpecialties", step: "specialties" });
+  if (form.specialties.has("other") && form.otherSpecialty.trim().length < 2)
+    issues.push({ field: "otherSpec", messageKey: "issueOtherSpec", step: "specialties" });
 
   return issues;
 }
