@@ -5,6 +5,7 @@ import { Check, FileCheck2, Lock, ScrollText, Sparkles } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
+import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -22,7 +23,15 @@ const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
 function Onboarding() {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const t = useT();
+
+  function handleContinue() {
+    if (!agreed || submitting) return;
+    setSubmitting(true);
+    window.setTimeout(() => navigate({ to: "/intake" }), 450);
+  }
+
 
   return (
     <AppShell bare>
@@ -61,7 +70,9 @@ function Onboarding() {
           <button
             type="button"
             onClick={() => setAgreed((v) => !v)}
-            className="liquid-glass flex w-full items-center gap-3 rounded-2xl p-4 text-start transition active:scale-[0.99]"
+            role="switch"
+            aria-checked={agreed}
+            className="liquid-glass flex w-full items-center gap-3 rounded-2xl p-4 text-start transition min-h-11 active:scale-[0.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
           >
             <motion.span
               animate={
@@ -70,6 +81,7 @@ function Onboarding() {
                   : { backgroundColor: "rgba(0,0,0,0)", borderColor: "rgba(255,255,255,0.3)" }
               }
               className="grid size-6 shrink-0 place-items-center rounded-md border-2"
+              aria-hidden
             >
               {agreed && (
                 <motion.span
@@ -88,15 +100,24 @@ function Onboarding() {
 
           <motion.button
             type="button"
-            disabled={!agreed}
-            onClick={() => navigate({ to: "/intake" })}
-            whileTap={agreed ? { scale: 0.98 } : undefined}
-            className="btn-gold w-full rounded-2xl py-4 text-base font-bold transition disabled:opacity-40"
+            disabled={!agreed || submitting}
+            onClick={handleContinue}
+            aria-busy={submitting}
+            whileTap={agreed && !submitting ? { scale: 0.98 } : undefined}
+            className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold min-h-11 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {t("confirmContinue")}
+            {submitting ? (
+              <>
+                <Spinner className="text-navy" />
+                <span>{t("loading")}</span>
+              </>
+            ) : (
+              <span>{t("confirmContinue")}</span>
+            )}
           </motion.button>
         </div>
       </Page>
     </AppShell>
   );
 }
+

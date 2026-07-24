@@ -42,14 +42,14 @@ export function TopBar({
         type="button"
         onClick={() => (onBack ? onBack() : router.history.back())}
         className={cn(
-          "grid size-9 shrink-0 place-items-center rounded-full border transition active:scale-95",
+          "grid size-11 shrink-0 place-items-center rounded-full border transition active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70",
           inverse
             ? "border-white/15 bg-white/10 text-white"
             : "border-border bg-foreground/5 text-foreground",
         )}
         aria-label={t("backAria")}
       >
-        <BackIcon className="size-5" />
+        <BackIcon className="size-5" aria-hidden />
       </button>
       <div className="min-w-0 flex-1">
         <h1 className={cn("truncate text-base font-bold", inverse ? "text-white" : "text-foreground")}>
