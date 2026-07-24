@@ -213,6 +213,7 @@ function LawyerOnboarding() {
     gradYear: "",
     diplomaFile: null,
     specialties: new Set<SpecId>(["injury"]),
+    otherSpecialty: "",
   });
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
