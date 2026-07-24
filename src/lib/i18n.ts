@@ -61,6 +61,12 @@ export const strings = {
   phonePlaceholder: { he: "050-000-0000", en: "050-000-0000" },
   authContinueBtn: { he: "המשך", en: "Continue" },
   authTerms: { he: "בהמשך אני מאשר/ת את תנאי השימוש ומדיניות הפרטיות", en: "By continuing you agree to the Terms and Privacy Policy" },
+  authErrEmail: { he: "כתובת האימייל לא תקינה", en: "That email address doesn't look right" },
+  authErrPhone: { he: "מספר הטלפון לא תקין", en: "That phone number doesn't look right" },
+  authErrGeneric: { he: "לא הצלחנו להתחבר. נסו שוב.", en: "We couldn't sign you in. Please try again." },
+  authToastSent: { he: "שלחנו קישור התחברות", en: "Sign-in link sent" },
+  authToastSentSub: { he: "בדקו את תיבת הדואר או ההודעות", en: "Check your inbox or messages" },
+  authToastWelcome: { he: "ברוכים הבאים ל־JustAsk", en: "Welcome to JustAsk" },
 
   // Common
   backAria: { he: "חזרה", en: "Back" },
