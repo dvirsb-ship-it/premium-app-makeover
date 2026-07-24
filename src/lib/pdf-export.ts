@@ -53,7 +53,7 @@ export function exportVerificationPdf(rec: VerificationRecord) {
     ["Phone", rec.phone || "—"],
     ["Bar license", rec.barNumber ? `#${rec.barNumber} · ${rec.barYear}` : "—"],
     ["Education", rec.university ? `${rec.university} · ${rec.gradYear}` : "—"],
-    ["Specialties", rec.specialties.length ? rec.specialties.join(", ") : "—"],
+    ["Specialties", formatSpecialties(rec)],
     ["Status", rec.status.toUpperCase()],
   ];
 
