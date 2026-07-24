@@ -291,6 +291,39 @@ export const strings = {
   invalidId: { he: "מספר ת״ז לא תקין", en: "Invalid ID number" },
   nextStep: { he: "המשך", en: "Continue" },
   prevStep: { he: "חזרה", en: "Back" },
+
+  // AI verification
+  aiVerifyBadge: { he: "בדיקה חכמה של JustAsk AI", en: "JustAsk AI review" },
+  aiVerifyTitle: { he: "מאמת את הפרטים", en: "Verifying your details" },
+  aiVerifySub: { he: "אנו סורקים את כל המידע יחד — זה ייקח כמה שניות.", en: "We're reviewing everything together — this will take a few seconds." },
+  aiStep1: { he: "בודק זהות ותעודת זהות", en: "Checking identity and ID number" },
+  aiStep2: { he: "מאמת מספר רישיון עורך דין", en: "Verifying bar license number" },
+  aiStep3: { he: "סורק תעודות שהועלו", en: "Scanning uploaded certificates" },
+  aiStep4: { he: "בודק התאמה לתחומי התמחות", en: "Matching practice areas" },
+  aiPassTitle: { he: "כל הפרטים תקינים", en: "Everything checks out" },
+  aiPassSub: { he: "החשבון שלך יופעל תוך 24 שעות. בינתיים תוכל/י לצפות בפיד הפניות.", en: "Your account will be activated within 24 hours. In the meantime you can explore the leads feed." },
+  aiPassCta: { he: "המשך לפיד עורכי הדין", en: "Continue to the lawyer feed" },
+  aiFailTitle: { he: "מצאנו כמה דברים שצריך לתקן", en: "We found a few things to fix" },
+  aiFailSub: { he: "כדי להשלים את ההצטרפות, יש להשלים או לתקן את הפריטים הבאים:", en: "To finish onboarding, please complete or fix the items below:" },
+  aiFailCta: { he: "תיקון הפרטים", en: "Fix the details" },
+  aiRunAgain: { he: "בדיקה מחדש", en: "Run check again" },
+
+  // Validation issue messages
+  issueFullName: { he: "יש להזין שם מלא של לפחות שני תווים.", en: "Enter a full name of at least two characters." },
+  issueIdNumber: { he: "מספר תעודת הזהות שהוזן אינו תקין. יש להזין 9 ספרות תקינות.", en: "The ID number is invalid. Enter a valid 9-digit Israeli ID." },
+  issueEmail: { he: "כתובת האימייל אינה תקינה.", en: "The email address isn't valid." },
+  issuePhone: { he: "מספר טלפון קצר מדי — נדרשות לפחות 9 ספרות.", en: "Phone number is too short — at least 9 digits required." },
+  issueBarNumber: { he: "מספר רישיון עורך דין חסר או קצר מדי.", en: "Bar license number is missing or too short." },
+  issueBarYear: { he: "יש להזין שנת הסמכה תקינה (4 ספרות).", en: "Enter a valid admission year (4 digits)." },
+  issueBarCard: { he: "לא הועלה צילום תעודת עורך דין.", en: "No photo of your bar card was uploaded." },
+  issueUniversity: { he: "יש להזין שם מוסד הלימודים.", en: "Enter the name of your institution." },
+  issueGradYear: { he: "יש להזין שנת סיום תואר תקינה (4 ספרות).", en: "Enter a valid graduation year (4 digits)." },
+  issueDiploma: { he: "לא הועלתה תעודת בוגר.", en: "No diploma was uploaded." },
+  issueSpecialties: { he: "יש לבחור לפחות תחום התמחות אחד.", en: "Pick at least one practice area." },
+  issueFixIn: { he: "מעבר לשלב הרלוונטי", en: "Jump to the step" },
+  officialSummary: { he: "סיכום רשמי להגשה", en: "Official submission summary" },
+  submittedOn: { he: "הוגש בתאריך", en: "Submitted on" },
+
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
