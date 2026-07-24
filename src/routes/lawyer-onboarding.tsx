@@ -277,6 +277,7 @@ function LawyerOnboarding() {
           university: form.university,
           gradYear: form.gradYear,
           specialties: [...form.specialties],
+          otherSpecialty: form.specialties.has("other") ? form.otherSpecialty.trim() : "",
         });
         setRecord(rec);
         try {
