@@ -62,7 +62,7 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("client")}
-              className="liquid-glass group block w-full rounded-[26px] p-5 text-right"
+              className="liquid-glass group block w-full rounded-[26px] p-5 text-start"
             >
               <div className="relative flex items-center gap-5">
                 <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
@@ -83,7 +83,7 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("lawyer")}
-              className="liquid-glass-selected group block w-full rounded-[26px] p-5 text-right"
+              className="liquid-glass-selected group block w-full rounded-[26px] p-5 text-start"
             >
               <div className="relative flex items-center gap-5">
                 <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
