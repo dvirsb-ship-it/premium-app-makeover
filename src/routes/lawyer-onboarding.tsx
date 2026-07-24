@@ -446,7 +446,15 @@ function VerifyRunning() {
   );
 }
 
-function VerifyPass({ form, onContinue }: { form: FormState; onContinue: () => void }) {
+function VerifyPass({
+  form,
+  record,
+  onContinue,
+}: {
+  form: FormState;
+  record: VerificationRecord | null;
+  onContinue: () => void;
+}) {
   const t = useT();
   const { lang } = useSettings();
   const now = useMemo(() => new Date(), []);
@@ -455,6 +463,12 @@ function VerifyPass({ form, onContinue }: { form: FormState; onContinue: () => v
     month: "short",
     day: "numeric",
   });
+
+  function handleDownload() {
+    if (!record) return;
+    exportVerificationPdf(record);
+    toast.success(t("pdfExported"));
+  }
 
   return (
     <div className="pt-4">
@@ -503,15 +517,28 @@ function VerifyPass({ form, onContinue }: { form: FormState; onContinue: () => v
 
       <motion.button
         type="button"
+        onClick={handleDownload}
+        whileTap={{ scale: 0.97 }}
+        disabled={!record}
+        aria-label={t("downloadPdf")}
+        className="liquid-glass mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-full text-[14px] font-semibold text-foreground disabled:opacity-50"
+      >
+        <FileText className="size-4 text-gold" strokeWidth={2.4} aria-hidden />
+        {t("downloadPdf")}
+      </motion.button>
+
+      <motion.button
+        type="button"
         onClick={onContinue}
         whileTap={{ scale: 0.97 }}
-        className="btn-gold mt-6 flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold"
+        className="btn-gold mt-3 flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold"
       >
         {t("aiPassCta")}
       </motion.button>
     </div>
   );
 }
+
 
 function SumRow({ labelKey, value }: { labelKey: StringKey; value: string }) {
   const t = useT();
