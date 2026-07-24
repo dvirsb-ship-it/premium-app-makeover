@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Apple, Mail, Phone } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
+import { HeroVideo } from "../components/HeroVideo";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
@@ -52,17 +53,20 @@ function Auth() {
 
   return (
     <AppShell bare outerClassName="studio-stage">
-      <Page className="flex min-h-screen flex-col">
-        <TopBar title={t("authTitle")} subtitle={t("authSub")} />
+      {/* Cinematic studio backdrop — same dark canvas as the home screen */}
+      <HeroVideo className="z-0" />
+
+      <Page className="relative z-10 flex min-h-screen flex-col">
+        <TopBar title={t("authTitle")} subtitle={t("authSub")} inverse />
 
         <div className="flex flex-1 flex-col justify-center px-6 py-8">
           <Stagger className="w-full space-y-4">
             <Rise className="mb-2 flex flex-col items-center text-center">
               <BrandMark size={72} />
-              <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground">
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.55)]">
                 Just<span className="text-gradient-gold">Ask</span>
               </h1>
-              <p className="mt-2 max-w-[16rem] text-sm text-muted-foreground">
+              <p className="mt-2 max-w-[16rem] text-sm text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)]">
                 {t("authSub")}
               </p>
             </Rise>
@@ -72,7 +76,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={proceed}
-                className="liquid-glass flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 <GoogleIcon />
                 {t("continueGoogle")}
@@ -83,7 +87,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={proceed}
-                className="flex w-full items-center justify-center gap-3 rounded-2xl bg-[#0F172A] py-3.5 text-sm font-bold text-white transition active:scale-[0.98] dark:bg-white dark:text-[#0F172A]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 <Apple className="size-5 fill-current" strokeWidth={0} />
                 {t("continueApple")}
@@ -93,11 +97,11 @@ function Auth() {
             {/* divider */}
             <Rise>
               <div className="flex items-center gap-3 py-1">
-                <span className="h-px flex-1 bg-border" />
-                <span className="text-xs font-medium text-muted-foreground">
+                <span className="h-px flex-1 bg-white/20" />
+                <span className="text-xs font-medium text-white/70">
                   {t("authOr")}
                 </span>
-                <span className="h-px flex-1 bg-border" />
+                <span className="h-px flex-1 bg-white/20" />
               </div>
             </Rise>
 
@@ -106,7 +110,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "email" ? null : "email")}
-                className="liquid-glass flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 <Mail className="size-5 text-gold" />
                 {t("continueEmail")}
@@ -117,7 +121,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "phone" ? null : "phone")}
-                className="liquid-glass flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
               >
                 <Phone className="size-5 text-gold" />
                 {t("continuePhone")}
@@ -135,7 +139,7 @@ function Auth() {
                   className="overflow-hidden"
                 >
                   <div className="space-y-3 pt-1">
-                    <label className="block text-start text-xs font-semibold text-muted-foreground">
+                    <label className="block text-start text-xs font-semibold text-white/70">
                       {method === "email" ? t("emailLabel") : t("phoneLabel")}
                     </label>
                     <input
@@ -149,7 +153,7 @@ function Auth() {
                           ? t("emailPlaceholder")
                           : t("phonePlaceholder")
                       }
-                      className="liquid-glass w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-gold/50"
+                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-white outline-none placeholder:text-white/60 focus:ring-2 focus:ring-gold/50"
                     />
                     <button
                       type="button"
@@ -164,7 +168,7 @@ function Auth() {
             </AnimatePresence>
 
             <Rise>
-              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-white/60 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
                 {t("authTerms")}
               </p>
             </Rise>
