@@ -366,7 +366,12 @@ function LawyerOnboarding() {
               {step === "bar" && <BarStep form={form} update={update} />}
               {step === "education" && <EducationStep form={form} update={update} />}
               {step === "specialties" && (
-                <SpecialtiesStep selected={form.specialties} toggle={toggleSpec} />
+                <SpecialtiesStep
+                  selected={form.specialties}
+                  toggle={toggleSpec}
+                  otherText={form.otherSpecialty}
+                  onOtherChange={(v) => update("otherSpecialty", v)}
+                />)
               )}
               {step === "review" && <ReviewStep form={form} />}
             </motion.div>
