@@ -231,7 +231,6 @@ export function translate(key: StringKey, lang: Lang) {
   return strings[key][lang];
 }
 
-import { useCallback } from "react";
 
 export function useT() {
   const { lang } = useSettings();
