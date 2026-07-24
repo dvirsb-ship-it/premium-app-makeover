@@ -240,6 +240,57 @@ export const strings = {
   valStuckSub: { he: "נראה שהחיבור איטי. נסו שוב או המשיכו לתיקים שלכם.", en: "The connection seems slow. Try again or continue to your cases." },
   valRetry: { he: "נסה שוב", en: "Try again" },
   valGoCases: { he: "לתיקים שלי", en: "To my cases" },
+
+  // Lawyer verification wizard
+  lawyerVerifyStepOf: { he: "שלב {n} מתוך {total}", en: "Step {n} of {total}" },
+  lawyerVerifyIntroBadge: { he: "אימות זהות ורישיון", en: "Identity & license verification" },
+  lawyerVerifyTitle: { he: "בואו נאמת שהכל תקין", en: "Let's verify your credentials" },
+  lawyerVerifySub: { he: "כדי לשמור על איכות הפלטפורמה, אנו מאמתים כל עורך דין לפני שהוא רואה פניות של לקוחות.", en: "To keep the platform high-quality, we verify every lawyer before they see client requests." },
+  lawyerVerifyBegin: { he: "התחלת אימות", en: "Begin verification" },
+
+  stepIdentityTitle: { he: "פרטים אישיים", en: "Personal details" },
+  stepIdentityDesc: { he: "השם המלא כפי שמופיע בתעודת הזהות ובלשכת עורכי הדין.", en: "Full name as it appears on your ID and bar records." },
+  fieldFullName: { he: "שם מלא", en: "Full name" },
+  fieldFullNamePh: { he: "לדוגמה: מיכל אברהמי", en: "e.g. Michal Avrahami" },
+  fieldIdNumber: { he: "מספר תעודת זהות", en: "National ID number" },
+  fieldIdNumberPh: { he: "9 ספרות", en: "9 digits" },
+  fieldEmail: { he: "אימייל מקצועי", en: "Professional email" },
+  fieldPhone: { he: "טלפון", en: "Phone" },
+
+  stepBarTitle: { he: "רישיון עורך דין", en: "Bar license" },
+  stepBarDesc: { he: "מספר הרישיון בלשכת עורכי הדין בישראל וצילום התעודה בתוקף.", en: "Israel Bar Association license number and a photo of your valid card." },
+  fieldBarNumber: { he: "מספר רישיון", en: "License number" },
+  fieldBarNumberPh: { he: "לדוגמה: 12345", en: "e.g. 12345" },
+  fieldBarYear: { he: "שנת הסמכה", en: "Year of admission" },
+  uploadBarCard: { he: "צילום תעודת עו״ד", en: "Photo of bar card" },
+
+  stepEducationTitle: { he: "תעודת השכלה", en: "Education certificate" },
+  stepEducationDesc: { he: "צירוף תעודת סיום התואר במשפטים לאימות ההכשרה.", en: "Attach your LL.B. diploma to verify your training." },
+  fieldUniversity: { he: "מוסד לימודים", en: "Institution" },
+  fieldUniversityPh: { he: "לדוגמה: אוניברסיטת תל אביב", en: "e.g. Tel Aviv University" },
+  fieldGradYear: { he: "שנת סיום", en: "Graduation year" },
+  uploadDiploma: { he: "צילום תעודת בוגר", en: "Photo of diploma" },
+
+  stepSpecTitle: { he: "תחומי התמחות", en: "Practice areas" },
+  stepSpecDesc: { he: "בחרו את התחומים שבהם אתם מייצגים. תראו רק פניות שמתאימות להם.", en: "Pick the fields you practice in. You'll only see matching requests." },
+
+  stepReviewTitle: { he: "סקירה ואישור", en: "Review & submit" },
+  stepReviewDesc: { he: "בדקו שהכל נכון. לאחר שליחה, הצוות שלנו יאמת את המסמכים תוך 24 שעות.", en: "Check everything looks right. Our team verifies documents within 24 hours." },
+  reviewIdentity: { he: "זהות", en: "Identity" },
+  reviewLicense: { he: "רישיון", en: "License" },
+  reviewEducation: { he: "השכלה", en: "Education" },
+  reviewSpecialties: { he: "תחומים", en: "Practice areas" },
+  reviewSubmit: { he: "שליחה לאימות", en: "Submit for verification" },
+  reviewFinePrint: { he: "בשליחה אני מאשר/ת שכל הפרטים נכונים ומאמת/ת את זהותי בפני JustAsk.", en: "By submitting I confirm all details are accurate and consent to identity verification by JustAsk." },
+  verifySuccess: { he: "בקשת האימות התקבלה — נחזור אליכם בקרוב", en: "Verification request received — we'll be in touch soon" },
+
+  uploadTap: { he: "הקש/י כדי להעלות", en: "Tap to upload" },
+  uploadReplace: { he: "החלפה", en: "Replace" },
+  uploadHint: { he: "PDF, JPG או PNG · עד 10MB", en: "PDF, JPG or PNG · up to 10MB" },
+  fieldRequired: { he: "שדה חובה", en: "Required" },
+  invalidId: { he: "מספר ת״ז לא תקין", en: "Invalid ID number" },
+  nextStep: { he: "המשך", en: "Continue" },
+  prevStep: { he: "חזרה", en: "Back" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
