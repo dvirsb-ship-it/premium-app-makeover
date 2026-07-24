@@ -4,7 +4,7 @@ import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { statusMeta, toneClasses, timeAgo } from "../lib/status";
+import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 
@@ -17,6 +17,8 @@ function Cases() {
   const { cases } = useAppStore();
   const { dir } = useSettings();
   const t = useT();
+  const statusMeta = useStatusMeta();
+  const timeAgo = useTimeAgo();
   const Chevron = dir === "rtl" ? ChevronLeft : ChevronRight;
 
   return (
@@ -52,7 +54,7 @@ function Cases() {
         ) : (
           <Stagger className="space-y-4">
             {cases.map((c) => {
-              const meta = statusMeta[c.status];
+              const meta = statusMeta(c.status);
               return (
                 <Rise key={c.id}>
                   <Pressable

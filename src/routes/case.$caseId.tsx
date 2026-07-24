@@ -6,7 +6,7 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { statusMeta, toneClasses } from "../lib/status";
+import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { Lawyer } from "../lib/types";
@@ -21,6 +21,7 @@ function CaseDetail() {
   const { getCase, chooseLawyer } = useAppStore();
   const { dir } = useSettings();
   const t = useT();
+  const statusMeta = useStatusMeta();
   const item = getCase(caseId);
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
@@ -41,7 +42,7 @@ function CaseDetail() {
     );
   }
 
-  const meta = statusMeta[item.status];
+  const meta = statusMeta(item.status);
   const chosen = item.interested.find((l) => l.id === item.chosenLawyerId);
 
   return (
