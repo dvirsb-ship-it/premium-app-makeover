@@ -1,3 +1,4 @@
+import { useCallback } from "react";
 import { useSettings, type Lang } from "./settings";
 
 type Dict = Record<string, { he: string; en: string }>;
