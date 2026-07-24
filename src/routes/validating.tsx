@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
-import { Check, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Check, Loader2, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
@@ -16,49 +16,63 @@ export const Route = createFileRoute("/validating")({
 });
 
 const stepKeys: StringKey[] = ["valStep1", "valStep2", "valStep3", "valStep4"];
+const STEP_MS = 900;
+// Watchdog: if we don't finish within this window, offer a retry.
+const STUCK_MS = STEP_MS * stepKeys.length + 4000;
 
 function Validating() {
-
-  useRequireAuth();  const navigate = useNavigate();
+  useRequireAuth();
+  const navigate = useNavigate();
   const { addCase } = useAppStore();
   const t = useT();
   const [current, setCurrent] = useState(0);
+  const [stuck, setStuck] = useState(false);
+  const [runToken, setRunToken] = useState(0);
   const created = useRef(false);
+
+  const finish = useCallback(() => {
+    if (created.current) return;
+    created.current = true;
+    let summary = "";
+    try {
+      const raw = sessionStorage.getItem("justask-draft");
+      if (raw) summary = JSON.parse(raw).summary || "";
+    } catch {
+      /* ignore */
+    }
+    if (!summary) summary = t("defaultSummary");
+    const newCase: Case = {
+      id: `c-${Date.now()}`,
+      title: summary.length > 42 ? summary.slice(0, 42) + "…" : summary,
+      category: t("defaultCategory"),
+      summary,
+      createdAt: Date.now(),
+      status: "matching",
+      interested: [LAWYERS[1]],
+    };
+    addCase(newCase);
+    navigate({ to: "/submitted", search: { id: newCase.id } });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [addCase, navigate]);
 
   useEffect(() => {
     const timers: number[] = [];
+    setStuck(false);
+    setCurrent(0);
     stepKeys.forEach((_, i) => {
-      timers.push(window.setTimeout(() => setCurrent(i + 1), 900 * (i + 1)));
+      timers.push(window.setTimeout(() => setCurrent(i + 1), STEP_MS * (i + 1)));
     });
-
-    timers.push(
-      window.setTimeout(() => {
-        if (created.current) return;
-        created.current = true;
-        let summary = t("defaultSummary");
-        try {
-          const raw = sessionStorage.getItem("justask-draft");
-          if (raw) summary = JSON.parse(raw).summary || summary;
-        } catch {
-          /* ignore */
-        }
-        const newCase: Case = {
-          id: `c-${Date.now()}`,
-          title: summary.length > 42 ? summary.slice(0, 42) + "…" : summary,
-          category: t("defaultCategory"),
-          summary,
-          createdAt: Date.now(),
-          status: "matching",
-          interested: [LAWYERS[1]],
-        };
-        addCase(newCase);
-        navigate({ to: "/submitted", search: { id: newCase.id } });
-      }, 900 * stepKeys.length + 900),
-    );
+    timers.push(window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS));
+    timers.push(window.setTimeout(() => setStuck(true), STUCK_MS));
 
     return () => timers.forEach((tm) => window.clearTimeout(tm));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [runToken]);
+
+  function retry() {
+    created.current = false;
+    setRunToken((n) => n + 1);
+  }
 
   const progress = Math.min(current / stepKeys.length, 1);
 
@@ -121,6 +135,45 @@ function Validating() {
             );
           })}
         </div>
+
+        <AnimatePresence>
+          {stuck && !created.current && (
+            <motion.div
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-8 w-full max-w-xs space-y-3 text-center"
+              role="alert"
+            >
+              <div className="liquid-glass rounded-2xl px-4 py-4">
+                <p className="text-sm font-bold text-foreground">
+                  {t("valStuckTitle")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {t("valStuckSub")}
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={retry}
+                  className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  <RefreshCw className="size-4" />
+                  {t("valRetry")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/cases" })}
+                  className="liquid-glass flex flex-1 items-center justify-center rounded-2xl py-3 text-sm font-semibold text-foreground min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+                >
+                  {t("valGoCases")}
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </AppShell>
   );
