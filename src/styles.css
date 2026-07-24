@@ -415,3 +415,45 @@
   box-shadow: 0 10px 24px -10px rgb(var(--gold-glow) / 0.5);
 }
 
+
+/* ============================================================
+ * Micro-interactions
+ * ============================================================ */
+
+/* Tactile tap — subtle press-down for buttons/cards */
+@utility tap {
+  transition: transform 180ms cubic-bezier(0.22, 1, 0.36, 1),
+              filter 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  &:active {
+    transform: scale(0.97);
+    filter: brightness(0.96);
+  }
+}
+
+/* Skeleton shimmer for loading rows */
+@keyframes skeleton-shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@utility skeleton {
+  background: linear-gradient(
+    90deg,
+    color-mix(in oklab, var(--muted) 60%, transparent) 0%,
+    color-mix(in oklab, var(--muted) 90%, transparent) 50%,
+    color-mix(in oklab, var(--muted) 60%, transparent) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+  border-radius: 0.75rem;
+}
+
+/* Respect users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
