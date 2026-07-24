@@ -52,8 +52,8 @@ function Auth() {
 
   return (
     <AppShell bare outerClassName="studio-stage">
-      {/* Cinematic studio backdrop — same dark canvas as the home screen */}
-      <HeroVideo className="z-0" />
+      {/* Darker cinematic wash over the studio backdrop */}
+      <div className="pointer-events-none fixed inset-0 z-0 bg-black/45" aria-hidden />
 
       <Page className="relative z-10 flex min-h-screen flex-col">
         <TopBar title={t("authTitle")} subtitle={t("authSub")} inverse />
