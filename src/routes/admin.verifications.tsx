@@ -23,6 +23,17 @@ import {
 } from "../lib/verification-queue";
 import { exportVerificationPdf } from "../lib/pdf-export";
 
+function formatSpecialties(rec: VerificationRecord): string {
+  if (!rec.specialties.length) return "—";
+  return rec.specialties
+    .map((id) =>
+      id === "other" && rec.otherSpecialty?.trim()
+        ? `אחר: ${rec.otherSpecialty.trim()}`
+        : id,
+    )
+    .join(" · ");
+}
+
 export const Route = createFileRoute("/admin/verifications")({
   head: () => ({
     meta: [
