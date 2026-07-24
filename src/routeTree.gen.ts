@@ -18,7 +18,6 @@ import { Route as LawyerOnboardingRouteImport } from './routes/lawyer-onboarding
 import { Route as LawyerRouteImport } from './routes/lawyer'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
-import { Route as CaseStartRouteImport } from './routes/case-start'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
@@ -70,11 +69,6 @@ const CasesRoute = CasesRouteImport.update({
   path: '/cases',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CaseStartRoute = CaseStartRouteImport.update({
-  id: '/case-start',
-  path: '/case-start',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -104,7 +98,6 @@ const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -121,7 +114,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -139,7 +131,6 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
-  '/case-start': typeof CaseStartRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
   '/lawyer': typeof LawyerRoute
@@ -158,7 +149,6 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
-    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -175,7 +165,6 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
-    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -192,7 +181,6 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/auth'
-    | '/case-start'
     | '/cases'
     | '/intake'
     | '/lawyer'
@@ -210,7 +198,6 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthRoute: typeof AuthRoute
-  CaseStartRoute: typeof CaseStartRoute
   CasesRoute: typeof CasesRoute
   IntakeRoute: typeof IntakeRoute
   LawyerRoute: typeof LawyerRoute
@@ -290,13 +277,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CasesRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/case-start': {
-      id: '/case-start'
-      path: '/case-start'
-      fullPath: '/case-start'
-      preLoaderRoute: typeof CaseStartRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -338,7 +318,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthRoute: AuthRoute,
-  CaseStartRoute: CaseStartRoute,
   CasesRoute: CasesRoute,
   IntakeRoute: IntakeRoute,
   LawyerRoute: LawyerRoute,
