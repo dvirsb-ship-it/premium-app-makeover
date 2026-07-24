@@ -233,12 +233,12 @@
  * ------------------------------------------------------------------------- */
 .liquid-glass {
   position: relative;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px) saturate(150%);
+  background: rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(24px) saturate(170%);
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.05),
     0 18px 40px -22px rgba(15, 23, 42, 0.28),
-    inset 0 1px 1px rgba(255, 255, 255, 0.7);
+    inset 0 1px 1px rgba(255, 255, 255, 0.55);
 }
 
 .liquid-glass::before {
@@ -249,10 +249,10 @@
   padding: 1.4px;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.9) 0%,
-    rgba(15, 23, 42, 0.06) 30%,
-    rgba(15, 23, 42, 0.03) 70%,
-    rgba(15, 23, 42, 0.1) 100%
+    rgba(255, 255, 255, 0.75) 0%,
+    rgba(15, 23, 42, 0.04) 30%,
+    rgba(15, 23, 42, 0.02) 70%,
+    rgba(15, 23, 42, 0.07) 100%
   );
   mask:
     linear-gradient(#000 0 0) content-box,
@@ -263,12 +263,12 @@
 
 .liquid-glass-selected {
   position: relative;
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(18px) saturate(160%);
+  background: rgba(255, 255, 255, 0.52);
+  backdrop-filter: blur(26px) saturate(175%);
   box-shadow:
     0 1px 2px rgba(15, 23, 42, 0.06),
     0 20px 44px -20px rgba(212, 175, 55, 0.4),
-    inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    inset 0 1px 2px rgba(255, 255, 255, 0.65);
 }
 
 .liquid-glass-selected::before {
@@ -291,9 +291,24 @@
   pointer-events: none;
 }
 
+/* Extra-transparent hero glass — lets the studio video breathe through */
+.glass-hero.liquid-glass,
+.glass-hero.liquid-glass-selected {
+  background: rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(30px) saturate(190%);
+  box-shadow:
+    0 1px 2px rgba(15, 23, 42, 0.06),
+    0 22px 48px -20px rgba(15, 23, 42, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+}
+
+.glass-hero.liquid-glass-selected {
+  background: rgba(255, 255, 255, 0.28);
+}
+
 /* Dark theme = luminous glass over the cinematic studio backdrop */
 .dark .liquid-glass {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.06);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
 }
 
@@ -324,6 +339,14 @@
     rgba(255, 255, 255, 0.3) 80%,
     rgba(212, 175, 55, 0.75) 100%
   );
+}
+
+.dark .glass-hero.liquid-glass {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.dark .glass-hero.liquid-glass-selected {
+  background: rgba(255, 255, 255, 0.14);
 }
 
 /* ---------------------------------------------------------------------------
