@@ -10,6 +10,15 @@ import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/cases")({
+  head: () => ({
+    meta: [
+      { title: "My cases — JustAsk" },
+      { name: "description", content: "Track your legal cases and lawyer offers in one place." },
+      { property: "og:title", content: "My cases — JustAsk" },
+      { property: "og:description", content: "Track your legal cases and lawyer offers in one place." },
+      { property: "og:type", content: "website" },
+    ],
+  }),
   component: Cases,
 });
 

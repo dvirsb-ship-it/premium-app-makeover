@@ -13,6 +13,16 @@ import { useAppStore } from "../lib/store";
 import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/auth")({
+  head: () => ({
+    meta: [
+      { title: "Sign in — JustAsk" },
+      { name: "description", content: "Sign in or create your JustAsk account with Google, Apple, email, or phone." },
+      { property: "og:title", content: "Sign in — JustAsk" },
+      { property: "og:description", content: "Sign in to JustAsk with Google, Apple, email, or phone." },
+      { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex" },
+    ],
+  }),
   component: Auth,
 });
 
