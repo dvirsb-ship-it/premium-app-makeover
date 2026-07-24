@@ -197,6 +197,7 @@ function LawyerOnboarding() {
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
   const [issues, setIssues] = useState<Issue[]>([]);
+  const [record, setRecord] = useState<VerificationRecord | null>(null);
 
   const step = STEPS[stepIdx];
   const contentSteps = STEPS.slice(1);
