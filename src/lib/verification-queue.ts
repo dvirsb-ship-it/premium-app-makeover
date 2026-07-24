@@ -16,6 +16,7 @@ export interface VerificationRecord {
   university: string;
   gradYear: string;
   specialties: string[];
+  otherSpecialty?: string;
   submittedAt: number;
   status: VerificationStatus;
   reviewedAt?: number;
