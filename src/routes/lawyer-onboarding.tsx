@@ -59,7 +59,16 @@ type SpecId =
   | "family"
   | "criminal"
   | "commercial"
-  | "tax";
+  | "tax"
+  | "corporate"
+  | "ip"
+  | "immigration"
+  | "medical"
+  | "insurance"
+  | "consumer"
+  | "administrative"
+  | "military"
+  | "other";
 
 const SPECIALTIES: { id: SpecId; labelKey: StringKey }[] = [
   { id: "injury", labelKey: "specInjury" },
@@ -70,6 +79,15 @@ const SPECIALTIES: { id: SpecId; labelKey: StringKey }[] = [
   { id: "criminal", labelKey: "specCriminal" },
   { id: "commercial", labelKey: "specCommercial" },
   { id: "tax", labelKey: "specTax" },
+  { id: "corporate", labelKey: "specCorporate" },
+  { id: "ip", labelKey: "specIp" },
+  { id: "immigration", labelKey: "specImmigration" },
+  { id: "medical", labelKey: "specMedical" },
+  { id: "insurance", labelKey: "specInsurance" },
+  { id: "consumer", labelKey: "specConsumer" },
+  { id: "administrative", labelKey: "specAdministrative" },
+  { id: "military", labelKey: "specMilitary" },
+  { id: "other", labelKey: "specOther" },
 ];
 
 type StepId = "intro" | "identity" | "bar" | "education" | "specialties" | "review";
@@ -94,6 +112,7 @@ interface FormState {
   gradYear: string;
   diplomaFile: Uploaded | null;
   specialties: Set<SpecId>;
+  otherSpecialty: string;
 }
 
 type IssueField =
@@ -107,7 +126,8 @@ type IssueField =
   | "university"
   | "gradYear"
   | "diploma"
-  | "specialties";
+  | "specialties"
+  | "otherSpec";
 
 interface Issue {
   field: IssueField;
@@ -167,6 +187,8 @@ function collectIssues(form: FormState): Issue[] {
 
   if (form.specialties.size === 0)
     issues.push({ field: "specialties", messageKey: "issueSpecialties", step: "specialties" });
+  if (form.specialties.has("other") && form.otherSpecialty.trim().length < 2)
+    issues.push({ field: "otherSpec", messageKey: "issueOtherSpec", step: "specialties" });
 
   return issues;
 }
@@ -193,6 +215,7 @@ function LawyerOnboarding() {
     gradYear: "",
     diplomaFile: null,
     specialties: new Set<SpecId>(["injury"]),
+    otherSpecialty: "",
   });
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
@@ -254,6 +277,7 @@ function LawyerOnboarding() {
           university: form.university,
           gradYear: form.gradYear,
           specialties: [...form.specialties],
+          otherSpecialty: form.specialties.has("other") ? form.otherSpecialty.trim() : "",
         });
         setRecord(rec);
         try {
@@ -342,7 +366,12 @@ function LawyerOnboarding() {
               {step === "bar" && <BarStep form={form} update={update} />}
               {step === "education" && <EducationStep form={form} update={update} />}
               {step === "specialties" && (
-                <SpecialtiesStep selected={form.specialties} toggle={toggleSpec} />
+                <SpecialtiesStep
+                  selected={form.specialties}
+                  toggle={toggleSpec}
+                  otherText={form.otherSpecialty}
+                  onOtherChange={(v) => update("otherSpecialty", v)}
+                />
               )}
               {step === "review" && <ReviewStep form={form} />}
             </motion.div>
@@ -844,11 +873,16 @@ function EducationStep({
 function SpecialtiesStep({
   selected,
   toggle,
+  otherText,
+  onOtherChange,
 }: {
   selected: Set<SpecId>;
   toggle: (id: SpecId) => void;
+  otherText: string;
+  onOtherChange: (v: string) => void;
 }) {
   const t = useT();
+  const showOther = selected.has("other");
   return (
     <div>
       <StepHeading titleKey="stepSpecTitle" descKey="stepSpecDesc" />
@@ -877,12 +911,30 @@ function SpecialtiesStep({
           );
         })}
       </div>
+      {showOther && (
+        <motion.div
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mt-4"
+        >
+          <input
+            type="text"
+            value={otherText}
+            onChange={(e) => onOtherChange(e.target.value)}
+            placeholder={t("specOtherPlaceholder")}
+            maxLength={80}
+            aria-label={t("specOtherPlaceholder")}
+            className="liquid-glass w-full rounded-2xl border-0 bg-white/5 px-4 py-3 text-[14px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+          />
+        </motion.div>
+      )}
       <p className="mt-4 text-[11px] text-muted-foreground">
         {selected.size} · {t("stepSpecTitle")}
       </p>
     </div>
   );
 }
+
 
 function ReviewStep({ form }: { form: FormState }) {
   const t = useT();
@@ -920,6 +972,12 @@ function ReviewStep({ form }: { form: FormState }) {
           lines={[
             [...form.specialties]
               .map((id) => {
+                if (id === "other") {
+                  const label = t("specOther");
+                  return form.otherSpecialty.trim()
+                    ? `${label}: ${form.otherSpecialty.trim()}`
+                    : label;
+                }
                 const spec = SPECIALTIES.find((s) => s.id === id);
                 return spec ? t(spec.labelKey) : id;
               })

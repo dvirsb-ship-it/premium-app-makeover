@@ -1,6 +1,17 @@
 import { jsPDF } from "jspdf";
 import type { VerificationRecord } from "./verification-queue";
 
+function formatSpecialties(rec: VerificationRecord): string {
+  if (!rec.specialties.length) return "—";
+  return rec.specialties
+    .map((id) =>
+      id === "other" && rec.otherSpecialty?.trim()
+        ? `Other: ${rec.otherSpecialty.trim()}`
+        : id,
+    )
+    .join(", ");
+}
+
 /**
  * Renders an "official" JustAsk lawyer verification summary as a
  * client-generated PDF. Kept English-only for a stable document look
@@ -53,7 +64,7 @@ export function exportVerificationPdf(rec: VerificationRecord) {
     ["Phone", rec.phone || "—"],
     ["Bar license", rec.barNumber ? `#${rec.barNumber} · ${rec.barYear}` : "—"],
     ["Education", rec.university ? `${rec.university} · ${rec.gradYear}` : "—"],
-    ["Specialties", rec.specialties.length ? rec.specialties.join(", ") : "—"],
+    ["Specialties", formatSpecialties(rec)],
     ["Status", rec.status.toUpperCase()],
   ];
 
