@@ -135,7 +135,7 @@ function Auth() {
                   className="overflow-hidden"
                 >
                   <div className="space-y-3 pt-1">
-                    <label className="block text-right text-xs font-semibold text-muted-foreground">
+                    <label className="block text-start text-xs font-semibold text-muted-foreground">
                       {method === "email" ? t("emailLabel") : t("phoneLabel")}
                     </label>
                     <input

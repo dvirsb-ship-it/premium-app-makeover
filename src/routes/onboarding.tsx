@@ -71,7 +71,7 @@ function Onboarding() {
           <button
             type="button"
             onClick={() => setAgreed((v) => !v)}
-            className="liquid-glass flex w-full items-center gap-3 rounded-2xl p-4 text-right transition active:scale-[0.99]"
+            className="liquid-glass flex w-full items-center gap-3 rounded-2xl p-4 text-start transition active:scale-[0.99]"
           >
             <motion.span
               animate={
