@@ -112,6 +112,7 @@ interface FormState {
   gradYear: string;
   diplomaFile: Uploaded | null;
   specialties: Set<SpecId>;
+  otherSpecialty: string;
 }
 
 type IssueField =
