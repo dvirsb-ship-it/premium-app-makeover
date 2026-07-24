@@ -52,20 +52,17 @@ function Auth() {
 
   return (
     <AppShell bare outerClassName="studio-stage">
-      {/* Darker cinematic wash over the studio backdrop */}
-      <div className="pointer-events-none fixed inset-0 z-0 bg-black/45" aria-hidden />
-
       <Page className="relative z-10 flex min-h-screen flex-col">
-        <TopBar title={t("authTitle")} subtitle={t("authSub")} inverse />
+        <TopBar title={t("authTitle")} subtitle={t("authSub")} />
 
         <div className="flex flex-1 flex-col justify-center px-6 py-8">
           <Stagger className="w-full space-y-4">
             <Rise className="mb-2 flex flex-col items-center text-center">
               <BrandMark size={72} />
-              <h1 className="mt-4 text-3xl font-black tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.55)]">
+              <h1 className="mt-4 text-3xl font-black tracking-tight text-foreground">
                 Just<span className="text-gradient-gold">Ask</span>
               </h1>
-              <p className="mt-2 max-w-[16rem] text-sm text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)]">
+              <p className="mt-2 max-w-[16rem] text-sm text-muted-foreground">
                 {t("authSub")}
               </p>
             </Rise>
@@ -75,7 +72,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={proceed}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
               >
                 <GoogleIcon />
                 {t("continueGoogle")}
@@ -86,7 +83,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={proceed}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
               >
                 <Apple className="size-5 fill-current" strokeWidth={0} />
                 {t("continueApple")}
@@ -96,11 +93,11 @@ function Auth() {
             {/* divider */}
             <Rise>
               <div className="flex items-center gap-3 py-1">
-                <span className="h-px flex-1 bg-white/20" />
-                <span className="text-xs font-medium text-white/70">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-xs font-medium text-muted-foreground">
                   {t("authOr")}
                 </span>
-                <span className="h-px flex-1 bg-white/20" />
+                <span className="h-px flex-1 bg-border" />
               </div>
             </Rise>
 
@@ -109,7 +106,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "email" ? null : "email")}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
               >
                 <Mail className="size-5 text-gold" />
                 {t("continueEmail")}
@@ -120,7 +117,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "phone" ? null : "phone")}
-                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-white transition active:scale-[0.98]"
+                className="liquid-glass glass-hero flex w-full items-center justify-center gap-3 rounded-2xl py-3.5 text-sm font-bold text-foreground transition active:scale-[0.98]"
               >
                 <Phone className="size-5 text-gold" />
                 {t("continuePhone")}
@@ -138,7 +135,7 @@ function Auth() {
                   className="overflow-hidden"
                 >
                   <div className="space-y-3 pt-1">
-                    <label className="block text-start text-xs font-semibold text-white/70">
+                    <label className="block text-start text-xs font-semibold text-muted-foreground">
                       {method === "email" ? t("emailLabel") : t("phoneLabel")}
                     </label>
                     <input
@@ -152,7 +149,7 @@ function Auth() {
                           ? t("emailPlaceholder")
                           : t("phonePlaceholder")
                       }
-                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-white outline-none placeholder:text-white/60 focus:ring-2 focus:ring-gold/50"
+                      className="liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-gold/50"
                     />
                     <button
                       type="button"
@@ -167,7 +164,7 @@ function Auth() {
             </AnimatePresence>
 
             <Rise>
-              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-white/60 drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+              <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
                 {t("authTerms")}
               </p>
             </Rise>
