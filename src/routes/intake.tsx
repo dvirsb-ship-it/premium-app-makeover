@@ -80,7 +80,7 @@ function Intake() {
       if (idx < followUps.length) {
         setMessages((prev) => [
           ...prev,
-          { id: `a-${Date.now()}`, from: "assistant", text: followUps[idx] },
+          { id: `f-${idx}`, from: "assistant", text: followUps[idx] },
         ]);
       }
       if (idx >= followUps.length - 1) setReady(true);
