@@ -13,20 +13,22 @@ import {
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 
 export const Route = createFileRoute("/lawyer-subscription")({
   head: () => ({
     meta: [
-      { title: "JustAsk Pro — מנוי לעורכי דין" },
+      { title: "JustAsk Pro — Lawyer membership" },
       {
         name: "description",
         content:
-          "פתחו גישה מלאה ללידים איכותיים, כלי AI ותכונות מתקדמות לעורכי דין.",
+          "Unlock full access to quality leads, AI tools and advanced features for lawyers.",
       },
-      { property: "og:title", content: "JustAsk Pro — מנוי לעורכי דין" },
+      { property: "og:title", content: "JustAsk Pro — Lawyer membership" },
       {
         property: "og:description",
-        content: "מנוי חודשי או שנתי לעורכי דין ב-JustAsk.",
+        content: "Monthly or yearly membership for lawyers on JustAsk.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,17 +37,18 @@ export const Route = createFileRoute("/lawyer-subscription")({
   component: LawyerSubscription,
 });
 
-const features = [
-  { icon: Layers, label: "גישה מלאה לכל הפניות" },
-  { icon: Smartphone, label: "התראות בזמן אמת ללידים חדשים" },
-  { icon: InfinityIcon, label: "הבעות עניין ללא הגבלה" },
-  { icon: Sparkles, label: "כלי AI לניתוח תיקים" },
-  { icon: Users, label: "פרופיל מקצועי מודגש" },
+const features: { icon: typeof Layers; key: StringKey }[] = [
+  { icon: Layers, key: "subFeat1" },
+  { icon: Smartphone, key: "subFeat2" },
+  { icon: InfinityIcon, key: "subFeat3" },
+  { icon: Sparkles, key: "subFeat4" },
+  { icon: Users, key: "subFeat5" },
 ];
 
 function LawyerSubscription() {
   const navigate = useNavigate();
   const { dir } = useSettings();
+  const t = useT();
   const [plan, setPlan] = useState<"monthly" | "yearly">("yearly");
   const flip = dir === "rtl" ? "" : "rotate-180";
 
@@ -53,7 +56,6 @@ function LawyerSubscription() {
     <AppShell>
       <TopBar title="JustAsk Pro" onBack={() => navigate({ to: "/lawyer" })} />
 
-      {/* Hero */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -64,17 +66,15 @@ function LawyerSubscription() {
           LAWYER MEMBERSHIP
         </p>
         <h1 className="mt-3 text-[32px] font-bold leading-[1.05] tracking-tight text-foreground">
-          הפכו את הלידים
+          {t("subHeroTitle1")}
           <br />
-          <span className="text-gradient-gold">ללקוחות</span>
+          <span className="text-gradient-gold">{t("subHeroTitle2")}</span>
         </h1>
         <p className="mx-auto mt-4 max-w-sm text-[14px] leading-relaxed text-muted-foreground">
-          גישה בלתי מוגבלת לפניות איכותיות, כלי AI מתקדמים והתראות בזמן אמת —
-          הכל במקום אחד.
+          {t("subHeroDesc")}
         </p>
       </motion.div>
 
-      {/* Features */}
       <motion.ul
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -85,7 +85,7 @@ function LawyerSubscription() {
           const Icon = f.icon;
           return (
             <motion.li
-              key={f.label}
+              key={f.key}
               initial={{ opacity: 0, x: 12 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{
@@ -99,14 +99,13 @@ function LawyerSubscription() {
                 <Icon className="size-4 text-gold" strokeWidth={1.8} />
               </span>
               <span className="text-[14px] font-medium text-foreground">
-                {f.label}
+                {t(f.key)}
               </span>
             </motion.li>
           );
         })}
       </motion.ul>
 
-      {/* Pricing cards */}
       <div className="mt-5 grid grid-cols-2 gap-3">
         <motion.button
           initial={{ opacity: 0, y: 16 }}
@@ -118,11 +117,11 @@ function LawyerSubscription() {
             plan === "monthly" ? "liquid-glass-selected" : "liquid-glass"
           }`}
         >
-          <p className="text-[12px] font-medium text-muted-foreground">חודשי</p>
+          <p className="text-[12px] font-medium text-muted-foreground">{t("planMonthly")}</p>
           <p className="mt-2 text-[22px] font-bold tracking-tight text-foreground">
             ₪199
           </p>
-          <p className="mt-4 text-[11px] text-muted-foreground">חיוב חודשי</p>
+          <p className="mt-4 text-[11px] text-muted-foreground">{t("monthlyBill")}</p>
         </motion.button>
 
         <motion.button
@@ -135,11 +134,11 @@ function LawyerSubscription() {
             plan === "yearly" ? "liquid-glass-selected" : "liquid-glass"
           }`}
         >
-          <p className="text-[12px] font-medium text-muted-foreground">שנתי</p>
+          <p className="text-[12px] font-medium text-muted-foreground">{t("planYearly")}</p>
           <p className="mt-2 text-[22px] font-bold tracking-tight text-foreground">
             ₪1,990
           </p>
-          <p className="mt-4 text-[11px] text-muted-foreground">חיוב שנתי</p>
+          <p className="mt-4 text-[11px] text-muted-foreground">{t("yearlyBill")}</p>
           <motion.span
             initial={{ opacity: 0, scale: 0.7 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -150,12 +149,11 @@ function LawyerSubscription() {
             }}
             className="btn-gold absolute end-3 top-3 rounded-full px-2 py-0.5 text-[10px] font-bold"
           >
-            חסכו 17%
+            {t("save17")}
           </motion.span>
         </motion.button>
       </div>
 
-      {/* CTA */}
       <motion.button
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
@@ -164,12 +162,12 @@ function LawyerSubscription() {
         className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-[22px] py-4 text-[15px] font-bold"
       >
         <Check className="size-5" strokeWidth={2.4} />
-        הצטרפו ל-Pro
+        {t("joinPro")}
         <ChevronLeft className={`size-4 ${flip}`} strokeWidth={2.4} />
       </motion.button>
 
       <p className="mt-4 pb-10 text-center text-[11px] leading-relaxed text-muted-foreground">
-        ניתן לבטל בכל עת · תמיכה 24/7 · חשבונית מס כדין
+        {t("subFineText")}
       </p>
     </AppShell>
   );

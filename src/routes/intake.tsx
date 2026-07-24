@@ -1,36 +1,32 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Scale, SendHorizonal, ShieldCheck } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
+import { useT } from "../lib/i18n";
 import type { ChatMessage } from "../lib/types";
 
 export const Route = createFileRoute("/intake")({
   component: Intake,
 });
 
-const openers: ChatMessage[] = [
-  {
-    id: "a1",
-    from: "assistant",
-    text: "שלום 👋 אני העוזר המשפטי של JustAsk. אני כאן כדי לשמוע על המקרה שלך ולבדוק התאמה ראשונית.",
-  },
-  {
-    id: "a2",
-    from: "assistant",
-    text: "ספר/י לי בחופשיות מה קרה — אני אשאל שאלות תוך כדי.",
-  },
-];
-
-const followUps = [
-  "תודה ששיתפת. מתי בערך זה קרה, והאם יש מסמכים או תיעוד רלוונטי?",
-  "הבנתי. האם כבר פנית לגורם כלשהו בנושא (ביטוח, מעסיק, רשות)?",
-  "מעולה, יש לי מספיק פרטים כדי להתחיל בבדיקת ההתאמה. אפשר להמשיך 👇",
-];
-
 function Intake() {
   const navigate = useNavigate();
+  const t = useT();
+
+  const openers: ChatMessage[] = useMemo(
+    () => [
+      { id: "a1", from: "assistant", text: t("opener1") },
+      { id: "a2", from: "assistant", text: t("opener2") },
+    ],
+    [t],
+  );
+  const followUps = useMemo(
+    () => [t("followUp1"), t("followUp2"), t("followUp3")],
+    [t],
+  );
+
   const [messages, setMessages] = useState<ChatMessage[]>(openers);
   const [input, setInput] = useState("");
   const [step, setStep] = useState(0);
@@ -78,7 +74,12 @@ function Intake() {
     try {
       sessionStorage.setItem(
         "justask-draft",
-        JSON.stringify({ summary: firstMsg.current || messages.find((m) => m.from === "user")?.text || "" }),
+        JSON.stringify({
+          summary:
+            firstMsg.current ||
+            messages.find((m) => m.from === "user")?.text ||
+            "",
+        }),
       );
     } catch {
       /* ignore */
@@ -90,12 +91,12 @@ function Intake() {
     <AppShell bare>
       <div className="flex min-h-screen flex-col">
         <TopBar
-          title="שיתוף הסיפור"
-          subtitle="שיחה מאובטחת"
+          title={t("intakeTitle")}
+          subtitle={t("intakeSubtitle")}
           right={
             <span className="flex items-center gap-1 rounded-full bg-success/10 px-2.5 py-1 text-[11px] font-bold text-success">
               <ShieldCheck className="size-3.5" />
-              מאובטח
+              {t("secureBadge")}
             </span>
           }
         />
@@ -164,7 +165,6 @@ function Intake() {
           </AnimatePresence>
         </div>
 
-        {/* Composer / submit */}
         <div className="sticky bottom-0 border-t border-border bg-background/80 px-5 py-4 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {ready ? (
@@ -177,7 +177,7 @@ function Intake() {
                 onClick={submit}
                 className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
-                שליחה לבדיקת התאמה
+                {t("submitForMatch")}
               </motion.button>
             ) : (
               <motion.div
@@ -190,7 +190,7 @@ function Intake() {
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && send()}
-                  placeholder="כתוב/י כאן…"
+                  placeholder={t("composerPlaceholder")}
                   className="flex-1 bg-transparent px-3 py-2 text-sm text-foreground outline-none placeholder:text-muted-foreground"
                 />
                 <motion.button
@@ -199,7 +199,7 @@ function Intake() {
                   onClick={send}
                   disabled={!input.trim()}
                   className="chip-gold grid size-10 shrink-0 place-items-center rounded-xl transition disabled:opacity-40"
-                  aria-label="שליחה"
+                  aria-label={t("sendAria")}
                 >
                   <SendHorizonal className="size-5 -scale-x-100" />
                 </motion.button>

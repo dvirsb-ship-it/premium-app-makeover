@@ -5,58 +5,49 @@ import { Check, FileCheck2, Lock, ScrollText, Sparkles } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
+import { useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 
 export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
 });
 
-const terms = [
-  {
-    icon: FileCheck2,
-    text: "המידע שאשתף הוא אמיתי ומדויק למיטב ידיעתי.",
-  },
-  {
-    icon: ScrollText,
-    text: "הבדיקה הראשונית אינה ייעוץ משפטי ואינה מהווה ייצוג.",
-  },
-  {
-    icon: Lock,
-    text: "פרטי הפנייה יישמרו ויועברו רק לעורכי דין מתאימים.",
-  },
-  {
-    icon: Sparkles,
-    text: "אני פונה מתוך כוונה אמיתית לקבל סיוע משפטי.",
-  },
+const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
+  { icon: FileCheck2, key: "term1" },
+  { icon: ScrollText, key: "term2" },
+  { icon: Lock, key: "term3" },
+  { icon: Sparkles, key: "term4" },
 ];
 
 function Onboarding() {
   const navigate = useNavigate();
   const [agreed, setAgreed] = useState(false);
+  const t = useT();
 
   return (
     <AppShell bare>
       <Page className="flex min-h-screen flex-col">
-        <TopBar title="לפני שמתחילים" subtitle="הסכמה קצרה להמשך" />
+        <TopBar title={t("onboardTitle")} subtitle={t("onboardSubtitle")} />
 
         <div className="flex-1 px-5 pt-6">
           <Stagger className="space-y-6">
             <Rise>
               <p className="text-[15px] leading-relaxed text-muted-foreground">
-                כדי שנוכל לעזור לך בצורה הטובה ביותר, חשוב שנסכים על כמה דברים:
+                {t("onboardIntro")}
               </p>
             </Rise>
 
             <div className="space-y-3">
-              {terms.map((t) => {
-                const Icon = t.icon;
+              {terms.map((term) => {
+                const Icon = term.icon;
                 return (
-                  <Rise key={t.text}>
+                  <Rise key={term.key}>
                     <div className="liquid-glass flex items-start gap-3 rounded-2xl p-4">
                       <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold">
                         <Icon className="size-5" />
                       </span>
                       <p className="pt-1 text-sm leading-relaxed text-foreground">
-                        {t.text}
+                        {t(term.key)}
                       </p>
                     </div>
                   </Rise>
@@ -66,7 +57,6 @@ function Onboarding() {
           </Stagger>
         </div>
 
-        {/* Sticky footer */}
         <div className="sticky bottom-0 space-y-4 border-t border-border bg-background/80 px-5 py-5 backdrop-blur-xl">
           <button
             type="button"
@@ -77,7 +67,7 @@ function Onboarding() {
               animate={
                 agreed
                   ? { backgroundColor: "var(--gold)", borderColor: "var(--gold)" }
-                  : { backgroundColor: "transparent", borderColor: "rgba(255,255,255,0.3)" }
+                  : { backgroundColor: "rgba(0,0,0,0)", borderColor: "rgba(255,255,255,0.3)" }
               }
               className="grid size-6 shrink-0 place-items-center rounded-md border-2"
             >
@@ -92,7 +82,7 @@ function Onboarding() {
               )}
             </motion.span>
             <span className="text-sm font-semibold text-foreground">
-              קראתי ואני מתחייב/ת לאמור לעיל
+              {t("agreeText")}
             </span>
           </button>
 
@@ -103,7 +93,7 @@ function Onboarding() {
             whileTap={agreed ? { scale: 0.98 } : undefined}
             className="btn-gold w-full rounded-2xl py-4 text-base font-bold transition disabled:opacity-40"
           >
-            אני מאשר/ת וממשיך/ה
+            {t("confirmContinue")}
           </motion.button>
         </div>
       </Page>

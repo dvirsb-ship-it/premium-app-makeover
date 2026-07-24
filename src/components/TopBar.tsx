@@ -2,13 +2,10 @@ import { useRouter } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { ChevronRight, ChevronLeft } from "lucide-react";
 import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils";
 
-/**
- * Sticky top bar for inner screens. Frosted liquid-glass surface. Back chevron
- * points right (RTL forward = back is to the right).
- */
 export function TopBar({
   title,
   subtitle,
@@ -24,6 +21,7 @@ export function TopBar({
 }) {
   const router = useRouter();
   const { dir } = useSettings();
+  const t = useT();
   const BackIcon = dir === "rtl" ? ChevronRight : ChevronLeft;
   return (
     <motion.header
@@ -39,7 +37,7 @@ export function TopBar({
         type="button"
         onClick={() => (onBack ? onBack() : router.history.back())}
         className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-foreground/5 text-foreground transition active:scale-95"
-        aria-label="חזרה"
+        aria-label={t("backAria")}
       >
         <BackIcon className="size-5" />
       </button>

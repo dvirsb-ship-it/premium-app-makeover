@@ -1,10 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ChevronLeft, FolderOpen, Plus, Users } from "lucide-react";
+import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { statusMeta, toneClasses, timeAgo } from "../lib/status";
+import { useSettings } from "../lib/settings";
+import { useT } from "../lib/i18n";
 
 export const Route = createFileRoute("/cases")({
   component: Cases,
@@ -13,21 +15,22 @@ export const Route = createFileRoute("/cases")({
 function Cases() {
   const navigate = useNavigate();
   const { cases } = useAppStore();
+  const { dir } = useSettings();
+  const t = useT();
+  const Chevron = dir === "rtl" ? ChevronLeft : ChevronRight;
 
   return (
     <AppShell withNav>
       <Page>
         <div className="flex items-center justify-between pb-6 pt-8">
           <div>
-            <h1 className="text-2xl font-black text-foreground">התיקים שלי</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">
-              מעקב אחר הפניות והסטטוס שלהן
-            </p>
+            <h1 className="text-2xl font-black text-foreground">{t("myCasesTitle")}</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">{t("myCasesSub")}</p>
           </div>
           <Link
             to="/onboarding"
             className="chip-gold grid size-11 place-items-center rounded-2xl transition active:scale-95"
-            aria-label="מקרה חדש"
+            aria-label={t("newCaseAria")}
           >
             <Plus className="size-5" />
           </Link>
@@ -38,14 +41,12 @@ function Cases() {
             <span className="liquid-glass grid size-16 place-items-center rounded-3xl text-muted-foreground">
               <FolderOpen className="size-8" />
             </span>
-            <p className="mt-4 text-base font-semibold text-foreground">
-              אין עדיין תיקים
-            </p>
+            <p className="mt-4 text-base font-semibold text-foreground">{t("noCases")}</p>
             <Link
               to="/onboarding"
               className="btn-gold mt-5 rounded-2xl px-6 py-3 text-sm font-bold"
             >
-              שיתוף מקרה חדש
+              {t("shareNewCase")}
             </Link>
           </div>
         ) : (
@@ -66,7 +67,7 @@ function Cases() {
                       >
                         {meta.label}
                       </span>
-                      <ChevronLeft className="size-5 shrink-0 text-muted-foreground/50" />
+                      <Chevron className="size-5 shrink-0 text-muted-foreground/50" />
                     </div>
                     <h3 className="mt-3 text-base font-bold leading-snug text-foreground">
                       {c.title}
@@ -78,7 +79,7 @@ function Cases() {
                       <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gold/8 px-3 py-2">
                         <Users className="size-4 text-gold" />
                         <span className="text-xs font-semibold text-foreground">
-                          {c.interested.length} עורכי דין הביעו עניין
+                          {c.interested.length} {t("lawyersInterestedCount")}
                         </span>
                       </div>
                     )}
@@ -86,7 +87,7 @@ function Cases() {
                       <div className="mt-4 flex items-center gap-2 rounded-2xl bg-success/10 px-3 py-2">
                         <Users className="size-4 text-success" />
                         <span className="text-xs font-semibold text-success">
-                          נוצר חיבור עם עורך דין
+                          {t("connectedWithLawyer")}
                         </span>
                       </div>
                     )}

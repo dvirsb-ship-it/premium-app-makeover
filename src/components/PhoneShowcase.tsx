@@ -127,7 +127,7 @@ function ScreenCases() {
             <div className="flex items-center justify-between">
               <div className="h-1.5 w-16 rounded-full bg-slate-300" />
               <span className="rounded-full bg-emerald-100 px-1.5 py-0.5 text-[6px] font-bold text-emerald-600">
-                פעיל
+                Active
               </span>
             </div>
             <div className="mt-1.5 flex items-center gap-1">
