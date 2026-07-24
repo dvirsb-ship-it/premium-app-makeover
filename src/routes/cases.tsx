@@ -1,8 +1,10 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
+import { CaseListSkeleton } from "../components/Skeleton";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
@@ -25,13 +27,21 @@ export const Route = createFileRoute("/cases")({
 
 function Cases() {
 
-  useRequireAuth();  const navigate = useNavigate();
+  useRequireAuth();
+  const navigate = useNavigate();
   const { cases } = useAppStore();
   const { dir } = useSettings();
   const t = useT();
   const statusMeta = useStatusMeta();
   const timeAgo = useTimeAgo();
   const Chevron = dir === "rtl" ? ChevronLeft : ChevronRight;
+  const [loading, setLoading] = useState(true);
+
+  // Brief skeleton on mount so slow devices don't flash content.
+  useEffect(() => {
+    const tm = window.setTimeout(() => setLoading(false), 280);
+    return () => window.clearTimeout(tm);
+  }, []);
 
   return (
     <AppShell withNav>
@@ -50,7 +60,9 @@ function Cases() {
           </Link>
         </div>
 
-        {cases.length === 0 ? (
+        {loading ? (
+          <CaseListSkeleton count={3} />
+        ) : cases.length === 0 ? (
           <EmptyState
             icon={FolderOpen}
             title={t("noCases")}
