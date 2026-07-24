@@ -41,7 +41,7 @@ export function TopBar({
         className="grid size-9 shrink-0 place-items-center rounded-full border border-border bg-foreground/5 text-foreground transition active:scale-95"
         aria-label="חזרה"
       >
-        <ChevronRight className="size-5" />
+        <BackIcon className="size-5" />
       </button>
       <div className="min-w-0 flex-1">
         <h1 className="truncate text-base font-bold text-foreground">{title}</h1>
