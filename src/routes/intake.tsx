@@ -35,6 +35,24 @@ function Intake() {
   const scrollRef = useRef<HTMLDivElement>(null);
   const firstMsg = useRef<string>("");
 
+  // Keep scripted assistant messages in sync with the current language.
+  useEffect(() => {
+    const scripted: Record<string, string> = {
+      a1: t("opener1"),
+      a2: t("opener2"),
+      "f-0": t("followUp1"),
+      "f-1": t("followUp2"),
+      "f-2": t("followUp3"),
+    };
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.from === "assistant" && scripted[m.id]
+          ? { ...m, text: scripted[m.id] }
+          : m,
+      ),
+    );
+  }, [t]);
+
   useEffect(() => {
     scrollRef.current?.scrollTo({
       top: scrollRef.current.scrollHeight,
