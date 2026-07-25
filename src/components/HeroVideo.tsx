@@ -2,11 +2,11 @@ import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
 import deal from "../../public/videos/deal.mp4.asset.json";
-import phoneValidation from "../../public/videos/phone-validation.mp4.asset.json";
+import phoneSuccess from "../../public/videos/phone-success.mp4.asset.json";
 
 const clips = [
   { src: deal.url },
-  { src: phoneValidation.url },
+  { src: phoneSuccess.url },
   { src: handshake.url },
 ];
 
