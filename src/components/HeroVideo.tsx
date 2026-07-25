@@ -1,18 +1,19 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
-import courtroom from "../../public/videos/courtroom.mp4.asset.json";
-import desk from "../../public/videos/desk.mp4.asset.json";
+import deal from "../../public/videos/deal.mp4.asset.json";
+import phoneValidation from "../../public/videos/phone-validation.mp4.asset.json";
 
 const clips = [
-  { src: courtroom.url },
-  { src: desk.url },
+  { src: deal.url },
+  { src: phoneValidation.url },
   { src: handshake.url },
 ];
 
 /**
- * Cinematic courtroom backdrop: three signature clips slowly cross-fade
- * behind the hero. Order is randomized per session to reduce déjà-vu.
+ * Cinematic hero backdrop: three signature clips play once each and cross-fade
+ * into the next when each one ends. Order is randomized per session to reduce
+ * déjà-vu. No looping — each clip is a one-shot cinematic beat.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
   const [order] = useState(() => {
@@ -21,14 +22,6 @@ export function HeroVideo({ className = "" }: { className?: string }) {
   });
   const [step, setStep] = useState(0);
   const active = order[step % order.length];
-
-  useEffect(() => {
-    const id = window.setInterval(
-      () => setStep((s) => s + 1),
-      11000,
-    );
-    return () => window.clearInterval(id);
-  }, []);
 
   return (
     <motion.div
@@ -44,14 +37,14 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
           autoPlay
-          loop
           muted
           playsInline
           preload="auto"
+          onEnded={() => setStep((s) => s + 1)}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 2.2, ease: "easeInOut" }}
+          transition={{ duration: 1.6, ease: "easeInOut" }}
         />
       </AnimatePresence>
       {/* Subtle dark vignette to keep the edges cinematic without hiding the video */}
