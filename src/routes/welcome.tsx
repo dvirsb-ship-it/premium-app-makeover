@@ -5,8 +5,8 @@ import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
+import slideSecureVideo from "../../public/videos/slide-secure.mp4.asset.json";
 import slideJustice from "../assets/welcome/slide-justice.jpg";
-import slideSecure from "../assets/welcome/slide-secure.jpg";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -38,7 +38,7 @@ const slides: {
 }[] = [
   { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body", media: { kind: "image", src: slideJustice } },
   { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body", media: { kind: "video", src: handshake.url } },
-  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "image", src: slideSecure } },
+  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "video", src: slideSecureVideo.url } },
 ];
 
 function Welcome() {
