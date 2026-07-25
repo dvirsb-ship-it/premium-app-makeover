@@ -14,6 +14,10 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStoreProvider } from "../lib/store";
 import { SettingsProvider } from "../lib/settings";
 import { Toaster } from "../components/ui/sonner";
+import { Splash } from "../components/Splash";
+import handshakeAsset from "../../public/videos/handshake.mp4.asset.json";
+import dealAsset from "../../public/videos/deal.mp4.asset.json";
+import lawAmbientAsset from "../../public/videos/law-ambient.mp4.asset.json";
 
 function NotFoundComponent() {
   return (
@@ -144,8 +148,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
         <AppStoreProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <Splash
+            videoUrls={[handshakeAsset.url, dealAsset.url, lawAmbientAsset.url]}
+          >
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </Splash>
           <Toaster />
         </AppStoreProvider>
       </SettingsProvider>
