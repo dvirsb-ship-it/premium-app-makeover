@@ -62,15 +62,19 @@ export function Splash({
   imageUrls?: string[];
   children: React.ReactNode;
 }) {
-  const [done, setDone] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    try {
-      return sessionStorage.getItem(SESSION_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
+  // Start with `done=true` on both server and first client render to avoid
+  // hydration mismatches. Once mounted, decide whether we actually need to
+  // show the splash based on sessionStorage.
+  const [done, setDone] = useState<boolean>(true);
   const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(SESSION_KEY) !== "1") setDone(false);
+    } catch {
+      setDone(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (done) return;
