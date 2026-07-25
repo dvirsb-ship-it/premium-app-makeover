@@ -148,8 +148,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
         <AppStoreProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <Splash
+            videoUrls={[handshakeAsset.url, dealAsset.url, lawAmbientAsset.url]}
+          >
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </Splash>
           <Toaster />
         </AppStoreProvider>
       </SettingsProvider>
