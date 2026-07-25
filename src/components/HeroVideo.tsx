@@ -5,22 +5,27 @@ import courtroom from "../../public/videos/courtroom.mp4.asset.json";
 import desk from "../../public/videos/desk.mp4.asset.json";
 
 const clips = [
-  { src: handshake.url },
   { src: courtroom.url },
   { src: desk.url },
+  { src: handshake.url },
 ];
 
 /**
- * Cinematic courtroom backdrop: three signature clips (handshake, courtroom,
- * lawyer desk) slowly cross-fade behind the hero copy.
+ * Cinematic courtroom backdrop: three signature clips slowly cross-fade
+ * behind the hero. Order is randomized per session to reduce déjà-vu.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
-  const [active, setActive] = useState(0);
+  const [order] = useState(() => {
+    const start = Math.floor(Math.random() * clips.length);
+    return clips.map((_, k) => (start + k) % clips.length);
+  });
+  const [step, setStep] = useState(0);
+  const active = order[step % order.length];
 
   useEffect(() => {
     const id = window.setInterval(
-      () => setActive((i) => (i + 1) % clips.length),
-      5500,
+      () => setStep((s) => s + 1),
+      11000,
     );
     return () => window.clearInterval(id);
   }, []);
@@ -35,7 +40,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     >
       <AnimatePresence mode="sync">
         <motion.video
-          key={active}
+          key={step}
           className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
           autoPlay
@@ -46,7 +51,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.6, ease: "easeInOut" }}
+          transition={{ duration: 2.2, ease: "easeInOut" }}
         />
       </AnimatePresence>
       {/* Subtle dark vignette to keep the edges cinematic without hiding the video */}

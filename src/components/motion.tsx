@@ -88,10 +88,10 @@ export function Pressable({
     <motion.button
       type="button"
       onClick={onClick}
-      whileTap={{ scale: 0.97 }}
-      whileHover={{ y: -3 }}
-      transition={{ type: "spring", stiffness: 400, damping: 26 }}
+      whileTap={{ scale: 0.98 }}
+      transition={{ type: "spring", stiffness: 400, damping: 30 }}
       className={cn("text-start", className)}
+      style={{ willChange: "transform" }}
     >
       {children}
     </motion.button>
