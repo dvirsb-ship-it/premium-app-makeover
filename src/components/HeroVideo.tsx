@@ -40,7 +40,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     >
       <AnimatePresence mode="sync">
         <motion.video
-          key={active}
+          key={step}
           className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
           autoPlay
@@ -51,7 +51,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.6, ease: "easeInOut" }}
+          transition={{ duration: 2.2, ease: "easeInOut" }}
         />
       </AnimatePresence>
       {/* Subtle dark vignette to keep the edges cinematic without hiding the video */}
