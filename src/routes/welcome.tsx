@@ -84,9 +84,12 @@ function Welcome() {
           <motion.div
             key={i}
             initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.02 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+            animate={{ opacity: 1, scale: 1.25 }}
+            exit={{ opacity: 0, scale: 1.3 }}
+            transition={{
+              opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+              scale: { duration: 12, ease: "linear" },
+            }}
             className="absolute inset-0"
           >
             {Slide.media.kind === "video" ? (
@@ -96,13 +99,13 @@ function Welcome() {
                 loop
                 muted
                 playsInline
-                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-110 object-cover opacity-70"
+                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-70"
               />
             ) : (
               <img
                 src={Slide.media.src}
                 alt=""
-                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-110 object-cover opacity-70"
+                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-70"
               />
             )}
           </motion.div>
