@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
-import handshake from "../../public/videos/handshake.mp4.asset.json";
+import deal from "../../public/videos/deal.mp4.asset.json";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
