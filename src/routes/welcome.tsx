@@ -34,10 +34,11 @@ const slides: {
   icon: typeof Sparkles;
   title: StringKey;
   body: StringKey;
+  media: SlideMedia;
 }[] = [
-  { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body" },
-  { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body" },
-  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body" },
+  { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body", media: { kind: "image", src: slideJustice } },
+  { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body", media: { kind: "video", src: handshake.url } },
+  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "image", src: slideSecure } },
 ];
 
 function Welcome() {
