@@ -1,18 +1,15 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
-import slideSecureVideo from "../../public/videos/slide-secure.mp4.asset.json";
 import slideJustice from "../assets/welcome/slide-justice.jpg";
+import slideHandshake from "../assets/welcome/slide-handshake.jpg";
+import slideSecure from "../assets/welcome/slide-secure.jpg";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
-
-type SlideMedia =
-  | { kind: "image"; src: string }
-  | { kind: "video"; src: string };
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({
@@ -34,11 +31,11 @@ const slides: {
   icon: typeof Sparkles;
   title: StringKey;
   body: StringKey;
-  media: SlideMedia;
+  image: string;
 }[] = [
-  { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body", media: { kind: "image", src: slideJustice } },
-  { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body", media: { kind: "video", src: handshake.url } },
-  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "video", src: slideSecureVideo.url } },
+  { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body", image: slideJustice },
+  { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body", image: slideHandshake },
+  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", image: slideSecure },
 ];
 
 function Welcome() {
@@ -46,6 +43,8 @@ function Welcome() {
   const t = useT();
   const [i, setI] = useState(0);
   const [sealing, setSealing] = useState(false);
+  const [fadingOut, setFadingOut] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
   const isLast = i === slides.length - 1;
 
   function finish() {
@@ -65,10 +64,13 @@ function Welcome() {
     setI((v) => v + 1);
   }
 
-  // Safety net: navigate away even if the video stalls.
+  // Safety net: navigate away even if the video never fires `ended`.
   useEffect(() => {
     if (!sealing) return;
-    const id = window.setTimeout(finish, 2600);
+    const id = window.setTimeout(() => {
+      setFadingOut(true);
+      window.setTimeout(finish, 600);
+    }, 6000);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sealing]);
@@ -78,36 +80,25 @@ function Welcome() {
 
   return (
     <AppShell bare outerClassName="bg-[#04060b]">
-      {/* Per-slide cinematic backdrop that cross-fades between slides */}
+      {/* Per-slide cinematic backdrop that cross-fades between slides with slow zoom-in */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#04060b]">
         <AnimatePresence mode="sync">
           <motion.div
             key={i}
             initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1.25 }}
-            exit={{ opacity: 0, scale: 1.3 }}
+            animate={{ opacity: 1, scale: 1.28 }}
+            exit={{ opacity: 0, scale: 1.32 }}
             transition={{
               opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
-              scale: { duration: 12, ease: "linear" },
+              scale: { duration: 14, ease: "linear" },
             }}
             className="absolute inset-0"
           >
-            {Slide.media.kind === "video" ? (
-              <video
-                src={Slide.media.src}
-                autoPlay
-                loop
-                muted
-                playsInline
-                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-70"
-              />
-            ) : (
-              <img
-                src={Slide.media.src}
-                alt=""
-                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-70"
-              />
-            )}
+            <img
+              src={Slide.image}
+              alt=""
+              className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-75"
+            />
           </motion.div>
         </AnimatePresence>
         <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
@@ -194,16 +185,21 @@ function Welcome() {
           <motion.div
             key="seal"
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: fadingOut ? 0 : 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 grid min-h-screen w-full place-items-center"
           >
             <video
+              ref={videoRef}
               src={handshake.url}
               autoPlay
               muted
               playsInline
+              onEnded={() => {
+                setFadingOut(true);
+                window.setTimeout(finish, 600);
+              }}
               className="absolute inset-0 h-full w-full object-cover"
             />
             <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
@@ -211,8 +207,8 @@ function Welcome() {
             <motion.div
               aria-hidden
               initial={{ scale: 0.4, opacity: 0 }}
-              animate={{ scale: [0.4, 1.4, 1.1], opacity: [0, 0.6, 0] }}
-              transition={{ duration: 2.2, times: [0, 0.5, 1], ease: "easeOut" }}
+              animate={{ scale: [0.4, 1.4, 1.1], opacity: [0, 0.5, 0] }}
+              transition={{ duration: 2.6, times: [0, 0.5, 1], ease: "easeOut" }}
               className="pointer-events-none absolute left-1/2 top-1/2 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/40 blur-3xl"
             />
             <motion.p
