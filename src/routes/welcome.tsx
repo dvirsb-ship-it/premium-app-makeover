@@ -5,8 +5,8 @@ import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
+import slideSecureVideo from "../../public/videos/slide-secure.mp4.asset.json";
 import slideJustice from "../assets/welcome/slide-justice.jpg";
-import slideSecure from "../assets/welcome/slide-secure.jpg";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
