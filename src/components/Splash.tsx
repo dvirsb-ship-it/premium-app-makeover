@@ -105,7 +105,7 @@ export function Splash({
           /* ignore */
         }
         setDone(true);
-      }, 400);
+      }, 1100);
     });
 
     return () => {
