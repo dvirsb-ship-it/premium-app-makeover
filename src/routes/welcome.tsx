@@ -62,7 +62,7 @@ function Welcome() {
   // Safety net: navigate away even if the video stalls.
   useEffect(() => {
     if (!sealing) return;
-    const id = window.setTimeout(finish, 1400);
+    const id = window.setTimeout(finish, 2600);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sealing]);
