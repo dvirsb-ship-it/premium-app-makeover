@@ -74,7 +74,7 @@ function Welcome() {
       {/* Cinematic dark backdrop — subtle looping handshake as ambient light */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <video
-          src={handshake.url}
+          src={deal.url}
           autoPlay
           loop
           muted
