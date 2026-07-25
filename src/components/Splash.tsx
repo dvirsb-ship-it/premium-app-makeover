@@ -145,15 +145,32 @@ export function Splash({
                   transition={{ duration: 0.35, ease: "easeOut" }}
                 />
               </div>
-              <motion.div
-                key={progress}
-                initial={{ opacity: 0, y: 2 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25 }}
-                className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50 tabular-nums"
-              >
-                {progress}%
-              </motion.div>
+              <div className="mt-3 h-[16px] overflow-hidden">
+                <AnimatePresence mode="wait">
+                  {progress < 100 ? (
+                    <motion.div
+                      key="pct"
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -4 }}
+                      transition={{ duration: 0.25 }}
+                      className="text-[11px] font-semibold uppercase tracking-[0.3em] text-white/50 tabular-nums"
+                    >
+                      {progress}%
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="welcome"
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35 }}
+                      className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gold"
+                    >
+                      Welcome to JustAsk.
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </motion.div>
         )}
