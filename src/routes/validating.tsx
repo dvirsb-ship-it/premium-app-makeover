@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Loader2, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
+import { HandshakeMoment } from "../components/HandshakeMoment";
 import { useAppStore } from "../lib/store";
 import { LAWYERS } from "../lib/store";
 import { useT } from "../lib/i18n";
