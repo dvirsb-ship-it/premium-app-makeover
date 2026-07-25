@@ -5,22 +5,27 @@ import courtroom from "../../public/videos/courtroom.mp4.asset.json";
 import desk from "../../public/videos/desk.mp4.asset.json";
 
 const clips = [
-  { src: handshake.url },
   { src: courtroom.url },
   { src: desk.url },
+  { src: handshake.url },
 ];
 
 /**
- * Cinematic courtroom backdrop: three signature clips (handshake, courtroom,
- * lawyer desk) slowly cross-fade behind the hero copy.
+ * Cinematic courtroom backdrop: three signature clips slowly cross-fade
+ * behind the hero. Order is randomized per session to reduce déjà-vu.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
-  const [active, setActive] = useState(0);
+  const [order] = useState(() => {
+    const start = Math.floor(Math.random() * clips.length);
+    return clips.map((_, k) => (start + k) % clips.length);
+  });
+  const [step, setStep] = useState(0);
+  const active = order[step % order.length];
 
   useEffect(() => {
     const id = window.setInterval(
-      () => setActive((i) => (i + 1) % clips.length),
-      5500,
+      () => setStep((s) => s + 1),
+      11000,
     );
     return () => window.clearInterval(id);
   }, []);
