@@ -170,14 +170,7 @@ function Welcome() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 grid min-h-screen w-full place-items-center"
           >
-            <video
-              src={handshake.url}
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+            <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.18),transparent_55%)]" />
             <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_55%,transparent_0%,rgba(0,0,0,0.7)_100%)]" />
             <motion.div
               aria-hidden
