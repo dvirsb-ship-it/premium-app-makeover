@@ -61,6 +61,13 @@ function Welcome() {
   const Slide = slides[i];
   const Icon = Slide.icon;
 
+  useEffect(() => {
+    if (!sealing) return;
+    const id = window.setTimeout(finish, 2200);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sealing]);
+
   return (
     <AppShell bare outerClassName="studio-stage">
       <div className="relative z-10 flex min-h-screen w-full flex-col px-6 pb-8 pt-10">
@@ -129,6 +136,7 @@ function Welcome() {
           </motion.button>
         </div>
       </div>
+      <HandshakeMoment open={sealing} label={t("handshakeWelcome")} />
     </AppShell>
   );
 }
