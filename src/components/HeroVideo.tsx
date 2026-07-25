@@ -1,19 +1,18 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import studioVideo from "../assets/hero/studio-phone.mp4.asset.json";
-import studioPoster from "../assets/hero/studio-phone-poster.jpg.asset.json";
-import studioVideo2 from "../assets/hero/studio-phone-2.mp4.asset.json";
-import studioPoster2 from "../assets/hero/studio-phone-2-poster.jpg.asset.json";
+import handshake from "../../public/videos/handshake.mp4.asset.json";
+import courtroom from "../../public/videos/courtroom.mp4.asset.json";
+import desk from "../../public/videos/desk.mp4.asset.json";
 
 const clips = [
-  { src: studioVideo.url, poster: studioPoster.url },
-  { src: studioVideo2.url, poster: studioPoster2.url },
+  { src: handshake.url },
+  { src: courtroom.url },
+  { src: desk.url },
 ];
 
 /**
- * Cinematic studio backdrop: two softbox-lit product clips slowly cross-fade,
- * blurred and darkened so they read as the studio *set* — the sharp CSS phone
- * (HeroPhone) is the star in front of it.
+ * Cinematic courtroom backdrop: three signature clips (handshake, courtroom,
+ * lawyer desk) slowly cross-fade behind the hero copy.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
   const [active, setActive] = useState(0);
@@ -21,7 +20,7 @@ export function HeroVideo({ className = "" }: { className?: string }) {
   useEffect(() => {
     const id = window.setInterval(
       () => setActive((i) => (i + 1) % clips.length),
-      6500,
+      5500,
     );
     return () => window.clearInterval(id);
   }, []);
@@ -39,7 +38,6 @@ export function HeroVideo({ className = "" }: { className?: string }) {
           key={active}
           className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
-          poster={clips[active].poster}
           autoPlay
           loop
           muted
