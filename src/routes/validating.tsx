@@ -185,6 +185,7 @@ function Validating() {
           )}
         </AnimatePresence>
       </div>
+      <HandshakeMoment open={sealing} label={t("handshakeMatched")} />
     </AppShell>
   );
 }
