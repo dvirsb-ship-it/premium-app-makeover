@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
-import deal from "../../public/videos/deal.mp4.asset.json";
+import lawAmbient from "../../public/videos/law-ambient.mp4.asset.json";
+import handshake from "../../public/videos/handshake.mp4.asset.json";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -61,7 +62,7 @@ function Welcome() {
   // Safety net: navigate away even if the video stalls.
   useEffect(() => {
     if (!sealing) return;
-    const id = window.setTimeout(finish, 1400);
+    const id = window.setTimeout(finish, 2600);
     return () => window.clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sealing]);
@@ -71,19 +72,19 @@ function Welcome() {
 
   return (
     <AppShell bare outerClassName="bg-[#04060b]">
-      {/* Cinematic dark backdrop — subtle looping handshake as ambient light */}
+      {/* Cinematic law-themed ambient backdrop: brass scales, gavel, leather-bound books */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <video
-          src={deal.url}
+          src={lawAmbient.url}
           autoPlay
           loop
           muted
           playsInline
-          className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-110 object-cover opacity-40"
+          className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-110 object-cover opacity-55"
         />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.18),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_60%,transparent_35%,rgba(2,4,8,0.85)_100%)]" />
-        <div className="absolute inset-0 bg-black/45" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_60%,transparent_30%,rgba(2,4,8,0.9)_100%)]" />
+        <div className="absolute inset-0 bg-black/40" />
       </div>
 
       <AnimatePresence mode="wait">
@@ -170,8 +171,15 @@ function Welcome() {
             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
             className="relative z-10 grid min-h-screen w-full place-items-center"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.18),transparent_55%)]" />
-            <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_55%,transparent_0%,rgba(0,0,0,0.7)_100%)]" />
+            <video
+              src={handshake.url}
+              autoPlay
+              muted
+              playsInline
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_55%,transparent_0%,rgba(0,0,0,0.55)_100%)]" />
             <motion.div
               aria-hidden
               initial={{ scale: 0.4, opacity: 0 }}
