@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, Loader2, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
+import { HandshakeMoment } from "../components/HandshakeMoment";
 import { useAppStore } from "../lib/store";
 import { LAWYERS } from "../lib/store";
 import { useT } from "../lib/i18n";
@@ -27,6 +28,7 @@ function Validating() {
   const t = useT();
   const [current, setCurrent] = useState(0);
   const [stuck, setStuck] = useState(false);
+  const [sealing, setSealing] = useState(false);
   const [runToken, setRunToken] = useState(0);
   const created = useRef(false);
 
@@ -58,11 +60,19 @@ function Validating() {
   useEffect(() => {
     const timers: number[] = [];
     setStuck(false);
+    setSealing(false);
     setCurrent(0);
     stepKeys.forEach((_, i) => {
       timers.push(window.setTimeout(() => setCurrent(i + 1), STEP_MS * (i + 1)));
     });
-    timers.push(window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS));
+    // Reveal the handshake overlay once all steps complete...
+    timers.push(
+      window.setTimeout(() => setSealing(true), STEP_MS * stepKeys.length + STEP_MS),
+    );
+    // ...then complete the flow after the handshake plays.
+    timers.push(
+      window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS + 2200),
+    );
     timers.push(window.setTimeout(() => setStuck(true), STUCK_MS));
 
     return () => timers.forEach((tm) => window.clearTimeout(tm));
@@ -175,6 +185,7 @@ function Validating() {
           )}
         </AnimatePresence>
       </div>
+      <HandshakeMoment open={sealing} label={t("handshakeMatched")} />
     </AppShell>
   );
 }

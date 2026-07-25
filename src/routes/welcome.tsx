@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
+import { HandshakeMoment } from "../components/HandshakeMoment";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -37,6 +38,7 @@ function Welcome() {
   const navigate = useNavigate();
   const t = useT();
   const [i, setI] = useState(0);
+  const [sealing, setSealing] = useState(false);
   const isLast = i === slides.length - 1;
 
   function finish() {
@@ -49,12 +51,22 @@ function Welcome() {
   }
 
   function next() {
-    if (isLast) return finish();
+    if (isLast) {
+      setSealing(true);
+      return;
+    }
     setI((v) => v + 1);
   }
 
   const Slide = slides[i];
   const Icon = Slide.icon;
+
+  useEffect(() => {
+    if (!sealing) return;
+    const id = window.setTimeout(finish, 2200);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sealing]);
 
   return (
     <AppShell bare outerClassName="studio-stage">
@@ -124,6 +136,7 @@ function Welcome() {
           </motion.button>
         </div>
       </div>
+      <HandshakeMoment open={sealing} label={t("handshakeWelcome")} />
     </AppShell>
   );
 }

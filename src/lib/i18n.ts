@@ -239,6 +239,8 @@ export const strings = {
   welcomeSkip: { he: "דלג", en: "Skip" },
   welcomeNext: { he: "הבא", en: "Next" },
   welcomeStart: { he: "בואו נתחיל", en: "Let's start" },
+  handshakeMatched: { he: "התאמה נמצאה", en: "A match is made" },
+  handshakeWelcome: { he: "לחיצת יד לתחילת הדרך", en: "Sealed with a handshake" },
   welcomeSlide1Title: { he: "צדק שמתחיל בשאלה אחת", en: "Justice begins with one question" },
   welcomeSlide1Body: { he: "שתפו את המקרה בכמה שורות. ה-AI שלנו מזהה את תחום המשפט המדויק לפנייה שלכם.", en: "Share your case in a few lines. Our AI identifies the exact legal field for you." },
   welcomeSlide2Title: { he: "מתחברים לעורך הדין הנכון", en: "Matched with the right lawyer" },
