@@ -38,7 +38,7 @@ const slides: {
 }[] = [
   { icon: Sparkles, title: "welcomeSlide1Title", body: "welcomeSlide1Body", media: { kind: "image", src: slideJustice } },
   { icon: Users, title: "welcomeSlide2Title", body: "welcomeSlide2Body", media: { kind: "video", src: handshake.url } },
-  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "image", src: slideSecure } },
+  { icon: ShieldCheck, title: "welcomeSlide3Title", body: "welcomeSlide3Body", media: { kind: "video", src: slideSecureVideo.url } },
 ];
 
 function Welcome() {
