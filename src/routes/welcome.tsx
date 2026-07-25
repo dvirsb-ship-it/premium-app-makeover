@@ -4,6 +4,7 @@ import { useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
+import { HandshakeMoment } from "../components/HandshakeMoment";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -37,6 +38,7 @@ function Welcome() {
   const navigate = useNavigate();
   const t = useT();
   const [i, setI] = useState(0);
+  const [sealing, setSealing] = useState(false);
   const isLast = i === slides.length - 1;
 
   function finish() {
@@ -49,7 +51,10 @@ function Welcome() {
   }
 
   function next() {
-    if (isLast) return finish();
+    if (isLast) {
+      setSealing(true);
+      return;
+    }
     setI((v) => v + 1);
   }
 
