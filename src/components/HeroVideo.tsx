@@ -1,19 +1,25 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import handshake from "../../public/videos/handshake.mp4.asset.json";
-import deal from "../../public/videos/deal.mp4.asset.json";
 import phoneSuccess from "../../public/videos/phone-success.mp4.asset.json";
+import scales from "../../public/videos/scales.mp4.asset.json";
+import gavel from "../../public/videos/gavel.mp4.asset.json";
+import books from "../../public/videos/books.mp4.asset.json";
+import courtroom from "../../public/videos/courtroom2.mp4.asset.json";
+import sealWax from "../../public/videos/seal-wax.mp4.asset.json";
 
 const clips = [
-  { src: deal.url },
   { src: phoneSuccess.url },
-  { src: handshake.url },
+  { src: scales.url },
+  { src: gavel.url },
+  { src: books.url },
+  { src: courtroom.url },
+  { src: sealWax.url },
 ];
 
 /**
- * Cinematic hero backdrop: three signature clips play once each and cross-fade
- * into the next when each one ends. Order is randomized per session to reduce
- * déjà-vu. No looping — each clip is a one-shot cinematic beat.
+ * Cinematic hero backdrop: six signature legal-themed clips play once each and
+ * cross-fade into the next when each one ends. Order is randomized per session
+ * to reduce déjà-vu. No looping — each clip is a one-shot cinematic beat.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
   const [order] = useState(() => {
