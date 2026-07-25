@@ -83,23 +83,25 @@ function Welcome() {
       {/* Per-slide cinematic backdrop that cross-fades between slides with slow zoom-in */}
       <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden bg-[#04060b]">
         <AnimatePresence mode="sync">
-          <motion.div
-            key={i}
-            initial={{ opacity: 0, scale: 1.08 }}
-            animate={{ opacity: 1, scale: 1.28 }}
-            exit={{ opacity: 0, scale: 1.32 }}
-            transition={{
-              opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
-              scale: { duration: 14, ease: "linear" },
-            }}
-            className="absolute inset-0"
-          >
-            <img
-              src={Slide.image}
-              alt=""
-              className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-75"
-            />
-          </motion.div>
+          {!sealing && (
+            <motion.div
+              key={i}
+              initial={{ opacity: 0, scale: 1.08 }}
+              animate={{ opacity: 1, scale: 1.28 }}
+              exit={{ opacity: 0, scale: 1.32 }}
+              transition={{
+                opacity: { duration: 1.2, ease: [0.16, 1, 0.3, 1] },
+                scale: { duration: 14, ease: "linear" },
+              }}
+              className="absolute inset-0"
+            >
+              <img
+                src={Slide.image}
+                alt=""
+                className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 object-cover opacity-75"
+              />
+            </motion.div>
+          )}
         </AnimatePresence>
         <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_60%,transparent_30%,rgba(2,4,8,0.9)_100%)]" />
