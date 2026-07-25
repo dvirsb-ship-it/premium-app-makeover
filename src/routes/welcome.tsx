@@ -4,10 +4,15 @@ import { useEffect, useState } from "react";
 import { ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
-import lawAmbient from "../../public/videos/law-ambient.mp4.asset.json";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
+import slideJustice from "../assets/welcome/slide-justice.jpg";
+import slideSecure from "../assets/welcome/slide-secure.jpg";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
+
+type SlideMedia =
+  | { kind: "image"; src: string }
+  | { kind: "video"; src: string };
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({
