@@ -36,7 +36,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { setRole } = useAppStore();
+  const { role, setRole } = useAppStore();
   const t = useT();
   const [gateChecked, setGateChecked] = useState(false);
 
