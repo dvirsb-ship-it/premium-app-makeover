@@ -54,7 +54,7 @@ function Welcome() {
     } catch {
       /* ignore */
     }
-    navigate({ to: "/" });
+    navigate({ to: "/auth" });
   }
 
   function next() {

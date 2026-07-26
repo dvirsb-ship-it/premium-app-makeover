@@ -31,7 +31,7 @@ function Onboarding() {
   function handleContinue() {
     if (!agreed || submitting) return;
     setSubmitting(true);
-    window.setTimeout(() => navigate({ to: "/intake" }), 450);
+    window.setTimeout(() => navigate({ to: "/" }), 450);
   }
 
 
