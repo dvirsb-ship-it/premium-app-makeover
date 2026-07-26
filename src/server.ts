@@ -1,5 +1,7 @@
 import "./lib/error-capture";
 
+import * as Sentry from "@sentry/cloudflare";
+import { wrapFetchWithSentry } from "@sentry/tanstackstart-react";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
@@ -28,7 +30,8 @@ async function normalizeCatastrophicSsrResponse(response: Response): Promise<Res
   const body = await response.clone().text();
   if (!isH3SwallowedErrorBody(body)) return response;
 
-  console.error(consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`));
+  const originalError = consumeLastCapturedError() ?? new Error(`h3 swallowed SSR error: ${body}`);
+  console.error(originalError);
   return new Response(renderErrorPage(), {
     status: 500,
     headers: { "content-type": "text/html; charset=utf-8" },
@@ -44,7 +47,7 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
-export default {
+const appHandler: ServerEntry = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const handler = await getServerEntry();
@@ -59,3 +62,15 @@ export default {
     }
   },
 };
+
+export default Sentry.withSentry(
+  () => ({
+    dsn: process.env.SENTRY_DSN || undefined,
+    environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
+    release: process.env.SENTRY_RELEASE,
+    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? "0.1"),
+    sampleRate: 1.0,
+  }),
+  // @ts-expect-error - TanStack Start handler is not typed as a Cloudflare handler
+  wrapFetchWithSentry(appHandler),
+);
