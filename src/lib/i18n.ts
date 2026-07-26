@@ -386,6 +386,89 @@ export const strings = {
   approvedToast: { he: "הבקשה אושרה", en: "Application approved" },
   rejectedToast: { he: "הבקשה נדחתה", en: "Application rejected" },
 
+  // Settings — Notifications
+  notifTitle: { he: "התראות", en: "Notifications" },
+  notifSub: { he: "בחרו על מה לקבל עדכונים", en: "Choose what you want to hear about" },
+  notifCaseUpdates: { he: "עדכוני תיקים", en: "Case updates" },
+  notifCaseUpdatesSub: { he: "התקדמות, בקשות ותוצאות", en: "Progress, requests and outcomes" },
+  notifLawyerMsgs: { he: "הודעות מעורך דין", en: "Messages from lawyers" },
+  notifLawyerMsgsSub: { he: "התראה על כל הודעה חדשה", en: "Alert for every new message" },
+  notifNewLeads: { he: "פניות חדשות", en: "New leads" },
+  notifNewLeadsSub: { he: "עדכונים בזמן אמת על פניות שמתאימות לתחומכם", en: "Real-time alerts on matching leads" },
+  notifMarketing: { he: "עדכונים ומבצעים", en: "News & offers" },
+  notifMarketingSub: { he: "טיפים משפטיים, מבצעים והזמנות", en: "Legal tips, offers and invitations" },
+  notifChannelsHeader: { he: "ערוצי משלוח", en: "Delivery channels" },
+  notifPush: { he: "התראות בפוש", en: "Push notifications" },
+  notifPushSub: { he: "ישירות למכשיר", en: "Directly to your device" },
+  notifEmail: { he: "אימייל", en: "Email" },
+  notifEmailSub: { he: "סיכום יומי לתיבה", en: "Daily digest to your inbox" },
+
+  // Settings — Privacy
+  privacyTitle: { he: "פרטיות ואבטחה", en: "Privacy & security" },
+  privacySub: { he: "איך אנחנו שומרים עליכם", en: "How we protect you" },
+  privacyIntro: {
+    he: "הפרטיות שלכם היא הבסיס של JustAsk. הפרטים שאתם משתפים מוצפנים, נשמרים באזור מאובטח ומועברים רק לעורכי דין שאתם בוחרים.",
+    en: "Your privacy is the foundation of JustAsk. What you share is encrypted, kept in a secured region, and shared only with lawyers you pick.",
+  },
+  privacyEnc: { he: "הצפנה מקצה לקצה", en: "End-to-end encryption" },
+  privacyEncSub: { he: "כל שיחה, מסמך ותמונה מוצפנים במעבר ובאחסון.", en: "Every chat, document and image is encrypted in transit and at rest." },
+  privacyControl: { he: "אתם בשליטה", en: "You're in control" },
+  privacyControlSub: { he: "פרטי הקשר נחשפים רק לאחר בחירתכם בעורך דין ספציפי.", en: "Contact details are revealed only after you pick a specific lawyer." },
+  privacyRls: { he: "בידוד מלא בין משתמשים", en: "Full user isolation" },
+  privacyRlsSub: { he: "מדיניות גישה מבוזרת (RLS) מבטיחה שאף משתמש לא רואה מידע של אחר.", en: "Row-level security ensures no user ever sees another's data." },
+  privacyDelete: { he: "מחיקת חשבון ונתונים", en: "Delete account & data" },
+  privacyDeleteSub: { he: "אפשר לבקש מחיקה מלאה בכל עת דרך עזרה ותמיכה.", en: "Request full deletion any time via Help & support." },
+  privacyContact: { he: "לשאלות פרטיות: privacy@justask.app", en: "Privacy inquiries: privacy@justask.app" },
+
+  // Settings — Terms
+  termsTitle: { he: "תנאי שימוש", en: "Terms of use" },
+  termsSub: { he: "השימוש בשירות כפוף לתנאים הבאים", en: "Use of the service is subject to the following terms" },
+  termsSection1Title: { he: "1. אודות השירות", en: "1. About the service" },
+  termsSection1Body: {
+    he: "JustAsk מהווה פלטפורמת חיבור בין נפגעים לעורכי דין. השירות אינו תחליף לייעוץ משפטי מקצועי ואינו יוצר יחסי עו״ד–לקוח.",
+    en: "JustAsk is a matching platform between people and lawyers. The service is not a substitute for professional legal advice and does not create an attorney-client relationship.",
+  },
+  termsSection2Title: { he: "2. אמינות המידע", en: "2. Accuracy of information" },
+  termsSection2Body: {
+    he: "המשתמש מתחייב לספק פרטים מלאים, נכונים ומדויקים. מסירת מידע כוזב עלולה להוביל להשעיית החשבון.",
+    en: "Users must provide complete, correct and accurate details. Providing false information may lead to account suspension.",
+  },
+  termsSection3Title: { he: "3. אחריות", en: "3. Liability" },
+  termsSection3Body: {
+    he: "האחריות על הייצוג המשפטי, ההסכמים והתוצאות היא של עורך הדין הנבחר בלבד. JustAsk אינה צד להליך המשפטי.",
+    en: "Responsibility for legal representation, agreements and outcomes lies solely with the chosen lawyer. JustAsk is not a party to the legal proceedings.",
+  },
+  termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
+  termsSection4Body: {
+    he: "שימוש בסיסי ללקוחות הוא ללא עלות. עורכי דין רשאים להירשם למנוי Pro בתשלום. ניתן לבטל בכל עת.",
+    en: "Basic client use is free. Lawyers may subscribe to a paid Pro plan and may cancel at any time.",
+  },
+  termsSection5Title: { he: "5. שינויים בתנאים", en: "5. Changes to terms" },
+  termsSection5Body: {
+    he: "אנו רשאים לעדכן את התנאים מעת לעת. עדכון מהותי יוצג באפליקציה לפני כניסתו לתוקף.",
+    en: "We may update these terms from time to time. Material changes will be shown in-app before taking effect.",
+  },
+  termsLastUpdated: { he: "עודכן לאחרונה: יולי 2026", en: "Last updated: July 2026" },
+
+  // Settings — Help
+  helpTitle: { he: "עזרה ותמיכה", en: "Help & support" },
+  helpSub: { he: "אנחנו כאן לענות על כל שאלה", en: "We're here to answer any question" },
+  helpFaqHeader: { he: "שאלות נפוצות", en: "Frequently asked" },
+  faq1Q: { he: "כמה זמן לוקח לקבל תשובה מעורך דין?", en: "How long until a lawyer responds?" },
+  faq1A: { he: "רוב הפניות מקבלות הבעת עניין ראשונה תוך פחות מ־2 שעות בשעות הפעילות.", en: "Most requests receive a first expression of interest within under 2 hours during business hours." },
+  faq2Q: { he: "האם השירות בתשלום?", en: "Is the service paid?" },
+  faq2A: { he: "שיתוף המקרה והתאמת עורך דין הם ללא עלות ללקוחות. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר.", en: "Sharing your case and matching a lawyer is free for clients. Fees are agreed directly with the chosen lawyer." },
+  faq3Q: { he: "איך אני מוחק את החשבון שלי?", en: "How do I delete my account?" },
+  faq3A: { he: "שלחו בקשה דרך טופס התמיכה למטה ונטפל במחיקה מלאה תוך 72 שעות.", en: "Send a request via the support form below and we'll complete deletion within 72 hours." },
+  faq4Q: { he: "האם עורכי הדין נבדקים?", en: "Are lawyers vetted?" },
+  faq4A: { he: "כל עורך דין עובר אימות זהות, רישיון והשכלה לפני שהוא מקבל גישה לפניות.", en: "Every lawyer passes identity, license and education verification before receiving access to requests." },
+  helpContactHeader: { he: "צריכים עוד עזרה?", en: "Need more help?" },
+  helpContactSub: { he: "השאירו הודעה ונחזור אליכם תוך יום עסקים", en: "Leave a message and we'll get back within one business day" },
+  helpMessagePh: { he: "כתבו לנו במה נוכל לעזור…", en: "Tell us how we can help…" },
+  helpSend: { he: "שליחת הודעה", en: "Send message" },
+  helpSent: { he: "ההודעה נשלחה, תודה!", en: "Message sent — thanks!" },
+  helpEmailDirect: { he: "או במייל: support@justask.app", en: "Or by email: support@justask.app" },
+
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
