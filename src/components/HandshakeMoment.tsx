@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
+import { Handshake } from "lucide-react";
 
 /**
  * Full-screen cinematic reveal used at the moment a client and lawyer connect
@@ -37,12 +38,13 @@ export function HandshakeMoment({
             className="pointer-events-none absolute left-1/2 top-1/2 size-72 -translate-x-1/2 -translate-y-1/2 rounded-full bg-gold/40 blur-3xl"
           />
           <motion.div
-            aria-hidden
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="relative size-24 rounded-[28px] liquid-glass ring-1 ring-gold/40"
-          />
+            className="relative grid size-24 place-items-center rounded-[28px] liquid-glass ring-1 ring-gold/40"
+          >
+            <Handshake className="size-12 text-gold" strokeWidth={1.6} />
+          </motion.div>
           {label && (
             <motion.p
               initial={{ opacity: 0, y: 14 }}

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
+
 import { BrandMark } from "../components/BrandMark";
 import { HeroVideo } from "../components/HeroVideo";
 import { Pressable, Rise, Stagger } from "../components/motion";
@@ -59,7 +59,7 @@ function Index() {
   if (!gateChecked) return null;
 
   return (
-    <AppShell withNav bare outerClassName="studio-stage">
+    <AppShell bare outerClassName="studio-stage">
       {/* Cinematic studio backdrop — two clips cross-fading behind the phone */}
       <HeroVideo className="z-0" />
 
@@ -143,7 +143,6 @@ function Index() {
         </Stagger>
       </div>
 
-      <BottomNav />
     </AppShell>
   );
 }
