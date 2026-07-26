@@ -45,6 +45,7 @@ export function HandshakeMoment({
           >
             <Handshake className="size-12 text-gold" strokeWidth={1.6} />
           </motion.div>
+          {label && (
             <motion.p
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
