@@ -27,7 +27,6 @@ function Validating() {
   const t = useT();
   const [current, setCurrent] = useState(0);
   const [stuck, setStuck] = useState(false);
-  const [sealing, setSealing] = useState(false);
   const [runToken, setRunToken] = useState(0);
   const created = useRef(false);
 
