@@ -15,23 +15,26 @@ import { AppStoreProvider } from "../lib/store";
 import { SettingsProvider } from "../lib/settings";
 import { Toaster } from "../components/ui/sonner";
 import { Splash } from "../components/Splash";
+import { GlobalHaptics } from "../components/GlobalHaptics";
 import handshakeAsset from "../../public/videos/handshake.mp4.asset.json";
 import dealAsset from "../../public/videos/deal.mp4.asset.json";
 import lawAmbientAsset from "../../public/videos/law-ambient.mp4.asset.json";
 
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#04060b] px-6">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_35%,rgba(212,175,55,0.20),transparent_65%)]" />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_60%,transparent_30%,rgba(2,4,8,0.9)_100%)]" />
+      <div className="liquid-glass relative z-10 mx-auto w-full max-w-sm rounded-3xl px-6 py-10 text-center ring-1 ring-white/10">
+        <div className="mx-auto mb-4 text-[80px] font-black leading-none tracking-tight text-transparent" style={{ backgroundImage: "linear-gradient(180deg,#F1E4C3, #B8912B)", WebkitBackgroundClip: "text", backgroundClip: "text" }}>404</div>
+        <h2 className="text-xl font-bold text-white">Page not found</h2>
+        <p className="mt-2 text-sm text-white/60">
+          This page doesn't exist or has moved. Let's get you back on track.
         </p>
-        <div className="mt-6">
+        <div className="mt-7">
           <Link
             to="/"
-            className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="btn-gold inline-flex min-h-11 w-full items-center justify-center rounded-2xl py-3 text-sm font-bold"
           >
             Go home
           </Link>
@@ -154,6 +157,7 @@ function RootComponent() {
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
           </Splash>
+          <GlobalHaptics />
           <Toaster />
         </AppStoreProvider>
       </SettingsProvider>
