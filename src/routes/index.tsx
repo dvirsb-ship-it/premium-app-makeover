@@ -59,7 +59,7 @@ function Index() {
   if (!gateChecked) return null;
 
   return (
-    <AppShell withNav bare outerClassName="studio-stage">
+    <AppShell bare outerClassName="studio-stage">
       {/* Cinematic studio backdrop — two clips cross-fading behind the phone */}
       <HeroVideo className="z-0" />
 
