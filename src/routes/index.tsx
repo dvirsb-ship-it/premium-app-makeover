@@ -66,12 +66,12 @@ function Index() {
   if (!gateChecked) return null;
 
   return (
-    <AppShell bare outerClassName="studio-stage">
+    <AppShell bare outerClassName="studio-stage !overflow-y-auto">
       {/* Cinematic studio backdrop — two clips cross-fading behind the phone */}
       <HeroVideo className="z-0" />
 
       {/* Foreground content */}
-      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-6 pt-12">
+      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-8 pt-10">
         {/* Centered brand lockup in the studio spotlight */}
         <div className="relative flex flex-1 flex-col items-center justify-center text-center">
           <motion.div
