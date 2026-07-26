@@ -53,9 +53,14 @@ function Index() {
     setGateChecked(true);
   }, [navigate]);
 
-  function choose(role: Role) {
-    setRole(role);
-    navigate({ to: role === "client" ? "/auth" : "/lawyer-onboarding" });
+  function choose(nextRole: Role) {
+    setRole(nextRole);
+    if (nextRole === "lawyer") {
+      navigate({ to: "/lawyer-onboarding" });
+      return;
+    }
+    // Client already authenticated — go straight to intake; otherwise auth first.
+    navigate({ to: role ? "/intake" : "/auth" });
   }
 
   if (!gateChecked) return null;
