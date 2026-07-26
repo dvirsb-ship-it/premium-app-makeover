@@ -143,7 +143,6 @@ function Index() {
         </Stagger>
       </div>
 
-      <BottomNav />
     </AppShell>
   );
 }
