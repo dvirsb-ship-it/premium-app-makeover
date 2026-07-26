@@ -103,17 +103,17 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("client")}
-              className="liquid-glass glass-hero group block w-full rounded-[26px] p-5 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              className="liquid-glass glass-hero group block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <div className="relative flex items-center gap-5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
-                  <UserRound className="size-6" strokeWidth={1.8} />
+              <div className="relative flex items-center gap-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
+                  <UserRound className="size-5" strokeWidth={1.8} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold leading-tight text-foreground">
+                  <h3 className="text-base font-bold leading-tight text-foreground">
                     {t("clientCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {t("clientCTASub")}
                   </p>
                 </div>
@@ -124,17 +124,17 @@ function Index() {
           <Rise>
             <Pressable
               onClick={() => choose("lawyer")}
-              className="liquid-glass-selected glass-hero group block w-full rounded-[26px] p-5 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
+              className="liquid-glass-selected glass-hero group block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
             >
-              <div className="relative flex items-center gap-5">
-                <span className="grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
-                  <Scale className="size-6" strokeWidth={2} />
+              <div className="relative flex items-center gap-4">
+                <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
+                  <Scale className="size-5" strokeWidth={2} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h3 className="text-lg font-bold leading-tight text-foreground">
+                  <h3 className="text-base font-bold leading-tight text-foreground">
                     {t("lawyerCTA")}
                   </h3>
-                  <p className="mt-1 text-sm text-muted-foreground">
+                  <p className="mt-0.5 text-xs text-muted-foreground">
                     {t("lawyerCTASub")}
                   </p>
                 </div>
