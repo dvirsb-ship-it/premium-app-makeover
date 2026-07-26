@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import phoneSuccess from "../../public/videos/phone-success.mp4.asset.json";
 import courtroom from "../../public/videos/courtroom2.mp4.asset.json";
@@ -10,14 +10,13 @@ const clips = [
   { src: sealWax.url },
 ];
 
-/** Minimum time each cinematic clip holds on screen before advancing (ms). */
-const MIN_CLIP_HOLD_MS = 9_000;
+/** Each cinematic clip is shown for this fixed duration (ms). */
+const CLIP_HOLD_MS = 9_000;
 
 /**
- * Cinematic hero backdrop: three signature legal-themed clips play once each and
- * cross-fade into the next when each one ends. Order is randomized per session
- * to reduce déjà-vu. Each clip stays on screen for at least 9 seconds so the
- * backdrop feels calm and deliberate.
+ * Cinematic hero backdrop: three signature legal-themed clips rotate on a
+ * fixed timer. This avoids relying on the browser's `ended` event, which can
+ * silently fail to fire and cause the backdrop to freeze.
  */
 export function HeroVideo({ className = "" }: { className?: string }) {
   const [order] = useState(() => {
@@ -26,20 +25,13 @@ export function HeroVideo({ className = "" }: { className?: string }) {
   });
   const [step, setStep] = useState(0);
   const active = order[step % order.length];
-  const canAdvanceRef = useRef(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    canAdvanceRef.current = false;
-    const minHoldTimer = setTimeout(() => {
-      canAdvanceRef.current = true;
-      // If the video already finished during the hold, advance now.
-      if (videoRef.current?.ended) {
-        setStep((s) => s + 1);
-      }
-    }, MIN_CLIP_HOLD_MS);
-    return () => clearTimeout(minHoldTimer);
-  }, [step]);
+    const timer = setInterval(() => {
+      setStep((s) => s + 1);
+    }, CLIP_HOLD_MS);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <motion.div
@@ -51,17 +43,14 @@ export function HeroVideo({ className = "" }: { className?: string }) {
     >
       <AnimatePresence mode="sync">
         <motion.video
-          ref={videoRef}
           key={step}
           className="absolute left-1/2 top-1/2 h-full w-full -translate-x-1/2 -translate-y-1/2 scale-105 object-cover"
           src={clips[active].src}
           autoPlay
           muted
+          loop
           playsInline
           preload="auto"
-          onEnded={() => {
-            if (canAdvanceRef.current) setStep((s) => s + 1);
-          }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
