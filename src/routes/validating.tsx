@@ -58,18 +58,13 @@ function Validating() {
   useEffect(() => {
     const timers: number[] = [];
     setStuck(false);
-    setSealing(false);
     setCurrent(0);
     stepKeys.forEach((_, i) => {
       timers.push(window.setTimeout(() => setCurrent(i + 1), STEP_MS * (i + 1)));
     });
-    // Reveal the handshake overlay once all steps complete...
+    // Complete the flow once all steps finish.
     timers.push(
-      window.setTimeout(() => setSealing(true), STEP_MS * stepKeys.length + STEP_MS),
-    );
-    // ...then complete the flow after the handshake plays.
-    timers.push(
-      window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS + 2200),
+      window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS),
     );
     timers.push(window.setTimeout(() => setStuck(true), STUCK_MS));
 
