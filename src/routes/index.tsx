@@ -145,6 +145,7 @@ function Index() {
         </Stagger>
       </div>
 
+      {role !== null && <BottomNav />}
     </AppShell>
   );
 }
