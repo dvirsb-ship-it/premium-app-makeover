@@ -22,6 +22,7 @@ import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
@@ -92,6 +93,11 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/settings/notifications',
+  path: '/settings/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LawyerProfileLawyerIdRoute = LawyerProfileLawyerIdRouteImport.update({
   id: '/lawyer-profile/$lawyerId',
   path: '/lawyer-profile/$lawyerId',
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +178,7 @@ export interface FileRoutesById {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +200,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/notifications'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +220,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/notifications'
   id:
     | '__root__'
     | '/'
@@ -229,6 +240,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/notifications'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +261,7 @@ export interface RootRouteChildren {
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -344,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lawyer-profile/$lawyerId': {
       id: '/lawyer-profile/$lawyerId'
       path: '/lawyer-profile/$lawyerId'
@@ -393,6 +413,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
   Bell,
@@ -33,12 +33,13 @@ export const Route = createFileRoute("/profile")({
   component: Profile,
 });
 
-const items: { icon: typeof Bell; key: StringKey }[] = [
-  { icon: Bell, key: "notifications" },
-  { icon: Shield, key: "privacy" },
-  { icon: FileText, key: "terms" },
-  { icon: HelpCircle, key: "help" },
+const items: { icon: typeof Bell; key: StringKey; to: string }[] = [
+  { icon: Bell, key: "notifications", to: "/settings/notifications" },
+  { icon: Shield, key: "privacy", to: "/settings/privacy" },
+  { icon: FileText, key: "terms", to: "/settings/terms" },
+  { icon: HelpCircle, key: "help", to: "/settings/help" },
 ];
+
 
 function Profile() {
 
@@ -189,9 +190,9 @@ function Profile() {
               {items.map((it, i) => {
                 const Icon = it.icon;
                 return (
-                  <button
+                  <Link
                     key={it.key}
-                    type="button"
+                    to={it.to}
                     className={`flex w-full items-center gap-3 p-4 text-start transition active:bg-white/5 ${
                       i !== items.length - 1 ? "border-b border-border" : ""
                     }`}
@@ -205,7 +206,7 @@ function Profile() {
                     <ChevronLeft
                       className={`size-5 text-muted-foreground/50 ${flip}`}
                     />
-                  </button>
+                  </Link>
                 );
               })}
             </div>
