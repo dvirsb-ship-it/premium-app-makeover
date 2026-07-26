@@ -22,6 +22,10 @@ import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as SettingsTermsRouteImport } from './routes/settings.terms'
+import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
+import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
+import { Route as SettingsHelpRouteImport } from './routes/settings.help'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
@@ -92,6 +96,26 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsTermsRoute = SettingsTermsRouteImport.update({
+  id: '/settings/terms',
+  path: '/settings/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
+  id: '/settings/privacy',
+  path: '/settings/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
+  id: '/settings/notifications',
+  path: '/settings/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsHelpRoute = SettingsHelpRouteImport.update({
+  id: '/settings/help',
+  path: '/settings/help',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LawyerProfileLawyerIdRoute = LawyerProfileLawyerIdRouteImport.update({
   id: '/lawyer-profile/$lawyerId',
   path: '/lawyer-profile/$lawyerId',
@@ -131,6 +155,10 @@ export interface FileRoutesByFullPath {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/help': typeof SettingsHelpRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -150,6 +178,10 @@ export interface FileRoutesByTo {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/help': typeof SettingsHelpRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -170,6 +202,10 @@ export interface FileRoutesById {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/help': typeof SettingsHelpRoute
+  '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -191,6 +227,10 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/help'
+    | '/settings/notifications'
+    | '/settings/privacy'
+    | '/settings/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -210,6 +250,10 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/help'
+    | '/settings/notifications'
+    | '/settings/privacy'
+    | '/settings/terms'
   id:
     | '__root__'
     | '/'
@@ -229,6 +273,10 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/help'
+    | '/settings/notifications'
+    | '/settings/privacy'
+    | '/settings/terms'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -249,6 +297,10 @@ export interface RootRouteChildren {
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
+  SettingsHelpRoute: typeof SettingsHelpRoute
+  SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsPrivacyRoute: typeof SettingsPrivacyRoute
+  SettingsTermsRoute: typeof SettingsTermsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -344,6 +396,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/terms': {
+      id: '/settings/terms'
+      path: '/settings/terms'
+      fullPath: '/settings/terms'
+      preLoaderRoute: typeof SettingsTermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/privacy': {
+      id: '/settings/privacy'
+      path: '/settings/privacy'
+      fullPath: '/settings/privacy'
+      preLoaderRoute: typeof SettingsPrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/notifications': {
+      id: '/settings/notifications'
+      path: '/settings/notifications'
+      fullPath: '/settings/notifications'
+      preLoaderRoute: typeof SettingsNotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings/help': {
+      id: '/settings/help'
+      path: '/settings/help'
+      fullPath: '/settings/help'
+      preLoaderRoute: typeof SettingsHelpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lawyer-profile/$lawyerId': {
       id: '/lawyer-profile/$lawyerId'
       path: '/lawyer-profile/$lawyerId'
@@ -393,17 +473,11 @@ const rootRouteChildren: RootRouteChildren = {
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
+  SettingsHelpRoute: SettingsHelpRoute,
+  SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsPrivacyRoute: SettingsPrivacyRoute,
+  SettingsTermsRoute: SettingsTermsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
