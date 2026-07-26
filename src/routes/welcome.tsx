@@ -9,6 +9,7 @@ import slideJustice from "../assets/welcome/slide-justice.jpg";
 import slideHandshake from "../assets/welcome/slide-handshake.jpg";
 import slideSecure from "../assets/welcome/slide-secure.jpg";
 import { useT } from "../lib/i18n";
+import { haptic } from "../lib/haptics";
 import type { StringKey } from "../lib/i18n";
 
 export const Route = createFileRoute("/welcome")({
@@ -58,9 +59,11 @@ function Welcome() {
 
   function next() {
     if (isLast) {
+      haptic("success");
       setSealing(true);
       return;
     }
+    haptic("light");
     setI((v) => v + 1);
   }
 
