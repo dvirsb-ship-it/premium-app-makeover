@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from "motion/react";
+import { Handshake } from "lucide-react";
 
 /**
  * Full-screen cinematic reveal used at the moment a client and lawyer connect
