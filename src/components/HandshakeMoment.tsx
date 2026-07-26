@@ -43,7 +43,7 @@ export function HandshakeMoment({
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="relative grid size-24 place-items-center rounded-[28px] liquid-glass ring-1 ring-gold/40"
           >
-            <Handshake className="size-12 text-gold" strokeWidth={1.6} />
+            <Check className="size-12 text-gold" strokeWidth={2.5} />
           </motion.div>
           {label && (
             <motion.p
