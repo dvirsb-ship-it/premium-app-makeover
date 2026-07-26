@@ -105,6 +105,40 @@ export const strings = {
   composerPlaceholder: { he: "כתוב/י כאן…", en: "Type here…" },
   sendAria: { he: "שליחה", en: "Send" },
 
+  // Intake tips (pre-chat)
+  intakeTipsTitle: { he: "לפני שמתחילים לשתף", en: "Before you share" },
+  intakeTipsSubtitle: { he: "כמה טיפים קצרים לשיחה מוצלחת", en: "A few quick tips for a great chat" },
+  tipsHeroTitle: { he: "דברו איתי בטבעיות — אני AI", en: "Talk to me naturally — I'm AI" },
+  tipsHeroBody: {
+    he: "אין צורך בשפה משפטית או בניסוחים מדויקים. ספרו את הסיפור במילים שלכם, כמו שהייתם מספרים לחבר. אני כאן כדי לעזור לכם — לא לשפוט.",
+    en: "No legal jargon or formal wording needed. Tell the story in your own words, the way you'd tell a friend. I'm here to help — not to judge.",
+  },
+  tipTalkTitle: { he: "דברו חופשי לגמרי", en: "Speak completely freely" },
+  tipTalkBody: {
+    he: "כתבו כמו שאתם חושבים. אין תשובה נכונה או שגויה, ואפשר לחזור, לתקן ולהוסיף בכל שלב.",
+    en: "Write the way you think. There's no right or wrong answer — you can revise or add anything at any point.",
+  },
+  tipDatesTitle: { he: "הוסיפו תאריכים מדויקים", en: "Add precise dates" },
+  tipDatesBody: {
+    he: "מתי זה קרה? מתי פניתם לגורמים אחרים? תאריכים עוזרים לנו לבדוק התיישנות ולסווג את המקרה נכון.",
+    en: "When did it happen? When did you contact others? Dates help us check limitations and classify your case correctly.",
+  },
+  tipPhotosTitle: { he: "צרפו תמונות ומסמכים", en: "Attach photos and documents" },
+  tipPhotosBody: {
+    he: "צילומי מסך, תמונות של פגיעות, חוזים, הודעות וואטסאפ — כל תיעוד ישרת את הוולידציה ויעזור להתאמה טובה יותר.",
+    en: "Screenshots, injury photos, contracts, WhatsApp messages — any evidence strengthens validation and improves matching.",
+  },
+  tipDetailsTitle: { he: "כמה שיותר פרטים", en: "As many details as possible" },
+  tipDetailsBody: {
+    he: "שמות של גורמים מעורבים, סכומים, מקומות ותוצאות. ככל שיש יותר מידע — כך הבדיקה מדויקת יותר וההתאמה איכותית יותר.",
+    en: "Names of parties involved, amounts, locations and outcomes. The more information, the more accurate the review and match.",
+  },
+  tipsFooterNote: {
+    he: "🔒 כל מה שתשתפו מוצפן ונשמר אצלכם. פרטים אישיים ייחשפו רק לעורכי דין שתבחרו.",
+    en: "🔒 Everything you share is encrypted and stays yours. Personal details are revealed only to lawyers you choose.",
+  },
+  tipsStartCta: { he: "הבנתי, בואו נתחיל", en: "Got it, let's start" },
+
   // Validating
   valStep1: { he: "מנתח את פרטי המקרה", en: "Analyzing case details" },
   valStep2: { he: "בודק התאמה לדיני נזיקין", en: "Checking match to tort law" },

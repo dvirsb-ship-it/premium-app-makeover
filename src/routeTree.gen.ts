@@ -17,6 +17,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as LawyerSubscriptionRouteImport } from './routes/lawyer-subscription'
 import { Route as LawyerOnboardingRouteImport } from './routes/lawyer-onboarding'
 import { Route as LawyerRouteImport } from './routes/lawyer'
+import { Route as IntakeTipsRouteImport } from './routes/intake-tips'
 import { Route as IntakeRouteImport } from './routes/intake'
 import { Route as CasesRouteImport } from './routes/cases'
 import { Route as AuthRouteImport } from './routes/auth'
@@ -66,6 +67,11 @@ const LawyerRoute = LawyerRouteImport.update({
   path: '/lawyer',
   getParentRoute: () => rootRouteImport,
 } as any)
+const IntakeTipsRoute = IntakeTipsRouteImport.update({
+  id: '/intake-tips',
+  path: '/intake-tips',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IntakeRoute = IntakeRouteImport.update({
   id: '/intake',
   path: '/intake',
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
+  '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
+  '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/cases': typeof CasesRoute
   '/intake': typeof IntakeRoute
+  '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cases'
     | '/intake'
+    | '/intake-tips'
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cases'
     | '/intake'
+    | '/intake-tips'
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/cases'
     | '/intake'
+    | '/intake-tips'
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   AuthRoute: typeof AuthRoute
   CasesRoute: typeof CasesRoute
   IntakeRoute: typeof IntakeRoute
+  IntakeTipsRoute: typeof IntakeTipsRoute
   LawyerRoute: typeof LawyerRoute
   LawyerOnboardingRoute: typeof LawyerOnboardingRoute
   LawyerSubscriptionRoute: typeof LawyerSubscriptionRoute
@@ -296,6 +309,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LawyerRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/intake-tips': {
+      id: '/intake-tips'
+      path: '/intake-tips'
+      fullPath: '/intake-tips'
+      preLoaderRoute: typeof IntakeTipsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/intake': {
       id: '/intake'
       path: '/intake'
@@ -360,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthRoute: AuthRoute,
   CasesRoute: CasesRoute,
   IntakeRoute: IntakeRoute,
+  IntakeTipsRoute: IntakeTipsRoute,
   LawyerRoute: LawyerRoute,
   LawyerOnboardingRoute: LawyerOnboardingRoute,
   LawyerSubscriptionRoute: LawyerSubscriptionRoute,

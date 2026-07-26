@@ -59,8 +59,8 @@ function Index() {
       navigate({ to: "/lawyer-onboarding" });
       return;
     }
-    // Client already authenticated — go straight to intake; otherwise auth first.
-    navigate({ to: role ? "/intake" : "/auth" });
+    // Client already authenticated — go to intake tips; otherwise auth first.
+    navigate({ to: role ? "/intake-tips" : "/auth" });
   }
 
   if (!gateChecked) return null;
