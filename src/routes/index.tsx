@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Scale, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
+
 import { BrandMark } from "../components/BrandMark";
 import { HeroVideo } from "../components/HeroVideo";
 import { Pressable, Rise, Stagger } from "../components/motion";
