@@ -74,6 +74,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     root.setAttribute("lang", lang);
     root.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
     root.style.colorScheme = theme;
+    // Dynamic status-bar / browser chrome color per theme.
+    const themeColor = theme === "dark" ? "#04060b" : "#F8FAFC";
+    let meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!meta) {
+      meta = document.createElement("meta");
+      meta.name = "theme-color";
+      document.head.appendChild(meta);
+    }
+    meta.content = themeColor;
     try {
       localStorage.setItem(
         STORAGE_KEY,
