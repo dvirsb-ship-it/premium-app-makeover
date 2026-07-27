@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
+import { NotificationBell } from "../components/NotificationBell";
 import { CaseListSkeleton } from "../components/Skeleton";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
@@ -51,13 +52,16 @@ function Cases() {
             <h1 className="text-2xl font-black text-foreground">{t("myCasesTitle")}</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">{t("myCasesSub")}</p>
           </div>
-          <Link
-            to="/onboarding"
-            className="chip-gold grid size-11 place-items-center rounded-2xl transition active:scale-95"
-            aria-label={t("newCaseAria")}
-          >
-            <Plus className="size-5" />
-          </Link>
+          <div className="flex items-center gap-2">
+            <NotificationBell />
+            <Link
+              to="/onboarding"
+              className="chip-gold grid size-11 place-items-center rounded-2xl transition active:scale-95"
+              aria-label={t("newCaseAria")}
+            >
+              <Plus className="size-5" />
+            </Link>
+          </div>
         </div>
 
         {loading ? (

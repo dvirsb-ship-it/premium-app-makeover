@@ -1,9 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   BadgeCheck,
   Download,
+  FileText,
+  IdCard,
   Inbox,
   ShieldAlert,
   ShieldCheck,
@@ -13,11 +15,13 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
+import { useAppStore } from "../lib/store";
+import { isAdminUser } from "../lib/admin";
 import { cn } from "../lib/utils";
 import {
-  listVerifications,
-  subscribeVerifications,
   updateVerification,
+  verificationFileUrl,
+  watchVerifications,
   type VerificationRecord,
   type VerificationStatus,
 } from "../lib/verification-queue";
@@ -60,18 +64,34 @@ function VerificationQueue() {
   const t = useT();
   const { lang } = useSettings();
   const navigate = useNavigate();
+  const { user, authReady } = useAppStore();
   const [rows, setRows] = useState<VerificationRecord[]>([]);
 
-  const refresh = useCallback(() => setRows(listVerifications()), []);
+  // גישה לאדמין בלבד (החוקים בשרת אוכפים את זה ממילא — זו רק חוויית משתמש)
+  useEffect(() => {
+    if (authReady && !isAdminUser(user)) {
+      navigate({ to: "/", replace: true });
+    }
+  }, [authReady, user, navigate]);
 
   useEffect(() => {
-    refresh();
-    return subscribeVerifications(refresh);
-  }, [refresh]);
+    if (!authReady || !isAdminUser(user)) return;
+    return watchVerifications(setRows);
+  }, [authReady, user]);
 
   function handleUpdate(id: string, status: VerificationStatus) {
-    updateVerification(id, status);
-    toast.success(status === "approved" ? t("approvedToast") : t("rejectedToast"));
+    void updateVerification(id, status)
+      .then(() =>
+        toast.success(status === "approved" ? t("approvedToast") : t("rejectedToast")),
+      )
+      .catch(() => toast.error(t("authErrGeneric")));
+  }
+
+  function openFile(path?: string) {
+    if (!path) return;
+    void verificationFileUrl(path)
+      .then((url) => window.open(url, "_blank", "noopener"))
+      .catch(() => toast.error(t("authErrGeneric")));
   }
 
   const dateFmt = (n: number) =>
@@ -157,6 +177,31 @@ function VerificationQueue() {
                       value={formatSpecialties(rec)}
                     />
                   </dl>
+
+                  {(rec.files?.barCard || rec.files?.diploma) && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {rec.files?.barCard && (
+                        <button
+                          type="button"
+                          onClick={() => openFile(rec.files?.barCard)}
+                          className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold text-foreground transition active:scale-95"
+                        >
+                          <IdCard className="size-3.5 text-gold" strokeWidth={2.2} aria-hidden />
+                          {t("docBarCard")}
+                        </button>
+                      )}
+                      {rec.files?.diploma && (
+                        <button
+                          type="button"
+                          onClick={() => openFile(rec.files?.diploma)}
+                          className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold text-foreground transition active:scale-95"
+                        >
+                          <FileText className="size-3.5 text-gold" strokeWidth={2.2} aria-hidden />
+                          {t("docDiploma")}
+                        </button>
+                      )}
+                    </div>
+                  )}
 
                   {rec.status === "pending" && (
                     <div className="mt-4 grid grid-cols-2 gap-2">

@@ -8,6 +8,9 @@ import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import type { ChatMessage } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { useAppStore } from "../lib/store";
+import { intakeTurn, type IntakeReady } from "../lib/ai/intake.functions";
+import { createCase } from "../lib/db";
 
 export const Route = createFileRoute("/intake")({
   component: Intake,
@@ -18,6 +21,7 @@ function Intake() {
   useRequireAuth();  const navigate = useNavigate();
   const t = useT();
   const { dir } = useSettings();
+  const { user } = useAppStore();
 
   const openers: ChatMessage[] = useMemo(
     () => [
@@ -26,26 +30,20 @@ function Intake() {
     ],
     [t],
   );
-  const followUps = useMemo(
-    () => [t("followUp1"), t("followUp2"), t("followUp3")],
-    [t],
-  );
 
   const [messages, setMessages] = useState<ChatMessage[]>(openers);
   const [input, setInput] = useState("");
   const [step, setStep] = useState(0);
   const [typing, setTyping] = useState(false);
   const [ready, setReady] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const firstMsg = useRef<string>("");
+  const readyData = useRef<IntakeReady | null>(null);
 
   useEffect(() => {
     const scripted: Record<string, string> = {
       a1: t("opener1"),
       a2: t("opener2"),
-      "f-0": t("followUp1"),
-      "f-1": t("followUp2"),
-      "f-2": t("followUp3"),
     };
     setMessages((prev) =>
       prev.map((m) =>
@@ -63,52 +61,85 @@ function Intake() {
     });
   }, [messages, typing]);
 
-  const totalSteps = followUps.length;
+  // ארבעה פרטים נאספים בשיחה: תיאור, תאריך, סוג נזק, תיעוד
+  const totalSteps = 3;
   const progress = Math.min(step, totalSteps);
 
-  function send() {
+  async function send() {
     const text = input.trim();
     if (!text || typing || ready) return;
-    if (!firstMsg.current) firstMsg.current = text;
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       from: "user",
       text,
     };
-    setMessages((prev) => [...prev, userMsg]);
+    const history = [...messages, userMsg];
+    setMessages(history);
     setInput("");
-
-    const idx = step;
     setTyping(true);
-    window.setTimeout(() => {
+
+    try {
+      const res = await intakeTurn({
+        data: { messages: history.map((m) => ({ from: m.from, text: m.text })) },
+      });
       setTyping(false);
-      if (idx < followUps.length) {
+      if (res.reply) {
         setMessages((prev) => [
           ...prev,
-          { id: `f-${idx}`, from: "assistant", text: followUps[idx] },
+          { id: `a-${Date.now()}`, from: "assistant", text: res.reply },
         ]);
       }
-      if (idx >= followUps.length - 1) setReady(true);
-      setStep(idx + 1);
-    }, 1100);
+      if (res.ready) {
+        readyData.current = res.ready;
+        setReady(true);
+      }
+      setStep((s) => s + 1);
+    } catch {
+      setTyping(false);
+      setMessages((prev) => [
+        ...prev,
+        { id: `e-${Date.now()}`, from: "assistant", text: t("intakeError") },
+      ]);
+      // מחזירים את ההודעה למגירה כדי שאפשר יהיה לשלוח שוב
+      setInput(text);
+      setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
+    }
   }
 
-  function submit() {
-    try {
-      sessionStorage.setItem(
-        "justask-draft",
-        JSON.stringify({
-          summary:
-            firstMsg.current ||
-            messages.find((m) => m.from === "user")?.text ||
-            "",
-        }),
-      );
-    } catch {
-      /* ignore */
+  async function submit() {
+    if (submitting) return;
+    const uid = user?.uid;
+    if (!uid) {
+      navigate({ to: "/auth" });
+      return;
     }
-    navigate({ to: "/validating" });
+    const data = readyData.current;
+    const description =
+      data?.description ||
+      messages.filter((m) => m.from === "user").map((m) => m.text).join("\n");
+    setSubmitting(true);
+    try {
+      const caseId = await createCase({
+        clientId: uid,
+        description,
+        incidentDate: data?.incident_date,
+        damageType: data?.damage_type,
+        hasDocumentation: data?.has_documentation,
+      });
+      try {
+        sessionStorage.setItem("justask-active-case", caseId);
+      } catch {
+        /* ignore */
+      }
+      navigate({ to: "/validating" });
+    } catch {
+      setSubmitting(false);
+      setMessages((prev) => [
+        ...prev,
+        { id: `e-${Date.now()}`, from: "assistant", text: t("intakeError") },
+      ]);
+    }
   }
 
   return (
@@ -269,7 +300,8 @@ function Intake() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 260, damping: 22 }}
                   onClick={submit}
-                  className="btn-gold relative w-full overflow-hidden rounded-2xl py-4 text-base font-bold"
+                  disabled={submitting}
+                  className="btn-gold relative w-full overflow-hidden rounded-2xl py-4 text-base font-bold disabled:opacity-60"
                 >
                   <motion.span
                     aria-hidden

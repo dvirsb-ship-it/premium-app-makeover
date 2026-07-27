@@ -1,0 +1,21 @@
+# Firebase App Hosting — קונפיגורציית הפריסה של JustAsk.
+# הבנייה: vite build עם NITRO_PRESET=node-server → שרת Node ב-.output/server.
+# מפתח Gemini מגיע מ-Cloud Secret Manager — לעולם לא בקוד.
+
+runConfig:
+  minInstances: 0
+  maxInstances: 4
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
+env:
+  - variable: NITRO_PRESET
+    value: node-server
+    availability:
+      - BUILD
+
+  - variable: GEMINI_API_KEY
+    secret: GEMINI_API_KEY
+    availability:
+      - RUNTIME

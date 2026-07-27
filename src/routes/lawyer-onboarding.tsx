@@ -24,6 +24,8 @@ import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { useAppStore } from "../lib/store";
+import { writeLawyerProfile } from "../lib/db";
 import { cn } from "../lib/utils";
 import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -199,6 +201,7 @@ function LawyerOnboarding() {
   useRequireAuth();
   const navigate = useNavigate();
   const { dir } = useSettings();
+  const { user } = useAppStore();
   const t = useT();
   const rtl = dir === "rtl";
 
@@ -264,31 +267,52 @@ function LawyerOnboarding() {
   function runVerification() {
     setVerifyState("running");
     const found = collectIssues(form);
-    // Simulated end-to-end AI review — resolves after full animation.
+    // האנימציה רצה במקביל להעלאה האמיתית ל-Storage + Firestore.
     window.setTimeout(() => {
       if (found.length === 0) {
-        const rec = enqueueVerification({
-          fullName: form.fullName,
-          idNumber: form.idNumber,
-          email: form.email,
-          phone: form.phone,
-          barNumber: form.barNumber,
-          barYear: form.barYear,
-          university: form.university,
-          gradYear: form.gradYear,
-          specialties: [...form.specialties],
-          otherSpecialty: form.specialties.has("other") ? form.otherSpecialty.trim() : "",
-        });
-        setRecord(rec);
-        try {
-          sessionStorage.setItem(
-            "justask-lawyer-specialties",
-            JSON.stringify([...form.specialties]),
-          );
-        } catch {
-          /* ignore */
-        }
-        setVerifyState("pass");
+        void (async () => {
+          try {
+            const rec = await enqueueVerification(
+              {
+                fullName: form.fullName,
+                idNumber: form.idNumber,
+                email: form.email,
+                phone: form.phone,
+                barNumber: form.barNumber,
+                barYear: form.barYear,
+                university: form.university,
+                gradYear: form.gradYear,
+                specialties: [...form.specialties],
+                otherSpecialty: form.specialties.has("other") ? form.otherSpecialty.trim() : "",
+              },
+              { barCard: form.barCardFile, diploma: form.diplomaFile },
+            );
+            setRecord(rec);
+            try {
+              sessionStorage.setItem(
+                "justask-lawyer-specialties",
+                JSON.stringify([...form.specialties]),
+              );
+            } catch {
+              /* ignore */
+            }
+            // רישום במדריך עורכי הדין — כך התראות על תיקים חדשים בתחום יגיעו אליו
+            if (user) {
+              void writeLawyerProfile(user.uid, {
+                name: form.fullName,
+                specialties: [...form.specialties],
+                barYear: form.barYear,
+                university: form.university,
+                phone: form.phone,
+                email: form.email,
+              }).catch(() => {});
+            }
+            setVerifyState("pass");
+          } catch {
+            toast.error(t("verifyUploadError"));
+            setVerifyState("idle");
+          }
+        })();
       } else {
         setIssues(found);
         setVerifyState("fail");

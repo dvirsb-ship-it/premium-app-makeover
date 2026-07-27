@@ -1,0 +1,93 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isLawyer() {
+      return signedIn()
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lawyer';
+    }
+
+    function isAdmin() {
+      return signedIn() && request.auth.token.email == 'dvirsb@gmail.com';
+    }
+
+    // עו"ד שאושר בתור האימות — רק הוא רשאי להביע עניין בתיקים
+    function isApprovedLawyer() {
+      return isLawyer()
+        && get(/databases/$(database)/documents/verifications/$(request.auth.uid)).data.status == 'approved';
+    }
+
+    // פרופיל משתמש — רק בעל החשבון קורא וכותב
+    match /users/{uid} {
+      allow read, write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // תיקים — בידוד מלא: לקוח רואה רק את שלו; עו"ד רואה רק תיקים שעברו ולידציה
+    match /cases/{caseId} {
+      allow create: if signedIn()
+        && request.resource.data.clientId == request.auth.uid;
+
+      allow read: if signedIn() && (
+        resource.data.clientId == request.auth.uid
+        || resource.data.chosenLawyerId == request.auth.uid
+        || (isLawyer() && resource.data.status in ['matching', 'has_interest'])
+      );
+
+      // הלקוח מעדכן את התיק שלו; עו"ד מאומת בלבד רשאי להביע עניין (שדות מוגבלים)
+      allow update: if signedIn() && (
+        resource.data.clientId == request.auth.uid
+        || (
+          isApprovedLawyer()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['interested', 'interestedIds', 'status'])
+          && request.resource.data.interestedIds.hasAll(resource.data.interestedIds)
+          && request.resource.data.status == 'has_interest'
+          && resource.data.status in ['matching', 'has_interest']
+        )
+      );
+
+      allow delete: if false;
+    }
+
+    // מדריך עורכי דין — פרופיל ציבורי למחוברים (fan-out וכרטיסי עו"ד); כותב רק בעליו
+    match /lawyerProfiles/{uid} {
+      allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // התראות — כל משתמש קורא רק את שלו; יצירה ע"י משתמש מחובר (עו"ד→לקוח, לקוח→עו"ד)
+    match /notifications/{id} {
+      allow read: if signedIn() && resource.data.userId == request.auth.uid;
+      allow create: if signedIn()
+        && request.resource.data.keys().hasAll(['userId', 'type', 'title', 'body', 'read', 'createdAt'])
+        && request.resource.data.read == false;
+      allow update: if signedIn()
+        && resource.data.userId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+      allow delete: if false;
+    }
+
+    // בקשות אימות עו"ד — העו"ד מגיש וקורא את שלו; האדמין קורא הכל ומחליט (סטטוס בלבד)
+    match /verifications/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.status == 'pending';
+      allow update: if (signedIn() && request.auth.uid == uid)
+        || (
+          isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'reviewedAt'])
+        );
+      allow delete: if false;
+    }
+
+    // ברירת מחדל — הכל חסום
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

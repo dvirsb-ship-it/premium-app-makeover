@@ -1,11 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, MessageCircle, Phone, Star } from "lucide-react";
+import { toast } from "sonner";
 
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
+import { readLawyerProfile, type LawyerProfileDoc } from "../lib/db";
+import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
@@ -26,6 +30,33 @@ function CaseDetail() {
   const statusMeta = useStatusMeta();
   const item = getCase(caseId);
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
+
+  // פרטי הקשר של עורך הדין הנבחר — מהמדריך הציבורי
+  const chosenId = item?.chosenLawyerId;
+  const [chosenProfile, setChosenProfile] = useState<LawyerProfileDoc | null>(null);
+  useEffect(() => {
+    if (!chosenId) return;
+    void readLawyerProfile(chosenId).then(setChosenProfile).catch(() => {});
+  }, [chosenId]);
+
+  function contactMessage() {
+    if (chosenProfile?.phone) {
+      const digits = normalizePhone(chosenProfile.phone).replace("+", "");
+      window.open(`https://wa.me/${digits}`, "_blank", "noopener");
+    } else if (chosenProfile?.email) {
+      window.location.href = `mailto:${chosenProfile.email}`;
+    } else {
+      toast.info(t("contactUnavailable"));
+    }
+  }
+
+  function contactCall() {
+    if (chosenProfile?.phone) {
+      window.location.href = `tel:${normalizePhone(chosenProfile.phone)}`;
+    } else {
+      toast.info(t("contactUnavailable"));
+    }
+  }
 
   if (!item) {
     return (
@@ -99,11 +130,19 @@ function CaseDetail() {
                     <Arrow className="size-4" />
                   </button>
                   <div className="mt-3 flex gap-3">
-                    <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
+                    <button
+                      type="button"
+                      onClick={contactMessage}
+                      className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                    >
                       <MessageCircle className="size-4 text-gold" />
                       {t("messageAction")}
                     </button>
-                    <button className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground">
+                    <button
+                      type="button"
+                      onClick={contactCall}
+                      className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold text-foreground transition active:scale-[0.98]"
+                    >
                       <Phone className="size-4 text-gold" />
                       {t("callAction")}
                     </button>

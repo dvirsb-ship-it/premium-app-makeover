@@ -14,6 +14,7 @@ import { Route as ValidatingRouteImport } from './routes/validating'
 import { Route as SubmittedRouteImport } from './routes/submitted'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
+import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LawyerSubscriptionRouteImport } from './routes/lawyer-subscription'
 import { Route as LawyerOnboardingRouteImport } from './routes/lawyer-onboarding'
 import { Route as LawyerRouteImport } from './routes/lawyer'
@@ -54,6 +55,11 @@ const ProfileRoute = ProfileRouteImport.update({
 const OnboardingRoute = OnboardingRouteImport.update({
   id: '/onboarding',
   path: '/onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LawyerSubscriptionRoute = LawyerSubscriptionRouteImport.update({
@@ -146,6 +152,7 @@ export interface FileRoutesByFullPath {
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
@@ -169,6 +176,7 @@ export interface FileRoutesByTo {
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
@@ -193,6 +201,7 @@ export interface FileRoutesById {
   '/lawyer': typeof LawyerRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
+  '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
   '/submitted': typeof SubmittedRoute
@@ -218,6 +227,7 @@ export interface FileRouteTypes {
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
+    | '/notifications'
     | '/onboarding'
     | '/profile'
     | '/submitted'
@@ -241,6 +251,7 @@ export interface FileRouteTypes {
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
+    | '/notifications'
     | '/onboarding'
     | '/profile'
     | '/submitted'
@@ -264,6 +275,7 @@ export interface FileRouteTypes {
     | '/lawyer'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
+    | '/notifications'
     | '/onboarding'
     | '/profile'
     | '/submitted'
@@ -288,6 +300,7 @@ export interface RootRouteChildren {
   LawyerRoute: typeof LawyerRoute
   LawyerOnboardingRoute: typeof LawyerOnboardingRoute
   LawyerSubscriptionRoute: typeof LawyerSubscriptionRoute
+  NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
   SubmittedRoute: typeof SubmittedRoute
@@ -338,6 +351,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof OnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lawyer-subscription': {
@@ -464,6 +484,7 @@ const rootRouteChildren: RootRouteChildren = {
   LawyerRoute: LawyerRoute,
   LawyerOnboardingRoute: LawyerOnboardingRoute,
   LawyerSubscriptionRoute: LawyerSubscriptionRoute,
+  NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
   SubmittedRoute: SubmittedRoute,
@@ -481,3 +502,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

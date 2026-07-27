@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Apple, Mail, Phone, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import type { ConfirmationResult } from "firebase/auth";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { TopBar } from "../components/TopBar";
@@ -11,6 +12,13 @@ import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
 import { cn } from "../lib/utils";
+import {
+  completeEmailLinkIfPresent,
+  sendEmailLink,
+  signInApple,
+  signInGoogle,
+  startPhoneSignIn,
+} from "../lib/auth-service";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -50,61 +58,133 @@ function GoogleIcon() {
 }
 
 type Method = "email" | "phone" | null;
-type LoadingProvider = "google" | "apple" | "email" | "phone" | null;
+type LoadingProvider = "google" | "apple" | "email" | "phone" | "code" | null;
 
 function Auth() {
   const navigate = useNavigate();
   const t = useT();
-  const { setRole } = useAppStore();
+  const { role, setRole, user, authReady } = useAppStore();
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
+  const [code, setCode] = useState("");
   const [loading, setLoading] = useState<LoadingProvider>(null);
   const [error, setError] = useState<string | null>(null);
+  const confirmationRef = useRef<ConfirmationResult | null>(null);
+  const phoneStep = confirmationRef.current !== null;
 
   const busy = loading !== null;
 
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const phoneRe = /^[+\d][\d\s\-().]{6,}$/;
 
-  function validate(provider: "email" | "phone", raw: string): string | null {
-    const trimmed = raw.trim();
-    if (provider === "email" && !emailRe.test(trimmed)) return t("authErrEmail");
-    if (provider === "phone" && !phoneRe.test(trimmed)) return t("authErrPhone");
-    return null;
+  // מי שכבר מחובר לא צריך לראות מסך התחברות — ישר פנימה
+  const startedSignIn = useRef(false);
+  useEffect(() => {
+    if (authReady && user && !startedSignIn.current) {
+      navigate({ to: role === "lawyer" ? "/lawyer" : "/cases", replace: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authReady, user]);
+
+  // אם הגענו מקישור התחברות באימייל — משלימים אוטומטית
+  useEffect(() => {
+    if (window.location.href.includes("oobCode=")) startedSignIn.current = true;
+    void (async () => {
+      try {
+        if (await completeEmailLinkIfPresent()) {
+          onSignedIn();
+        }
+      } catch {
+        setError(t("authErrGeneric"));
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function onSignedIn() {
+    // התפקיד נבחר במסך הראשי; ברירת מחדל — לקוח
+    const finalRole = role ?? "client";
+    setRole(finalRole);
+    toast.success(t("authToastWelcome"));
+    navigate({ to: finalRole === "lawyer" ? "/lawyer-onboarding" : "/onboarding" });
   }
 
-  function proceed(provider: LoadingProvider) {
+  function friendlyError(e: unknown): string {
+    const codeStr = (e as { code?: string })?.code ?? "";
+    if (codeStr.includes("popup-closed") || codeStr.includes("cancelled")) return "";
+    if (codeStr.includes("invalid-verification-code")) return t("authErrCode");
+    if (codeStr.includes("invalid-phone-number")) return t("authErrPhone");
+    if (codeStr.includes("invalid-email")) return t("authErrEmail");
+    return t("authErrGeneric");
+  }
+
+  async function proceed(provider: LoadingProvider) {
     if (busy || !provider) return;
+    startedSignIn.current = true;
     setError(null);
 
-    if (provider === "email" || provider === "phone") {
-      const err = validate(provider, value);
-      if (err) {
-        setError(err);
-        toast.error(err);
+    try {
+      if (provider === "google") {
+        setLoading(provider);
+        await signInGoogle();
+        onSignedIn();
         return;
       }
-    }
 
-    setLoading(provider);
-    // Simulate async auth so the loading state is perceivable
-    window.setTimeout(() => {
-      // Simulated failure surface — 1/25 chance for demo realism
-      const failed = Math.random() < 0.04;
-      if (failed) {
-        setLoading(null);
-        setError(t("authErrGeneric"));
-        toast.error(t("authErrGeneric"));
+      if (provider === "apple") {
+        setLoading(provider);
+        try {
+          await signInApple();
+          onSignedIn();
+        } catch {
+          toast.info(t("authAppleSoon"));
+        }
         return;
       }
-      setRole("client");
-      if (provider === "email" || provider === "phone") {
+
+      if (provider === "email") {
+        const trimmed = value.trim();
+        if (!emailRe.test(trimmed)) {
+          setError(t("authErrEmail"));
+          toast.error(t("authErrEmail"));
+          return;
+        }
+        setLoading(provider);
+        await sendEmailLink(trimmed);
         toast.success(t("authToastSent"), { description: t("authToastSentSub") });
-      } else {
-        toast.success(t("authToastWelcome"));
+        return;
       }
-      navigate({ to: "/onboarding" });
-    }, 650);
+
+      if (provider === "phone") {
+        const trimmed = value.trim();
+        if (!phoneRe.test(trimmed)) {
+          setError(t("authErrPhone"));
+          toast.error(t("authErrPhone"));
+          return;
+        }
+        setLoading(provider);
+        confirmationRef.current = await startPhoneSignIn(trimmed, "auth-recaptcha-anchor");
+        toast.success(t("authCodeSent"), { description: t("authCodeSentSub") });
+        return;
+      }
+
+      if (provider === "code") {
+        const confirmation = confirmationRef.current;
+        if (!confirmation || code.trim().length < 6) return;
+        setLoading(provider);
+        await confirmation.confirm(code.trim());
+        onSignedIn();
+        return;
+      }
+    } catch (e) {
+      const msg = friendlyError(e);
+      if (msg) {
+        setError(msg);
+        toast.error(msg);
+      }
+    } finally {
+      setLoading(null);
+    }
   }
 
   const providerBtnBase =
@@ -190,7 +270,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "email" ? null : "email")}
-                disabled={busy}
+                disabled={busy || phoneStep}
                 aria-expanded={method === "email"}
                 aria-controls="auth-method-panel"
                 className={cn(providerBtnBase)}
@@ -204,7 +284,7 @@ function Auth() {
               <button
                 type="button"
                 onClick={() => setMethod(method === "phone" ? null : "phone")}
-                disabled={busy}
+                disabled={busy || phoneStep}
                 aria-expanded={method === "phone"}
                 aria-controls="auth-method-panel"
                 className={cn(providerBtnBase)}
@@ -217,7 +297,7 @@ function Auth() {
             <AnimatePresence initial={false} mode="wait">
               {method && (
                 <motion.div
-                  key={method}
+                  key={phoneStep ? "phone-code" : method}
                   id="auth-method-panel"
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
@@ -230,25 +310,41 @@ function Auth() {
                       htmlFor="auth-method-input"
                       className="block text-start text-xs font-semibold text-foreground/80"
                     >
-                      {method === "email" ? t("emailLabel") : t("phoneLabel")}
+                      {phoneStep
+                        ? t("authCodeLabel")
+                        : method === "email"
+                          ? t("emailLabel")
+                          : t("phoneLabel")}
                     </label>
                     <input
                       id="auth-method-input"
-                      type={method === "email" ? "email" : "tel"}
-                      inputMode={method === "email" ? "email" : "tel"}
-                      autoComplete={method === "email" ? "email" : "tel"}
+                      type={phoneStep ? "text" : method === "email" ? "email" : "tel"}
+                      inputMode={
+                        phoneStep ? "numeric" : method === "email" ? "email" : "tel"
+                      }
+                      autoComplete={
+                        phoneStep
+                          ? "one-time-code"
+                          : method === "email"
+                            ? "email"
+                            : "tel"
+                      }
                       dir="ltr"
-                      value={value}
+                      maxLength={phoneStep ? 6 : undefined}
+                      value={phoneStep ? code : value}
                       onChange={(e) => {
-                        setValue(e.target.value);
+                        if (phoneStep) setCode(e.target.value.replace(/\D/g, ""));
+                        else setValue(e.target.value);
                         if (error) setError(null);
                       }}
                       aria-invalid={error ? true : undefined}
                       aria-describedby={error ? "auth-method-error" : undefined}
                       placeholder={
-                        method === "email"
-                          ? t("emailPlaceholder")
-                          : t("phonePlaceholder")
+                        phoneStep
+                          ? t("authCodePlaceholder")
+                          : method === "email"
+                            ? t("emailPlaceholder")
+                            : t("phonePlaceholder")
                       }
                       className={cn(
                         "liquid-glass glass-hero w-full rounded-2xl px-4 py-3.5 text-center text-sm text-foreground outline-none placeholder:text-foreground/50 focus-visible:ring-2 focus-visible:ring-gold/70",
@@ -272,18 +368,21 @@ function Auth() {
                     </AnimatePresence>
                     <button
                       type="button"
-                      onClick={() => proceed(method)}
-                      disabled={busy || value.trim().length === 0}
-                      aria-busy={loading === method}
+                      onClick={() => proceed(phoneStep ? "code" : method)}
+                      disabled={
+                        busy ||
+                        (phoneStep ? code.trim().length < 6 : value.trim().length === 0)
+                      }
+                      aria-busy={loading === method || loading === "code"}
                       className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-3.5 text-sm font-bold min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {loading === method ? (
+                      {loading === method || loading === "code" ? (
                         <>
                           <Spinner className="text-navy" />
                           <span>{t("sending")}</span>
                         </>
                       ) : (
-                        <span>{t("authContinueBtn")}</span>
+                        <span>{phoneStep ? t("authVerifyBtn") : t("authContinueBtn")}</span>
                       )}
                     </button>
                   </div>
@@ -298,6 +397,9 @@ function Auth() {
             </Rise>
           </Stagger>
         </main>
+
+        {/* עוגן ל-reCAPTCHA השקוף של אימות הטלפון */}
+        <div id="auth-recaptcha-anchor" />
       </Page>
     </AppShell>
   );

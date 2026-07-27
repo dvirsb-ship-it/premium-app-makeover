@@ -1,8 +1,14 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { Calendar, Clock, Sparkles, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Calendar, Clock, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
+import { NotificationBell } from "../components/NotificationBell";
+import {
+  watchMyVerification,
+  type VerificationStatus,
+} from "../lib/verification-queue";
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
@@ -49,10 +55,17 @@ function pickImage(category: string) {
 function LawyerFeed() {
 
   useRequireAuth();  const navigate = useNavigate();
-  const { feed } = useAppStore();
+  const { feed, user } = useAppStore();
   const { lang } = useSettings();
   const t = useT();
   const urgentLabel = translate("urgent", "he"); // still used to test underlying data
+
+  // סטטוס האימות של עורך הדין — באנר קבוע עד לאישור
+  const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null));
+  }, [user]);
   return (
     <AppShell withNav>
       <motion.header
@@ -69,14 +82,17 @@ function LawyerFeed() {
             {t("newLeads")}
           </h1>
         </div>
-        <button
-          type="button"
-          onClick={() => navigate({ to: "/lawyer-subscription" })}
-          className="liquid-glass grid size-11 place-items-center rounded-full text-foreground"
-          aria-label={t("proSubscriptionAria")}
-        >
-          <Sparkles className="size-5 text-gold" strokeWidth={2} />
-        </button>
+        <div className="flex items-center gap-2">
+          <NotificationBell />
+          <button
+            type="button"
+            onClick={() => navigate({ to: "/lawyer-subscription" })}
+            className="liquid-glass grid size-11 place-items-center rounded-full text-foreground"
+            aria-label={t("proSubscriptionAria")}
+          >
+            <Sparkles className="size-5 text-gold" strokeWidth={2} />
+          </button>
+        </div>
       </motion.header>
 
       <motion.div
@@ -94,6 +110,48 @@ function LawyerFeed() {
           {t("today")}
         </span>
       </motion.div>
+
+      {verStatus === "pending" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="liquid-glass mt-4 flex items-start gap-3 rounded-2xl px-4 py-3.5"
+          role="status"
+        >
+          <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
+            <ShieldCheck className="size-4.5" strokeWidth={2.2} aria-hidden />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[13px] font-bold text-foreground">{t("verPendingBanner")}</p>
+            <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
+              {t("verPendingBannerSub")}
+            </p>
+          </div>
+        </motion.div>
+      )}
+
+      {verStatus === "rejected" && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="liquid-glass mt-4 flex items-start gap-3 rounded-2xl border border-gold/35 px-4 py-3.5"
+          role="alert"
+        >
+          <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
+            <ShieldAlert className="size-4.5" strokeWidth={2.2} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-bold text-foreground">{t("verRejectedBanner")}</p>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/lawyer-onboarding" })}
+              className="mt-1.5 text-[12px] font-bold text-gold underline-offset-2 hover:underline"
+            >
+              {t("verRejectedBannerCta")}
+            </button>
+          </div>
+        </motion.div>
+      )}
 
       <div className="mt-6 space-y-3">
         {feed.map((f, i) => (

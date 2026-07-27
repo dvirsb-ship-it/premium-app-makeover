@@ -5,11 +5,12 @@ import { Check, Loader2, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
-import { LAWYERS } from "../lib/store";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { applyValidation, fanOutNewCase, readCaseRaw } from "../lib/db";
+import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
 
 export const Route = createFileRoute("/validating")({
   component: Validating,
@@ -18,7 +19,7 @@ export const Route = createFileRoute("/validating")({
 const stepKeys: StringKey[] = ["valStep1", "valStep2", "valStep3", "valStep4"];
 const STEP_MS = 900;
 // Watchdog: if we don't finish within this window, offer a retry.
-const STUCK_MS = STEP_MS * stepKeys.length + 4000;
+const STUCK_MS = STEP_MS * stepKeys.length + 12000;
 
 function Validating() {
   useRequireAuth();
@@ -27,53 +28,109 @@ function Validating() {
   const t = useT();
   const [current, setCurrent] = useState(0);
   const [stuck, setStuck] = useState(false);
+  const [rejected, setRejected] = useState<string | null>(null);
   const [runToken, setRunToken] = useState(0);
-  const created = useRef(false);
+  const [animDone, setAnimDone] = useState(false);
+  const [result, setResult] = useState<ValidateResult | null>(null);
+  const finished = useRef(false);
 
-  const finish = useCallback(() => {
-    if (created.current) return;
-    created.current = true;
-    let summary = "";
+  // הוולידציה האמיתית: קריאת התיק → Gemini → כתיבת התוצאה למסד
+  useEffect(() => {
+    let cancelled = false;
+    setResult(null);
+    setStuck(false);
+    setRejected(null);
+
+    let caseId = "";
     try {
-      const raw = sessionStorage.getItem("justask-draft");
-      if (raw) summary = JSON.parse(raw).summary || "";
+      caseId = sessionStorage.getItem("justask-active-case") ?? "";
     } catch {
       /* ignore */
     }
-    if (!summary) summary = t("defaultSummary");
-    const newCase: Case = {
-      id: `c-${Date.now()}`,
-      title: summary.length > 42 ? summary.slice(0, 42) + "…" : summary,
-      category: t("defaultCategory"),
-      summary,
-      createdAt: Date.now(),
-      status: "matching",
-      interested: [LAWYERS[1]],
-    };
-    addCase(newCase);
-    navigate({ to: "/submitted", search: { id: newCase.id } });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [addCase, navigate]);
+    if (!caseId) {
+      navigate({ to: "/intake", replace: true });
+      return;
+    }
 
+    (async () => {
+      const raw = await readCaseRaw(caseId);
+      if (!raw) throw new Error("case not found");
+      const res = await validateCaseFn({
+        data: {
+          description: raw.description,
+          incidentDate: raw.incidentDate,
+          damageType: raw.damageType,
+          hasDocumentation: raw.hasDocumentation,
+        },
+      });
+      await applyValidation(caseId, res);
+      if (res.validated) {
+        // הזמנת עורכי הדין בתחום — לא חוסם את המסך אם נכשל
+        void fanOutNewCase(caseId, res.title, res.category).catch(() => {});
+      }
+      if (!cancelled) setResult(res);
+    })().catch(() => {
+      if (!cancelled) setStuck(true);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [runToken, navigate]);
+
+  // האנימציה המדורגת — נשארת בדיוק כפי שהייתה
   useEffect(() => {
     const timers: number[] = [];
-    setStuck(false);
+    setAnimDone(false);
     setCurrent(0);
     stepKeys.forEach((_, i) => {
       timers.push(window.setTimeout(() => setCurrent(i + 1), STEP_MS * (i + 1)));
     });
-    // Complete the flow once all steps finish.
     timers.push(
-      window.setTimeout(finish, STEP_MS * stepKeys.length + STEP_MS),
+      window.setTimeout(() => setAnimDone(true), STEP_MS * stepKeys.length + STEP_MS),
     );
-    timers.push(window.setTimeout(() => setStuck(true), STUCK_MS));
+    timers.push(window.setTimeout(() => setStuck((s) => s || !finished.current), STUCK_MS));
 
     return () => timers.forEach((tm) => window.clearTimeout(tm));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runToken]);
 
+  const finish = useCallback(
+    (res: ValidateResult) => {
+      if (finished.current) return;
+      finished.current = true;
+      let caseId = "";
+      try {
+        caseId = sessionStorage.getItem("justask-active-case") ?? "";
+      } catch {
+        /* ignore */
+      }
+      if (!res.validated) {
+        setRejected(res.summary || t("valRejectedSub"));
+        return;
+      }
+      const newCase: Case = {
+        id: caseId,
+        title: res.title,
+        category: res.category,
+        summary: res.summary,
+        createdAt: Date.now(),
+        status: "matching",
+        interested: [],
+      };
+      addCase(newCase);
+      navigate({ to: "/submitted", search: { id: caseId } });
+    },
+    [addCase, navigate, t],
+  );
+
+  // מסיימים רק כשגם האנימציה וגם הוולידציה האמיתית הסתיימו
+  useEffect(() => {
+    if (animDone && result) finish(result);
+  }, [animDone, result, finish]);
+
   function retry() {
-    created.current = false;
+    finished.current = false;
     setRunToken((n) => n + 1);
   }
 
@@ -140,8 +197,44 @@ function Validating() {
         </div>
 
         <AnimatePresence>
-          {stuck && !created.current && (
+          {rejected && (
             <motion.div
+              key="rejected"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 8 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-8 w-full max-w-xs space-y-3 text-center"
+              role="alert"
+            >
+              <div className="liquid-glass rounded-2xl px-4 py-4">
+                <p className="text-sm font-bold text-foreground">
+                  {t("valRejectedTitle")}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">{rejected}</p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/intake" })}
+                  className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                >
+                  {t("valNewRequest")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/cases" })}
+                  className="liquid-glass flex flex-1 items-center justify-center rounded-2xl py-3 text-sm font-semibold text-foreground min-h-11 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+                >
+                  {t("valGoCases")}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {stuck && !rejected && !finished.current && !result && (
+            <motion.div
+              key="stuck"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 8 }}

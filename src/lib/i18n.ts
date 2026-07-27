@@ -418,7 +418,7 @@ export const strings = {
   privacyRlsSub: { he: "מדיניות גישה מבוזרת (RLS) מבטיחה שאף משתמש לא רואה מידע של אחר.", en: "Row-level security ensures no user ever sees another's data." },
   privacyDelete: { he: "מחיקת חשבון ונתונים", en: "Delete account & data" },
   privacyDeleteSub: { he: "אפשר לבקש מחיקה מלאה בכל עת דרך עזרה ותמיכה.", en: "Request full deletion any time via Help & support." },
-  privacyContact: { he: "לשאלות פרטיות: privacy@justask.app", en: "Privacy inquiries: privacy@justask.app" },
+  privacyContact: { he: "לשאלות פרטיות: dvirsb@gmail.com", en: "Privacy inquiries: dvirsb@gmail.com" },
 
   // Settings — Terms
   termsTitle: { he: "תנאי שימוש", en: "Terms of use" },
@@ -440,8 +440,8 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "שימוש בסיסי ללקוחות הוא ללא עלות. עורכי דין רשאים להירשם למנוי Pro בתשלום. ניתן לבטל בכל עת.",
-    en: "Basic client use is free. Lawyers may subscribe to a paid Pro plan and may cancel at any time.",
+    he: "בתקופת ההשקה השימוש חינם לחלוטין — ללקוחות ולעורכי דין. בתום תקופת ההשקה: חיבור לעורך דין יעלה ללקוח 179₪ (במקום 249₪), ועורכי דין יוכלו להירשם למנוי Pro בעלות של 249₪ לחודש (מסלול שנתי מוזל) להצגת פרופיל מורחב. כל שינוי בתמחור יוצג באפליקציה מראש, וניתן לבטל מנוי בכל עת.",
+    en: "During the launch period the service is completely free — for clients and lawyers. After the launch period: connecting with a lawyer will cost clients ₪179 (instead of ₪249), and lawyers may subscribe to a Pro plan at ₪249/month (discounted yearly plan) for an enhanced profile. Any pricing change will be shown in-app in advance, and subscriptions can be cancelled at any time.",
   },
   termsSection5Title: { he: "5. שינויים בתנאים", en: "5. Changes to terms" },
   termsSection5Body: {
@@ -457,7 +457,7 @@ export const strings = {
   faq1Q: { he: "כמה זמן לוקח לקבל תשובה מעורך דין?", en: "How long until a lawyer responds?" },
   faq1A: { he: "רוב הפניות מקבלות הבעת עניין ראשונה תוך פחות מ־2 שעות בשעות הפעילות.", en: "Most requests receive a first expression of interest within under 2 hours during business hours." },
   faq2Q: { he: "האם השירות בתשלום?", en: "Is the service paid?" },
-  faq2A: { he: "שיתוף המקרה והתאמת עורך דין הם ללא עלות ללקוחות. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר.", en: "Sharing your case and matching a lawyer is free for clients. Fees are agreed directly with the chosen lawyer." },
+  faq2A: { he: "בתקופת ההשקה הכול חינם. בהמשך, חיבור לעורך דין יעלה 179₪ (במקום 249₪) — נעדכן באפליקציה לפני כל שינוי. שכר הטרחה עצמו סוכם ישירות מול עורך הדין הנבחר.", en: "During the launch period everything is free. Later, connecting with a lawyer will cost ₪179 (instead of ₪249) — we'll announce in-app before any change. Legal fees themselves are agreed directly with the chosen lawyer." },
   faq3Q: { he: "איך אני מוחק את החשבון שלי?", en: "How do I delete my account?" },
   faq3A: { he: "שלחו בקשה דרך טופס התמיכה למטה ונטפל במחיקה מלאה תוך 72 שעות.", en: "Send a request via the support form below and we'll complete deletion within 72 hours." },
   faq4Q: { he: "האם עורכי הדין נבדקים?", en: "Are lawyers vetted?" },
@@ -469,6 +469,35 @@ export const strings = {
   helpSent: { he: "ההודעה נשלחה, תודה!", en: "Message sent — thanks!" },
   helpEmailDirect: { he: "או במייל: support@justask.app", en: "Or by email: support@justask.app" },
 
+
+  // Auth — phone OTP step (Firebase)
+  authCodeLabel: { he: "קוד אימות מה-SMS", en: "SMS verification code" },
+  authCodePlaceholder: { he: "123456", en: "123456" },
+  authVerifyBtn: { he: "אימות והתחברות", en: "Verify & sign in" },
+  authCodeSent: { he: "שלחנו קוד אימות", en: "Verification code sent" },
+  authCodeSentSub: { he: "בדקו את ההודעות בטלפון", en: "Check your messages" },
+  authErrCode: { he: "הקוד שגוי או שפג תוקפו. נסו שוב.", en: "The code is incorrect or expired. Try again." },
+  authAppleSoon: { he: "ההתחברות עם Apple תופעל בקרוב — השתמשו בינתיים בגוגל, אימייל או טלפון.", en: "Apple sign-in is coming soon — use Google, email or phone for now." },
+  intakeError: { he: "מצטערים, הייתה תקלה רגעית בחיבור. אפשר לשלוח שוב את ההודעה.", en: "Sorry, there was a momentary connection issue. Please send your message again." },
+  valRejectedTitle: { he: "הפנייה לא אושרה בשלב זה", en: "Your case wasn't approved at this stage" },
+  valRejectedSub: { he: "על סמך הפרטים שנמסרו, לא זוהתה עילה משפטית מתאימה. אפשר לפתוח פנייה חדשה עם פרטים נוספים.", en: "Based on the details provided, no suitable legal grounds were identified. You can start a new request with more details." },
+  valNewRequest: { he: "פנייה חדשה", en: "New request" },
+  notifCenterTitle: { he: "התראות", en: "Notifications" },
+  notifCenterSub: { he: "כל העדכונים על התיקים שלך", en: "All updates about your cases" },
+  notifEmpty: { he: "אין התראות עדיין", en: "No notifications yet" },
+  notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
+  verifyUploadError: { he: "העלאת המסמכים נכשלה. בדקו את החיבור ונסו שוב.", en: "Uploading your documents failed. Check your connection and try again." },
+  verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },
+  verPendingBannerSub: { he: "צוות JustAsk בודק את המסמכים. בינתיים אפשר לצפות בתיקים — הבעת עניין תיפתח עם האישור.", en: "The JustAsk team is reviewing your documents. You can browse cases meanwhile — expressing interest unlocks on approval." },
+  verRejectedBanner: { he: "האימות לא אושר — אפשר להגיש שוב עם מסמכים מעודכנים", en: "Verification wasn't approved — you can resubmit with updated documents" },
+  verRejectedBannerCta: { he: "הגשה מחדש", en: "Resubmit" },
+  docBarCard: { he: "רישיון לשכה", en: "Bar card" },
+  docDiploma: { he: "תעודת בוגר", en: "Diploma" },
+  interestLockedTitle: { he: "הבעת עניין נפתחת לאחר אימות הפרופיל", en: "Expressing interest unlocks after profile verification" },
+  interestLockedPending: { he: "הבקשה שלך בבדיקה — נעדכן אותך ברגע שתאושר.", en: "Your application is under review — we'll notify you the moment it's approved." },
+  interestLockedCta: { he: "לאימות הפרופיל", en: "Verify my profile" },
+  clientContactHeader: { he: "פרטי הלקוח", en: "Client contact" },
+  contactUnavailable: { he: "פרטי הקשר עוד לא זמינים", en: "Contact details aren't available yet" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

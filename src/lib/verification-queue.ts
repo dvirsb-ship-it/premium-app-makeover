@@ -1,12 +1,23 @@
-// Client-side lawyer verification queue.
-// NOTE: real server-side validation + persistent queue require enabling Lovable Cloud.
-// This localStorage-backed store gives the UI/flow now; swap the read/write
-// functions with server-fn calls once Cloud is on.
+/**
+ * תור אימות עורכי הדין — Firestore + Storage אמיתיים.
+ * המסמכים (רישיון לשכה, תעודת בוגר) נשמרים ב-Storage תחת verifications/{uid}/
+ * והבקשה עצמה ב-verifications/{uid} — מסמך אחד לעו"ד (הגשה חוזרת מעדכנת אותו).
+ */
+import {
+  collection,
+  doc,
+  onSnapshot,
+  setDoc,
+  updateDoc,
+} from "firebase/firestore";
+import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { fbAuth, fbDb, fbStorage } from "./firebase";
+import { notify } from "./db";
 
 export type VerificationStatus = "pending" | "approved" | "rejected";
 
 export interface VerificationRecord {
-  id: string;
+  id: string; // ה-uid של עורך הדין
   fullName: string;
   idNumber: string;
   email: string;
@@ -20,70 +31,107 @@ export interface VerificationRecord {
   submittedAt: number;
   status: VerificationStatus;
   reviewedAt?: number;
+  files?: { barCard?: string; diploma?: string };
 }
 
-const KEY = "justask-verification-queue";
-const CHANNEL = "justask-verification-queue-changed";
+export interface UploadableFile {
+  name: string;
+  type: string;
+  dataUrl: string;
+}
 
-function read(): VerificationRecord[] {
-  if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as VerificationRecord[];
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
-    return [];
+/** הגשת בקשת אימות: מעלה את המסמכים ל-Storage וכותב את הבקשה ל-Firestore. */
+export async function enqueueVerification(
+  data: Omit<VerificationRecord, "id" | "status" | "submittedAt" | "files">,
+  files: { barCard?: UploadableFile | null; diploma?: UploadableFile | null },
+): Promise<VerificationRecord> {
+  const user = fbAuth().currentUser;
+  if (!user) throw new Error("not signed in");
+  const uid = user.uid;
+
+  const paths: { barCard?: string; diploma?: string } = {};
+  async function up(kind: "barCard" | "diploma", f?: UploadableFile | null) {
+    if (!f?.dataUrl) return;
+    const ext = (f.name.split(".").pop() || "bin").toLowerCase();
+    const path = `verifications/${uid}/${kind}.${ext}`;
+    await uploadString(ref(fbStorage(), path), f.dataUrl, "data_url");
+    paths[kind] = path;
   }
-}
+  await Promise.all([up("barCard", files.barCard), up("diploma", files.diploma)]);
 
-function write(rows: VerificationRecord[]) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(rows));
-    window.dispatchEvent(new Event(CHANNEL));
-  } catch {
-    /* quota / private mode — ignore */
-  }
-}
-
-export function listVerifications(): VerificationRecord[] {
-  return read().sort((a, b) => b.submittedAt - a.submittedAt);
-}
-
-export function enqueueVerification(
-  data: Omit<VerificationRecord, "id" | "status" | "submittedAt">,
-): VerificationRecord {
   const rec: VerificationRecord = {
     ...data,
-    id: `ver_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+    id: uid,
     submittedAt: Date.now(),
     status: "pending",
+    files: paths,
   };
-  const rows = read();
-  rows.push(rec);
-  write(rows);
+  const { id: _id, ...docData } = rec;
+  await setDoc(doc(fbDb(), "verifications", uid), docData);
   return rec;
 }
 
-export function updateVerification(id: string, status: VerificationStatus) {
-  const rows = read().map((r) =>
-    r.id === id ? { ...r, status, reviewedAt: Date.now() } : r,
+/** כל הבקשות — לאדמין, בזמן אמת (חדשות ראשונות). */
+export function watchVerifications(
+  cb: (rows: VerificationRecord[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "verifications"),
+    (snap) => {
+      cb(
+        snap.docs
+          .map((d) => ({ id: d.id, ...(d.data() as Omit<VerificationRecord, "id">) }))
+          .sort((a, b) => b.submittedAt - a.submittedAt),
+      );
+    },
+    () => cb([]),
   );
-  write(rows);
 }
 
-export function removeVerification(id: string) {
-  write(read().filter((r) => r.id !== id));
+/** סטטוס הבקשה של עו"ד מסוים — בזמן אמת (null אם טרם הגיש). */
+export function watchMyVerification(
+  uid: string,
+  cb: (rec: VerificationRecord | null) => void,
+): () => void {
+  return onSnapshot(
+    doc(fbDb(), "verifications", uid),
+    (snap) => {
+      cb(
+        snap.exists()
+          ? { id: snap.id, ...(snap.data() as Omit<VerificationRecord, "id">) }
+          : null,
+      );
+    },
+    () => cb(null),
+  );
 }
 
-export function subscribeVerifications(cb: () => void): () => void {
-  if (typeof window === "undefined") return () => {};
-  const handler = () => cb();
-  window.addEventListener(CHANNEL, handler);
-  window.addEventListener("storage", handler);
-  return () => {
-    window.removeEventListener(CHANNEL, handler);
-    window.removeEventListener("storage", handler);
-  };
+/** החלטת אדמין + התראה לעורך הדין. */
+export async function updateVerification(
+  uid: string,
+  status: VerificationStatus,
+): Promise<void> {
+  await updateDoc(doc(fbDb(), "verifications", uid), {
+    status,
+    reviewedAt: Date.now(),
+  });
+  await notify(
+    uid,
+    status === "approved"
+      ? {
+          type: "verification_approved",
+          title: "האימות שלך אושר! 🎉",
+          body: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.",
+        }
+      : {
+          type: "verification_rejected",
+          title: "האימות לא אושר",
+          body: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים.",
+        },
+  );
+}
+
+/** קישור צפייה למסמך שהועלה (דורש הרשאת קריאה — בעלים או אדמין). */
+export async function verificationFileUrl(path: string): Promise<string> {
+  return getDownloadURL(ref(fbStorage(), path));
 }
