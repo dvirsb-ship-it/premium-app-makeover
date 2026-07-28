@@ -25,6 +25,7 @@ import {
   type VerificationRecord,
   type VerificationStatus,
 } from "../lib/verification-queue";
+import { resolveAppeal, watchAppeals, type AppealDoc } from "../lib/db";
 import { exportVerificationPdf } from "../lib/pdf-export";
 
 function formatSpecialties(rec: VerificationRecord): string {
@@ -78,6 +79,18 @@ function VerificationQueue() {
     if (!authReady || !isAdminUser(user)) return;
     return watchVerifications(setRows);
   }, [authReady, user]);
+
+  const [appeals, setAppeals] = useState<AppealDoc[]>([]);
+  useEffect(() => {
+    if (!authReady || !isAdminUser(user)) return;
+    return watchAppeals(setAppeals);
+  }, [authReady, user]);
+
+  function handleAppeal(appeal: AppealDoc, accepted: boolean) {
+    void resolveAppeal(appeal, accepted)
+      .then(() => toast.success(accepted ? t("appealAcceptedToast") : t("appealDismissedToast")))
+      .catch(() => toast.error(t("authErrGeneric")));
+  }
 
   function handleUpdate(id: string, status: VerificationStatus) {
     void updateVerification(id, status)
@@ -222,6 +235,78 @@ function VerificationQueue() {
                       >
                         <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
                         {t("reject")}
+                      </motion.button>
+                    </div>
+                  )}
+                </motion.li>
+              ))}
+            </AnimatePresence>
+          </ul>
+        )}
+
+        {/* ערעורי ולידציה מעורכי דין */}
+        <h2 className="mt-10 text-base font-bold text-foreground">{t("adminAppealsHeader")}</h2>
+        {appeals.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("appealsEmpty")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3" aria-label={t("adminAppealsHeader")}>
+            <AnimatePresence initial={false}>
+              {appeals.map((a, i) => (
+                <motion.li
+                  key={a.id}
+                  layout
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="liquid-glass rounded-3xl px-4 py-4"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="truncate text-[15px] font-bold text-foreground">
+                        {a.caseTitle || a.caseId}
+                      </h3>
+                      <p className="mt-0.5 text-[11px] text-muted-foreground">
+                        {t("appealBy")} {a.lawyerName} · {dateFmt(a.createdAt)}
+                      </p>
+                    </div>
+                    <span
+                      className={cn(
+                        "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold",
+                        a.status === "open" && "bg-gold/20 text-gold",
+                        a.status === "accepted" && "bg-success/15 text-success",
+                        a.status === "dismissed" && "bg-white/10 text-muted-foreground",
+                      )}
+                    >
+                      {a.status === "open"
+                        ? t("statusPending")
+                        : a.status === "accepted"
+                          ? t("appealAcceptedToast")
+                          : t("appealDismissedToast")}
+                    </span>
+                  </div>
+                  <p className="mt-2 rounded-2xl bg-foreground/[0.04] px-3 py-2.5 text-[13px] leading-relaxed text-foreground/90">
+                    {a.reason}
+                  </p>
+                  {a.status === "open" && (
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleAppeal(a, true)}
+                        className="btn-gold flex h-11 items-center justify-center gap-2 rounded-full text-[13px] font-bold"
+                      >
+                        <ShieldCheck className="size-4" strokeWidth={2.4} aria-hidden />
+                        {t("appealAccept")}
+                      </motion.button>
+                      <motion.button
+                        type="button"
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => handleAppeal(a, false)}
+                        className="flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-[13px] font-semibold text-foreground"
+                      >
+                        <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
+                        {t("appealDismiss")}
                       </motion.button>
                     </div>
                   )}

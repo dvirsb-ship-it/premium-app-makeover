@@ -126,6 +126,7 @@ function Intake() {
         incidentDate: data?.incident_date,
         damageType: data?.damage_type,
         hasDocumentation: data?.has_documentation,
+        city: data?.city,
       });
       try {
         sessionStorage.setItem("justask-active-case", caseId);

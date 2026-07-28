@@ -84,6 +84,7 @@ export interface IntakeReady {
   incident_date: string;
   damage_type: "body" | "financial" | "both";
   has_documentation: boolean;
+  city?: string;
 }
 
 export interface IntakeTurnResult {
@@ -99,7 +100,11 @@ export const intakeTurn = createServerFn({ method: "POST" })
       parts: [{ text: m.text }],
     }));
 
-    const text = await generate(contents, { system: INTAKE_SYSTEM_PROMPT });
+    // עוגן זמן — בלעדיו "לפני שלושה שבועות" מחושב מתאריך שרירותי
+    const today = new Date().toISOString().slice(0, 10);
+    const text = await generate(contents, {
+      system: `${INTAKE_SYSTEM_PROMPT}\n\n## עוגן זמן\nהתאריך היום: ${today}. חשב תאריכים יחסיים ("לפני שבוע", "לפני חודשיים") ביחס אליו.`,
+    });
 
     const marker = text.indexOf("[READY]");
     if (marker === -1) return { reply: text, ready: null };
@@ -133,6 +138,8 @@ export interface ValidateResult {
   title: string;
   category: string;
   summary: string;
+  /** הבסיס המשפטי לאישור — מוצג לעורכי הדין בדף התיק. */
+  legalBasis: string;
 }
 
 const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין.
@@ -143,12 +150,14 @@ const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית ש�
 4. אם התיאור אינו מקרה משפטי כלל (שטויות, בדיקה, נושא אחר) — validated=false.
 5. title — כותרת קצרה ועניינית בעברית (עד 6 מילים) שמתארת את המקרה.
 6. summary — סיכום מקצועי של 2-3 משפטים בעברית, בגוף שלישי, בלי פרטים מזהים (בלי שמות/טלפונים/ת"ז), המסתיים במשפט: "הבדיקה הראשונית אינה ייעוץ משפטי."
+7. legalBasis — הבסיס המשפטי לאישור, משפט אחד-שניים בעברית לעיני עורכי דין: העילה והדין הרלוונטי (למשל "עוולת הרשלנות לפי פקודת הנזיקין [נוסח חדש]; האירוע בתוך תקופת ההתיישנות לפי חוק ההתיישנות, תשי"ח-1958"). אם validated=false — הסבר בקצרה מדוע אין עילה.
 השב JSON בלבד.`;
 
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const user = `תיאור המקרה: ${data.description}
+    const user = `התאריך היום: ${new Date().toISOString().slice(0, 10)}
+תיאור המקרה: ${data.description}
 תאריך האירוע: ${data.incidentDate || "לא צוין"}
 סוג הנזק: ${data.damageType || "לא צוין"}
 תיעוד קיים: ${data.hasDocumentation ? "כן" : "לא"}`;
@@ -165,8 +174,9 @@ export const validateCaseFn = createServerFn({ method: "POST" })
             title: { type: "string" },
             category: { type: "string" },
             summary: { type: "string" },
+            legalBasis: { type: "string" },
           },
-          required: ["validated", "title", "category", "summary"],
+          required: ["validated", "title", "category", "summary", "legalBasis"],
         },
       },
     );

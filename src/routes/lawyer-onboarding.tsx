@@ -107,6 +107,7 @@ interface FormState {
   idNumber: string;
   email: string;
   phone: string;
+  city: string;
   barNumber: string;
   barYear: string;
   barCardFile: Uploaded | null;
@@ -122,6 +123,7 @@ type IssueField =
   | "idNumber"
   | "email"
   | "phone"
+  | "city"
   | "barNumber"
   | "barYear"
   | "barCard"
@@ -172,6 +174,8 @@ function collectIssues(form: FormState): Issue[] {
     issues.push({ field: "email", messageKey: "issueEmail", step: "identity" });
   if (form.phone.replace(/\D/g, "").length < 9)
     issues.push({ field: "phone", messageKey: "issuePhone", step: "identity" });
+  if (form.city.trim().length < 2)
+    issues.push({ field: "city", messageKey: "issueCity", step: "identity" });
 
   if (form.barNumber.trim().length < 3)
     issues.push({ field: "barNumber", messageKey: "issueBarNumber", step: "bar" });
@@ -211,6 +215,7 @@ function LawyerOnboarding() {
     idNumber: "",
     email: "",
     phone: "",
+    city: "",
     barNumber: "",
     barYear: "",
     barCardFile: null,
@@ -305,6 +310,7 @@ function LawyerOnboarding() {
                 university: form.university,
                 phone: form.phone,
                 email: form.email,
+                city: form.city.trim(),
               }).catch(() => {});
             }
             setVerifyState("pass");
@@ -804,6 +810,15 @@ function IdentityStep({
             />
           </Field>
         </div>
+        <Field labelKey="fieldCity">
+          <input
+            className={inputCls}
+            value={form.city}
+            placeholder={t("fieldCityPh")}
+            onChange={(e) => update("city", e.target.value)}
+            autoComplete="address-level2"
+          />
+        </Field>
       </div>
     </div>
   );
@@ -974,6 +989,7 @@ function ReviewStep({ form }: { form: FormState }) {
             form.idNumber ? `ת״ז ${form.idNumber}` : undefined,
             form.email || undefined,
             form.phone || undefined,
+            form.city || undefined,
           ]}
         />
         <ReviewCard

@@ -33,6 +33,8 @@ export interface Case {
   status: CaseStatus;
   interested: Lawyer[];
   chosenLawyerId?: string;
+  /** הצעות שצירפו עורכי דין להבעת העניין, לפי מזהה עו"ד. */
+  offers?: Record<string, { fee: string; duration: string; note: string; at: number }>;
 }
 
 export interface FeedCase {
@@ -45,4 +47,6 @@ export interface FeedCase {
   urgency: "רגיל" | "דחוף";
   interestedCount: number;
   expressed?: boolean;
+  /** התאמה לעו"ד הצופה — לפי קרבה והתמחות. */
+  match?: "high" | "medium";
 }

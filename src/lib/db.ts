@@ -76,6 +76,17 @@ interface CaseDoc {
   chosenLawyerId?: string;
   /** נכתב כשהלקוח בוחר עו"ד — גלוי רק לעו"ד הנבחר (נאכף בחוקים). */
   clientContact?: { name: string; phone: string; email: string };
+  /** הבסיס המשפטי מהוולידציה — מוצג לעורכי דין. */
+  legalBasis?: string;
+  /** הצעות עו"ד שנשלחו עם הבעת העניין, לפי uid. */
+  offers?: Record<string, CaseOffer>;
+}
+
+export interface CaseOffer {
+  fee: string;
+  duration: string;
+  note: string;
+  at: number;
 }
 
 function toCase(id: string, d: CaseDoc): Case {
@@ -88,6 +99,7 @@ function toCase(id: string, d: CaseDoc): Case {
     status: (d.status === "rejected" ? "validating" : d.status) as CaseStatus,
     interested: d.interested ?? [],
     chosenLawyerId: d.chosenLawyerId,
+    offers: d.offers,
   };
 }
 
@@ -155,6 +167,7 @@ export interface NewCaseInput {
   incidentDate?: string;
   damageType?: "body" | "financial" | "both";
   hasDocumentation?: boolean;
+  city?: string;
 }
 
 /** יצירת תיק חדש במצב ולידציה. מחזיר את מזהה התיק. */
@@ -170,9 +183,10 @@ export async function createCase(input: NewCaseInput): Promise<string> {
     hasDocumentation: input.hasDocumentation ?? false,
     status: "validating",
     createdAt: Date.now(),
+    location: input.city ?? "",
     interested: [],
     interestedIds: [],
-  } satisfies Omit<CaseDoc, "chosenLawyerId" | "location"> & object);
+  } satisfies Omit<CaseDoc, "chosenLawyerId"> & object);
   return ref.id;
 }
 
@@ -184,35 +198,118 @@ export async function readCaseRaw(caseId: string) {
 /** עדכון תוצאת הוולידציה. */
 export async function applyValidation(
   caseId: string,
-  result: { validated: boolean; title: string; category: string; summary: string },
+  result: { validated: boolean; title: string; category: string; summary: string; legalBasis?: string },
 ): Promise<void> {
   await updateDoc(doc(fbDb(), "cases", caseId), {
     title: result.title,
     category: result.category,
     summary: result.summary,
+    legalBasis: result.legalBasis ?? "",
     status: result.validated ? "matching" : "rejected",
   });
 }
 
-/** עו"ד מביע עניין בתיק + התראה ללקוח. */
+/** עו"ד מביע עניין בתיק (אופציונלית עם הצעה) + התראה ללקוח. */
 export async function expressInterestDb(
   caseId: string,
   lawyer: { uid: string; profile: Lawyer },
+  offer?: { fee: string; duration: string; note: string },
 ): Promise<void> {
+  const hasOffer = !!offer && !!(offer.fee || offer.duration || offer.note);
   await updateDoc(doc(fbDb(), "cases", caseId), {
     interestedIds: arrayUnion(lawyer.uid),
     interested: arrayUnion(lawyer.profile),
     status: "has_interest",
+    ...(hasOffer
+      ? { [`offers.${lawyer.uid}`]: { ...offer, at: Date.now() } }
+      : {}),
   });
   const c = await readCaseRaw(caseId);
   if (c) {
     await notify(c.clientId, {
       type: "lawyer_interest",
       title: "עורך דין מעוניין בתיק שלך",
-      body: `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}"`,
+      body: hasOffer
+        ? `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}" וצירף הצעה`
+        : `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}"`,
       caseId,
     });
   }
+}
+
+/* ---------- ערעורי ולידציה (ולידציה כפולה ע"י עורכי הדין) ---------- */
+
+export interface AppealDoc {
+  id: string;
+  caseId: string;
+  caseTitle: string;
+  lawyerId: string;
+  lawyerName: string;
+  reason: string;
+  status: "open" | "accepted" | "dismissed";
+  createdAt: number;
+}
+
+/** עו"ד מדווח שולידציה שגויה — נפתח ערעור לבדיקת האדמין. */
+export async function submitAppeal(input: {
+  caseId: string;
+  caseTitle: string;
+  lawyerId: string;
+  lawyerName: string;
+  reason: string;
+}): Promise<void> {
+  await addDoc(collection(fbDb(), "appeals"), {
+    ...input,
+    status: "open",
+    createdAt: Date.now(),
+  });
+}
+
+/** כל הערעורים — לאדמין, בזמן אמת (פתוחים ראשונים, חדשים ראשונים). */
+export function watchAppeals(cb: (rows: AppealDoc[]) => void): () => void {
+  return onSnapshot(
+    collection(fbDb(), "appeals"),
+    (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AppealDoc, "id">) }));
+      rows.sort((a, b) =>
+        (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1)
+        || b.createdAt - a.createdAt,
+      );
+      cb(rows);
+    },
+    () => cb([]),
+  );
+}
+
+/** הכרעת אדמין בערעור: קבלה מסירה את התיק מהפיד ומעדכנת את שני הצדדים. */
+export async function resolveAppeal(
+  appeal: AppealDoc,
+  accepted: boolean,
+): Promise<void> {
+  await updateDoc(doc(fbDb(), "appeals", appeal.id), {
+    status: accepted ? "accepted" : "dismissed",
+    reviewedAt: Date.now(),
+  });
+  if (accepted) {
+    const c = await readCaseRaw(appeal.caseId);
+    await updateDoc(doc(fbDb(), "cases", appeal.caseId), { status: "rejected" });
+    if (c) {
+      await notify(c.clientId, {
+        type: "case_reverted",
+        title: "הפנייה שלך חזרה לבדיקה",
+        body: "לאחר בדיקה נוספת נדרשים פרטים משלימים. אפשר לפתוח פנייה חדשה עם מידע נוסף — אנחנו כאן.",
+        caseId: appeal.caseId,
+      });
+    }
+  }
+  await notify(appeal.lawyerId, {
+    type: accepted ? "appeal_accepted" : "appeal_dismissed",
+    title: accepted ? "הערעור שלך התקבל" : "הערעור נבדק",
+    body: accepted
+      ? `צדקת — התיק "${appeal.caseTitle}" הוסר מהפיד. תודה ששמרת על איכות המערכת.`
+      : `בדקנו את "${appeal.caseTitle}" — הוולידציה נשארת בתוקף. תודה על הערנות.`,
+    caseId: appeal.caseId,
+  });
 }
 
 /** הלקוח בחר עורך דין + חילופי פרטי קשר + התראה לעורך הדין. */
@@ -246,6 +343,7 @@ export interface LawyerProfileDoc {
   university?: string;
   phone?: string;
   email?: string;
+  city?: string;
   createdAt: number;
 }
 
@@ -276,6 +374,16 @@ const CATEGORY_SPECS: Record<string, string[]> = {
   "צרכנות": ["consumer", "civil"],
   "מקרקעין": ["estate"],
 };
+
+/** האם קטגוריית תיק רלוונטית להתמחויות של עו"ד ("אחר" פתוח לכולם). */
+export function categoryMatchesSpecialties(
+  category: string,
+  specialties: string[],
+): boolean {
+  const specs = CATEGORY_SPECS[category];
+  if (!specs) return true;
+  return specialties.some((s) => specs.includes(s));
+}
 
 /** תיק עבר ולידציה — הזמנה לכל עורכי הדין בתחום לצפות בו. */
 export async function fanOutNewCase(

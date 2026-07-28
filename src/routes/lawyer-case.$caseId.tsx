@@ -1,19 +1,23 @@
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { BadgeCheck, Check, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Users } from "lucide-react";
+import { BadgeCheck, Check, Flag, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { readCaseRaw } from "../lib/db";
+import { readCaseRaw, submitAppeal } from "../lib/db";
 import { normalizePhone } from "../lib/auth-service";
 import {
   watchMyVerification,
   type VerificationStatus,
 } from "../lib/verification-queue";
+
+const offerInputCls =
+  "block w-full rounded-2xl border border-white/10 bg-foreground/[0.04] px-4 py-3 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none transition focus:border-gold/50";
 
 export const Route = createFileRoute("/lawyer-case/$caseId")({
   component: LawyerCaseDetail,
@@ -60,6 +64,64 @@ function LawyerCaseDetail() {
       })
       .catch(() => {});
   }, [item, user, caseId]);
+
+  // פרטי הוולידציה המלאים — הבסיס המשפטי, תאריך, נזק ותיעוד
+  const [details, setDetails] = useState<{
+    legalBasis?: string;
+    incidentDate?: string;
+    damageType?: string;
+    hasDocumentation?: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!item) return;
+    void readCaseRaw(caseId)
+      .then((raw) => {
+        if (raw) {
+          setDetails({
+            legalBasis: raw.legalBasis,
+            incidentDate: raw.incidentDate,
+            damageType: raw.damageType,
+            hasDocumentation: raw.hasDocumentation,
+          });
+        }
+      })
+      .catch(() => {});
+  }, [item, caseId]);
+
+  // טופס ההצעה שנשלחת עם הבעת העניין
+  const [offerOpen, setOfferOpen] = useState(false);
+  const [fee, setFee] = useState("");
+  const [duration, setDuration] = useState("");
+  const [note, setNote] = useState("");
+
+  // ערעור על הוולידציה
+  const [appealOpen, setAppealOpen] = useState(false);
+  const [appealReason, setAppealReason] = useState("");
+  const [appealSent, setAppealSent] = useState(false);
+
+  function sendAppeal() {
+    const reason = appealReason.trim();
+    if (!reason || !user || !item) return;
+    void submitAppeal({
+      caseId: item.id,
+      caseTitle: item.title,
+      lawyerId: user.uid,
+      lawyerName: user.displayName || "עורך דין",
+      reason,
+    })
+      .then(() => {
+        setAppealSent(true);
+        setAppealOpen(false);
+        toast.success(t("appealSentMsg"));
+      })
+      .catch(() => toast.error(t("authErrGeneric")));
+  }
+
+  function damageLabel(v?: string) {
+    if (v === "financial") return t("damageFinancial");
+    if (v === "both") return t("damageBoth");
+    return t("damageBody");
+  }
 
   if (!item && connected) {
     const c = connected.clientContact;
@@ -192,10 +254,86 @@ function LawyerCaseDetail() {
             </p>
           </div>
 
+          {details && (details.legalBasis || details.incidentDate) && (
+            <div className="liquid-glass mt-4 rounded-3xl p-5">
+              <div className="flex items-center gap-2">
+                <BadgeCheck className="size-4 text-gold" strokeWidth={2.2} />
+                <h3 className="text-sm font-bold text-foreground">{t("whyApprovedHeader")}</h3>
+              </div>
+              {details.legalBasis && (
+                <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
+                  {details.legalBasis}
+                </p>
+              )}
+              <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
+                <div className="rounded-2xl bg-foreground/[0.04] px-2 py-2.5">
+                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("incidentDateLabel")}</dt>
+                  <dd className="mt-0.5 text-[12px] font-bold text-foreground" dir="ltr">{details.incidentDate || "—"}</dd>
+                </div>
+                <div className="rounded-2xl bg-foreground/[0.04] px-2 py-2.5">
+                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("damageTypeLabel")}</dt>
+                  <dd className="mt-0.5 text-[12px] font-bold text-foreground">{damageLabel(details.damageType)}</dd>
+                </div>
+                <div className="rounded-2xl bg-foreground/[0.04] px-2 py-2.5">
+                  <dt className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("documentationLabel")}</dt>
+                  <dd className="mt-0.5 text-[12px] font-bold text-foreground">{details.hasDocumentation ? t("docYes") : t("docNo")}</dd>
+                </div>
+              </dl>
+            </div>
+          )}
+
           <div className="mt-4 flex items-start gap-2 rounded-2xl bg-gold/8 px-4 py-3 text-xs leading-relaxed text-foreground">
             <Scale className="mt-0.5 size-4 shrink-0 text-gold" />
             <span>{t("interestNotice")}</span>
           </div>
+
+          {/* ערעור על הוולידציה — הוולידציה הכפולה של קהילת עורכי הדין */}
+          {!appealSent && (
+            <div className="mt-3 pb-2">
+              {appealOpen ? (
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="liquid-glass rounded-2xl p-4"
+                >
+                  <p className="text-[13px] font-bold text-foreground">{t("appealLink")}</p>
+                  <textarea
+                    value={appealReason}
+                    onChange={(e) => setAppealReason(e.target.value)}
+                    rows={3}
+                    placeholder={t("appealPlaceholder")}
+                    className={`${offerInputCls} mt-2 resize-none`}
+                  />
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={sendAppeal}
+                      disabled={!appealReason.trim()}
+                      className="btn-gold flex-1 rounded-2xl py-2.5 text-[13px] font-bold disabled:opacity-40"
+                    >
+                      {t("appealSend")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAppealOpen(false)}
+                      className="liquid-glass flex-1 rounded-2xl py-2.5 text-[13px] font-semibold text-foreground"
+                    >
+                      {t("cancelAction")}
+                    </button>
+                  </div>
+                </motion.div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setAppealOpen(true)}
+                  className="flex items-center gap-1.5 text-[12px] font-semibold text-muted-foreground transition hover:text-foreground"
+                >
+                  <Flag className="size-3.5" strokeWidth={2.2} />
+                  {t("appealLink")}
+                </button>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="sticky bottom-0 border-t border-border/60 bg-background/90 px-5 py-5 backdrop-blur-xl">
@@ -210,6 +348,61 @@ function LawyerCaseDetail() {
                 <Check className="size-5" strokeWidth={3} />
                 {t("interestSent")}
               </motion.div>
+            ) : canExpress && offerOpen ? (
+              <motion.div
+                key="offer"
+                initial={{ opacity: 0, y: 14 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="liquid-glass max-h-[60vh] space-y-2.5 overflow-y-auto rounded-3xl p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-4 text-gold" strokeWidth={2.2} />
+                  <p className="text-[13px] font-bold text-foreground">{t("offerTitle")}</p>
+                </div>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerFeeLabel")}</span>
+                  <input
+                    className={offerInputCls}
+                    value={fee}
+                    onChange={(e) => setFee(e.target.value)}
+                    placeholder={t("offerFeePh")}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerDurationLabel")}</span>
+                  <input
+                    className={offerInputCls}
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    placeholder={t("offerDurationPh")}
+                  />
+                </label>
+                <label className="block">
+                  <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerNoteLabel")}</span>
+                  <textarea
+                    className={`${offerInputCls} resize-none`}
+                    rows={2}
+                    value={note}
+                    onChange={(e) => setNote(e.target.value)}
+                    placeholder={t("offerNotePh")}
+                  />
+                </label>
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => {
+                    expressInterest(item.id, {
+                      fee: fee.trim(),
+                      duration: duration.trim(),
+                      note: note.trim(),
+                    });
+                    window.setTimeout(() => router.history.back(), 900);
+                  }}
+                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold"
+                >
+                  {t("offerSend")}
+                </motion.button>
+              </motion.div>
             ) : canExpress ? (
               <motion.button
                 key="express"
@@ -217,10 +410,7 @@ function LawyerCaseDetail() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 whileTap={{ scale: 0.98 }}
-                onClick={() => {
-                  expressInterest(item.id);
-                  window.setTimeout(() => router.history.back(), 900);
-                }}
+                onClick={() => setOfferOpen(true)}
                 className="btn-gold w-full rounded-2xl py-4 text-base font-bold"
               >
                 {t("imInterested")}

@@ -175,6 +175,7 @@ function CaseDetail() {
                       <Rise key={l.id}>
                         <LawyerChoiceCard
                           lawyer={l}
+                          offer={item.offers?.[l.id]}
                           onChoose={() => chooseLawyer(item.id, l.id)}
                         />
                       </Rise>
@@ -192,9 +193,11 @@ function CaseDetail() {
 
 function LawyerChoiceCard({
   lawyer,
+  offer,
   onChoose,
 }: {
   lawyer: Lawyer;
+  offer?: { fee: string; duration: string; note: string; at: number };
   onChoose: () => void;
 }) {
   const t = useT();
@@ -223,6 +226,32 @@ function LawyerChoiceCard({
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {lawyer.blurb}
       </p>
+      {offer && (offer.fee || offer.duration || offer.note) && (
+        <div className="mt-3 rounded-2xl border border-gold/25 bg-gold/[0.06] p-3.5">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gold">
+            {t("offerHeader")}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[13px]">
+            {offer.fee && (
+              <span className="text-foreground">
+                <span className="text-muted-foreground">{t("offerFeeShort")}: </span>
+                <span className="font-bold">{offer.fee}</span>
+              </span>
+            )}
+            {offer.duration && (
+              <span className="text-foreground">
+                <span className="text-muted-foreground">{t("offerDurationShort")}: </span>
+                <span className="font-bold">{offer.duration}</span>
+              </span>
+            )}
+          </div>
+          {offer.note && (
+            <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
+              ״{offer.note}״
+            </p>
+          )}
+        </div>
+      )}
       <motion.button
         type="button"
         whileTap={{ scale: 0.98 }}

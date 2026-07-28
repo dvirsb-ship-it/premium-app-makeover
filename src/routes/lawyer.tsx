@@ -197,6 +197,16 @@ function LawyerFeed() {
                       {t("urgent")}
                     </span>
                   )}
+                  {f.match === "high" && (
+                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
+                      {t("matchHigh")}
+                    </span>
+                  )}
+                  {f.match === "medium" && (
+                    <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-[10px] font-bold text-foreground/80">
+                      {t("matchMedium")}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 truncate text-[15px] font-semibold text-foreground">
                   {f.title}

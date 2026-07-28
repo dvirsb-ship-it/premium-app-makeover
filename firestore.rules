@@ -43,7 +43,7 @@ service cloud.firestore {
         || (
           isApprovedLawyer()
           && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['interested', 'interestedIds', 'status'])
+               .hasOnly(['interested', 'interestedIds', 'status', 'offers'])
           && request.resource.data.interestedIds.hasAll(resource.data.interestedIds)
           && request.resource.data.status == 'has_interest'
           && resource.data.status in ['matching', 'has_interest']
@@ -82,6 +82,19 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['status', 'reviewedAt'])
         );
+      allow delete: if false;
+    }
+
+    // ערעורי ולידציה — עו"ד פותח וקורא את שלו; האדמין קורא הכל ומכריע
+    match /appeals/{id} {
+      allow create: if isLawyer()
+        && request.resource.data.lawyerId == request.auth.uid
+        && request.resource.data.status == 'open';
+      allow read: if signedIn()
+        && (resource.data.lawyerId == request.auth.uid || isAdmin());
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['status', 'reviewedAt']);
       allow delete: if false;
     }
 

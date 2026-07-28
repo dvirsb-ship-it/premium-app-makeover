@@ -11,16 +11,19 @@ import { onAuthStateChanged, signOut as fbSignOut, type User } from "firebase/au
 import type { Case, FeedCase, Lawyer, Role } from "./types";
 import { fbAuth, isBrowser } from "./firebase";
 import {
+  categoryMatchesSpecialties,
   chooseLawyerDb,
   ensureUserDoc,
   expressInterestDb,
   markNotificationRead,
+  readLawyerProfile,
   readUserRole,
   watchLawyerFeed,
   watchMyCases,
   watchNotifications,
   writeUserRole,
   type AppNotification,
+  type LawyerProfileDoc,
 } from "./db";
 
 /**
@@ -38,7 +41,10 @@ interface AppState {
   chooseLawyer: (caseId: string, lawyerId: string) => void;
   getCase: (id: string) => Case | undefined;
   feed: FeedCase[];
-  expressInterest: (feedId: string) => void;
+  expressInterest: (
+    feedId: string,
+    offer?: { fee: string; duration: string; note: string },
+  ) => void;
   getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
   user: User | null;
@@ -117,14 +123,39 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     return watchNotifications(user.uid, setNotifications);
   }, [user]);
 
-  // פיד עורך הדין — בזמן אמת
+  // הפרופיל המקצועי של עורך הדין (עיר + התמחויות) — לדירוג הפיד
+  const [myLawyerProfile, setMyLawyerProfile] = useState<LawyerProfileDoc | null>(null);
+  useEffect(() => {
+    if (!user || role !== "lawyer") {
+      setMyLawyerProfile(null);
+      return;
+    }
+    void readLawyerProfile(user.uid).then(setMyLawyerProfile).catch(() => {});
+  }, [user, role]);
+
+  // פיד עורך הדין — בזמן אמת, מדורג: קרבה ← התמחות ← טריות
   useEffect(() => {
     if (!user || role !== "lawyer") {
       setFeed([]);
       return;
     }
-    return watchLawyerFeed(user.uid, setFeed);
-  }, [user, role]);
+    const myCity = (myLawyerProfile?.city ?? "").trim();
+    const mySpecs = myLawyerProfile?.specialties ?? [];
+    return watchLawyerFeed(user.uid, (items) => {
+      const score = (f: FeedCase) => {
+        const near = !!myCity && f.location.trim() === myCity;
+        const fit = mySpecs.length > 0 && categoryMatchesSpecialties(f.category, mySpecs);
+        return (near ? 2 : 0) + (fit ? 1 : 0);
+      };
+      const ranked = items
+        .map((f) => {
+          const s = score(f);
+          return { ...f, match: s >= 3 ? ("high" as const) : s >= 1 ? ("medium" as const) : undefined };
+        })
+        .sort((a, b) => score(b) - score(a));
+      setFeed(ranked);
+    });
+  }, [user, role, myLawyerProfile]);
 
   const setRole = useCallback(
     (r: Role | null) => {
@@ -170,7 +201,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   );
 
   const expressInterest = useCallback(
-    (feedId: string) => {
+    (feedId: string, offer?: { fee: string; duration: string; note: string }) => {
       setFeed((prev) =>
         prev.map((f) =>
           f.id === feedId
@@ -180,20 +211,23 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       );
       const u = user ?? fbAuth().currentUser;
       if (!u) return;
+      const displayName = myLawyerProfile?.name || u.displayName || "עורך דין";
       const profile: Lawyer = {
         id: u.uid,
-        name: u.displayName || "עורך דין",
+        name: displayName,
         firm: "",
         specialty: "",
         rating: 0,
         reviews: 0,
-        years: 0,
-        initials: (u.displayName || "עו").slice(0, 2),
+        years: myLawyerProfile?.barYear
+          ? Math.max(0, new Date().getFullYear() - Number(myLawyerProfile.barYear))
+          : 0,
+        initials: displayName.slice(0, 2),
         blurb: "",
       };
-      void expressInterestDb(feedId, { uid: u.uid, profile }).catch(() => {});
+      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {});
     },
-    [user],
+    [user, myLawyerProfile],
   );
 
   const getFeedCase = useCallback(
