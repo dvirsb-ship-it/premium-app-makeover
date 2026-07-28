@@ -8,7 +8,8 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { readCaseLawyerContact, type LawyerContactDoc } from "../lib/db";
+import { readCaseLawyerContact, readCaseRaw, type LawyerContactDoc } from "../lib/db";
+import { BadgeCheck } from "lucide-react";
 import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
@@ -30,6 +31,14 @@ function CaseDetail() {
   const statusMeta = useStatusMeta();
   const item = getCase(caseId);
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
+
+  // הבסיס המשפטי מהוולידציה — הלקוח רואה על מה התיק אושר
+  const [legalBasis, setLegalBasis] = useState<string>("");
+  useEffect(() => {
+    void readCaseRaw(caseId)
+      .then((raw) => setLegalBasis(raw?.legalBasis ?? ""))
+      .catch(() => {});
+  }, [caseId]);
 
   // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
@@ -97,6 +106,20 @@ function CaseDetail() {
               {item.summary}
             </p>
           </div>
+
+          {item.status !== "validating" && legalBasis && (
+            <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
+              <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-success/12 text-success">
+                <BadgeCheck className="size-4.5" strokeWidth={2.2} aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-foreground">{t("caseValidatedChip")}</p>
+                <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
+                  {legalBasis}
+                </p>
+              </div>
+            </div>
+          )}
 
           <AnimatePresence mode="wait">
             {chosen ? (

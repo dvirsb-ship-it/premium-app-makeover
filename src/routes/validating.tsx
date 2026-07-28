@@ -17,7 +17,7 @@ export const Route = createFileRoute("/validating")({
 });
 
 const stepKeys: StringKey[] = ["valStep1", "valStep2", "valStep3", "valStep4"];
-const STEP_MS = 900;
+const STEP_MS = 1150;
 // Watchdog: if we don't finish within this window, offer a retry.
 const STUCK_MS = STEP_MS * stepKeys.length + 12000;
 

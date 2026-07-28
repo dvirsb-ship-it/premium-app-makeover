@@ -9,6 +9,7 @@ import {
   Moon,
   Repeat,
   Shield,
+  ShieldCheck,
   Sun,
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
@@ -19,6 +20,7 @@ import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { isAdminUser } from "../lib/admin";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -44,7 +46,7 @@ const items: { icon: typeof Bell; key: StringKey; to: string }[] = [
 function Profile() {
 
   useRequireAuth();  const navigate = useNavigate();
-  const { role, setRole } = useAppStore();
+  const { role, setRole, user } = useAppStore();
   const { theme, toggleTheme, lang, setLang, dir } = useSettings();
   const t = useT();
   const flip = dir === "ltr" ? "rotate-180" : "";
@@ -184,6 +186,25 @@ function Profile() {
               <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
             </button>
           </Rise>
+
+          {isAdminUser(user) && (
+            <Rise>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/admin/verifications" })}
+                className="liquid-glass flex w-full items-center gap-3 rounded-3xl border border-gold/25 p-4 text-start transition active:scale-[0.99]"
+              >
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold">
+                  <ShieldCheck className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-foreground">{t("adminOfficeBtn")}</span>
+                  <span className="block text-[11px] text-muted-foreground">{t("adminOfficeSub")}</span>
+                </span>
+                <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
+              </button>
+            </Rise>
+          )}
 
           <Rise>
             <div className="liquid-glass overflow-hidden rounded-3xl">

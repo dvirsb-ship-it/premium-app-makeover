@@ -151,7 +151,7 @@ export const strings = {
 
   // Submitted
   submittedTitle: { he: "המקרה שלך נשלח בהצלחה", en: "Your case was submitted successfully" },
-  submittedSub: { he: "עורכי דין מתאימים בתחומך יקבלו את הפנייה. נעדכן אותך ברגע שמישהו יביע עניין.", en: "Matching lawyers in your field will receive the request. We'll notify you as soon as one shows interest." },
+  submittedSub: { he: "הפנייה עברה את הבדיקה המשפטית הראשונית של ה-AI ✓ עורכי דין מתאימים בתחום קיבלו התראה — נעדכן אותך ברגע שמישהו יביע עניין.", en: "Your request passed the AI's initial legal review ✓ Matching lawyers were notified — we'll update you the moment one shows interest." },
   viewStatus: { he: "צפייה בסטטוס המקרה", en: "View case status" },
   backHome: { he: "חזרה לדף הבית", en: "Back to home" },
 
@@ -546,6 +546,9 @@ export const strings = {
   ticketHandled: { he: "טופל", en: "Handled" },
   adminCasesHeader: { he: "ארכיון תיקים", en: "Cases archive" },
   adminCasesEmpty: { he: "אין תיקים עדיין.", en: "No cases yet." },
+  caseValidatedChip: { he: "עבר בדיקה משפטית ראשונית", en: "Passed initial legal review" },
+  adminOfficeBtn: { he: "המשרד הטכנולוגי", en: "Admin office" },
+  adminOfficeSub: { he: "אימותים, ערעורים, פניות תמיכה וארכיון", en: "Verifications, appeals, support & archive" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
