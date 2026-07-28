@@ -440,8 +440,8 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "בתקופת ההשקה השימוש חינם לחלוטין — ללקוחות ולעורכי דין. בתום תקופת ההשקה: חיבור לעורך דין יעלה ללקוח 179₪ (במקום 249₪), ועורכי דין יוכלו להירשם למנוי Pro בעלות של 249₪ לחודש (מסלול שנתי מוזל) להצגת פרופיל מורחב. כל שינוי בתמחור יוצג באפליקציה מראש, וניתן לבטל מנוי בכל עת.",
-    en: "During the launch period the service is completely free — for clients and lawyers. After the launch period: connecting with a lawyer will cost clients ₪179 (instead of ₪249), and lawyers may subscribe to a Pro plan at ₪249/month (discounted yearly plan) for an enhanced profile. Any pricing change will be shown in-app in advance, and subscriptions can be cancelled at any time.",
+    he: "בתקופת ההשקה השימוש חינם לחלוטין — ללקוחות ולעורכי דין. בתום תקופת ההשקה: חיבור לעורך דין יעלה ללקוח 79₪, ועורכי דין יוכלו להירשם למנוי Pro בעלות של 249₪ לחודש (מסלול שנתי מוזל) להצגת פרופיל מורחב. כל שינוי בתמחור יוצג באפליקציה מראש, וניתן לבטל מנוי בכל עת.",
+    en: "During the launch period the service is completely free — for clients and lawyers. After the launch period: connecting with a lawyer will cost clients ₪79, and lawyers may subscribe to a Pro plan at ₪249/month (discounted yearly plan) for an enhanced profile. Any pricing change will be shown in-app in advance, and subscriptions can be cancelled at any time.",
   },
   termsSection5Title: { he: "5. שינויים בתנאים", en: "5. Changes to terms" },
   termsSection5Body: {
@@ -457,7 +457,7 @@ export const strings = {
   faq1Q: { he: "כמה זמן לוקח לקבל תשובה מעורך דין?", en: "How long until a lawyer responds?" },
   faq1A: { he: "רוב הפניות מקבלות הבעת עניין ראשונה תוך פחות מ־2 שעות בשעות הפעילות.", en: "Most requests receive a first expression of interest within under 2 hours during business hours." },
   faq2Q: { he: "האם השירות בתשלום?", en: "Is the service paid?" },
-  faq2A: { he: "בתקופת ההשקה הכול חינם. בהמשך, חיבור לעורך דין יעלה 179₪ (במקום 249₪) — נעדכן באפליקציה לפני כל שינוי. שכר הטרחה עצמו סוכם ישירות מול עורך הדין הנבחר.", en: "During the launch period everything is free. Later, connecting with a lawyer will cost ₪179 (instead of ₪249) — we'll announce in-app before any change. Legal fees themselves are agreed directly with the chosen lawyer." },
+  faq2A: { he: "בתקופת ההשקה הכול חינם. בהמשך, חיבור לעורך דין יעלה 79₪ — נעדכן באפליקציה לפני כל שינוי. שכר הטרחה עצמו סוכם ישירות מול עורך הדין הנבחר.", en: "During the launch period everything is free. Later, connecting with a lawyer will cost ₪79 — we'll announce in-app before any change. Legal fees themselves are agreed directly with the chosen lawyer." },
   faq3Q: { he: "איך אני מוחק את החשבון שלי?", en: "How do I delete my account?" },
   faq3A: { he: "שלחו בקשה דרך טופס התמיכה למטה ונטפל במחיקה מלאה תוך 72 שעות.", en: "Send a request via the support form below and we'll complete deletion within 72 hours." },
   faq4Q: { he: "האם עורכי הדין נבדקים?", en: "Are lawyers vetted?" },
