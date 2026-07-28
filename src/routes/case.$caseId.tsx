@@ -107,6 +107,23 @@ function CaseDetail() {
             </p>
           </div>
 
+          {item.status === "validating" && (
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  sessionStorage.setItem("justask-active-case", item.id);
+                } catch {
+                  /* ignore */
+                }
+                navigate({ to: "/validating" });
+              }}
+              className="btn-gold mt-3 w-full rounded-2xl py-3 text-sm font-bold"
+            >
+              {t("resumeValidation")}
+            </button>
+          )}
+
           {item.status !== "validating" && legalBasis && (
             <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
               <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-success/12 text-success">

@@ -39,14 +39,15 @@ interface GeminiContent {
 
 async function generate(
   contents: GeminiContent[],
-  opts?: { system?: string; json?: boolean; schema?: object },
+  opts?: { system?: string; json?: boolean; schema?: object; temperature?: number; maxTokens?: number },
+  model: string = INTAKE_MODEL,
 ): Promise<string> {
   const key = await geminiKey();
   const body: Record<string, unknown> = {
     contents,
     generationConfig: {
-      temperature: 0.4,
-      maxOutputTokens: 2500,
+      temperature: opts?.temperature ?? 0.4,
+      maxOutputTokens: opts?.maxTokens ?? 2500,
       ...(opts?.json
         ? { responseMimeType: "application/json", ...(opts.schema ? { responseSchema: opts.schema } : {}) }
         : {}),
@@ -55,7 +56,7 @@ async function generate(
   if (opts?.system) body.system_instruction = { parts: [{ text: opts.system }] };
 
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${INTAKE_MODEL}:generateContent`,
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json", "x-goog-api-key": key },
@@ -71,6 +72,24 @@ async function generate(
   };
   const parts = data.candidates?.[0]?.content?.parts ?? [];
   return parts.map((p) => p.text ?? "").join("").trim();
+}
+
+/** מודל חזק לניתוח העומק, עם נפילה חזרה למודל המהיר אם אינו זמין. */
+const DEEP_MODELS = ["gemini-pro-latest", INTAKE_MODEL];
+
+async function generateDeep(
+  contents: GeminiContent[],
+  opts?: Parameters<typeof generate>[1],
+): Promise<string> {
+  let lastErr: unknown;
+  for (const model of DEEP_MODELS) {
+    try {
+      return await generate(contents, opts, model);
+    } catch (e) {
+      lastErr = e;
+    }
+  }
+  throw lastErr;
 }
 
 /* ---------- צ'אט הקליטה ---------- */
@@ -186,19 +205,50 @@ const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית ש�
 7. בשום שדה אין טלפונים, אימיילים, קישורים או שמות מזהים.
 השב JSON בלבד.`;
 
+const MEMO_SYSTEM = `אתה משפטן ישראלי בכיר שכותב תזכיר בדיקה פנימי לפני קבלת תיק. כתוב תזכיר מובנה ויסודי בעברית (300-500 מילים) על המקרה שתקבל:
+
+1. **עובדות** — מה קרה, למי, מתי, באילו נסיבות.
+2. **עילות אפשריות** — עבור עילה-עילה לפי הדין הישראלי (רשלנות והפרת חובה חקוקה בפקודת הנזיקין; חוק האחריות למוצרים פגומים; פלת"ד לתאונות דרכים; חוקי המגן בעבודה; חוק חוזה הביטוח; חוק הגנת הצרכן; חוק הנכים/קצין התגמולים לנפגעי שירות). לכל עילה: יסודותיה, האם מתקיימים כאן, ומה חסר.
+3. **התיישנות** — חשב במפורש מול התאריך הנוכחי (נזיקין 7 שנים; ביטוח 3; קצין התגמולים כלליו).
+4. **נזק וסיבתיות** — מהו הנזק בר-הפיצוי והאם ניתן לקשור אותו לאחריות הגורם.
+5. **טענות נגד** — מה יטען הצד שכנגד (אשם תורם, העדר ראיות, ניתוק קשר סיבתי) וכמה הן חזקות.
+6. **מסלול נכון** — תביעה אזרחית עם עו"ד / מסלול מיוחד עם עו"ד (קצין התגמולים, ביטוח לאומי, פלת"ד) / הליך עצמאי בלי עו"ד (תביעות קטנות עד 38,900₪, תלונה צרכנית) / אין הליך.
+7. **שורה תחתונה** — האם מוצדק לחבר את הפונה לעורך דין, ובאיזו רמת ביטחון.
+
+אל תכלול פרטים מזהים. זהו תזכיר פנימי — היה ישיר וביקורתי.`;
+
+const VERDICT_SYSTEM = `אתה השופט הפנימי של JustAsk. קיבלת תזכיר בדיקה משפטי על מקרה. תפקידך לבקר אותו ולהכריע סופית:
+- אם התזכיר אישר קלות יתר — תקן לחומרה. אם פסל בקלות יתר — תקן לקולא. הכרעתך היא הקובעת.
+- validated=true רק אם יש עילה ממשית, בתוך התיישנות, עם נזק בר-פיצוי, במסלול שעורך דין רלוונטי לו.
+${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
+
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const user = `התאריך היום: ${new Date().toISOString().slice(0, 10)}
+    const caseText = `התאריך היום: ${new Date().toISOString().slice(0, 10)}
 תיאור המקרה: ${data.description}
 תאריך האירוע: ${data.incidentDate || "לא צוין"}
 סוג הנזק: ${data.damageType || "לא צוין"}
 תיעוד קיים: ${data.hasDocumentation ? "כן" : "לא"}`;
 
-    const text = await generate(
-      [{ role: "user", parts: [{ text: user }] }],
+    // שלב 1: תזכיר משפטי מעמיק — עילות, התיישנות, טענות נגד, מסלול
+    const memo = await generateDeep(
+      [{ role: "user", parts: [{ text: caseText }] }],
+      { system: MEMO_SYSTEM, temperature: 0.2, maxTokens: 4000 },
+    );
+
+    // שלב 2: שופט מבקר את התזכיר ומכריע סופית ב-JSON
+    const verdict = await generateDeep(
+      [
+        {
+          role: "user",
+          parts: [{ text: `${caseText}\n\n--- תזכיר הבדיקה ---\n${memo}` }],
+        },
+      ],
       {
-        system: VALIDATION_SYSTEM,
+        system: VERDICT_SYSTEM,
+        temperature: 0.2,
+        maxTokens: 2500,
         json: true,
         schema: {
           type: "object",
@@ -215,5 +265,5 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       },
     );
 
-    return JSON.parse(text) as ValidateResult;
+    return JSON.parse(verdict) as ValidateResult;
   });

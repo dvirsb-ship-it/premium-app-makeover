@@ -9,7 +9,7 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
-import { applyValidation, fanOutNewCase, readCaseRaw } from "../lib/db";
+import { applyValidation, fanOutNewCase, notify, readCaseRaw } from "../lib/db";
 import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
 
 export const Route = createFileRoute("/validating")({
@@ -18,8 +18,8 @@ export const Route = createFileRoute("/validating")({
 
 const stepKeys: StringKey[] = ["valStep1", "valStep2", "valStep3", "valStep4"];
 const STEP_MS = 1150;
-// Watchdog: if we don't finish within this window, offer a retry.
-const STUCK_MS = STEP_MS * stepKeys.length + 12000;
+// הבדיקה המעמיקה (תזכיר + שופט) אורכת עד ~דקה — הכלב-שמירה מחכה בהתאם.
+const STUCK_MS = STEP_MS * stepKeys.length + 90000;
 
 function Validating() {
   useRequireAuth();
@@ -68,6 +68,21 @@ function Validating() {
         // הזמנת עורכי הדין בתחום — לא חוסם את המסך אם נכשל
         void fanOutNewCase(caseId, res.title, res.category).catch(() => {});
       }
+      // התראה ללקוח — כך התוצאה מחכה לו גם אם עזב את המסך באמצע
+      void notify(raw.clientId, res.validated
+        ? {
+            type: "case_validated",
+            title: "התיק שלך עבר את הבדיקה המשפטית ✓",
+            body: `"${res.title}" אושר — עורכי דין מתאימים בתחום קיבלו התראה`,
+            caseId,
+          }
+        : {
+            type: "case_rejected",
+            title: "הבדיקה המשפטית הושלמה",
+            body: res.recommendation || res.summary,
+            caseId,
+          },
+      ).catch(() => {});
       if (!cancelled) setResult(res);
     })().catch(() => {
       if (!cancelled) setStuck(true);
@@ -79,16 +94,16 @@ function Validating() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runToken, navigate]);
 
-  // האנימציה המדורגת — נשארת בדיוק כפי שהייתה
+  // האנימציה המדורגת — השלב האחרון ממשיך להסתובב עד שהבדיקה המעמיקה מסתיימת
   useEffect(() => {
     const timers: number[] = [];
     setAnimDone(false);
     setCurrent(0);
-    stepKeys.forEach((_, i) => {
+    stepKeys.slice(0, -1).forEach((_, i) => {
       timers.push(window.setTimeout(() => setCurrent(i + 1), STEP_MS * (i + 1)));
     });
     timers.push(
-      window.setTimeout(() => setAnimDone(true), STEP_MS * stepKeys.length + STEP_MS),
+      window.setTimeout(() => setAnimDone(true), STEP_MS * stepKeys.length),
     );
     timers.push(window.setTimeout(() => setStuck((s) => s || !finished.current), STUCK_MS));
 
@@ -128,7 +143,10 @@ function Validating() {
 
   // מסיימים רק כשגם האנימציה וגם הוולידציה האמיתית הסתיימו
   useEffect(() => {
-    if (animDone && result) finish(result);
+    if (animDone && result) {
+      setCurrent(stepKeys.length);
+      finish(result);
+    }
   }, [animDone, result, finish]);
 
   function retry() {

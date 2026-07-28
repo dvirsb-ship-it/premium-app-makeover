@@ -145,7 +145,7 @@ export const strings = {
   valStep3: { he: "בודק התיישנות ומסווג תחום", en: "Checking limitations and classifying" },
   valStep4: { he: "מאתר עורכי דין מומחים", en: "Locating expert lawyers" },
   valTitle: { he: "בודקים את הפנייה שלך", en: "Reviewing your request" },
-  valSub: { he: "זה ייקח כמה שניות", en: "This will take a few seconds" },
+  valSub: { he: "בדיקה משפטית מעמיקה מול הדין הישראלי — עד דקה", en: "In-depth legal review against Israeli law — up to a minute" },
   defaultSummary: { he: "פנייה משפטית חדשה", en: "New legal request" },
   defaultCategory: { he: "נזיקין ותאונות דרכים", en: "Personal Injury & Traffic" },
 
@@ -552,6 +552,7 @@ export const strings = {
   intakeNotSuitableTitle: { he: "ההערכה המשפטית: זה כרגע לא תיק לתביעה", en: "Legal assessment: this isn't a case for a lawsuit right now" },
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
+  resumeValidation: { he: "המשך את הבדיקה המשפטית", en: "Resume the legal review" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
