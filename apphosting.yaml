@@ -15,6 +15,37 @@ env:
     availability:
       - BUILD
 
+  # קונפיגורציית Firebase ציבורית (client config) — נדרשת בזמן הבנייה כי .env לא בגיט.
+  # אלה ערכים ציבוריים-בתכנון: הם ממילא מוטמעים ב-bundle שנשלח לכל דפדפן.
+  - variable: VITE_FIREBASE_API_KEY
+    value: AIzaSyD1ipfVOVOJypr8jU04aSg1frV21Cptp-8
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_AUTH_DOMAIN
+    value: justask-6bfb9.firebaseapp.com
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_PROJECT_ID
+    value: justask-6bfb9
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_STORAGE_BUCKET
+    value: justask-6bfb9.firebasestorage.app
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_MESSAGING_SENDER_ID
+    value: "40146464592"
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_APP_ID
+    value: "1:40146464592:web:e720bc1e592f8bbd3a4655"
+    availability:
+      - BUILD
+  - variable: VITE_FIREBASE_MEASUREMENT_ID
+    value: G-FHY74V0R2S
+    availability:
+      - BUILD
+
   - variable: GEMINI_API_KEY
     secret: GEMINI_API_KEY
     availability:
