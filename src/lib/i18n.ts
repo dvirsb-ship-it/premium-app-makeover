@@ -418,7 +418,7 @@ export const strings = {
   privacyRlsSub: { he: "מדיניות גישה מבוזרת (RLS) מבטיחה שאף משתמש לא רואה מידע של אחר.", en: "Row-level security ensures no user ever sees another's data." },
   privacyDelete: { he: "מחיקת חשבון ונתונים", en: "Delete account & data" },
   privacyDeleteSub: { he: "אפשר לבקש מחיקה מלאה בכל עת דרך עזרה ותמיכה.", en: "Request full deletion any time via Help & support." },
-  privacyContact: { he: "לשאלות פרטיות: dvirsb@gmail.com", en: "Privacy inquiries: dvirsb@gmail.com" },
+  privacyContact: { he: "לשאלות פרטיות: justask.adv@gmail.com", en: "Privacy inquiries: justask.adv@gmail.com" },
 
   // Settings — Terms
   termsTitle: { he: "תנאי שימוש", en: "Terms of use" },
@@ -472,7 +472,7 @@ export const strings = {
   helpMessagePh: { he: "כתבו לנו במה נוכל לעזור…", en: "Tell us how we can help…" },
   helpSend: { he: "שליחת הודעה", en: "Send message" },
   helpSent: { he: "ההודעה נשלחה, תודה!", en: "Message sent — thanks!" },
-  helpEmailDirect: { he: "או במייל: support@justask.app", en: "Or by email: support@justask.app" },
+  helpEmailDirect: { he: "או במייל: justask.adv@gmail.com", en: "Or by email: justask.adv@gmail.com" },
 
 
   // Auth — phone OTP step (Firebase)

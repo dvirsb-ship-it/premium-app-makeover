@@ -12,7 +12,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return signedIn() && request.auth.token.email == 'dvirsb@gmail.com';
+      return signedIn() && request.auth.token.email in ['dvirsb@gmail.com', 'justask.adv@gmail.com'];
     }
 
     // עו"ד שאושר בתור האימות — רק הוא רשאי להביע עניין בתיקים
