@@ -8,7 +8,7 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { readLawyerProfile, type LawyerProfileDoc } from "../lib/db";
+import { readCaseLawyerContact, type LawyerContactDoc } from "../lib/db";
 import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
@@ -31,13 +31,13 @@ function CaseDetail() {
   const item = getCase(caseId);
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
-  // פרטי הקשר של עורך הדין הנבחר — מהמדריך הציבורי
+  // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
-  const [chosenProfile, setChosenProfile] = useState<LawyerProfileDoc | null>(null);
+  const [chosenProfile, setChosenProfile] = useState<LawyerContactDoc | null>(null);
   useEffect(() => {
     if (!chosenId) return;
-    void readLawyerProfile(chosenId).then(setChosenProfile).catch(() => {});
-  }, [chosenId]);
+    void readCaseLawyerContact(caseId, chosenId).then(setChosenProfile).catch(() => {});
+  }, [caseId, chosenId]);
 
   function contactMessage() {
     if (chosenProfile?.phone) {
@@ -111,7 +111,7 @@ function CaseDetail() {
                     <Check className="size-6" strokeWidth={3} />
                   </span>
                   <h3 className="mt-3 text-base font-bold text-foreground">
-                    {t("connectedWith")} {chosen.name}
+                    {t("connectedWith")} {chosenProfile?.fullName || chosen.name}
                   </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {t("orDirectContact")}

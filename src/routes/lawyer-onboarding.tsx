@@ -25,7 +25,7 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
-import { writeLawyerProfile } from "../lib/db";
+import { writeLawyerContact, writeLawyerProfile } from "../lib/db";
 import { cn } from "../lib/utils";
 import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -308,9 +308,13 @@ function LawyerOnboarding() {
                 specialties: [...form.specialties],
                 barYear: form.barYear,
                 university: form.university,
+                city: form.city.trim(),
+              }).catch(() => {});
+              // פרטי קשר — אוסף פרטי, נחשף ללקוח רק אחרי חיבור רשמי
+              void writeLawyerContact(user.uid, {
+                fullName: form.fullName,
                 phone: form.phone,
                 email: form.email,
-                city: form.city.trim(),
               }).catch(() => {});
             }
             setVerifyState("pass");

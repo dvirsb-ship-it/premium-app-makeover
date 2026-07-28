@@ -10,6 +10,7 @@ import {
 import { onAuthStateChanged, signOut as fbSignOut, type User } from "firebase/auth";
 import type { Case, FeedCase, Lawyer, Role } from "./types";
 import { fbAuth, isBrowser } from "./firebase";
+import { maskLawyerName } from "./privacy";
 import {
   categoryMatchesSpecialties,
   chooseLawyerDb,
@@ -211,7 +212,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       );
       const u = user ?? fbAuth().currentUser;
       if (!u) return;
-      const displayName = myLawyerProfile?.name || u.displayName || "עורך דין";
+      // שם מוסתר עד לחיבור רשמי — מניעת עקיפת הפלטפורמה
+      const displayName = maskLawyerName(myLawyerProfile?.name || u.displayName || "עורך דין");
       const profile: Lawyer = {
         id: u.uid,
         name: displayName,

@@ -51,11 +51,29 @@ service cloud.firestore {
       );
 
       allow delete: if false;
+
+      // פרטי הקשר של עו"ד על התיק — נכתבים בהבעת עניין, נחשפים ללקוח רק אחרי שבחר בו
+      match /contacts/{lawyerUid} {
+        allow write: if signedIn() && request.auth.uid == lawyerUid && isApprovedLawyer();
+        allow read: if signedIn() && (
+          request.auth.uid == lawyerUid
+          || (
+            get(/databases/$(database)/documents/cases/$(caseId)).data.clientId == request.auth.uid
+            && get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == lawyerUid
+          )
+        );
+      }
     }
 
-    // מדריך עורכי דין — פרופיל ציבורי למחוברים (fan-out וכרטיסי עו"ד); כותב רק בעליו
+    // מדריך עורכי דין — פרופיל מקצועי ציבורי למחוברים (ללא פרטי קשר); כותב רק בעליו
     match /lawyerProfiles/{uid} {
       allow read: if signedIn();
+      allow write: if signedIn() && request.auth.uid == uid;
+    }
+
+    // פרטי קשר של עו"ד — רק בעליהם והאדמין; נחשפים ללקוח דרך cases/{id}/contacts בלבד
+    match /lawyerContacts/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow write: if signedIn() && request.auth.uid == uid;
     }
 

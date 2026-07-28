@@ -20,6 +20,7 @@ import {
   type Timestamp,
 } from "firebase/firestore";
 import { fbDb } from "./firebase";
+import { stripContactInfo } from "./privacy";
 import type { Case, CaseStatus, FeedCase, Lawyer, Role } from "./types";
 
 /* ---------- users ---------- */
@@ -215,15 +216,30 @@ export async function expressInterestDb(
   lawyer: { uid: string; profile: Lawyer },
   offer?: { fee: string; duration: string; note: string },
 ): Promise<void> {
-  const hasOffer = !!offer && !!(offer.fee || offer.duration || offer.note);
+  // סינון פרטי קשר מהתוכן החופשי — התקשורת עד החיבור עוברת דרך הפלטפורמה בלבד
+  const clean = offer && {
+    fee: stripContactInfo(offer.fee),
+    duration: stripContactInfo(offer.duration),
+    note: stripContactInfo(offer.note),
+  };
+  const hasOffer = !!clean && !!(clean.fee || clean.duration || clean.note);
   await updateDoc(doc(fbDb(), "cases", caseId), {
     interestedIds: arrayUnion(lawyer.uid),
     interested: arrayUnion(lawyer.profile),
     status: "has_interest",
     ...(hasOffer
-      ? { [`offers.${lawyer.uid}`]: { ...offer, at: Date.now() } }
+      ? { [`offers.${lawyer.uid}`]: { ...clean, at: Date.now() } }
       : {}),
   });
+  // פרטי הקשר של העו"ד נכתבים לתת-אוסף שנחשף ללקוח רק אחרי בחירה
+  try {
+    const contact = await readOwnLawyerContact(lawyer.uid);
+    if (contact) {
+      await setDoc(doc(fbDb(), "cases", caseId, "contacts", lawyer.uid), contact);
+    }
+  } catch {
+    /* לא חוסם את הבעת העניין */
+  }
   const c = await readCaseRaw(caseId);
   if (c) {
     await notify(c.clientId, {
@@ -341,10 +357,36 @@ export interface LawyerProfileDoc {
   specialties: string[];
   barYear?: string;
   university?: string;
-  phone?: string;
-  email?: string;
   city?: string;
   createdAt: number;
+}
+
+/** פרטי הקשר של עו"ד — אוסף נפרד שקריא רק לבעליו ולאדמין (מניעת עקיפה). */
+export interface LawyerContactDoc {
+  fullName: string;
+  phone: string;
+  email: string;
+}
+
+export async function writeLawyerContact(
+  uid: string,
+  c: LawyerContactDoc,
+): Promise<void> {
+  await setDoc(doc(fbDb(), "lawyerContacts", uid), c, { merge: true });
+}
+
+async function readOwnLawyerContact(uid: string): Promise<LawyerContactDoc | null> {
+  const snap = await getDoc(doc(fbDb(), "lawyerContacts", uid));
+  return snap.exists() ? (snap.data() as LawyerContactDoc) : null;
+}
+
+/** פרטי עו"ד על תיק — קריא ללקוח רק אחרי שבחר בו (נאכף בחוקים). */
+export async function readCaseLawyerContact(
+  caseId: string,
+  lawyerUid: string,
+): Promise<LawyerContactDoc | null> {
+  const snap = await getDoc(doc(fbDb(), "cases", caseId, "contacts", lawyerUid));
+  return snap.exists() ? (snap.data() as LawyerContactDoc) : null;
 }
 
 export async function readLawyerProfile(
