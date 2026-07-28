@@ -121,7 +121,7 @@ function LawyerSubscription() {
         >
           <p className="text-[12px] font-medium text-muted-foreground">{t("planMonthly")}</p>
           <p className="mt-2 text-[22px] font-bold tracking-tight text-foreground">
-            ₪199
+            ₪249
           </p>
           <p className="mt-4 text-[11px] text-muted-foreground">{t("monthlyBill")}</p>
         </motion.button>
@@ -138,7 +138,7 @@ function LawyerSubscription() {
         >
           <p className="text-[12px] font-medium text-muted-foreground">{t("planYearly")}</p>
           <p className="mt-2 text-[22px] font-bold tracking-tight text-foreground">
-            ₪1,990
+            ₪2,490
           </p>
           <p className="mt-4 text-[11px] text-muted-foreground">{t("yearlyBill")}</p>
           <motion.span
