@@ -25,7 +25,16 @@ import {
   type VerificationRecord,
   type VerificationStatus,
 } from "../lib/verification-queue";
-import { resolveAppeal, watchAppeals, type AppealDoc } from "../lib/db";
+import {
+  markTicketHandled,
+  resolveAppeal,
+  watchAllCasesAdmin,
+  watchAppeals,
+  watchSupportTickets,
+  type AdminCaseRow,
+  type AppealDoc,
+  type SupportTicketDoc,
+} from "../lib/db";
 import { exportVerificationPdf } from "../lib/pdf-export";
 
 function formatSpecialties(rec: VerificationRecord): string {
@@ -91,6 +100,18 @@ function VerificationQueue() {
       .then(() => toast.success(accepted ? t("appealAcceptedToast") : t("appealDismissedToast")))
       .catch(() => toast.error(t("authErrGeneric")));
   }
+
+  const [tickets, setTickets] = useState<SupportTicketDoc[]>([]);
+  const [allCases, setAllCases] = useState<AdminCaseRow[]>([]);
+  useEffect(() => {
+    if (!authReady || !isAdminUser(user)) return;
+    const un1 = watchSupportTickets(setTickets);
+    const un2 = watchAllCasesAdmin(setAllCases);
+    return () => {
+      un1();
+      un2();
+    };
+  }, [authReady, user]);
 
   function handleUpdate(id: string, status: VerificationStatus) {
     void updateVerification(id, status)
@@ -313,6 +334,73 @@ function VerificationQueue() {
                 </motion.li>
               ))}
             </AnimatePresence>
+          </ul>
+        )}
+
+        {/* פניות תמיכה */}
+        <h2 className="mt-10 text-base font-bold text-foreground">{t("adminSupportHeader")}</h2>
+        {tickets.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("supportEmpty")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3" aria-label={t("adminSupportHeader")}>
+            {tickets.map((tk) => (
+              <li key={tk.id} className="liquid-glass rounded-3xl px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 flex-1 text-[11px] text-muted-foreground" dir="ltr">
+                    {tk.email || tk.userId} · {dateFmt(tk.createdAt)}
+                  </p>
+                  {tk.status === "open" ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void markTicketHandled(tk.id).catch(() => toast.error(t("authErrGeneric")))
+                      }
+                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                    >
+                      {t("ticketMarkHandled")}
+                    </button>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                      {t("ticketHandled")}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-2 text-[13px] leading-relaxed text-foreground/90">{tk.message}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* ארכיון תיקים */}
+        <h2 className="mt-10 text-base font-bold text-foreground">
+          {t("adminCasesHeader")}
+          <span className="ms-2 text-sm font-normal text-muted-foreground">({allCases.length})</span>
+        </h2>
+        {allCases.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("adminCasesEmpty")}</p>
+        ) : (
+          <ul className="mt-3 space-y-2" aria-label={t("adminCasesHeader")}>
+            {allCases.map((c) => (
+              <li key={c.id} className="liquid-glass flex items-center gap-3 rounded-2xl px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-bold text-foreground">{c.title}</p>
+                  <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    {c.category || "—"}{c.location ? ` · ${c.location}` : ""} · {dateFmt(c.createdAt)} · {c.interestedCount} {t("interestedSuffix")}
+                  </p>
+                </div>
+                <span
+                  className={cn(
+                    "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold",
+                    c.status === "connected" && "bg-success/15 text-success",
+                    c.status === "rejected" && "bg-destructive/15 text-destructive",
+                    (c.status === "matching" || c.status === "has_interest") && "bg-gold/15 text-gold",
+                    c.status === "validating" && "bg-white/10 text-muted-foreground",
+                  )}
+                >
+                  {c.status}
+                </span>
+              </li>
+            ))}
           </ul>
         )}
       </main>

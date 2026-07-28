@@ -35,6 +35,7 @@ service cloud.firestore {
         resource.data.clientId == request.auth.uid
         || resource.data.chosenLawyerId == request.auth.uid
         || (isLawyer() && resource.data.status in ['matching', 'has_interest'])
+        || isAdmin()
       );
 
       // הלקוח מעדכן את התיק שלו; עו"ד מאומת בלבד רשאי להביע עניין (שדות מוגבלים)
@@ -113,6 +114,13 @@ service cloud.firestore {
       allow update: if isAdmin()
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'reviewedAt']);
+      allow delete: if false;
+    }
+
+    // פניות תמיכה — כל מחובר פותח; רק האדמין קורא ומטפל
+    match /supportTickets/{id} {
+      allow create: if signedIn() && request.resource.data.status == 'open';
+      allow read, update: if isAdmin();
       allow delete: if false;
     }
 

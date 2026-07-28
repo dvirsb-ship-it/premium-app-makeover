@@ -60,6 +60,10 @@ function GoogleIcon() {
 type Method = "email" | "phone" | null;
 type LoadingProvider = "google" | "apple" | "email" | "phone" | "code" | null;
 
+// החלטת מוצר (07/2026): התחברות דרך גוגל בלבד בהשקה. אפל/אימייל/טלפון מוכנים —
+// כדי להחזיר אותם משנים ל-false.
+const GOOGLE_ONLY = true;
+
 function Auth() {
   const navigate = useNavigate();
   const t = useT();
@@ -231,7 +235,7 @@ function Auth() {
               </button>
             </Rise>
 
-            <Rise>
+            {!GOOGLE_ONLY && <Rise>
               <button
                 type="button"
                 onClick={() => proceed("apple")}
@@ -252,8 +256,9 @@ function Auth() {
                   </>
                 )}
               </button>
-            </Rise>
+            </Rise>}
 
+            {!GOOGLE_ONLY && <>
             {/* divider */}
             <Rise>
               <div className="flex items-center gap-3 py-1" aria-hidden>
@@ -293,6 +298,7 @@ function Auth() {
                 <span>{t("continuePhone")}</span>
               </button>
             </Rise>
+            </>}
 
             <AnimatePresence initial={false} mode="wait">
               {method && (

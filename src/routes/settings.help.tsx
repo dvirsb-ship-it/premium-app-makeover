@@ -8,6 +8,8 @@ import { Page, Rise, Stagger, Pressable } from "../components/motion";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { useAppStore } from "../lib/store";
+import { submitSupportTicket } from "../lib/db";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/settings/help")({
@@ -66,6 +68,7 @@ function FaqItem({ q, a, last }: { q: StringKey; a: StringKey; last: boolean }) 
 function HelpSettings() {
   useRequireAuth();
   const t = useT();
+  const { user } = useAppStore();
   const [msg, setMsg] = useState("");
 
   return (
@@ -97,9 +100,18 @@ function HelpSettings() {
               />
               <Pressable
                 onClick={() => {
-                  if (!msg.trim()) return;
-                  setMsg("");
-                  toast.success(t("helpSent"));
+                  const text = msg.trim();
+                  if (!text) return;
+                  void submitSupportTicket({
+                    userId: user?.uid ?? "guest",
+                    email: user?.email ?? "",
+                    message: text,
+                  })
+                    .then(() => {
+                      setMsg("");
+                      toast.success(t("helpSent"));
+                    })
+                    .catch(() => toast.error(t("authErrGeneric")));
                 }}
                 className="btn-gold mt-3 flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
               >

@@ -452,6 +452,88 @@ export async function fanOutNewCase(
   return snap.size;
 }
 
+/* ---------- פניות תמיכה (המשרד הטכנולוגי) ---------- */
+
+export interface SupportTicketDoc {
+  id: string;
+  userId: string;
+  email: string;
+  message: string;
+  status: "open" | "handled";
+  createdAt: number;
+}
+
+export async function submitSupportTicket(input: {
+  userId: string;
+  email: string;
+  message: string;
+}): Promise<void> {
+  await addDoc(collection(fbDb(), "supportTickets"), {
+    ...input,
+    status: "open",
+    createdAt: Date.now(),
+  });
+}
+
+export function watchSupportTickets(
+  cb: (rows: SupportTicketDoc[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "supportTickets"),
+    (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<SupportTicketDoc, "id">) }));
+      rows.sort((a, b) =>
+        (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1)
+        || b.createdAt - a.createdAt,
+      );
+      cb(rows);
+    },
+    () => cb([]),
+  );
+}
+
+export async function markTicketHandled(id: string): Promise<void> {
+  await updateDoc(doc(fbDb(), "supportTickets", id), { status: "handled" });
+}
+
+/** ארכיון כל התיקים — לאדמין בלבד, בזמן אמת. */
+export interface AdminCaseRow {
+  id: string;
+  title: string;
+  category: string;
+  status: string;
+  location: string;
+  createdAt: number;
+  interestedCount: number;
+}
+
+export function watchAllCasesAdmin(
+  cb: (rows: AdminCaseRow[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "cases"),
+    (snap) => {
+      cb(
+        snap.docs
+          .map((d) => {
+            const c = d.data() as CaseDoc;
+            return {
+              id: d.id,
+              title: c.title || c.description?.slice(0, 40) || d.id,
+              category: c.category,
+              status: c.status,
+              location: c.location || "",
+              createdAt: c.createdAt,
+              interestedCount: c.interestedIds?.length ?? 0,
+            };
+          })
+          .sort((a, b) => b.createdAt - a.createdAt),
+      );
+    },
+    () => cb([]),
+  );
+}
+
 /* ---------- notifications ---------- */
 
 export interface AppNotification {

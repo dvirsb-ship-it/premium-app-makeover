@@ -540,6 +540,12 @@ export const strings = {
   appealDismiss: { he: "דחיית הערעור", en: "Dismiss" },
   appealAcceptedToast: { he: "הערעור התקבל והתיק הוסר מהפיד", en: "Appeal accepted — case removed from feed" },
   appealDismissedToast: { he: "הערעור נדחה — הוולידציה בתוקף", en: "Appeal dismissed — validation stands" },
+  adminSupportHeader: { he: "פניות תמיכה", en: "Support inbox" },
+  supportEmpty: { he: "אין פניות — הודעות מטופס העזרה יופיעו כאן.", en: "No tickets — messages from the help form will appear here." },
+  ticketMarkHandled: { he: "סימון כטופל", en: "Mark handled" },
+  ticketHandled: { he: "טופל", en: "Handled" },
+  adminCasesHeader: { he: "ארכיון תיקים", en: "Cases archive" },
+  adminCasesEmpty: { he: "אין תיקים עדיין.", en: "No cases yet." },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;
