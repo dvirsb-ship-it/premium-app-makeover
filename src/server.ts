@@ -1,7 +1,5 @@
 import "./lib/error-capture";
 
-import * as Sentry from "@sentry/cloudflare";
-import { wrapFetchWithSentry } from "@sentry/tanstackstart-react";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
@@ -63,14 +61,6 @@ const appHandler: ServerEntry = {
   },
 };
 
-export default Sentry.withSentry(
-  () => ({
-    dsn: process.env.SENTRY_DSN || undefined,
-    environment: process.env.SENTRY_ENVIRONMENT || process.env.NODE_ENV || "development",
-    release: process.env.SENTRY_RELEASE,
-    tracesSampleRate: Number(process.env.SENTRY_TRACES_SAMPLE_RATE ?? "0.1"),
-    sampleRate: 1.0,
-  }),
-  // @ts-expect-error - TanStack Start handler is not typed as a Cloudflare handler
-  wrapFetchWithSentry(appHandler),
-);
+// Sentry הוסר: @sentry/cloudflare מיועד ל-Cloudflare Workers ושבר את חבילת השרת
+// על Node (App Hosting) — TypeError: __commonJSMin is not a function ב-opentelemetry.
+export default appHandler;
