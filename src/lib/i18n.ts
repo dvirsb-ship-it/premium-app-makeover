@@ -549,6 +549,9 @@ export const strings = {
   caseValidatedChip: { he: "עבר בדיקה משפטית ראשונית", en: "Passed initial legal review" },
   adminOfficeBtn: { he: "המשרד הטכנולוגי", en: "Admin office" },
   adminOfficeSub: { he: "אימותים, ערעורים, פניות תמיכה וארכיון", en: "Verifications, appeals, support & archive" },
+  intakeNotSuitableTitle: { he: "ההערכה המשפטית: זה כרגע לא תיק לתביעה", en: "Legal assessment: this isn't a case for a lawsuit right now" },
+  intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
+  composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

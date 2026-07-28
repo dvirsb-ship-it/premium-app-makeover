@@ -9,8 +9,13 @@ import { useSettings } from "../lib/settings";
 import type { ChatMessage } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
-import { intakeTurn, type IntakeReady } from "../lib/ai/intake.functions";
+import {
+  intakeTurn,
+  type IntakeNotSuitable,
+  type IntakeReady,
+} from "../lib/ai/intake.functions";
 import { createCase } from "../lib/db";
+import { Scale } from "lucide-react";
 
 export const Route = createFileRoute("/intake")({
   component: Intake,
@@ -36,6 +41,7 @@ function Intake() {
   const [step, setStep] = useState(0);
   const [typing, setTyping] = useState(false);
   const [ready, setReady] = useState(false);
+  const [notSuitable, setNotSuitable] = useState<IntakeNotSuitable | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const readyData = useRef<IntakeReady | null>(null);
@@ -67,7 +73,14 @@ function Intake() {
 
   async function send() {
     const text = input.trim();
-    if (!text || typing || ready) return;
+    if (!text || typing) return;
+
+    // תשובה אחרי סיכום — המשתמש מתקן/מוסיף, ההכרעה נפתחת מחדש
+    if (ready || notSuitable) {
+      setReady(false);
+      setNotSuitable(null);
+      readyData.current = null;
+    }
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -93,6 +106,9 @@ function Intake() {
       if (res.ready) {
         readyData.current = res.ready;
         setReady(true);
+      }
+      if (res.notSuitable) {
+        setNotSuitable(res.notSuitable);
       }
       setStep((s) => s + 1);
     } catch {
@@ -291,18 +307,57 @@ function Intake() {
               aria-hidden
               className="pointer-events-none absolute inset-x-0 -top-8 h-10 bg-gradient-to-b from-transparent to-background"
             />
-            <AnimatePresence mode="wait">
-              {ready ? (
+            <AnimatePresence>
+              {notSuitable && (
+                <motion.div
+                  key="notsuitable"
+                  initial={{ opacity: 0, y: 16 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                  className="liquid-glass mb-3 rounded-3xl p-4"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
+                      <Scale className="size-4" strokeWidth={2.2} />
+                    </span>
+                    <p className="text-[13px] font-bold text-foreground">
+                      {t("intakeNotSuitableTitle")}
+                    </p>
+                  </div>
+                  <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+                    {notSuitable.reason}
+                  </p>
+                  <div className="mt-3 rounded-2xl bg-gold/8 px-3.5 py-3">
+                    <p className="text-[11px] font-bold uppercase tracking-wider text-gold">
+                      {t("intakeNotSuitableRec")}
+                    </p>
+                    <p className="mt-1 text-[13px] leading-relaxed text-foreground/90">
+                      {notSuitable.recommendation}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => navigate({ to: "/cases" })}
+                    className="liquid-glass mt-3 w-full rounded-2xl py-2.5 text-[13px] font-semibold text-foreground transition active:scale-[0.98]"
+                  >
+                    {t("valGoCases")}
+                  </button>
+                </motion.div>
+              )}
+
+              {ready && !notSuitable && (
                 <motion.button
                   key="submit"
                   type="button"
                   initial={{ opacity: 0, y: 16, scale: 0.96 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: 8 }}
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 260, damping: 22 }}
                   onClick={submit}
                   disabled={submitting}
-                  className="btn-gold relative w-full overflow-hidden rounded-2xl py-4 text-base font-bold disabled:opacity-60"
+                  className="btn-gold relative mb-3 w-full overflow-hidden rounded-2xl py-4 text-base font-bold disabled:opacity-60"
                 >
                   <motion.span
                     aria-hidden
@@ -318,39 +373,40 @@ function Intake() {
                   />
                   <span className="relative">{t("submitForMatch")}</span>
                 </motion.button>
-              ) : (
-                <motion.div
-                  key="composer"
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="liquid-glass flex items-end gap-2 rounded-[28px] p-1.5 pe-2 ps-4 shadow-luxe"
-                >
-                  <textarea
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        send();
-                      }
-                    }}
-                    rows={1}
-                    placeholder={t("composerPlaceholder")}
-                    className="max-h-32 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
-                  />
-                  <motion.button
-                    type="button"
-                    whileTap={{ scale: 0.9 }}
-                    onClick={send}
-                    disabled={!input.trim()}
-                    className="chip-gold grid size-11 shrink-0 place-items-center self-end rounded-full transition disabled:opacity-40 disabled:shadow-none"
-                    aria-label={t("sendAria")}
-                  >
-                    <ArrowUp className="size-5" />
-                  </motion.button>
-                </motion.div>
               )}
             </AnimatePresence>
+
+            {/* המקלדת נשארת תמיד — אפשר לתקן פרטים גם אחרי הסיכום */}
+            <motion.div
+              key="composer"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="liquid-glass flex items-end gap-2 rounded-[28px] p-1.5 pe-2 ps-4 shadow-luxe"
+            >
+              <textarea
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    send();
+                  }
+                }}
+                rows={1}
+                placeholder={ready || notSuitable ? t("composerFixPlaceholder") : t("composerPlaceholder")}
+                className="max-h-32 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
+              />
+              <motion.button
+                type="button"
+                whileTap={{ scale: 0.9 }}
+                onClick={send}
+                disabled={!input.trim()}
+                className="chip-gold grid size-11 shrink-0 place-items-center self-end rounded-full transition disabled:opacity-40 disabled:shadow-none"
+                aria-label={t("sendAria")}
+              >
+                <ArrowUp className="size-5" />
+              </motion.button>
+            </motion.div>
           </div>
         </div>
       </div>

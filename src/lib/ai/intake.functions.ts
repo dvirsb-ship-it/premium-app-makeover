@@ -87,9 +87,16 @@ export interface IntakeReady {
   city?: string;
 }
 
+export interface IntakeNotSuitable {
+  reason: string;
+  recommendation: string;
+}
+
 export interface IntakeTurnResult {
   reply: string;
   ready: IntakeReady | null;
+  /** ה-AI הכריע שאין כאן תיק לתביעה — עם המלצה מה כן לעשות. */
+  notSuitable: IntakeNotSuitable | null;
 }
 
 export const intakeTurn = createServerFn({ method: "POST" })
@@ -106,22 +113,39 @@ export const intakeTurn = createServerFn({ method: "POST" })
       system: `${INTAKE_SYSTEM_PROMPT}\n\n## עוגן זמן\nהתאריך היום: ${today}. חשב תאריכים יחסיים ("לפני שבוע", "לפני חודשיים") ביחס אליו.`,
     });
 
-    const marker = text.indexOf("[READY]");
-    if (marker === -1) return { reply: text, ready: null };
+    const parseTerminator = <T,>(marker: string): { before: string; data: T } | null => {
+      const idx = text.indexOf(marker);
+      if (idx === -1) return null;
+      const jsonPart = text.slice(idx + marker.length).trim();
+      try {
+        const data = JSON.parse(
+          jsonPart.replace(/^```json?/i, "").replace(/```$/, "").trim(),
+        ) as T;
+        return { before: text.slice(0, idx).trim(), data };
+      } catch {
+        return null;
+      }
+    };
 
-    const before = text.slice(0, marker).trim();
-    const jsonPart = text.slice(marker + "[READY]".length).trim();
-    try {
-      const parsed = JSON.parse(
-        jsonPart.replace(/^```json?/i, "").replace(/```$/, "").trim(),
-      ) as IntakeReady;
-      return {
-        reply: before || "תודה! יש לי את כל מה שצריך — אפשר לשלוח לבדיקה.",
-        ready: parsed,
-      };
-    } catch {
-      return { reply: before || text.replace("[READY]", "").trim(), ready: null };
+    const notSuitable = parseTerminator<IntakeNotSuitable>("[NOT_SUITABLE]");
+    if (notSuitable) {
+      return { reply: notSuitable.before, ready: null, notSuitable: notSuitable.data };
     }
+
+    const ready = parseTerminator<IntakeReady>("[READY]");
+    if (ready) {
+      return {
+        reply: ready.before || "תודה! יש לי את כל מה שצריך — אפשר לשלוח לבדיקה.",
+        ready: ready.data,
+        notSuitable: null,
+      };
+    }
+
+    return {
+      reply: text.replace("[READY]", "").replace("[NOT_SUITABLE]", "").trim(),
+      ready: null,
+      notSuitable: null,
+    };
   });
 
 /* ---------- ולידציית התיק ---------- */
@@ -140,18 +164,26 @@ export interface ValidateResult {
   summary: string;
   /** הבסיס המשפטי לאישור — מוצג לעורכי הדין בדף התיק. */
   legalBasis: string;
+  /** בדחייה: המלצה מעשית מה כן לעשות. */
+  recommendation?: string;
 }
 
-const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין.
-קבל תיאור מקרה וסווג אותו. כללים:
-1. category — בחר בדיוק אחת: "נזיקין ותאונות" / "רשלנות רפואית" / "דיני עבודה" / "ביטוח" / "צרכנות" / "מקרקעין" / "אחר".
-2. validated=true אם זה מקרה משפטי אמיתי בתחומים אלה שקרה בישראל ויש לו עילה סבירה.
-3. התיישנות: אם עברו יותר מ-7 שנים מהאירוע — validated=false והסבר בעדינות ב-summary.
-4. אם התיאור אינו מקרה משפטי כלל (שטויות, בדיקה, נושא אחר) — validated=false.
-5. title — כותרת קצרה ועניינית בעברית (עד 6 מילים) שמתארת את המקרה.
-6. summary — סיכום מקצועי של 2-3 משפטים בעברית, בגוף שלישי, בלי פרטים מזהים (בלי שמות/טלפונים/ת"ז), המסתיים במשפט: "הבדיקה הראשונית אינה ייעוץ משפטי."
-7. legalBasis — הבסיס המשפטי לאישור, משפט אחד-שניים בעברית לעיני עורכי דין: העילה והדין הרלוונטי (למשל "עוולת הרשלנות לפי פקודת הנזיקין [נוסח חדש]; האירוע בתוך תקופת ההתיישנות לפי חוק ההתיישנות, תשי"ח-1958"). אם validated=false — הסבר בקצרה מדוע אין עילה.
-8. בשום שדה אל תכלול מספרי טלפון, כתובות אימייל, קישורים, שמות מלאים של אנשים או שמות עסקים מזהים — גם אם הופיעו בתיאור.
+const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין. אתה שומר הסף: תיק שעובר אצלך מגיע לעורכי דין אמיתיים, ואישור קל מדי שורף את אמונם. נתח באמת.
+
+בצע ניתוח בארבעה צירים לפני ההכרעה:
+א. עילה — האם קיימת עילת תביעה מוכרת בדין הישראלי (רשלנות, הפרת חובה חקוקה, אחריות למוצרים פגומים, הפרת חוזה, חוק פיצויים לנפגעי ת"ד, חוקי מגן בעבודה, חוזה ביטוח)? מי הגורם האחראי?
+ב. התיישנות — נזיקין 7 שנים; תביעת ביטוח 3 שנים; קצין התגמולים כללים משלו. חלף המועד — validated=false.
+ג. נזק — האם יש נזק ממשי בר-פיצוי? נזק זניח או נעדר — validated=false עם הפניה מתאימה.
+ד. מסלול — תיק אזרחי רגיל? מסלול מיוחד שעו"ד רלוונטי לו (קצין התגמולים, ביטוח לאומי, פלת"ד)? או מסלול עצמאי שאינו מצריך עו"ד (תביעות קטנות עד 38,900₪ בעניין פשוט, תלונה צרכנית)?
+
+כללי פלט:
+1. category — בדיוק אחת: "נזיקין ותאונות" / "רשלנות רפואית" / "דיני עבודה" / "ביטוח" / "צרכנות" / "מקרקעין" / "אחר".
+2. validated=true רק אם עברו כל ארבעת הצירים ויש הצדקה אמיתית לחיבור לעורך דין.
+3. title — כותרת קצרה ועניינית בעברית (עד 6 מילים).
+4. summary — סיכום מקצועי של 2-3 משפטים בעברית, גוף שלישי, בלי פרטים מזהים, המסתיים ב: "הבדיקה הראשונית אינה ייעוץ משפטי."
+5. legalBasis — לעיני עורכי דין: העילה, הדין, ההתיישנות והמסלול (למשל "עוולת הרשלנות לפי פקודת הנזיקין [נוסח חדש]; בתוך תקופת ההתיישנות; מסלול אזרחי"). אם validated=false — הסבר תמציתי של הכשל המשפטי.
+6. recommendation — רק כש-validated=false: המלצה מעשית בגוף שני מה כן לעשות (לאן לפנות, מה להכין, מה יהפוך את זה לתיק). כש-validated=true — מחרוזת ריקה.
+7. בשום שדה אין טלפונים, אימיילים, קישורים או שמות מזהים.
 השב JSON בלבד.`;
 
 export const validateCaseFn = createServerFn({ method: "POST" })
@@ -176,8 +208,9 @@ export const validateCaseFn = createServerFn({ method: "POST" })
             category: { type: "string" },
             summary: { type: "string" },
             legalBasis: { type: "string" },
+            recommendation: { type: "string" },
           },
-          required: ["validated", "title", "category", "summary", "legalBasis"],
+          required: ["validated", "title", "category", "summary", "legalBasis", "recommendation"],
         },
       },
     );

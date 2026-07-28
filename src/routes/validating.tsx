@@ -106,7 +106,9 @@ function Validating() {
         /* ignore */
       }
       if (!res.validated) {
-        setRejected(res.summary || t("valRejectedSub"));
+        const parts = [res.summary || t("valRejectedSub")];
+        if (res.recommendation) parts.push(res.recommendation);
+        setRejected(parts.join("\n\n"));
         return;
       }
       const newCase: Case = {
@@ -211,7 +213,7 @@ function Validating() {
                 <p className="text-sm font-bold text-foreground">
                   {t("valRejectedTitle")}
                 </p>
-                <p className="mt-1 text-xs text-muted-foreground">{rejected}</p>
+                <p className="mt-1 whitespace-pre-line text-xs leading-relaxed text-muted-foreground">{rejected}</p>
               </div>
               <div className="flex gap-2">
                 <button
