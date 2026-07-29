@@ -194,6 +194,8 @@ export interface ValidateResult {
   legalBasis: string;
   /** בדחייה: המלצה מעשית מה כן לעשות. */
   recommendation?: string;
+  /** באישור: מה להכין לפגישה — נגזר ממה שהפונה עצמו ספר בראיון. */
+  clientChecklist?: string[];
 }
 
 const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין. אתה שומר הסף: תיק שעובר אצלך מגיע לעורכי דין אמיתיים, ואישור קל מדי שורף את אמונם. נתח באמת.
@@ -211,6 +213,7 @@ const VALIDATION_SYSTEM = `אתה מנוע הוולידציה המשפטית ש�
 4. summary — סיכום מקצועי של 2-3 משפטים בעברית, גוף שלישי, בלי פרטים מזהים, המסתיים ב: "הבדיקה הראשונית אינה ייעוץ משפטי."
 5. legalBasis — לעיני עורכי דין: העילה, הדין, ההתיישנות והמסלול (למשל "עוולת הרשלנות לפי פקודת הנזיקין [נוסח חדש]; בתוך תקופת ההתיישנות; מסלול אזרחי"). אם validated=false — הסבר תמציתי של הכשל המשפטי.
 6. recommendation — רק כש-validated=false: המלצה מעשית בגוף שני מה כן לעשות (לאן לפנות, מה להכין, מה יהפוך את זה לתיק). כש-validated=true — מחרוזת ריקה.
+6ב. clientChecklist — רק כש-validated=true: 3-6 פריטים קונקרטיים שהפונה צריך להכין לפגישה עם עורך הדין, **גזורים ממה שהוא עצמו ספר** (למשל "אישורי המחלה מחודשיים אי-הכושר", "תלושי שכר משלושת החודשים שלפני האירוע", "דוח האירוע שמילאת מול המנהל", "פרטי שתי העדות"). כל פריט משפט קצר בגוף שני, בלי הסברים משפטיים. כש-validated=false — מערך ריק.
 7. בשום שדה אין טלפונים, אימיילים, קישורים או שמות מזהים.
 השב JSON בלבד.`;
 
@@ -298,6 +301,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
             summary: { type: "string" },
             legalBasis: { type: "string" },
             recommendation: { type: "string" },
+            clientChecklist: { type: "array", items: { type: "string" } },
           },
           required: ["validated", "title", "category", "summary", "legalBasis", "recommendation"],
         },
@@ -318,6 +322,19 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       // הרגע שבו התיק נעשה זמין לעורכי דין — הבסיס למדידת תגובתיות
       validatedAt,
     });
+
+    /*
+     * רשימת ההכנה ללקוח — התוצר השלישי של אותו ראיון. עד כה השתמשנו בו
+     * להכרעה ולתזכיר בלבד, והלקוח עצמו לא קיבל ממנו כלום.
+     */
+    const checklist = (result.clientChecklist ?? []).filter((x) => typeof x === "string" && x.trim());
+    if (result.validated && checklist.length) {
+      try {
+        await adminUpdateCase(data.caseId, { clientChecklist: checklist });
+      } catch {
+        /* הרשימה היא תוספת — כשל לא יפיל את הוולידציה */
+      }
+    }
 
     /*
      * התזכיר המלא נשמר ואינו נזרק: הוא עבודה של משפטן בכיר — עילות, יסודותיהן,

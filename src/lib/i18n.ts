@@ -553,6 +553,23 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // רשימת ההכנה ללקוח
+  checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
+  checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
+
+  // חדר הבקרה — לוח המשפך
+  funnelHeader: { he: "לוח בקרה", en: "Control room" },
+  funnelSub: { he: "האם זה מצליח, לא רק האם זה עובד. מתעדכן בזמן אמת.", en: "Whether it's succeeding, not just whether it's up. Live." },
+  funnelCreated: { he: "פניות שנפתחו", en: "Cases opened" },
+  funnelPassed: { he: "עברו את שומר הסף", en: "Passed the gatekeeper" },
+  funnelInterest: { he: "קיבלו התעניינות", en: "Got interest" },
+  funnelConnected: { he: "נוצר חיבור", en: "Connected" },
+  funnelRejected: { he: "נדחו בבדיקה", en: "Rejected" },
+  funnelMedianOffer: { he: "חציון להצעה ראשונה", en: "Median to first offer" },
+  funnelCalibration: { he: "כיול שומר הסף", en: "Gatekeeper calibration" },
+  funnelCalibrationSub: { he: "תיקים שאושרו ואף עורך דין לא נגע בהם. אם קטגוריה בולטת כאן — ייתכן שהסף שלה רחב מדי, או שאין בה מספיק עורכי דין.", en: "Approved cases no lawyer touched. A category standing out here may have too loose a threshold — or too few lawyers." },
+  funnelNoInterest: { he: "בלי התעניינות", en: "with no interest" },
+
   // התזכיר המשפטי המלא + מדד תגובתיות
   memoHeader: { he: "התזכיר המשפטי המלא", en: "Full legal memo" },
   memoSub: { he: "ניתוח עילות, יסודותיהן, התיישנות, טענות נגד ומסלול — נכתב לפני שראיתם את התיק.", en: "Causes of action, their elements, limitation, counterarguments and track — written before you opened the case." },

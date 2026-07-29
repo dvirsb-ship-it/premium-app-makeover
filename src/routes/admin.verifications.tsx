@@ -26,6 +26,7 @@ import {
   type VerificationStatus,
 } from "../lib/verification-queue";
 import {
+  computeFunnel,
   markDeletionDone,
   markServerErrorHandled,
   markTicketHandled,
@@ -382,6 +383,85 @@ function VerificationQueue() {
             ))}
           </ul>
         )}
+
+        {/* חדר הבקרה — עונה על "האם זה מצליח", לא רק "האם זה עובד" */}
+        <h2 className="text-base font-bold text-foreground">{t("funnelHeader")}</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("funnelSub")}</p>
+        {(() => {
+          const f = computeFunnel(allCases);
+          const steps: { label: string; value: number; of?: number }[] = [
+            { label: t("funnelCreated"), value: f.created },
+            { label: t("funnelPassed"), value: f.passed, of: f.created },
+            { label: t("funnelInterest"), value: f.withInterest, of: f.passed },
+            { label: t("funnelConnected"), value: f.connected, of: f.withInterest },
+          ];
+          return (
+            <>
+              <div className="mt-3 space-y-2">
+                {steps.map((s) => {
+                  const pct = s.of && s.of > 0 ? Math.round((s.value / s.of) * 100) : null;
+                  const width = f.created > 0 ? Math.max(4, (s.value / f.created) * 100) : 0;
+                  return (
+                    <div key={s.label} className="liquid-glass rounded-2xl px-4 py-3">
+                      <div className="flex items-baseline justify-between">
+                        <span className="text-[12px] font-semibold text-foreground">{s.label}</span>
+                        <span className="text-[13px] font-black text-foreground" dir="ltr">
+                          {s.value}
+                          {pct !== null && (
+                            <span className="ms-1.5 text-[11px] font-bold text-gold">{pct}%</span>
+                          )}
+                        </span>
+                      </div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div className="h-full rounded-full bg-gold" style={{ width: `${width}%` }} />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <div className="liquid-glass rounded-2xl px-4 py-3">
+                  <p className="text-[11px] text-muted-foreground">{t("funnelRejected")}</p>
+                  <p className="mt-0.5 text-lg font-black text-foreground" dir="ltr">{f.rejected}</p>
+                </div>
+                <div className="liquid-glass rounded-2xl px-4 py-3">
+                  <p className="text-[11px] text-muted-foreground">{t("funnelMedianOffer")}</p>
+                  <p className="mt-0.5 text-lg font-black text-foreground" dir="ltr">
+                    {f.medianFirstOfferMins === null
+                      ? "—"
+                      : f.medianFirstOfferMins < 60
+                        ? `${f.medianFirstOfferMins}m`
+                        : `${Math.round(f.medianFirstOfferMins / 60)}h`}
+                  </p>
+                </div>
+              </div>
+
+              {/* אות הכיול: קטגוריה שאושרה ואף עו"ד לא נגע בה */}
+              {f.byCategory.some((c) => c.noInterest > 0) && (
+                <div className="mt-2 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4">
+                  <p className="text-[12px] font-bold text-gold">{t("funnelCalibration")}</p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                    {t("funnelCalibrationSub")}
+                  </p>
+                  <ul className="mt-2 space-y-1">
+                    {f.byCategory
+                      .filter((c) => c.noInterest > 0)
+                      .map((c) => (
+                        <li key={c.category} className="text-[12px] text-foreground">
+                          {c.category} —{" "}
+                          <span className="font-bold">
+                            {c.noInterest}/{c.passed}
+                          </span>{" "}
+                          <span className="text-muted-foreground">{t("funnelNoInterest")}</span>
+                        </li>
+                      ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          );
+        })()}
 
         {/* תקלות שרת — כשל שקט בפונקציות ה-AI מגיע לכאן במקום להיעלם */}
         <h2 className="mt-10 text-base font-bold text-foreground">{t("adminErrorsHeader")}</h2>

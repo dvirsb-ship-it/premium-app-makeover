@@ -42,6 +42,7 @@ function Intake() {
 
   const [messages, setMessages] = useState<ChatMessage[]>(openers);
   const [input, setInput] = useState("");
+  const DRAFT_KEY = "justask-intake-draft";
   const [step, setStep] = useState(0);
   const [typing, setTyping] = useState(false);
   const [ready, setReady] = useState(false);
@@ -122,6 +123,35 @@ function Intake() {
       ),
     );
   }, [t]);
+
+  /*
+   * טיוטה נטושה: מישהו מספר סיפור כואב וסוגר את הדפדפן. לאבד לו את זה
+   * זו חוסר התחשבות, לא באג — לכן השיחה נשמרת מקומית ומשוחזרת.
+   */
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const saved = JSON.parse(raw) as ChatMessage[];
+      // תמונות אינן נשמרות (blob מקומי שפג) — משחזרים טקסט בלבד
+      if (Array.isArray(saved) && saved.length > openers.length) {
+        setMessages(saved.map((m) => ({ ...m, images: undefined })));
+      }
+    } catch {
+      /* ignore */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    try {
+      if (messages.length > openers.length) {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(messages));
+      }
+    } catch {
+      /* ignore */
+    }
+  }, [messages, openers.length]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -242,6 +272,7 @@ function Intake() {
       }
       try {
         sessionStorage.setItem("justask-active-case", caseId);
+        localStorage.removeItem(DRAFT_KEY);
       } catch {
         /* ignore */
       }

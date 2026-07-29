@@ -44,6 +44,8 @@ function CaseDetail() {
   const [legalBasis, setLegalBasis] = useState<string>("");
   // בדחייה: ההמלצה מה כן לעשות
   const [recommendation, setRecommendation] = useState<string>("");
+  // רשימת ההכנה שנגזרה מהראיון — התוצר שהלקוח לא קיבל עד היום
+  const [checklist, setChecklist] = useState<string[]>([]);
   // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
@@ -51,6 +53,7 @@ function CaseDetail() {
       .then(async (raw) => {
         setLegalBasis(raw?.legalBasis ?? "");
         setRecommendation(raw?.recommendation ?? "");
+        setChecklist((raw?.clientChecklist as string[] | undefined) ?? []);
         const imgs = (raw?.images ?? []) as CaseImage[];
         const urls = await Promise.all(
           imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
@@ -210,6 +213,23 @@ function CaseDetail() {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {checklist.length > 0 && item.status !== "rejected" && (
+            <div className="liquid-glass mt-3 rounded-3xl p-4">
+              <p className="text-[13px] font-bold text-foreground">{t("checklistHeader")}</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                {t("checklistSub")}
+              </p>
+              <ul className="mt-3 space-y-2">
+                {checklist.map((x) => (
+                  <li key={x} className="flex items-start gap-2.5">
+                    <span className="mt-1.5 size-1.5 shrink-0 rounded-full bg-gold" />
+                    <span className="text-[13px] leading-relaxed text-foreground/90">{x}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
 

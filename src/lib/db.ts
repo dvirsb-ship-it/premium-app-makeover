@@ -88,6 +88,10 @@ interface CaseDoc {
   offers?: Record<string, CaseOffer>;
   /** תמונות שצורפו בקליטה — מקור ללקוח, גרסה מצונזרת לעורכי הדין. */
   images?: CaseImage[];
+  /** הרגע שבו התיק נעשה זמין לעורכי דין (נכתב מהשרת בסיום הוולידציה). */
+  validatedAt?: number;
+  /** רשימת ההכנה שנגזרה מהראיון — מוצגת ללקוח. */
+  clientChecklist?: string[];
 }
 
 export interface CaseImage {
@@ -701,6 +705,60 @@ export interface AdminCaseRow {
   location: string;
   createdAt: number;
   interestedCount: number;
+  /** הרגע שבו התיק נעשה זמין לעורכי דין — בסיס למדידת זמן להצעה ראשונה. */
+  validatedAt?: number;
+  /** חותמת ההצעה המוקדמת ביותר, אם הייתה. */
+  firstOfferAt?: number;
+}
+
+/* ---------- לוח המשפך — חדר הבקרה של האדמין ---------- */
+
+export interface FunnelStats {
+  created: number;
+  rejected: number;
+  passed: number;
+  withInterest: number;
+  connected: number;
+  /** זמן חציוני מרגע שהתיק נעשה זמין ועד ההצעה הראשונה, בדקות. */
+  medianFirstOfferMins: number | null;
+  /** לפי קטגוריה: כמה אושרו וכמה מהם עדיין בלי אף התעניינות. */
+  byCategory: { category: string; passed: number; noInterest: number }[];
+}
+
+/**
+ * המשפך מחושב מהארכיון שכבר נטען — בלי שאילתות נוספות.
+ * "אושרו ואפס התעניינות" הוא אות הכיול החשוב: אם בקטגוריה שלמה עורכי דין
+ * לא נוגעים בתיקים, כנראה שומר הסף רחב מדי שם.
+ */
+export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
+  const passedRows = rows.filter((r) => r.status !== "rejected" && r.status !== "validating");
+  const offerGaps = rows
+    .filter((r) => r.validatedAt && r.firstOfferAt && r.firstOfferAt > r.validatedAt)
+    .map((r) => (r.firstOfferAt! - r.validatedAt!) / 60000)
+    .sort((a, b) => a - b);
+
+  const cats = new Map<string, { passed: number; noInterest: number }>();
+  for (const r of passedRows) {
+    const key = r.category || "אחר";
+    const cur = cats.get(key) ?? { passed: 0, noInterest: 0 };
+    cur.passed += 1;
+    if (r.interestedCount === 0) cur.noInterest += 1;
+    cats.set(key, cur);
+  }
+
+  return {
+    created: rows.length,
+    rejected: rows.filter((r) => r.status === "rejected").length,
+    passed: passedRows.length,
+    withInterest: rows.filter((r) => r.interestedCount > 0).length,
+    connected: rows.filter((r) => r.status === "connected").length,
+    medianFirstOfferMins: offerGaps.length
+      ? Math.round(offerGaps[Math.floor(offerGaps.length / 2)])
+      : null,
+    byCategory: [...cats.entries()]
+      .map(([category, v]) => ({ category, ...v }))
+      .sort((a, b) => b.noInterest - a.noInterest || b.passed - a.passed),
+  };
 }
 
 export function watchAllCasesAdmin(
@@ -721,6 +779,11 @@ export function watchAllCasesAdmin(
               location: c.location || "",
               createdAt: c.createdAt,
               interestedCount: c.interestedIds?.length ?? 0,
+              validatedAt: c.validatedAt,
+              firstOfferAt: Object.values(c.offers ?? {})
+                .map((o) => o.at)
+                .filter((n) => typeof n === "number")
+                .sort((a, b) => a - b)[0],
             };
           })
           .sort((a, b) => b.createdAt - a.createdAt),

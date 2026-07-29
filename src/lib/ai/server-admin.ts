@@ -95,9 +95,12 @@ export async function adminGetCase(caseId: string): Promise<Record<string, unkno
   return out;
 }
 
-type Primitive = string | number | boolean;
+type Primitive = string | number | boolean | string[];
 
 function encode(v: Primitive): FsValue {
+  if (Array.isArray(v)) {
+    return { arrayValue: { values: v.map((x) => ({ stringValue: x })) } };
+  }
   if (typeof v === "boolean") return { booleanValue: v };
   if (typeof v === "number") {
     return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
