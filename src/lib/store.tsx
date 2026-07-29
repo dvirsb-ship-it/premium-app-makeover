@@ -46,6 +46,8 @@ interface AppState {
   chooseLawyer: (caseId: string, lawyerId: string) => void;
   getCase: (id: string) => Case | undefined;
   feed: FeedCase[];
+  /** true כשטעינת הפיד נכשלה (לרוב הרשאות) — להבדיל מ״אין פניות״. */
+  feedError: boolean;
   expressInterest: (feedId: string, offer?: OfferInput) => void;
   getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
@@ -68,6 +70,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [role, setRoleState] = useState<Role | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [feed, setFeed] = useState<FeedCase[]>([]);
+  // פיד שנכשל נראה בדיוק כמו פיד ריק — לכן מבדילים ביניהם במפורש
+  const [feedError, setFeedError] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   // מטמון תפקיד מקומי — טעינה מיידית לפני שהשרת עונה
@@ -156,7 +160,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         })
         .sort((a, b) => score(b) - score(a));
       setFeed(ranked);
-    });
+      setFeedError(false);
+    }, () => setFeedError(true));
   }, [user, role, myLawyerProfile]);
 
   const setRole = useCallback(
@@ -263,6 +268,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       chooseLawyer,
       getCase,
       feed,
+      feedError,
       expressInterest,
       getFeedCase,
       user,
@@ -271,7 +277,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, expressInterest, getFeedCase, user, authReady, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, expressInterest, getFeedCase, user, authReady, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

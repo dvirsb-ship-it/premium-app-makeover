@@ -168,6 +168,12 @@ export function watchMyCases(
 export function watchLawyerFeed(
   myUid: string,
   cb: (feed: FeedCase[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות (התפקיד במסד אינו "lawyer"), ובלי דיווח
+   * היא נראית בדיוק כמו "אין פניות" — עורך דין היה יושב מול פיד ריק לנצח
+   * בלי לדעת שמשהו שבור.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   const q = query(
     collection(fbDb(), "cases"),
@@ -182,7 +188,10 @@ export function watchLawyerFeed(
       .filter((d) => d.data.createdAt > cutoff);
     docs.sort((a, b) => b.data.createdAt - a.data.createdAt);
     cb(docs.map((d) => toFeedCase(d.id, d.data, myUid)));
-  }, () => cb([]));
+  }, (err) => {
+    cb([]);
+    onError?.(err);
+  });
 }
 
 export interface NewCaseInput {

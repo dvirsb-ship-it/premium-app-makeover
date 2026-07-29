@@ -55,7 +55,7 @@ function pickImage(category: string) {
 function LawyerFeed() {
 
   useRequireAuth();  const navigate = useNavigate();
-  const { feed, user } = useAppStore();
+  const { feed, feedError, user } = useAppStore();
   const { lang } = useSettings();
   const t = useT();
   const urgentLabel = translate("urgent", "he"); // still used to test underlying data
@@ -154,6 +154,20 @@ function LawyerFeed() {
       )}
 
       <div className="mt-6 space-y-3">
+        {/* פיד שנכשל ופיד ריק נראים זהה — לכן מפרידים ביניהם במפורש */}
+        {feedError ? (
+          <div className="liquid-glass rounded-3xl border border-destructive/30 p-5 text-center">
+            <p className="text-sm font-bold text-foreground">{t("feedErrorTitle")}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              {t("feedErrorSub")}
+            </p>
+          </div>
+        ) : feed.length === 0 ? (
+          <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
+            {t("feedEmpty")}
+          </div>
+        ) : null}
+
         {feed.map((f, i) => (
           <motion.button
             key={f.id}

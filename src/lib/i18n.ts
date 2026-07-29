@@ -553,6 +553,11 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // מצבי הפיד של עורך הדין
+  feedErrorTitle: { he: "לא הצלחנו לטעון את הפניות", en: "Couldn't load leads" },
+  feedErrorSub: { he: "ייתכן שחשבונך עדיין לא מוגדר כעורך דין, או שאין חיבור. נסו לרענן — אם זה חוזר, פנו אלינו דרך העזרה.", en: "Your account may not be set as a lawyer yet, or you're offline. Refresh — if it persists, contact us via Help." },
+  feedEmpty: { he: "אין כרגע פניות חדשות בתחומכם. נעדכן ברגע שתגיע פנייה מתאימה.", en: "No new leads in your areas right now. We'll notify you when one arrives." },
+
   // הצעת שכר טרחה מובנית — שוק פתוח והשוואה אמיתית
   offerModelLabel: { he: "מודל שכר הטרחה", en: "Fee model" },
   feeContingency: { he: "אחוז מהפיצוי", en: "% of award" },
