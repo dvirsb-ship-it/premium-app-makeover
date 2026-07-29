@@ -32,9 +32,13 @@ async function geminiKey(): Promise<string> {
 
 /* ---------- קריאת Gemini ---------- */
 
+type GeminiPart =
+  | { text: string }
+  | { inline_data: { mime_type: string; data: string } };
+
 interface GeminiContent {
   role: "user" | "model";
-  parts: { text: string }[];
+  parts: GeminiPart[];
 }
 
 async function generate(
@@ -266,4 +270,82 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     );
 
     return JSON.parse(verdict) as ValidateResult;
+  });
+
+/* ---------- צנזור תמונות: זיהוי אזורים עם פרטים מזהים ---------- */
+
+const CENSOR_SYSTEM = `אתה קצין פרטיות של פלטפורמה משפטית ישראלית. תפקידך: לאתר בתמונה כל אזור שחושף פרטים מזהים או פרטי התקשרות, כדי שיוסתר לפני שעורכי דין רואים אותה.
+
+אתר וסמן כל אזור שמכיל:
+- מספרי טלפון (כולל בכתב יד)
+- שמות של אנשים או בתי עסק (טקסט מודפס, כתב יד, שלטים)
+- כתובות אימייל וכתובות מגורים
+- מספרי תעודת זהות, מספרי תיק, מספרי פוליסה
+- לוגואים ושמות מותג שמזהים עסק
+- לוחיות רישוי
+- חשבונות רשתות חברתיות, קודי QR
+- חתימות
+
+אל תסמן: תיאור הפציעה עצמה, מסמכים ללא פרטים מזהים, רקע ניטרלי.
+
+החזר JSON בלבד: {"regions":[{"box_2d":[ymin,xmin,ymax,xmax],"label":"סוג הפרט"}]} — קואורדינטות מנורמלות 0-1000. אם אין אזורים רגישים החזר {"regions":[]}.`;
+
+export interface SensitiveRegion {
+  /** [ymin, xmin, ymax, xmax] מנורמל 0-1000 — הפורמט שגמיני אומן עליו. */
+  box_2d: [number, number, number, number];
+  label: string;
+}
+
+export interface DetectRegionsInput {
+  imageBase64: string;
+  mimeType: string;
+}
+
+/** מזהה אזורים רגישים בתמונה. ההשחרה עצמה נעשית בצד הלקוח על canvas. */
+export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as DetectRegionsInput)
+  .handler(async ({ data }): Promise<{ regions: SensitiveRegion[] }> => {
+    const text = await generate(
+      [
+        {
+          role: "user",
+          parts: [
+            { inline_data: { mime_type: data.mimeType, data: data.imageBase64 } },
+            { text: "אתר את כל האזורים הרגישים בתמונה." },
+          ],
+        },
+      ],
+      {
+        system: CENSOR_SYSTEM,
+        temperature: 0.1,
+        maxTokens: 2000,
+        json: true,
+        schema: {
+          type: "object",
+          properties: {
+            regions: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  box_2d: { type: "array", items: { type: "integer" } },
+                  label: { type: "string" },
+                },
+                required: ["box_2d", "label"],
+              },
+            },
+          },
+          required: ["regions"],
+        },
+      },
+    );
+    const parsed = JSON.parse(text) as { regions?: SensitiveRegion[] };
+    // סינון הגנתי: רק תיבות חוקיות בגבולות 0-1000
+    const regions = (parsed.regions ?? []).filter(
+      (r) =>
+        Array.isArray(r.box_2d) &&
+        r.box_2d.length === 4 &&
+        r.box_2d.every((n) => typeof n === "number" && n >= 0 && n <= 1000),
+    );
+    return { regions };
   });

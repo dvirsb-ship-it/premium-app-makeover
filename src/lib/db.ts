@@ -19,7 +19,8 @@ import {
   type Query,
   type Timestamp,
 } from "firebase/firestore";
-import { fbDb } from "./firebase";
+import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
+import { fbDb, fbStorage } from "./firebase";
 import { stripContactInfo } from "./privacy";
 import type { Case, CaseStatus, FeedCase, Lawyer, Role } from "./types";
 
@@ -81,6 +82,19 @@ interface CaseDoc {
   legalBasis?: string;
   /** הצעות עו"ד שנשלחו עם הבעת העניין, לפי uid. */
   offers?: Record<string, CaseOffer>;
+  /** תמונות שצורפו בקליטה — מקור ללקוח, גרסה מצונזרת לעורכי הדין. */
+  images?: CaseImage[];
+}
+
+export interface CaseImage {
+  id: string;
+  /** נתיב המקור ב-Storage — קריא ללקוח, לאדמין ולעו"ד הנבחר בלבד (חוקי Storage). */
+  origPath: string;
+  /** נתיב הגרסה המצונזרת — קריא לכל משתמש מחובר. */
+  censPath: string;
+  /** כמה אזורים רגישים הוסתרו. */
+  regions: number;
+  at: number;
 }
 
 export interface CaseOffer {
@@ -189,6 +203,34 @@ export async function createCase(input: NewCaseInput): Promise<string> {
     interestedIds: [],
   } satisfies Omit<CaseDoc, "chosenLawyerId"> & object);
   return ref.id;
+}
+
+/**
+ * העלאת תמונות התיק אחרי היצירה: מקור + גרסה מצונזרת לכל תמונה,
+ * ורישום הנתיבים במסמך התיק. נכשלה תמונה — התיק ממשיך בלעדיה.
+ */
+export async function uploadCaseImages(
+  caseId: string,
+  images: { id: string; origBlob: Blob; censBlob: Blob; regionCount: number }[],
+): Promise<CaseImage[]> {
+  const meta = { contentType: "image/jpeg" };
+  const uploaded: CaseImage[] = [];
+  for (const img of images) {
+    const origPath = `case-uploads/${caseId}/orig/${img.id}.jpg`;
+    const censPath = `case-uploads/${caseId}/cens/${img.id}.jpg`;
+    await uploadBytes(storageRef(fbStorage(), origPath), img.origBlob, meta);
+    await uploadBytes(storageRef(fbStorage(), censPath), img.censBlob, meta);
+    uploaded.push({ id: img.id, origPath, censPath, regions: img.regionCount, at: Date.now() });
+  }
+  if (uploaded.length) {
+    await updateDoc(doc(fbDb(), "cases", caseId), { images: uploaded });
+  }
+  return uploaded;
+}
+
+/** URL הורדה לתמונה לפי נתיב — הפעולה נכשלת אם חוקי ה-Storage חוסמים. */
+export function caseImageUrl(path: string): Promise<string> {
+  return getDownloadURL(storageRef(fbStorage(), path));
 }
 
 export async function readCaseRaw(caseId: string) {

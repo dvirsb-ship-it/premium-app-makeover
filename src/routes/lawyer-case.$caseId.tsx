@@ -9,7 +9,7 @@ import { Page } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { readCaseRaw, submitAppeal } from "../lib/db";
+import { caseImageUrl, readCaseRaw, submitAppeal, type CaseImage } from "../lib/db";
 import { normalizePhone } from "../lib/auth-service";
 import {
   watchMyVerification,
@@ -47,12 +47,16 @@ function LawyerCaseDetail() {
     return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null));
   }, [user]);
 
+  // תמונות התיק: עד החיבור — הגרסה המצונזרת בלבד; אחרי החיבור — המקור
+  const [imgUrls, setImgUrls] = useState<string[]>([]);
+  const [imgOriginals, setImgOriginals] = useState(false);
+
   // תיק שכבר חובר אליי לא מופיע בפיד — נטען ישירות כדי להציג את פרטי הלקוח
   const [connected, setConnected] = useState<ConnectedCase | null>(null);
   useEffect(() => {
     if (item || !user) return;
     void readCaseRaw(caseId)
-      .then((raw) => {
+      .then(async (raw) => {
         if (raw && raw.chosenLawyerId === user.uid) {
           setConnected({
             title: raw.title,
@@ -60,6 +64,12 @@ function LawyerCaseDetail() {
             summary: raw.summary,
             clientContact: raw.clientContact,
           });
+          const imgs = (raw.images ?? []) as CaseImage[];
+          const urls = await Promise.all(
+            imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
+          );
+          setImgUrls(urls.filter(Boolean));
+          setImgOriginals(true);
         }
       })
       .catch(() => {});
@@ -75,7 +85,7 @@ function LawyerCaseDetail() {
   useEffect(() => {
     if (!item) return;
     void readCaseRaw(caseId)
-      .then((raw) => {
+      .then(async (raw) => {
         if (raw) {
           setDetails({
             legalBasis: raw.legalBasis,
@@ -83,6 +93,12 @@ function LawyerCaseDetail() {
             damageType: raw.damageType,
             hasDocumentation: raw.hasDocumentation,
           });
+          // עד החיבור נטענת הגרסה המצונזרת בלבד — המקור חסום בחוקי Storage
+          const imgs = (raw.images ?? []) as CaseImage[];
+          const urls = await Promise.all(
+            imgs.map((im) => caseImageUrl(im.censPath).catch(() => "")),
+          );
+          setImgUrls(urls.filter(Boolean));
         }
       })
       .catch(() => {});
@@ -142,6 +158,22 @@ function LawyerCaseDetail() {
                 {connected.summary}
               </p>
             </div>
+
+            {imgUrls.length > 0 && (
+              <div className="liquid-glass mt-4 rounded-3xl p-4">
+                <p className="text-[13px] font-bold text-foreground">{t("lawyerImagesHeader")}</p>
+                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+                  {imgOriginals ? t("lawyerImagesOriginalsNote") : t("lawyerImagesNote")}
+                </p>
+                <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                  {imgUrls.map((url) => (
+                    <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                      <img src={url} alt="" className="h-24 w-24 rounded-2xl border border-border object-cover" />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="liquid-glass mt-4 rounded-3xl p-5">
               <div className="flex items-center gap-2">
@@ -279,6 +311,22 @@ function LawyerCaseDetail() {
                   <dd className="mt-0.5 text-[12px] font-bold text-foreground">{details.hasDocumentation ? t("docYes") : t("docNo")}</dd>
                 </div>
               </dl>
+            </div>
+          )}
+
+          {imgUrls.length > 0 && (
+            <div className="liquid-glass mt-4 rounded-3xl p-4">
+              <p className="text-[13px] font-bold text-foreground">{t("lawyerImagesHeader")}</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+                {t("lawyerImagesNote")}
+              </p>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {imgUrls.map((url) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                    <img src={url} alt="" className="h-24 w-24 rounded-2xl border border-border object-cover" />
+                  </a>
+                ))}
+              </div>
             </div>
           )}
 

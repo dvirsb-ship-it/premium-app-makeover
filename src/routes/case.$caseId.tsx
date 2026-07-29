@@ -8,7 +8,7 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { readCaseLawyerContact, readCaseRaw, type LawyerContactDoc } from "../lib/db";
+import { caseImageUrl, readCaseLawyerContact, readCaseRaw, type CaseImage, type LawyerContactDoc } from "../lib/db";
 import { BadgeCheck } from "lucide-react";
 import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
@@ -34,9 +34,18 @@ function CaseDetail() {
 
   // הבסיס המשפטי מהוולידציה — הלקוח רואה על מה התיק אושר
   const [legalBasis, setLegalBasis] = useState<string>("");
+  // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
     void readCaseRaw(caseId)
-      .then((raw) => setLegalBasis(raw?.legalBasis ?? ""))
+      .then(async (raw) => {
+        setLegalBasis(raw?.legalBasis ?? "");
+        const imgs = (raw?.images ?? []) as CaseImage[];
+        const urls = await Promise.all(
+          imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
+        );
+        setImageUrls(urls.filter(Boolean));
+      })
       .catch(() => {});
   }, [caseId]);
 
@@ -134,6 +143,26 @@ function CaseDetail() {
                 <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
                   {legalBasis}
                 </p>
+              </div>
+            </div>
+          )}
+
+          {imageUrls.length > 0 && (
+            <div className="liquid-glass mt-3 rounded-3xl p-4">
+              <p className="text-[13px] font-bold text-foreground">{t("caseImagesHeader")}</p>
+              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
+                {t("caseImagesSub")}
+              </p>
+              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
+                {imageUrls.map((url) => (
+                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
+                    <img
+                      src={url}
+                      alt=""
+                      className="h-24 w-24 rounded-2xl border border-border object-cover"
+                    />
+                  </a>
+                ))}
               </div>
             </div>
           )}

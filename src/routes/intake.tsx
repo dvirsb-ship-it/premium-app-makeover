@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowUp, ImagePlus, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useT } from "../lib/i18n";
@@ -10,11 +10,13 @@ import type { ChatMessage } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import {
+  detectSensitiveRegionsFn,
   intakeTurn,
   type IntakeNotSuitable,
   type IntakeReady,
 } from "../lib/ai/intake.functions";
-import { createCase } from "../lib/db";
+import { createCase, uploadCaseImages } from "../lib/db";
+import { censorImage, prepareImage, type PendingImage } from "../lib/image-censor";
 import { Scale } from "lucide-react";
 
 export const Route = createFileRoute("/intake")({
@@ -43,8 +45,61 @@ function Intake() {
   const [ready, setReady] = useState(false);
   const [notSuitable, setNotSuitable] = useState<IntakeNotSuitable | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
+  const [censoring, setCensoring] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const readyData = useRef<IntakeReady | null>(null);
+
+  const MAX_IMAGES = 3;
+
+  async function attachImages(files: FileList | null) {
+    if (!files?.length || censoring) return;
+    const room = MAX_IMAGES - pendingImages.length;
+    if (room <= 0) {
+      pushAssistant(t("imageLimitMsg"));
+      return;
+    }
+    setCensoring(true);
+    try {
+      for (const file of Array.from(files).slice(0, room)) {
+        const prepared = await prepareImage(file);
+        const { regions } = await detectSensitiveRegionsFn({
+          data: { imageBase64: prepared.base64, mimeType: "image/jpeg" },
+        });
+        const censBlob = await censorImage(prepared, regions);
+        const img: PendingImage = {
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          origBlob: prepared.origBlob,
+          censBlob,
+          previewUrl: URL.createObjectURL(censBlob),
+          regionCount: regions.length,
+        };
+        setPendingImages((prev) => [...prev, img]);
+      }
+      pushAssistant(t("imageAttachedOne"));
+    } catch {
+      pushAssistant(t("imageCensorFailed"));
+    } finally {
+      setCensoring(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  }
+
+  function removeImage(id: string) {
+    setPendingImages((prev) => {
+      const img = prev.find((p) => p.id === id);
+      if (img) URL.revokeObjectURL(img.previewUrl);
+      return prev.filter((p) => p.id !== id);
+    });
+  }
+
+  function pushAssistant(text: string) {
+    setMessages((prev) => [
+      ...prev,
+      { id: `a-${Date.now()}`, from: "assistant", text },
+    ]);
+  }
 
   useEffect(() => {
     const scripted: Record<string, string> = {
@@ -141,9 +196,17 @@ function Intake() {
         description,
         incidentDate: data?.incident_date,
         damageType: data?.damage_type,
-        hasDocumentation: data?.has_documentation,
+        hasDocumentation: data?.has_documentation || pendingImages.length > 0,
         city: data?.city,
       });
+      // התמונות אינן חוסמות: נכשלה העלאה — התיק ממשיך בלעדיה
+      if (pendingImages.length) {
+        try {
+          await uploadCaseImages(caseId, pendingImages);
+        } catch {
+          /* ignore */
+        }
+      }
       try {
         sessionStorage.setItem("justask-active-case", caseId);
       } catch {
@@ -376,13 +439,72 @@ function Intake() {
               )}
             </AnimatePresence>
 
+            {/* תמונות שצורפו — תצוגה של הגרסה המצונזרת, כפי שעו"ד יראה */}
+            <AnimatePresence>
+              {(pendingImages.length > 0 || censoring) && (
+                <motion.div
+                  key="image-strip"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="mb-2 flex items-center gap-2 overflow-x-auto px-1 pb-1"
+                >
+                  {pendingImages.map((img) => (
+                    <div key={img.id} className="relative shrink-0">
+                      <img
+                        src={img.previewUrl}
+                        alt=""
+                        className="h-16 w-16 rounded-2xl border border-border object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removeImage(img.id)}
+                        aria-label={t("removeImageAria")}
+                        className="absolute -end-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-background text-foreground shadow"
+                      >
+                        <X className="size-3" />
+                      </button>
+                      <span className="absolute inset-x-0 bottom-0 rounded-b-2xl bg-black/60 px-1 py-0.5 text-center text-[9px] font-semibold text-white">
+                        {img.regionCount > 0
+                          ? `${img.regionCount} ${t("imageRegionsHidden")}`
+                          : t("imageNoRegions")}
+                      </span>
+                    </div>
+                  ))}
+                  {censoring && (
+                    <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border px-3 py-2 text-[11px] text-muted-foreground">
+                      <Loader2 className="size-3.5 animate-spin text-gold" />
+                      {t("imageCensoring")}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* המקלדת נשארת תמיד — אפשר לתקן פרטים גם אחרי הסיכום */}
             <motion.div
               key="composer"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
-              className="liquid-glass flex items-end gap-2 rounded-[28px] p-1.5 pe-2 ps-4 shadow-luxe"
+              className="liquid-glass flex items-end gap-2 rounded-[28px] p-1.5 pe-2 ps-2 shadow-luxe"
             >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                hidden
+                onChange={(e) => void attachImages(e.target.files)}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={censoring || pendingImages.length >= MAX_IMAGES}
+                aria-label={t("attachImageAria")}
+                className="grid size-11 shrink-0 place-items-center self-end rounded-full text-muted-foreground transition hover:text-gold disabled:opacity-40"
+              >
+                <ImagePlus className="size-5" />
+              </button>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}

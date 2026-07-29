@@ -23,6 +23,33 @@ service firebase.storage {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
 
+    function caseData(caseId) {
+      return firestore.get(/databases/(default)/documents/cases/$(caseId)).data;
+    }
+
+    function validImage() {
+      return request.resource.size < 4 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+    }
+
+    // תמונות מקור של תיק — הלקוח מעלה; קריאה ללקוח, לעו"ד הנבחר ולאדמין בלבד
+    match /case-uploads/{caseId}/orig/{img} {
+      allow write: if request.auth != null && validImage()
+        && caseData(caseId).clientId == request.auth.uid;
+      allow read: if request.auth != null && (
+        caseData(caseId).clientId == request.auth.uid
+        || caseData(caseId).chosenLawyerId == request.auth.uid
+        || isAdmin()
+      );
+    }
+
+    // הגרסה המצונזרת (פרטים מזהים הושחרו) — הלקוח מעלה; כל משתמש מחובר צופה
+    match /case-uploads/{caseId}/cens/{img} {
+      allow write: if request.auth != null && validImage()
+        && caseData(caseId).clientId == request.auth.uid;
+      allow read: if request.auth != null;
+    }
+
     // ברירת מחדל — הכל חסום
     match /{allPaths=**} {
       allow read, write: if false;
