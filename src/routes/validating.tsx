@@ -9,7 +9,8 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
-import { applyValidation, fanOutNewCase, notify, readCaseRaw } from "../lib/db";
+import { fanOutNewCase, notify, readCaseRaw } from "../lib/db";
+import { fbAuth } from "../lib/firebase";
 import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
 
 export const Route = createFileRoute("/validating")({
@@ -55,15 +56,9 @@ function Validating() {
     (async () => {
       const raw = await readCaseRaw(caseId);
       if (!raw) throw new Error("case not found");
-      const res = await validateCaseFn({
-        data: {
-          description: raw.description,
-          incidentDate: raw.incidentDate,
-          damageType: raw.damageType,
-          hasDocumentation: raw.hasDocumentation,
-        },
-      });
-      await applyValidation(caseId, res);
+      const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+      // השרת מאמת את הטוקן, קורא את התיק (כולל התמונות) וכותב את התוצאה בעצמו
+      const res = await validateCaseFn({ data: { caseId, idToken } });
       if (res.validated) {
         // הזמנת עורכי הדין בתחום — לא חוסם את המסך אם נכשל
         void fanOutNewCase(caseId, res.title, res.category).catch(() => {});

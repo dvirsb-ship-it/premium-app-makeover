@@ -100,6 +100,7 @@ async function generateDeep(
 
 export interface IntakeTurnInput {
   messages: { from: "assistant" | "user"; text: string }[];
+  idToken: string;
 }
 
 export interface IntakeReady {
@@ -125,6 +126,9 @@ export interface IntakeTurnResult {
 export const intakeTurn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as IntakeTurnInput)
   .handler(async ({ data }): Promise<IntakeTurnResult> => {
+    const { requireUser } = await import("./server-admin");
+    await requireUser(data.idToken);
+
     const contents: GeminiContent[] = data.messages.map((m) => ({
       role: m.from === "assistant" ? "model" : "user",
       parts: [{ text: m.text }],
@@ -174,10 +178,9 @@ export const intakeTurn = createServerFn({ method: "POST" })
 /* ---------- ולידציית התיק ---------- */
 
 export interface ValidateInput {
-  description: string;
-  incidentDate?: string;
-  damageType?: string;
-  hasDocumentation?: boolean;
+  /** הוולידציה קוראת את התיק בעצמה וכותבת את התוצאה — הלקוח לא נוגע בסטטוס. */
+  caseId: string;
+  idToken: string;
 }
 
 export interface ValidateResult {
@@ -229,16 +232,45 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
+    const { requireUser, adminDb, downloadImageBase64 } = await import("./server-admin");
+    const uid = await requireUser(data.idToken);
+
+    const ref = adminDb().collection("cases").doc(data.caseId);
+    const snap = await ref.get();
+    if (!snap.exists) throw new Error("case not found");
+    const c = snap.data() as {
+      clientId: string;
+      description: string;
+      incidentDate?: string;
+      damageType?: string;
+      hasDocumentation?: boolean;
+      images?: { origPath: string }[];
+    };
+    if (c.clientId !== uid) throw new Error("forbidden");
+
     const caseText = `התאריך היום: ${new Date().toISOString().slice(0, 10)}
-תיאור המקרה: ${data.description}
-תאריך האירוע: ${data.incidentDate || "לא צוין"}
-סוג הנזק: ${data.damageType || "לא צוין"}
-תיעוד קיים: ${data.hasDocumentation ? "כן" : "לא"}`;
+תיאור המקרה: ${c.description}
+תאריך האירוע: ${c.incidentDate || "לא צוין"}
+סוג הנזק: ${c.damageType || "לא צוין"}
+תיעוד קיים: ${c.hasDocumentation ? "כן" : "לא"}`;
+
+    // התמונות שצורפו — ראיות עבור התזכיר (עד 3, המקור המלא)
+    const imageParts: GeminiPart[] = [];
+    for (const img of (c.images ?? []).slice(0, 3)) {
+      const b64 = await downloadImageBase64(img.origPath);
+      if (b64) imageParts.push({ inline_data: { mime_type: "image/jpeg", data: b64 } });
+    }
 
     // שלב 1: תזכיר משפטי מעמיק — עילות, התיישנות, טענות נגד, מסלול
     const memo = await generateDeep(
-      [{ role: "user", parts: [{ text: caseText }] }],
-      { system: MEMO_SYSTEM, temperature: 0.2, maxTokens: 4000 },
+      [{ role: "user", parts: [...imageParts, { text: caseText }] }],
+      {
+        system: imageParts.length
+          ? `${MEMO_SYSTEM}\n\nמצורפות תמונות שהפונה העלה כתיעוד — התייחס אליהן בסעיפי העובדות, הנזק והראיות.`
+          : MEMO_SYSTEM,
+        temperature: 0.2,
+        maxTokens: 4000,
+      },
     );
 
     // שלב 2: שופט מבקר את התזכיר ומכריע סופית ב-JSON
@@ -269,7 +301,19 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       },
     );
 
-    return JSON.parse(verdict) as ValidateResult;
+    const result = JSON.parse(verdict) as ValidateResult;
+
+    // כתיבת התוצאה מהשרת — חוקי המסד חוסמים את הלקוח מלגעת בסטטוס בעצמו
+    await ref.update({
+      title: result.title,
+      category: result.category,
+      summary: result.summary,
+      legalBasis: result.legalBasis ?? "",
+      recommendation: result.recommendation ?? "",
+      status: result.validated ? "matching" : "rejected",
+    });
+
+    return result;
   });
 
 /* ---------- צנזור תמונות: זיהוי אזורים עם פרטים מזהים ---------- */
@@ -299,12 +343,16 @@ export interface SensitiveRegion {
 export interface DetectRegionsInput {
   imageBase64: string;
   mimeType: string;
+  idToken: string;
 }
 
 /** מזהה אזורים רגישים בתמונה. ההשחרה עצמה נעשית בצד הלקוח על canvas. */
 export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as DetectRegionsInput)
   .handler(async ({ data }): Promise<{ regions: SensitiveRegion[] }> => {
+    const { requireUser } = await import("./server-admin");
+    await requireUser(data.idToken);
+
     const text = await generate(
       [
         {

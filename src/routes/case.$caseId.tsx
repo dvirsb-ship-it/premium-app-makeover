@@ -34,12 +34,15 @@ function CaseDetail() {
 
   // הבסיס המשפטי מהוולידציה — הלקוח רואה על מה התיק אושר
   const [legalBasis, setLegalBasis] = useState<string>("");
+  // בדחייה: ההמלצה מה כן לעשות
+  const [recommendation, setRecommendation] = useState<string>("");
   // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
     void readCaseRaw(caseId)
       .then(async (raw) => {
         setLegalBasis(raw?.legalBasis ?? "");
+        setRecommendation(raw?.recommendation ?? "");
         const imgs = (raw?.images ?? []) as CaseImage[];
         const urls = await Promise.all(
           imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
@@ -133,7 +136,7 @@ function CaseDetail() {
             </button>
           )}
 
-          {item.status !== "validating" && legalBasis && (
+          {item.status !== "validating" && item.status !== "rejected" && legalBasis && (
             <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
               <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-success/12 text-success">
                 <BadgeCheck className="size-4.5" strokeWidth={2.2} aria-hidden />
@@ -144,6 +147,27 @@ function CaseDetail() {
                   {legalBasis}
                 </p>
               </div>
+            </div>
+          )}
+
+          {item.status === "rejected" && (
+            <div className="liquid-glass mt-3 rounded-3xl p-4">
+              <p className="text-[13px] font-bold text-foreground">{t("intakeNotSuitableTitle")}</p>
+              {legalBasis && (
+                <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
+                  {legalBasis}
+                </p>
+              )}
+              {recommendation && (
+                <div className="mt-3 rounded-2xl bg-gold/8 px-3.5 py-3">
+                  <p className="text-[11px] font-bold uppercase tracking-wider text-gold">
+                    {t("intakeNotSuitableRec")}
+                  </p>
+                  <p className="mt-1 whitespace-pre-line text-[13px] leading-relaxed text-foreground/90">
+                    {recommendation}
+                  </p>
+                </div>
+              )}
             </div>
           )}
 

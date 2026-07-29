@@ -80,6 +80,8 @@ interface CaseDoc {
   clientContact?: { name: string; phone: string; email: string };
   /** הבסיס המשפטי מהוולידציה — מוצג לעורכי דין. */
   legalBasis?: string;
+  /** בדחייה: ההמלצה מה כן לעשות — מוצגת ללקוח בדף התיק. */
+  recommendation?: string;
   /** הצעות עו"ד שנשלחו עם הבעת העניין, לפי uid. */
   offers?: Record<string, CaseOffer>;
   /** תמונות שצורפו בקליטה — מקור ללקוח, גרסה מצונזרת לעורכי הדין. */
@@ -107,11 +109,11 @@ export interface CaseOffer {
 function toCase(id: string, d: CaseDoc): Case {
   return {
     id,
-    title: d.title,
+    title: d.title || d.summary?.slice(0, 40) || "",
     category: d.category,
     summary: d.summary,
     createdAt: d.createdAt,
-    status: (d.status === "rejected" ? "validating" : d.status) as CaseStatus,
+    status: d.status as CaseStatus,
     interested: d.interested ?? [],
     chosenLawyerId: d.chosenLawyerId,
     offers: d.offers,
@@ -169,8 +171,13 @@ export function watchLawyerFeed(
     collection(fbDb(), "cases"),
     where("status", "in", ["matching", "has_interest"]),
   );
+  // תיקים בני 30+ יום יוצאים מהפיד — פיד עם תיקים מתים שורף את אמון עורכי הדין
+  const FEED_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
   return onSnapshot(q, (snap) => {
-    const docs = snap.docs.map((d) => ({ id: d.id, data: d.data() as CaseDoc }));
+    const cutoff = Date.now() - FEED_MAX_AGE_MS;
+    const docs = snap.docs
+      .map((d) => ({ id: d.id, data: d.data() as CaseDoc }))
+      .filter((d) => d.data.createdAt > cutoff);
     docs.sort((a, b) => b.data.createdAt - a.data.createdAt);
     cb(docs.map((d) => toFeedCase(d.id, d.data, myUid)));
   }, () => cb([]));
@@ -192,7 +199,8 @@ export async function createCase(input: NewCaseInput): Promise<string> {
     title: "",
     category: "",
     summary: "",
-    description: input.description,
+    // סינון טלפון/אימייל/קישורים — התיאור קריא לעו"ד ברמת המסד עוד לפני חיבור
+    description: stripContactInfo(input.description),
     incidentDate: input.incidentDate ?? "",
     damageType: input.damageType ?? "body",
     hasDocumentation: input.hasDocumentation ?? false,
@@ -238,19 +246,7 @@ export async function readCaseRaw(caseId: string) {
   return snap.exists() ? ({ id: snap.id, ...(snap.data() as CaseDoc) }) : null;
 }
 
-/** עדכון תוצאת הוולידציה. */
-export async function applyValidation(
-  caseId: string,
-  result: { validated: boolean; title: string; category: string; summary: string; legalBasis?: string },
-): Promise<void> {
-  await updateDoc(doc(fbDb(), "cases", caseId), {
-    title: result.title,
-    category: result.category,
-    summary: result.summary,
-    legalBasis: result.legalBasis ?? "",
-    status: result.validated ? "matching" : "rejected",
-  });
-}
+// תוצאת הוולידציה נכתבת בצד השרת (validateCaseFn, Admin SDK) — הלקוח לא נוגע בסטטוס.
 
 /** עו"ד מביע עניין בתיק (אופציונלית עם הצעה) + התראה ללקוח. */
 export async function expressInterestDb(

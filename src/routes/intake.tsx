@@ -16,6 +16,7 @@ import {
   type IntakeReady,
 } from "../lib/ai/intake.functions";
 import { createCase, uploadCaseImages } from "../lib/db";
+import { fbAuth } from "../lib/firebase";
 import { censorImage, prepareImage, type PendingImage } from "../lib/image-censor";
 import { Scale } from "lucide-react";
 
@@ -62,10 +63,11 @@ function Intake() {
     }
     setCensoring(true);
     try {
+      const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
       for (const file of Array.from(files).slice(0, room)) {
         const prepared = await prepareImage(file);
         const { regions } = await detectSensitiveRegionsFn({
-          data: { imageBase64: prepared.base64, mimeType: "image/jpeg" },
+          data: { imageBase64: prepared.base64, mimeType: "image/jpeg", idToken },
         });
         const censBlob = await censorImage(prepared, regions);
         const img: PendingImage = {
@@ -148,8 +150,12 @@ function Intake() {
     setTyping(true);
 
     try {
+      const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
       const res = await intakeTurn({
-        data: { messages: history.map((m) => ({ from: m.from, text: m.text })) },
+        data: {
+          messages: history.map((m) => ({ from: m.from, text: m.text })),
+          idToken,
+        },
       });
       setTyping(false);
       if (res.reply) {

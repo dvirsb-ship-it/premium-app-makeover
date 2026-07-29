@@ -27,6 +27,7 @@ import { Route as SettingsTermsRouteImport } from './routes/settings.terms'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
 import { Route as SettingsHelpRouteImport } from './routes/settings.help'
+import { Route as SettingsAccessibilityRouteImport } from './routes/settings.accessibility'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
@@ -122,6 +123,11 @@ const SettingsHelpRoute = SettingsHelpRouteImport.update({
   path: '/settings/help',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsAccessibilityRoute = SettingsAccessibilityRouteImport.update({
+  id: '/settings/accessibility',
+  path: '/settings/accessibility',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LawyerProfileLawyerIdRoute = LawyerProfileLawyerIdRouteImport.update({
   id: '/lawyer-profile/$lawyerId',
   path: '/lawyer-profile/$lawyerId',
@@ -162,6 +168,7 @@ export interface FileRoutesByFullPath {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
@@ -186,6 +193,7 @@ export interface FileRoutesByTo {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
@@ -211,6 +219,7 @@ export interface FileRoutesById {
   '/case/$caseId': typeof CaseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
+  '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
@@ -237,6 +246,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
@@ -261,6 +271,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
@@ -285,6 +296,7 @@ export interface FileRouteTypes {
     | '/case/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
+    | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
@@ -310,6 +322,7 @@ export interface RootRouteChildren {
   CaseCaseIdRoute: typeof CaseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
+  SettingsAccessibilityRoute: typeof SettingsAccessibilityRoute
   SettingsHelpRoute: typeof SettingsHelpRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
@@ -444,6 +457,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsHelpRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/accessibility': {
+      id: '/settings/accessibility'
+      path: '/settings/accessibility'
+      fullPath: '/settings/accessibility'
+      preLoaderRoute: typeof SettingsAccessibilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/lawyer-profile/$lawyerId': {
       id: '/lawyer-profile/$lawyerId'
       path: '/lawyer-profile/$lawyerId'
@@ -494,6 +514,7 @@ const rootRouteChildren: RootRouteChildren = {
   CaseCaseIdRoute: CaseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
+  SettingsAccessibilityRoute: SettingsAccessibilityRoute,
   SettingsHelpRoute: SettingsHelpRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
   SettingsPrivacyRoute: SettingsPrivacyRoute,

@@ -20,7 +20,7 @@ export const strings = {
   clientCTASub: { he: "מצא את עורך הדין המתאים לך ביותר", en: "Find the best lawyer for you" },
   lawyerCTA: { he: "אני עורך דין", en: "I'm a lawyer" },
   lawyerCTASub: { he: "הצטרף לנבחרת המומחים המובילה", en: "Join the leading experts" },
-  trustBadge: { he: "2,500+ עורכי דין מומחים כבר איתנו", en: "2,500+ expert lawyers already with us" },
+  trustBadge: { he: "שלב השקה · השירות ללקוחות חינם — תמיד", en: "Launch phase · always free for clients" },
 
   // Bottom nav
   navHome: { he: "ראשי", en: "Home" },
@@ -552,6 +552,20 @@ export const strings = {
   intakeNotSuitableTitle: { he: "ההערכה המשפטית: זה כרגע לא תיק לתביעה", en: "Legal assessment: this isn't a case for a lawsuit right now" },
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
+
+  // הצהרת נגישות (ת"י 5568 / WCAG 2.0 AA)
+  accessibility: { he: "נגישות", en: "Accessibility" },
+  a11yTitle: { he: "הצהרת נגישות", en: "Accessibility statement" },
+  a11ySub: { he: "מחויבות לשירות נגיש לכולם", en: "Committed to an accessible service for everyone" },
+  a11ySection1Title: { he: "המחויבות שלנו", en: "Our commitment" },
+  a11ySection1Body: { he: "JustAsk פועלת להנגשת השירות לאנשים עם מוגבלות, בהתאם לתקנות שוויון זכויות לאנשים עם מוגבלות (התאמות נגישות לשירות) ולתקן הישראלי ת\"י 5568 ברמה AA. אנחנו רואים בנגישות חלק מהשירות עצמו — לא תוספת.", en: "JustAsk works to make its service accessible to people with disabilities, in line with Israeli accessibility regulations and Israeli Standard 5568 at level AA. We treat accessibility as part of the service itself." },
+  a11ySection2Title: { he: "מה הונגש באפליקציה", en: "What is accessible" },
+  a11ySection2Body: { he: "האפליקציה נבנתה עם מבנה סמנטי תקין, ניגודיות צבעים העומדת בדרישות, תמיכה מלאה בניווט מקלדת, תוויות לקוראי מסך על רכיבים אינטראקטיביים, טקסט המתאים להגדלה, ותמיכה במצב כהה ובהיר. התוכן זמין בעברית ובאנגלית.", en: "The app uses semantic structure, compliant color contrast, full keyboard navigation, screen-reader labels on interactive elements, resizable text, and dark/light modes. Content is available in Hebrew and English." },
+  a11ySection3Title: { he: "מגבלות ידועות", en: "Known limitations" },
+  a11ySection3Body: { he: "ייתכן שחלקים מסוימים — כמו תוכן שמועלה על ידי משתמשים (תמונות ומסמכים) — אינם נגישים במלואם. אנחנו ממשיכים לשפר באופן שוטף, וכל פנייה בנושא מטופלת ברצינות ובמהירות.", en: "Some parts — such as user-uploaded content (images and documents) — may not be fully accessible. We improve continuously and treat every report seriously." },
+  a11ySection4Title: { he: "נתקלת בבעיה? דברו איתנו", en: "Found an issue? Contact us" },
+  a11ySection4Body: { he: "אם נתקלת בקושי נגישות באפליקציה, נשמח לדעת ולתקן: justask.adv@gmail.com. אנא ציינו את הדף, הפעולה והקושי — נחזור אליכם בהקדם.", en: "If you hit an accessibility issue, email justask.adv@gmail.com with the page, the action and the difficulty — we will get back to you promptly." },
+  a11yLastUpdated: { he: "עודכן לאחרונה: יולי 2026", en: "Last updated: July 2026" },
 
   // צירוף תמונות + צנזור אוטומטי
   attachImageAria: { he: "צירוף תמונה", en: "Attach image" },

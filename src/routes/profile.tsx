@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import {
+  Accessibility,
   Bell,
   ChevronLeft,
   FileText,
@@ -39,6 +40,7 @@ const items: { icon: typeof Bell; key: StringKey; to: string }[] = [
   { icon: Bell, key: "notifications", to: "/settings/notifications" },
   { icon: Shield, key: "privacy", to: "/settings/privacy" },
   { icon: FileText, key: "terms", to: "/settings/terms" },
+  { icon: Accessibility, key: "accessibility", to: "/settings/accessibility" },
   { icon: HelpCircle, key: "help", to: "/settings/help" },
 ];
 

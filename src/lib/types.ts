@@ -4,7 +4,8 @@ export type CaseStatus =
   | "validating"
   | "matching"
   | "has_interest"
-  | "connected";
+  | "connected"
+  | "rejected";
 
 export interface Lawyer {
   id: string;

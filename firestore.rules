@@ -38,9 +38,19 @@ service cloud.firestore {
         || isAdmin()
       );
 
-      // הלקוח מעדכן את התיק שלו; עו"ד מאומת בלבד רשאי להביע עניין (שדות מוגבלים)
+      // בעל התיק: רק תמונות, בחירת עו"ד ופרטי קשר — לא סטטוס אישור/ולידציה
+      // (תוצאת הוולידציה נכתבת מהשרת ב-Admin SDK; מחיקת חשבון מסמנת rejected)
+      // עו"ד מאומת בלבד רשאי להביע עניין (שדות מוגבלים)
       allow update: if signedIn() && (
-        resource.data.clientId == request.auth.uid
+        (
+          resource.data.clientId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['images', 'clientContact', 'chosenLawyerId', 'status'])
+          && (
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+            || request.resource.data.status in ['connected', 'rejected']
+          )
+        )
         || (
           isApprovedLawyer()
           && request.resource.data.diff(resource.data).affectedKeys()
@@ -48,6 +58,11 @@ service cloud.firestore {
           && request.resource.data.interestedIds.hasAll(resource.data.interestedIds)
           && request.resource.data.status == 'has_interest'
           && resource.data.status in ['matching', 'has_interest']
+        )
+        // האדמין מכריע בערעורים — שינוי סטטוס בלבד
+        || (
+          isAdmin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         )
       );
 
