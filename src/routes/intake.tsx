@@ -46,7 +46,10 @@ function Intake() {
   const [ready, setReady] = useState(false);
   const [notSuitable, setNotSuitable] = useState<IntakeNotSuitable | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  // תמונות שממתינות לצירוף להודעה הבאה
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
+  // כל התמונות שכבר נשלחו בשיחה — הן שיעלו ל-Storage כשייווצר התיק
+  const sentImages = useRef<PendingImage[]>([]);
   const [censoring, setCensoring] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -56,7 +59,8 @@ function Intake() {
 
   async function attachImages(files: FileList | null) {
     if (!files?.length || censoring) return;
-    const room = MAX_IMAGES - pendingImages.length;
+    const used = pendingImages.length + sentImages.current.length;
+    const room = MAX_IMAGES - used;
     if (room <= 0) {
       pushAssistant(t("imageLimitMsg"));
       return;
@@ -66,7 +70,7 @@ function Intake() {
       const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
       for (const file of Array.from(files).slice(0, room)) {
         const prepared = await prepareImage(file);
-        const { regions } = await detectSensitiveRegionsFn({
+        const { regions, description } = await detectSensitiveRegionsFn({
           data: { imageBase64: prepared.base64, mimeType: "image/jpeg", idToken },
         });
         const censBlob = await censorImage(prepared, regions);
@@ -76,10 +80,10 @@ function Intake() {
           censBlob,
           previewUrl: URL.createObjectURL(censBlob),
           regionCount: regions.length,
+          description,
         };
         setPendingImages((prev) => [...prev, img]);
       }
-      pushAssistant(t("imageAttachedOne"));
     } catch {
       pushAssistant(t("imageCensorFailed"));
     } finally {
@@ -130,7 +134,9 @@ function Intake() {
 
   async function send() {
     const text = input.trim();
-    if (!text || typing) return;
+    const attached = pendingImages;
+    // אפשר לשלוח תמונה גם בלי טקסט
+    if ((!text && !attached.length) || typing || censoring) return;
 
     // תשובה אחרי סיכום — המשתמש מתקן/מוסיף, ההכרעה נפתחת מחדש
     if (ready || notSuitable) {
@@ -139,21 +145,39 @@ function Intake() {
       readyData.current = null;
     }
 
+    // ה-AI לא מקבל את הקובץ עצמו בכל תור — התיאור העובדתי נשמר על ההודעה
+    // ונשלח כטקסט, כך שהוא "רואה" את התמונה גם בתורות הבאים
+    const aiNote = attached
+      .map((img) => img.description)
+      .filter(Boolean)
+      .map((d) => `[המשתמש צירף תמונה: ${d}]`)
+      .join("\n");
+
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       from: "user",
       text,
+      images: attached.map((i) => i.previewUrl),
+      aiNote: aiNote || undefined,
     };
     const history = [...messages, userMsg];
     setMessages(history);
     setInput("");
+    // התמונות עברו להודעה — הן כבר לא ממתינות, אבל נשמרות להעלאה בעת יצירת התיק
+    if (attached.length) {
+      sentImages.current = [...sentImages.current, ...attached];
+      setPendingImages([]);
+    }
     setTyping(true);
 
     try {
       const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
       const res = await intakeTurn({
         data: {
-          messages: history.map((m) => ({ from: m.from, text: m.text })),
+          messages: history.map((m) => ({
+            from: m.from,
+            text: [m.text, m.aiNote].filter(Boolean).join("\n"),
+          })),
           idToken,
         },
       });
@@ -202,13 +226,13 @@ function Intake() {
         description,
         incidentDate: data?.incident_date,
         damageType: data?.damage_type,
-        hasDocumentation: data?.has_documentation || pendingImages.length > 0,
+        hasDocumentation: data?.has_documentation || sentImages.current.length > 0,
         city: data?.city,
       });
       // התמונות אינן חוסמות: נכשלה העלאה — התיק ממשיך בלעדיה
-      if (pendingImages.length) {
+      if (sentImages.current.length) {
         try {
-          await uploadCaseImages(caseId, pendingImages);
+          await uploadCaseImages(caseId, sentImages.current);
         } catch {
           /* ignore */
         }
@@ -330,6 +354,18 @@ function Intake() {
                         : undefined
                     }
                   >
+                    {m.images?.length ? (
+                      <div className={`flex flex-wrap gap-1.5 ${m.text ? "mb-2" : ""}`}>
+                        {m.images.map((url) => (
+                          <img
+                            key={url}
+                            src={url}
+                            alt=""
+                            className="h-28 w-28 rounded-xl border border-white/15 object-cover"
+                          />
+                        ))}
+                      </div>
+                    ) : null}
                     {m.text}
                   </div>
                 </motion.div>
@@ -483,6 +519,11 @@ function Intake() {
                       {t("imageCensoring")}
                     </div>
                   )}
+                  {!censoring && pendingImages.length > 0 && (
+                    <span className="shrink-0 self-center text-[11px] font-semibold text-gold">
+                      {t("imageReadyToSend")}
+                    </span>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -528,7 +569,7 @@ function Intake() {
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={send}
-                disabled={!input.trim()}
+                disabled={(!input.trim() && !pendingImages.length) || censoring}
                 className="chip-gold grid size-11 shrink-0 place-items-center self-end rounded-full transition disabled:opacity-40 disabled:shadow-none"
                 aria-label={t("sendAria")}
               >

@@ -26,6 +26,8 @@ export interface PendingImage {
   /** תצוגה מקדימה של הגרסה המצונזרת — מה שעורכי הדין יראו. */
   previewUrl: string;
   regionCount: number;
+  /** תיאור עובדתי מה-AI — נמסר לשיחה כדי שהעוזר "יראה" את התמונה. */
+  description: string;
 }
 
 /** דחיסת קובץ תמונה ל-JPEG בגודל סביר. */

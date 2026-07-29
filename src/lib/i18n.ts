@@ -587,6 +587,7 @@ export const strings = {
   attachImageAria: { he: "צירוף תמונה", en: "Attach image" },
   imageCensoring: { he: "מסתיר פרטים מזהים…", en: "Hiding identifying details…" },
   imageAttachedOne: { he: "התמונה צורפה. פרטים מזהים יוסתרו מעורכי הדין עד יצירת חיבור.", en: "Image attached. Identifying details are hidden from lawyers until you connect." },
+  imageReadyToSend: { he: "מוכנה לשליחה — לחצו על החץ", en: "Ready to send — tap the arrow" },
   imageCensorFailed: { he: "צירוף התמונה נכשל. נסו שוב.", en: "Attaching the image failed. Try again." },
   imageLimitMsg: { he: "אפשר לצרף עד 3 תמונות לתיק.", en: "Up to 3 images per case." },
   imageRegionsHidden: { he: "אזורים הוסתרו", en: "areas hidden" },

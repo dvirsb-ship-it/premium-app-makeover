@@ -23,6 +23,10 @@ export interface ChatMessage {
   id: string;
   from: "assistant" | "user";
   text: string;
+  /** תמונות שצורפו להודעה — כתובות blob מקומיות לתצוגה בלבד. */
+  images?: string[];
+  /** תיאור התמונות עבור ה-AI. נשלח אליו כטקסט ואינו מוצג למשתמש. */
+  aiNote?: string;
 }
 
 export interface Case {

@@ -353,7 +353,9 @@ const CENSOR_SYSTEM = `אתה קצין פרטיות של פלטפורמה משפ
 
 אל תסמן: תיאור הפציעה עצמה, מסמכים ללא פרטים מזהים, רקע ניטרלי.
 
-החזר JSON בלבד: {"regions":[{"box_2d":[ymin,xmin,ymax,xmax],"label":"סוג הפרט"}]} — קואורדינטות מנורמלות 0-1000. אם אין אזורים רגישים החזר {"regions":[]}.`;
+בנוסף כתוב description — משפט אחד עובדתי בעברית שמתאר מה רואים בתמונה מבחינה משפטית-ראייתית (למשל "צילום של מדרגה שבורה עם קצה מתפורר, ללא סימון אזהרה" או "סיכום אשפוז מבית חולים עם אבחנה של שבר"). בלי פרטים מזהים ובלי פרשנות משפטית.
+
+החזר JSON בלבד: {"regions":[{"box_2d":[ymin,xmin,ymax,xmax],"label":"סוג הפרט"}],"description":"..."} — קואורדינטות מנורמלות 0-1000. אם אין אזורים רגישים החזר regions ריק.`;
 
 export interface SensitiveRegion {
   /** [ymin, xmin, ymax, xmax] מנורמל 0-1000 — הפורמט שגמיני אומן עליו. */
@@ -370,7 +372,7 @@ export interface DetectRegionsInput {
 /** מזהה אזורים רגישים בתמונה. ההשחרה עצמה נעשית בצד הלקוח על canvas. */
 export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as DetectRegionsInput)
-  .handler(async ({ data }): Promise<{ regions: SensitiveRegion[] }> => {
+  .handler(async ({ data }): Promise<{ regions: SensitiveRegion[]; description: string }> => {
     const { requireUser, withErrorLog } = await import("./server-admin");
     return withErrorLog("detectSensitiveRegions", async () => {
     await requireUser(data.idToken);
@@ -381,7 +383,7 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
           role: "user",
           parts: [
             { inline_data: { mime_type: data.mimeType, data: data.imageBase64 } },
-            { text: "אתר את כל האזורים הרגישים בתמונה." },
+            { text: "אתר את כל האזורים הרגישים בתמונה, וכתוב תיאור עובדתי קצר של מה שרואים." },
           ],
         },
       ],
@@ -404,12 +406,13 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
                 required: ["box_2d", "label"],
               },
             },
+            description: { type: "string" },
           },
-          required: ["regions"],
+          required: ["regions", "description"],
         },
       },
     );
-    const parsed = JSON.parse(text) as { regions?: SensitiveRegion[] };
+    const parsed = JSON.parse(text) as { regions?: SensitiveRegion[]; description?: string };
     // סינון הגנתי: רק תיבות חוקיות בגבולות 0-1000
     const regions = (parsed.regions ?? []).filter(
       (r) =>
@@ -417,7 +420,7 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
         r.box_2d.length === 4 &&
         r.box_2d.every((n) => typeof n === "number" && n >= 0 && n <= 1000),
     );
-    return { regions };
+    return { regions, description: parsed.description ?? "" };
     });
   });
 
