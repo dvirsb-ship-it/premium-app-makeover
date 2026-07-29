@@ -234,7 +234,7 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64, withErrorLog } =
+    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -315,6 +315,23 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       recommendation: result.recommendation ?? "",
       status: result.validated ? "matching" : "rejected",
     });
+
+    // התראה מחוץ לאפליקציה — הבדיקה לוקחת עד דקה והלקוח לרוב כבר עזב את המסך
+    await sendPush(
+      c.clientId,
+      result.validated
+        ? {
+            title: "התיק שלך עבר את הבדיקה המשפטית ✓",
+            body: `"${result.title}" אושר — עורכי דין בתחום קיבלו התראה`,
+            link: `/case/${data.caseId}`,
+          }
+        : {
+            title: "הבדיקה המשפטית הושלמה",
+            body: result.recommendation || result.summary,
+            link: `/case/${data.caseId}`,
+          },
+      "caseUpdates",
+    );
 
     return result;
     });
@@ -401,5 +418,42 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
         r.box_2d.every((n) => typeof n === "number" && n >= 0 && n <= 1000),
     );
     return { regions };
+    });
+  });
+
+/* ---------- התראת דחיפה על הבעת עניין ---------- */
+
+export interface NotifyInterestInput {
+  caseId: string;
+  idToken: string;
+}
+
+/**
+ * עו"ד שהביע עניין מבקש להתריע ללקוח.
+ * השרת מאמת שהפונה באמת רשום כמתעניין בתיק — אחרת אפשר היה לשלוח
+ * התראות לכל משתמש. אין כאן פרטים מזהים של העו"ד; רק שיש התעניינות.
+ */
+export const notifyInterestFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as NotifyInterestInput)
+  .handler(async ({ data }): Promise<{ sent: boolean }> => {
+    const { requireUser, adminGetCase, sendPush, withErrorLog } = await import("./server-admin");
+    return withErrorLog("notifyInterest", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c) return { sent: false };
+
+      const interestedIds = (c.interestedIds as string[] | undefined) ?? [];
+      if (!interestedIds.includes(uid)) return { sent: false };
+
+      await sendPush(
+        c.clientId as string,
+        {
+          title: "עורך דין הביע עניין בתיק שלך",
+          body: `"${(c.title as string) || "התיק שלך"}" — היכנסו לראות את ההצעה ולבחור`,
+          link: `/case/${data.caseId}`,
+        },
+        "lawyerInterest",
+      );
+      return { sent: true };
     });
   });

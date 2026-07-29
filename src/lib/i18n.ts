@@ -553,6 +553,15 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // התראות דחיפה
+  notifLawyerInterest: { he: "עורך דין הביע עניין", en: "A lawyer showed interest" },
+  notifLawyerInterestSub: { he: "כשעורך דין מבקש לטפל בתיק שלכם", en: "When a lawyer asks to take your case" },
+  pushEnabled: { he: "התראות הופעלו במכשיר הזה", en: "Notifications enabled on this device" },
+  pushDeniedMsg: { he: "לא ניתנה הרשאה להתראות", en: "Notification permission was not granted" },
+  pushBlockedHint: { he: "ההתראות חסומות בהגדרות הדפדפן. אפשר לפתוח אותן שם ולחזור לכאן.", en: "Notifications are blocked in your browser settings. Allow them there and come back." },
+  pushUnsupportedHint: { he: "הדפדפן הזה אינו תומך בהתראות.", en: "This browser does not support notifications." },
+  pushIosHint: { he: "באייפון צריך קודם להוסיף את JustAsk למסך הבית (שיתוף ← הוספה למסך הבית), ואז להפעיל כאן.", en: "On iPhone, add JustAsk to your Home Screen first (Share → Add to Home Screen), then enable here." },
+
   // יומן שגיאות שרת במשרד הטכנולוגי
   adminErrorsHeader: { he: "תקלות שרת", en: "Server errors" },
   adminErrorsSub: { he: "כשלים בפונקציות ה-AI — כאן תראו אותם גם כשהמשתמש לא דיווח", en: "AI function failures — visible here even when no user reported them" },

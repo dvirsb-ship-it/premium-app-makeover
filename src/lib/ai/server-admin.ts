@@ -121,6 +121,59 @@ export async function adminUpdateCase(
   }
 }
 
+/* ---------- התראות דחיפה (FCM HTTP v1) ---------- */
+
+/** קריאת מסמך משתמש בהרשאות שרת — לשליפת טוקני הדחיפה והעדפותיו. */
+export async function adminGetUser(uid: string): Promise<Record<string, unknown> | null> {
+  const res = await fetch(`${DOCS}/users/${encodeURIComponent(uid)}`, {
+    headers: { Authorization: `Bearer ${await accessToken()}` },
+  });
+  if (!res.ok) return null;
+  const doc = (await res.json()) as { fields?: Record<string, FsValue> };
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(doc.fields ?? {})) out[k] = decode(v);
+  return out;
+}
+
+/**
+ * שליחת התראה לכל המכשירים של משתמש.
+ * לעולם לא זורקת — התראה שנכשלה לא אמורה להפיל את הפעולה שיצרה אותה.
+ * ההתראה נשלחת כ-data בלבד, כדי שה-service worker יציג אותה בעברית (dir=rtl).
+ */
+export async function sendPush(
+  uid: string,
+  msg: { title: string; body: string; link?: string },
+  topic?: "caseUpdates" | "lawyerInterest",
+): Promise<void> {
+  try {
+    const user = await adminGetUser(uid);
+    if (!user) return;
+    // העדפה שכובתה מכבדת את המשתמש; ברירת המחדל היא לשלוח
+    if (topic && user[topic] === false) return;
+    const tokens = (user.pushTokens as string[] | undefined) ?? [];
+    if (!tokens.length) return;
+
+    const token = await accessToken();
+    await Promise.all(
+      tokens.slice(0, 10).map((t) =>
+        fetch(`https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message: {
+              token: t,
+              data: { title: msg.title, body: msg.body, link: msg.link ?? "/" },
+              webpush: { headers: { Urgency: "high" } },
+            },
+          }),
+        }).catch(() => undefined),
+      ),
+    );
+  } catch {
+    /* התראה היא תוספת, לא תנאי */
+  }
+}
+
 /* ---------- יומן שגיאות שרת ---------- */
 
 /**

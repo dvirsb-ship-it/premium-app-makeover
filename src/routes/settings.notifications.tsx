@@ -1,13 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Bell, MessageSquare, Sparkles, Megaphone, Smartphone, Mail } from "lucide-react";
+import { Bell, Sparkles, Smartphone } from "lucide-react";
+import { doc, onSnapshot, updateDoc } from "firebase/firestore";
+import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { useAppStore } from "../lib/store";
+import { fbDb } from "../lib/firebase";
+import { disablePush, enablePush, pushEnabledLocally, pushSupport } from "../lib/push";
 
 export const Route = createFileRoute("/settings/notifications")({
   head: () => ({
@@ -22,53 +27,88 @@ export const Route = createFileRoute("/settings/notifications")({
   component: NotificationsSettings,
 });
 
-type Row = { icon: typeof Bell; title: StringKey; sub: StringKey; defaultOn?: boolean };
-
-const topics: Row[] = [
-  { icon: Bell, title: "notifCaseUpdates", sub: "notifCaseUpdatesSub", defaultOn: true },
-  { icon: MessageSquare, title: "notifLawyerMsgs", sub: "notifLawyerMsgsSub", defaultOn: true },
-  { icon: Sparkles, title: "notifNewLeads", sub: "notifNewLeadsSub", defaultOn: true },
-  { icon: Megaphone, title: "notifMarketing", sub: "notifMarketingSub", defaultOn: false },
+/** נושאים שנשמרים על מסמך המשתמש והשרת בודק אותם לפני שליחה. */
+const topics: { key: "caseUpdates" | "lawyerInterest"; icon: typeof Bell; title: StringKey; sub: StringKey }[] = [
+  { key: "caseUpdates", icon: Bell, title: "notifCaseUpdates", sub: "notifCaseUpdatesSub" },
+  { key: "lawyerInterest", icon: Sparkles, title: "notifLawyerInterest", sub: "notifLawyerInterestSub" },
 ];
 
-const channels: Row[] = [
-  { icon: Smartphone, title: "notifPush", sub: "notifPushSub", defaultOn: true },
-  { icon: Mail, title: "notifEmail", sub: "notifEmailSub", defaultOn: false },
-];
-
-function ToggleRow({ row, last }: { row: Row; last: boolean }) {
-  const t = useT();
-  const [on, setOn] = useState(!!row.defaultOn);
-  const Icon = row.icon;
+function Switch({ on, onToggle, busy }: { on: boolean; onToggle: () => void; busy?: boolean }) {
   return (
-    <div className={`flex items-center gap-3 p-4 ${last ? "" : "border-b border-border"}`}>
-      <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
-        <Icon className="size-5" />
-      </span>
-      <div className="min-w-0 flex-1 text-start">
-        <p className="text-sm font-bold text-foreground">{t(row.title)}</p>
-        <p className="text-xs text-muted-foreground">{t(row.sub)}</p>
-      </div>
-      <button
-        type="button"
-        role="switch"
-        aria-checked={on}
-        onClick={() => setOn((v) => !v)}
-        className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${on ? "bg-gold" : "bg-muted"}`}
-      >
-        <motion.span
-          layout
-          transition={{ type: "spring", stiffness: 500, damping: 32 }}
-          className={`absolute top-1 size-5 rounded-full bg-white shadow-md ${on ? "start-6" : "start-1"}`}
-        />
-      </button>
-    </div>
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      disabled={busy}
+      onClick={onToggle}
+      className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${on ? "bg-gold" : "bg-muted"}`}
+    >
+      <motion.span
+        layout
+        transition={{ type: "spring", stiffness: 500, damping: 32 }}
+        className={`absolute top-1 size-5 rounded-full bg-white shadow-md ${on ? "start-6" : "start-1"}`}
+      />
+    </button>
   );
 }
 
 function NotificationsSettings() {
   useRequireAuth();
   const t = useT();
+  const { user } = useAppStore();
+
+  const [prefs, setPrefs] = useState<Record<string, boolean>>({
+    caseUpdates: true,
+    lawyerInterest: true,
+  });
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const support = typeof window === "undefined" ? "unsupported" : pushSupport();
+
+  useEffect(() => {
+    setPushOn(pushEnabledLocally());
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    return onSnapshot(doc(fbDb(), "users", user.uid), (snap) => {
+      const d = snap.data() ?? {};
+      setPrefs({
+        caseUpdates: d.caseUpdates !== false,
+        lawyerInterest: d.lawyerInterest !== false,
+      });
+    });
+  }, [user]);
+
+  function toggleTopic(key: string) {
+    if (!user) return;
+    const next = !prefs[key];
+    setPrefs((p) => ({ ...p, [key]: next }));
+    void updateDoc(doc(fbDb(), "users", user.uid), { [key]: next }).catch(() => {
+      setPrefs((p) => ({ ...p, [key]: !next }));
+      toast.error(t("authErrGeneric"));
+    });
+  }
+
+  async function togglePush() {
+    if (!user || pushBusy) return;
+    setPushBusy(true);
+    try {
+      if (pushOn) {
+        await disablePush(user.uid);
+        setPushOn(false);
+      } else {
+        const ok = await enablePush(user.uid);
+        setPushOn(ok);
+        toast[ok ? "success" : "error"](t(ok ? "pushEnabled" : "pushDeniedMsg"));
+      }
+    } catch {
+      toast.error(t("authErrGeneric"));
+    } finally {
+      setPushBusy(false);
+    }
+  }
+
   return (
     <AppShell>
       <TopBar title={t("notifTitle")} subtitle={t("notifSub")} />
@@ -76,20 +116,54 @@ function NotificationsSettings() {
         <Stagger className="space-y-4 pb-10 pt-4">
           <Rise>
             <div className="liquid-glass overflow-hidden rounded-3xl">
-              {topics.map((row, i) => (
-                <ToggleRow key={row.title} row={row} last={i === topics.length - 1} />
-              ))}
+              {topics.map((row, i) => {
+                const Icon = row.icon;
+                return (
+                  <div
+                    key={row.key}
+                    className={`flex items-center gap-3 p-4 ${i === topics.length - 1 ? "" : "border-b border-border"}`}
+                  >
+                    <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
+                      <Icon className="size-5" />
+                    </span>
+                    <div className="min-w-0 flex-1 text-start">
+                      <p className="text-sm font-bold text-foreground">{t(row.title)}</p>
+                      <p className="text-xs text-muted-foreground">{t(row.sub)}</p>
+                    </div>
+                    <Switch on={prefs[row.key]} onToggle={() => toggleTopic(row.key)} />
+                  </div>
+                );
+              })}
             </div>
           </Rise>
+
           <Rise>
             <p className="px-2 pt-2 text-xs font-bold uppercase tracking-wide text-muted-foreground">
               {t("notifChannelsHeader")}
             </p>
             <div className="liquid-glass mt-2 overflow-hidden rounded-3xl">
-              {channels.map((row, i) => (
-                <ToggleRow key={row.title} row={row} last={i === channels.length - 1} />
-              ))}
+              <div className="flex items-center gap-3 p-4">
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
+                  <Smartphone className="size-5" />
+                </span>
+                <div className="min-w-0 flex-1 text-start">
+                  <p className="text-sm font-bold text-foreground">{t("notifPush")}</p>
+                  <p className="text-xs text-muted-foreground">
+                    {support === "denied"
+                      ? t("pushBlockedHint")
+                      : support === "unsupported"
+                        ? t("pushUnsupportedHint")
+                        : t("notifPushSub")}
+                  </p>
+                </div>
+                {support === "ready" && (
+                  <Switch on={pushOn} onToggle={() => void togglePush()} busy={pushBusy} />
+                )}
+              </div>
             </div>
+            <p className="px-2 pt-3 text-xs leading-relaxed text-muted-foreground">
+              {t("pushIosHint")}
+            </p>
           </Rise>
         </Stagger>
       </Page>

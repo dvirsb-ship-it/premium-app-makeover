@@ -1,7 +1,9 @@
 {
-  "name": "JustAsk — Premium Legal Concierge",
+  "name": "JustAsk — הגישה הישירה שלך לצדק",
   "short_name": "JustAsk",
-  "description": "The direct path to justice. Share your case and connect with expert lawyers.",
+  "description": "שתפו את המקרה שלכם, קבלו בדיקה משפטית ראשונית והתחברו לעורך דין מתאים.",
+  "lang": "he",
+  "dir": "rtl",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

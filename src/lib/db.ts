@@ -269,6 +269,16 @@ export async function expressInterestDb(
       ? { [`offers.${lawyer.uid}`]: { ...clean, at: Date.now() } }
       : {}),
   });
+  // התראה מחוץ לאפליקציה ללקוח — השרת מאמת שהעו"ד באמת רשום כמתעניין
+  try {
+    const { notifyInterestFn } = await import("./ai/intake.functions");
+    const { fbAuth } = await import("./firebase");
+    const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+    await notifyInterestFn({ data: { caseId, idToken } });
+  } catch {
+    /* ההתראה היא תוספת — הבעת העניין כבר נרשמה */
+  }
+
   // פרטי הקשר של העו"ד נכתבים לתת-אוסף שנחשף ללקוח רק אחרי בחירה
   try {
     const contact = await readOwnLawyerContact(lawyer.uid);
