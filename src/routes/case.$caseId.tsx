@@ -242,6 +242,9 @@ function CaseDetail() {
                   </div>
                 </div>
               </motion.div>
+            ) : item.status === "rejected" ? (
+              // תיק שנדחה לא יגיע לעורכי דין — הבטחת "נעדכן אותך" כאן היא שקר
+              <motion.div key="rejected-end" initial={{ opacity: 0 }} animate={{ opacity: 1 }} />
             ) : (
               <motion.div
                 key="choose"
