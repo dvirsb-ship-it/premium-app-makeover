@@ -14,7 +14,7 @@ import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
-import type { Lawyer } from "../lib/types";
+import type { CaseOffer, Lawyer } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/case/$caseId")({
@@ -307,7 +307,7 @@ function LawyerChoiceCard({
   onChoose,
 }: {
   lawyer: Lawyer;
-  offer?: { fee: string; duration: string; note: string; at: number };
+  offer?: CaseOffer;
   onChoose: () => void;
 }) {
   const t = useT();
@@ -336,30 +336,69 @@ function LawyerChoiceCard({
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {lawyer.blurb}
       </p>
-      {offer && (offer.fee || offer.duration || offer.note) && (
+      {offer && (offer.amount > 0 || offer.fee) && (
         <div className="mt-3 rounded-2xl border border-gold/25 bg-gold/[0.06] p-3.5">
           <p className="text-[11px] font-semibold uppercase tracking-wider text-gold">
             {t("offerHeader")}
           </p>
-          <div className="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-[13px]">
-            {offer.fee && (
-              <span className="text-foreground">
-                <span className="text-muted-foreground">{t("offerFeeShort")}: </span>
-                <span className="font-bold">{offer.fee}</span>
-              </span>
-            )}
-            {offer.duration && (
-              <span className="text-foreground">
-                <span className="text-muted-foreground">{t("offerDurationShort")}: </span>
-                <span className="font-bold">{offer.duration}</span>
-              </span>
-            )}
+
+          {/* המספר הגדול — מה שמשווים */}
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-2xl font-black text-foreground" dir="ltr">
+              {offer.model === "contingency"
+                ? `${offer.amount}%`
+                : `\u20aa${offer.amount.toLocaleString("he-IL")}`}
+            </span>
+            <span className="text-[12px] font-semibold text-muted-foreground">
+              {t(
+                offer.model === "contingency"
+                  ? "offerOfAward"
+                  : offer.model === "hourly"
+                    ? "offerPerHour"
+                    : "offerFixedTotal",
+              )}
+            </span>
           </div>
-          {offer.note && (
-            <p className="mt-1.5 text-[13px] leading-snug text-muted-foreground">
-              ״{offer.note}״
+
+          {offer.noWinNoFee && (
+            <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success">
+              <Check className="size-3" strokeWidth={3} />
+              {t("offerNoWinBadge")}
             </p>
           )}
+
+          {/* ההוצאות הנלוות — הפער שבו לקוחות נכווים */}
+          <div className="mt-2.5 border-t border-gold/15 pt-2.5">
+            <p className="text-[12px] text-foreground">
+              <span className="text-muted-foreground">{t("offerExpensesShort")}: </span>
+              <span className="font-bold">
+                {t(
+                  offer.expenses === "included"
+                    ? "expensesIncluded"
+                    : offer.expenses === "advanced"
+                      ? "expensesAdvanced"
+                      : "expensesClient",
+                )}
+              </span>
+              {offer.expensesEstimate ? ` \u00b7 ${offer.expensesEstimate}` : ""}
+            </p>
+            {offer.duration && (
+              <p className="mt-1 text-[12px] text-foreground">
+                <span className="text-muted-foreground">{t("offerDurationShort")}: </span>
+                <span className="font-bold">{offer.duration}</span>
+              </p>
+            )}
+          </div>
+
+          {offer.note && (
+            <p className="mt-2 text-[13px] leading-snug text-muted-foreground">
+              \u05f4{offer.note}\u05f4
+            </p>
+          )}
+
+          <p className="mt-2.5 text-[10px] leading-relaxed text-muted-foreground/80">
+            {t("offerNonBindingShort")}
+          </p>
         </div>
       )}
       <motion.button

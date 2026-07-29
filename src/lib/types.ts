@@ -39,7 +39,29 @@ export interface Case {
   interested: Lawyer[];
   chosenLawyerId?: string;
   /** הצעות שצירפו עורכי דין להבעת העניין, לפי מזהה עו"ד. */
-  offers?: Record<string, { fee: string; duration: string; note: string; at: number }>;
+  offers?: Record<string, CaseOffer>;
+}
+
+/** מודל שכר הטרחה. בנזקי גוף בישראל אחוזים מהפיצוי הם הנפוץ ביותר. */
+export type FeeModel = "contingency" | "hourly" | "fixed";
+
+/** מי נושא בהוצאות הנלוות — אגרות, חוות דעת מומחה, שמאי. */
+export type ExpensesTerm = "included" | "advanced" | "client";
+
+export interface CaseOffer {
+  model: FeeModel;
+  /** אחוז מהפיצוי / תעריף שעתי / סכום קבוע — לפי המודל */
+  amount: number;
+  /** התחייבות שאין תשלום אם התיק לא זוכה */
+  noWinNoFee: boolean;
+  expenses: ExpensesTerm;
+  /** הערכת ההוצאות הנלוות — הפער שבו לקוחות נכווים */
+  expensesEstimate: string;
+  duration: string;
+  note: string;
+  at: number;
+  /** הצעות מהגרסה החופשית הישנה — נשמרות לתצוגה בלבד */
+  fee?: string;
 }
 
 export interface FeedCase {

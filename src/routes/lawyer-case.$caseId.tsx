@@ -9,7 +9,16 @@ import { Page } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { caseImageUrl, readCaseRaw, submitAppeal, type CaseImage } from "../lib/db";
+import {
+  caseImageUrl,
+  categoryHasStatutoryCap,
+  PLTD_MAX_PERCENT,
+  readCaseRaw,
+  submitAppeal,
+  type CaseImage,
+  type ExpensesTerm,
+  type FeeModel,
+} from "../lib/db";
 import { normalizePhone } from "../lib/auth-service";
 import {
   watchMyVerification,
@@ -104,11 +113,25 @@ function LawyerCaseDetail() {
       .catch(() => {});
   }, [item, caseId]);
 
-  // טופס ההצעה שנשלחת עם הבעת העניין
+  // טופס ההצעה שנשלחת עם הבעת העניין — מובנה, כדי שהלקוח יוכל להשוות
   const [offerOpen, setOfferOpen] = useState(false);
-  const [fee, setFee] = useState("");
+  const [model, setModel] = useState<FeeModel>("contingency");
+  const [amount, setAmount] = useState("");
+  const [noWin, setNoWin] = useState(true);
+  const [expenses, setExpenses] = useState<ExpensesTerm>("advanced");
+  const [expensesEstimate, setExpensesEstimate] = useState("");
   const [duration, setDuration] = useState("");
   const [note, setNote] = useState("");
+
+  /*
+   * בתביעות פלת"ד שכר הטרחה מוגבל בכללי לשכת עורכי הדין. הקטגוריה "נזיקין
+   * ותאונות" כוללת גם תיקים שאינם תאונת דרכים, ולכן זו אזהרה ולא חסימה —
+   * עורך הדין הוא שיודע אם התיק שלו כפוף לתקרה.
+   */
+  const capWarning =
+    model === "contingency" &&
+    Number(amount) > PLTD_MAX_PERCENT &&
+    categoryHasStatutoryCap(item?.category ?? "");
 
   // ערעור על הוולידציה
   const [appealOpen, setAppealOpen] = useState(false);
@@ -407,15 +430,106 @@ function LawyerCaseDetail() {
                   <Sparkles className="size-4 text-gold" strokeWidth={2.2} />
                   <p className="text-[13px] font-bold text-foreground">{t("offerTitle")}</p>
                 </div>
+
+                {/* מודל שכר הטרחה — בנזקי גוף אחוזים מהפיצוי הם הנפוץ */}
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-semibold text-foreground/80">
+                    {t("offerModelLabel")}
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(["contingency", "hourly", "fixed"] as FeeModel[]).map((m) => (
+                      <button
+                        key={m}
+                        type="button"
+                        onClick={() => setModel(m)}
+                        className={`rounded-2xl border px-2 py-2.5 text-[12px] font-bold transition ${
+                          model === m
+                            ? "border-gold/60 bg-gold/15 text-gold"
+                            : "border-white/10 bg-foreground/[0.04] text-muted-foreground"
+                        }`}
+                      >
+                        {t(m === "contingency" ? "feeContingency" : m === "hourly" ? "feeHourly" : "feeFixed")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <label className="block">
-                  <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerFeeLabel")}</span>
-                  <input
-                    className={offerInputCls}
-                    value={fee}
-                    onChange={(e) => setFee(e.target.value)}
-                    placeholder={t("offerFeePh")}
-                  />
+                  <span className="mb-1 block text-[11px] font-semibold text-foreground/80">
+                    {t(model === "contingency" ? "offerPercentLabel" : model === "hourly" ? "offerHourlyLabel" : "offerFixedLabel")}
+                  </span>
+                  <div className="relative">
+                    <input
+                      className={offerInputCls}
+                      type="number"
+                      inputMode="decimal"
+                      min={0}
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder={model === "contingency" ? "12" : model === "hourly" ? "600" : "8000"}
+                    />
+                    <span className="pointer-events-none absolute inset-y-0 end-4 grid place-items-center text-[13px] font-bold text-muted-foreground">
+                      {model === "contingency" ? "%" : "\u20aa"}
+                    </span>
+                  </div>
                 </label>
+
+                {/* התקרה בפלת"ד היא חובה שבדין — מזהירים, לא חוסמים */}
+                {capWarning && (
+                  <div className="flex items-start gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
+                    <Scale className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    <p className="text-[11px] leading-relaxed text-foreground">{t("offerCapWarning")}</p>
+                  </div>
+                )}
+
+                {model === "contingency" && (
+                  <button
+                    type="button"
+                    onClick={() => setNoWin((v) => !v)}
+                    className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-foreground/[0.04] p-3 text-start"
+                  >
+                    <span
+                      className={`grid size-5 shrink-0 place-items-center rounded-md border transition ${
+                        noWin ? "border-gold bg-gold text-background" : "border-white/25"
+                      }`}
+                    >
+                      {noWin && <Check className="size-3.5" strokeWidth={3} />}
+                    </span>
+                    <span className="text-[12px] font-semibold text-foreground">{t("offerNoWinLabel")}</span>
+                  </button>
+                )}
+
+                {/* ההוצאות הנלוות — כאן לקוחות נכווים, ולכן זה שדה נפרד */}
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-semibold text-foreground/80">
+                    {t("offerExpensesLabel")}
+                  </span>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {(["included", "advanced", "client"] as ExpensesTerm[]).map((x) => (
+                      <button
+                        key={x}
+                        type="button"
+                        onClick={() => setExpenses(x)}
+                        className={`rounded-2xl border px-2 py-2.5 text-[11px] font-bold leading-tight transition ${
+                          expenses === x
+                            ? "border-gold/60 bg-gold/15 text-gold"
+                            : "border-white/10 bg-foreground/[0.04] text-muted-foreground"
+                        }`}
+                      >
+                        {t(x === "included" ? "expensesIncluded" : x === "advanced" ? "expensesAdvanced" : "expensesClient")}
+                      </button>
+                    ))}
+                  </div>
+                  {expenses !== "included" && (
+                    <input
+                      className={`${offerInputCls} mt-2`}
+                      value={expensesEstimate}
+                      onChange={(e) => setExpensesEstimate(e.target.value)}
+                      placeholder={t("offerExpensesPh")}
+                    />
+                  )}
+                </div>
+
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerDurationLabel")}</span>
                   <input
@@ -425,6 +539,7 @@ function LawyerCaseDetail() {
                     placeholder={t("offerDurationPh")}
                   />
                 </label>
+
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold text-foreground/80">{t("offerNoteLabel")}</span>
                   <textarea
@@ -435,18 +550,28 @@ function LawyerCaseDetail() {
                     placeholder={t("offerNotePh")}
                   />
                 </label>
+
+                <p className="px-1 text-[11px] leading-relaxed text-muted-foreground">
+                  {t("offerNonBinding")}
+                </p>
+
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.98 }}
+                  disabled={!(Number(amount) > 0)}
                   onClick={() => {
                     expressInterest(item.id, {
-                      fee: fee.trim(),
+                      model,
+                      amount: Number(amount),
+                      noWinNoFee: model === "contingency" ? noWin : false,
+                      expenses,
+                      expensesEstimate: expenses === "included" ? "" : expensesEstimate.trim(),
                       duration: duration.trim(),
                       note: note.trim(),
                     });
                     window.setTimeout(() => router.history.back(), 900);
                   }}
-                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold"
+                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold disabled:opacity-40"
                 >
                   {t("offerSend")}
                 </motion.button>

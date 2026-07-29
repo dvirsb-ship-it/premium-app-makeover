@@ -22,7 +22,9 @@ import {
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
 import { fbDb, fbStorage } from "./firebase";
 import { stripContactInfo } from "./privacy";
-import type { Case, CaseStatus, FeedCase, Lawyer, Role } from "./types";
+import type { Case, CaseOffer, CaseStatus, FeedCase, Lawyer, Role } from "./types";
+
+export type { CaseOffer, ExpensesTerm, FeeModel } from "./types";
 
 /* ---------- users ---------- */
 
@@ -99,11 +101,11 @@ export interface CaseImage {
   at: number;
 }
 
-export interface CaseOffer {
-  fee: string;
-  duration: string;
-  note: string;
-  at: number;
+export const PLTD_MAX_PERCENT = 13;
+
+/** קטגוריות שבהן הצעה באחוזים עשויה להיות כפופה לתקרה סטטוטורית. */
+export function categoryHasStatutoryCap(category: string): boolean {
+  return category === "נזיקין ותאונות" || category === "ביטוח";
 }
 
 function toCase(id: string, d: CaseDoc): Case {
@@ -252,15 +254,19 @@ export async function readCaseRaw(caseId: string) {
 export async function expressInterestDb(
   caseId: string,
   lawyer: { uid: string; profile: Lawyer },
-  offer?: { fee: string; duration: string; note: string },
+  offer?: Omit<CaseOffer, "at" | "fee">,
 ): Promise<void> {
   // סינון פרטי קשר מהתוכן החופשי — התקשורת עד החיבור עוברת דרך הפלטפורמה בלבד
   const clean = offer && {
-    fee: stripContactInfo(offer.fee),
+    model: offer.model,
+    amount: offer.amount,
+    noWinNoFee: offer.noWinNoFee,
+    expenses: offer.expenses,
+    expensesEstimate: stripContactInfo(offer.expensesEstimate),
     duration: stripContactInfo(offer.duration),
     note: stripContactInfo(offer.note),
   };
-  const hasOffer = !!clean && !!(clean.fee || clean.duration || clean.note);
+  const hasOffer = !!clean && clean.amount > 0;
   await updateDoc(doc(fbDb(), "cases", caseId), {
     interestedIds: arrayUnion(lawyer.uid),
     interested: arrayUnion(lawyer.profile),

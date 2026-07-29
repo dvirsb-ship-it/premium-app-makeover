@@ -9,6 +9,10 @@ import {
 } from "react";
 import { onAuthStateChanged, signOut as fbSignOut, type User } from "firebase/auth";
 import type { Case, FeedCase, Lawyer, Role } from "./types";
+import type { CaseOffer } from "./db";
+
+/** ההצעה כפי שהעו"ד ממלא אותה — חותמת הזמן נוספת בשכבת הנתונים. */
+type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { fbAuth, isBrowser } from "./firebase";
 import { maskLawyerName } from "./privacy";
 import {
@@ -42,10 +46,7 @@ interface AppState {
   chooseLawyer: (caseId: string, lawyerId: string) => void;
   getCase: (id: string) => Case | undefined;
   feed: FeedCase[];
-  expressInterest: (
-    feedId: string,
-    offer?: { fee: string; duration: string; note: string },
-  ) => void;
+  expressInterest: (feedId: string, offer?: OfferInput) => void;
   getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
   user: User | null;
@@ -202,7 +203,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   );
 
   const expressInterest = useCallback(
-    (feedId: string, offer?: { fee: string; duration: string; note: string }) => {
+    (feedId: string, offer?: OfferInput) => {
       setFeed((prev) =>
         prev.map((f) =>
           f.id === feedId
