@@ -12,7 +12,13 @@ import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { fbDb } from "../lib/firebase";
-import { disablePush, enablePush, pushEnabledLocally, pushSupport } from "../lib/push";
+import {
+  disablePush,
+  enablePush,
+  pushEnabledLocally,
+  pushSupport,
+  type PushSupport,
+} from "../lib/push";
 
 export const Route = createFileRoute("/settings/notifications")({
   head: () => ({
@@ -63,9 +69,11 @@ function NotificationsSettings() {
   });
   const [pushOn, setPushOn] = useState(false);
   const [pushBusy, setPushBusy] = useState(false);
-  const support = typeof window === "undefined" ? "unsupported" : pushSupport();
+  // תמיכת ההתראות ידועה רק בדפדפן — בדיקה בזמן רינדור הייתה יוצרת אי-התאמת הידרציה
+  const [support, setSupport] = useState<PushSupport | null>(null);
 
   useEffect(() => {
+    setSupport(pushSupport());
     setPushOn(pushEnabledLocally());
   }, []);
 
@@ -155,6 +163,7 @@ function NotificationsSettings() {
                         ? t("pushUnsupportedHint")
                         : t("notifPushSub")}
                   </p>
+                  {/* support === null עד שהדפדפן נבדק — אותו טקסט בשרת ובלקוח */}
                 </div>
                 {support === "ready" && (
                   <Switch on={pushOn} onToggle={() => void togglePush()} busy={pushBusy} />
