@@ -126,18 +126,8 @@ export interface IntakeTurnResult {
 export const intakeTurn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as IntakeTurnInput)
   .handler(async ({ data }): Promise<IntakeTurnResult> => {
-    try {
-      const { requireUser } = await import("./server-admin");
-      await requireUser(data.idToken);
-    } catch (e) {
-      // אבחון זמני: לוגי השרת אינם מגיעים ל-Cloud Logging, לכן השגיאה חוזרת למסך
-      const msg = e instanceof Error ? e.message : String(e);
-      return {
-        reply: `⚠️ DIAG auth: ${msg} | tokenLen=${(data.idToken ?? "").length}`,
-        ready: null,
-        notSuitable: null,
-      };
-    }
+    const { requireUser } = await import("./server-admin");
+    await requireUser(data.idToken);
 
     const contents: GeminiContent[] = data.messages.map((m) => ({
       role: m.from === "assistant" ? "model" : "user",
@@ -242,13 +232,13 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const { requireUser, adminDb, downloadImageBase64 } = await import("./server-admin");
+    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64 } =
+      await import("./server-admin");
     const uid = await requireUser(data.idToken);
 
-    const ref = adminDb().collection("cases").doc(data.caseId);
-    const snap = await ref.get();
-    if (!snap.exists) throw new Error("case not found");
-    const c = snap.data() as {
+    const raw = await adminGetCase(data.caseId);
+    if (!raw) throw new Error("case not found");
+    const c = raw as {
       clientId: string;
       description: string;
       incidentDate?: string;
@@ -314,7 +304,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const result = JSON.parse(verdict) as ValidateResult;
 
     // כתיבת התוצאה מהשרת — חוקי המסד חוסמים את הלקוח מלגעת בסטטוס בעצמו
-    await ref.update({
+    await adminUpdateCase(data.caseId, {
       title: result.title,
       category: result.category,
       summary: result.summary,
