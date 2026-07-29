@@ -7,17 +7,26 @@ import { getAuth } from "firebase-admin/auth";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 
+const PROJECT_ID = "justask-6bfb9";
 const BUCKET = "justask-6bfb9.firebasestorage.app";
 
 function adminApp(): App {
-  return getApps()[0] ?? initializeApp({ storageBucket: BUCKET });
+  // projectId מפורש — App Hosting לא בהכרח מגדיר GOOGLE_CLOUD_PROJECT,
+  // ובלעדיו verifyIdToken נכשל כי אין מול מה לאמת את ה-audience.
+  return getApps()[0] ?? initializeApp({ projectId: PROJECT_ID, storageBucket: BUCKET });
 }
 
 /** אימות טוקן ההתחברות של הפונה — כל פונקציות ה-AI דורשות משתמש מחובר. */
 export async function requireUser(idToken: string | undefined): Promise<string> {
-  if (!idToken) throw new Error("unauthenticated");
-  const decoded = await getAuth(adminApp()).verifyIdToken(idToken);
-  return decoded.uid;
+  if (!idToken) throw new Error("unauthenticated: missing id token");
+  try {
+    const decoded = await getAuth(adminApp()).verifyIdToken(idToken);
+    return decoded.uid;
+  } catch (e) {
+    // הודעת השגיאה נבלעת בדרך ללקוח — בלי הלוג הזה אי אפשר לאבחן בענן
+    console.error("[auth] verifyIdToken failed:", e instanceof Error ? e.message : e);
+    throw e;
+  }
 }
 
 export function adminDb(): Firestore {
