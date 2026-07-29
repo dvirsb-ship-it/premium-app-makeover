@@ -496,6 +496,63 @@ export async function markTicketHandled(id: string): Promise<void> {
   await updateDoc(doc(fbDb(), "supportTickets", id), { status: "handled" });
 }
 
+/* ---------- מחיקת חשבון ---------- */
+
+export interface DeletionRequestDoc {
+  id: string;
+  userId: string;
+  email: string;
+  reason: string;
+  status: "open" | "done";
+  createdAt: number;
+}
+
+/** בקשת מחיקה: מנתקת מיד את התיקים הפתוחים ופותחת בקשה לטיפול תוך 14 יום. */
+export async function requestAccountDeletion(input: {
+  userId: string;
+  email: string;
+  reason: string;
+}): Promise<void> {
+  await addDoc(collection(fbDb(), "deletionRequests"), {
+    ...input,
+    status: "open",
+    createdAt: Date.now(),
+  });
+  // הסרה מיידית מהפיד: תיקים פעילים של המשתמש נסגרים
+  try {
+    const snap = await getDocs(
+      query(collection(fbDb(), "cases"), where("clientId", "==", input.userId)),
+    );
+    await Promise.all(
+      snap.docs
+        .filter((d) => (d.data() as CaseDoc).status !== "connected")
+        .map((d) => updateDoc(doc(fbDb(), "cases", d.id), { status: "rejected" })),
+    );
+  } catch {
+    /* הבקשה נרשמה — הניקוי יושלם ידנית */
+  }
+}
+
+export function watchDeletionRequests(
+  cb: (rows: DeletionRequestDoc[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "deletionRequests"),
+    (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<DeletionRequestDoc, "id">) }));
+      rows.sort((a, b) =>
+        (a.status === "open" ? 0 : 1) - (b.status === "open" ? 0 : 1) || b.createdAt - a.createdAt,
+      );
+      cb(rows);
+    },
+    () => cb([]),
+  );
+}
+
+export async function markDeletionDone(id: string): Promise<void> {
+  await updateDoc(doc(fbDb(), "deletionRequests", id), { status: "done" });
+}
+
 /** ארכיון כל התיקים — לאדמין בלבד, בזמן אמת. */
 export interface AdminCaseRow {
   id: string;

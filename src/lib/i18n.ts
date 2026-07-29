@@ -553,6 +553,16 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
   resumeValidation: { he: "המשך את הבדיקה המשפטית", en: "Resume the legal review" },
+  deleteAccountBtn: { he: "מחיקת החשבון והנתונים", en: "Delete my account and data" },
+  deleteConfirmTitle: { he: "למחוק את החשבון?", en: "Delete your account?" },
+  deleteConfirmBody: { he: "הפניות הפתוחות שלך ייסגרו מיד ולא יוצגו לעורכי דין. מחיקת החשבון והנתונים תושלם בתוך 14 יום, כנדרש בדין. תיקים שכבר חוברו לעורך דין עשויים להישמר אצלו בהתאם לחובות שמירת מסמכים החלות עליו.", en: "Your open requests close immediately and will no longer be shown to lawyers. Account and data deletion completes within 14 days, as required by law. Cases already connected to a lawyer may be retained by them under their own record-keeping duties." },
+  deleteReasonPh: { he: "רוצה לספר לנו למה? (רשות)", en: "Want to tell us why? (optional)" },
+  deleteConfirmBtn: { he: "כן, למחוק", en: "Yes, delete" },
+  deleteRequestSent: { he: "בקשת המחיקה התקבלה. נשלים אותה תוך 14 יום.", en: "Deletion request received. We'll complete it within 14 days." },
+  adminDeletionsHeader: { he: "בקשות מחיקת חשבון", en: "Account deletion requests" },
+  deletionsEmpty: { he: "אין בקשות מחיקה.", en: "No deletion requests." },
+  deletionMarkDone: { he: "סימון כבוצע", en: "Mark done" },
+  deletionDone: { he: "בוצע", en: "Done" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

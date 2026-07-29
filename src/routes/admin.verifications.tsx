@@ -26,13 +26,16 @@ import {
   type VerificationStatus,
 } from "../lib/verification-queue";
 import {
+  markDeletionDone,
   markTicketHandled,
   resolveAppeal,
   watchAllCasesAdmin,
   watchAppeals,
+  watchDeletionRequests,
   watchSupportTickets,
   type AdminCaseRow,
   type AppealDoc,
+  type DeletionRequestDoc,
   type SupportTicketDoc,
 } from "../lib/db";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -103,13 +106,16 @@ function VerificationQueue() {
 
   const [tickets, setTickets] = useState<SupportTicketDoc[]>([]);
   const [allCases, setAllCases] = useState<AdminCaseRow[]>([]);
+  const [deletions, setDeletions] = useState<DeletionRequestDoc[]>([]);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
     const un1 = watchSupportTickets(setTickets);
     const un2 = watchAllCasesAdmin(setAllCases);
+    const un3 = watchDeletionRequests(setDeletions);
     return () => {
       un1();
       un2();
+      un3();
     };
   }, [authReady, user]);
 
@@ -366,6 +372,45 @@ function VerificationQueue() {
                   )}
                 </div>
                 <p className="mt-2 text-[13px] leading-relaxed text-foreground/90">{tk.message}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* בקשות מחיקת חשבון — התחייבות 14 הימים מהתקנון */}
+        <h2 className="mt-10 text-base font-bold text-foreground">{t("adminDeletionsHeader")}</h2>
+        {deletions.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("deletionsEmpty")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3" aria-label={t("adminDeletionsHeader")}>
+            {deletions.map((d) => (
+              <li key={d.id} className="liquid-glass rounded-3xl px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-[13px] font-bold text-foreground" dir="ltr">
+                      {d.email || d.userId}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                      {dateFmt(d.createdAt)}
+                      {d.reason ? ` · ${d.reason}` : ""}
+                    </p>
+                  </div>
+                  {d.status === "open" ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void markDeletionDone(d.id).catch(() => toast.error(t("authErrGeneric")))
+                      }
+                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                    >
+                      {t("deletionMarkDone")}
+                    </button>
+                  ) : (
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                      {t("deletionDone")}
+                    </span>
+                  )}
+                </div>
               </li>
             ))}
           </ul>
