@@ -591,6 +591,37 @@ export async function markDeletionDone(id: string): Promise<void> {
   await updateDoc(doc(fbDb(), "deletionRequests", id), { status: "done" });
 }
 
+/* ---------- יומן שגיאות שרת (נכתב מהשרת בלבד) ---------- */
+
+export interface ServerErrorDoc {
+  id: string;
+  context: string;
+  message: string;
+  at: number;
+  handled: boolean;
+}
+
+/** שגיאות שרת אחרונות — לאדמין. חדשות תחילה, עד 30. */
+export function watchServerErrors(
+  cb: (rows: ServerErrorDoc[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "serverErrors"),
+    (snap) => {
+      const rows = snap.docs
+        .map((d) => ({ id: d.id, ...(d.data() as Omit<ServerErrorDoc, "id">) }))
+        .sort((a, b) => b.at - a.at)
+        .slice(0, 30);
+      cb(rows);
+    },
+    () => cb([]),
+  );
+}
+
+export async function markServerErrorHandled(id: string): Promise<void> {
+  await updateDoc(doc(fbDb(), "serverErrors", id), { handled: true });
+}
+
 /** ארכיון כל התיקים — לאדמין בלבד, בזמן אמת. */
 export interface AdminCaseRow {
   id: string;

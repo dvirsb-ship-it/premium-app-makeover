@@ -121,6 +121,47 @@ export async function adminUpdateCase(
   }
 }
 
+/* ---------- יומן שגיאות שרת ---------- */
+
+/**
+ * רישום כשל של פונקציית שרת ל-Firestore, כדי שיופיע במשרד הטכנולוגי.
+ * נחוץ כי stdout/stderr של האפליקציה אינם מגיעים ל-Cloud Logging, והשגיאה
+ * מגיעה ללקוח מעורפלת ("Seroval Error") — בלי זה כשל שקט אינו ניתן לאבחון.
+ * הרישום עצמו לעולם לא מפיל את הבקשה.
+ */
+export async function logServerError(context: string, err: unknown): Promise<void> {
+  try {
+    const body = {
+      fields: {
+        context: { stringValue: context },
+        message: { stringValue: err instanceof Error ? err.message : String(err) },
+        at: { integerValue: String(Date.now()) },
+        handled: { booleanValue: false },
+      },
+    };
+    await fetch(`${DOCS}/serverErrors`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${await accessToken()}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+  } catch {
+    /* יומן שנכשל לא ישבור את הפעולה עצמה */
+  }
+}
+
+/** עוטף מנוע שרת ברישום שגיאות ומחזיר את השגיאה הלאה. */
+export async function withErrorLog<T>(context: string, fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    await logServerError(context, e);
+    throw e;
+  }
+}
+
 /* ---------- Storage REST ---------- */
 
 /** הורדת תמונה כ-base64 עבור הזנת ראיות לוולידציה. null כשנכשל או גדול מדי. */

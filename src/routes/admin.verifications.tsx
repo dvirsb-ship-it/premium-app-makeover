@@ -27,15 +27,18 @@ import {
 } from "../lib/verification-queue";
 import {
   markDeletionDone,
+  markServerErrorHandled,
   markTicketHandled,
   resolveAppeal,
   watchAllCasesAdmin,
   watchAppeals,
   watchDeletionRequests,
+  watchServerErrors,
   watchSupportTickets,
   type AdminCaseRow,
   type AppealDoc,
   type DeletionRequestDoc,
+  type ServerErrorDoc,
   type SupportTicketDoc,
 } from "../lib/db";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -107,15 +110,18 @@ function VerificationQueue() {
   const [tickets, setTickets] = useState<SupportTicketDoc[]>([]);
   const [allCases, setAllCases] = useState<AdminCaseRow[]>([]);
   const [deletions, setDeletions] = useState<DeletionRequestDoc[]>([]);
+  const [errors, setErrors] = useState<ServerErrorDoc[]>([]);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
     const un1 = watchSupportTickets(setTickets);
     const un2 = watchAllCasesAdmin(setAllCases);
     const un3 = watchDeletionRequests(setDeletions);
+    const un4 = watchServerErrors(setErrors);
     return () => {
       un1();
       un2();
       un3();
+      un4();
     };
   }, [authReady, user]);
 
@@ -372,6 +378,47 @@ function VerificationQueue() {
                   )}
                 </div>
                 <p className="mt-2 text-[13px] leading-relaxed text-foreground/90">{tk.message}</p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* תקלות שרת — כשל שקט בפונקציות ה-AI מגיע לכאן במקום להיעלם */}
+        <h2 className="mt-10 text-base font-bold text-foreground">{t("adminErrorsHeader")}</h2>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("adminErrorsSub")}</p>
+        {errors.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">{t("errorsEmpty")}</p>
+        ) : (
+          <ul className="mt-3 space-y-3" aria-label={t("adminErrorsHeader")}>
+            {errors.map((e) => (
+              <li
+                key={e.id}
+                className={`liquid-glass rounded-3xl px-4 py-4 ${e.handled ? "opacity-60" : "border border-destructive/30"}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[13px] font-bold text-foreground">{e.context}</p>
+                    <p className="mt-0.5 break-words text-[11px] leading-relaxed text-muted-foreground" dir="ltr">
+                      {e.message}
+                    </p>
+                    <p className="mt-0.5 text-[11px] text-muted-foreground">{dateFmt(e.at)}</p>
+                  </div>
+                  {e.handled ? (
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                      {t("errorHandled")}
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        void markServerErrorHandled(e.id).catch(() => toast.error(t("authErrGeneric")))
+                      }
+                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                    >
+                      {t("errorMarkHandled")}
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

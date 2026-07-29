@@ -126,7 +126,8 @@ export interface IntakeTurnResult {
 export const intakeTurn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as IntakeTurnInput)
   .handler(async ({ data }): Promise<IntakeTurnResult> => {
-    const { requireUser } = await import("./server-admin");
+    const { requireUser, withErrorLog } = await import("./server-admin");
+    return withErrorLog("intakeTurn", async () => {
     await requireUser(data.idToken);
 
     const contents: GeminiContent[] = data.messages.map((m) => ({
@@ -173,6 +174,7 @@ export const intakeTurn = createServerFn({ method: "POST" })
       ready: null,
       notSuitable: null,
     };
+    });
   });
 
 /* ---------- ולידציית התיק ---------- */
@@ -232,8 +234,9 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64 } =
+    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64, withErrorLog } =
       await import("./server-admin");
+    return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
 
     const raw = await adminGetCase(data.caseId);
@@ -314,6 +317,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     });
 
     return result;
+    });
   });
 
 /* ---------- צנזור תמונות: זיהוי אזורים עם פרטים מזהים ---------- */
@@ -350,7 +354,8 @@ export interface DetectRegionsInput {
 export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as DetectRegionsInput)
   .handler(async ({ data }): Promise<{ regions: SensitiveRegion[] }> => {
-    const { requireUser } = await import("./server-admin");
+    const { requireUser, withErrorLog } = await import("./server-admin");
+    return withErrorLog("detectSensitiveRegions", async () => {
     await requireUser(data.idToken);
 
     const text = await generate(
@@ -396,4 +401,5 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
         r.box_2d.every((n) => typeof n === "number" && n >= 0 && n <= 1000),
     );
     return { regions };
+    });
   });

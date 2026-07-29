@@ -148,6 +148,14 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    // יומן שגיאות שרת — נכתב מהשרת (עוקף חוקים); האדמין קורא ומסמן טופל
+    match /serverErrors/{id} {
+      allow read: if isAdmin();
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['handled']);
+      allow create, delete: if false;
+    }
+
     // ברירת מחדל — הכל חסום
     match /{document=**} {
       allow read, write: if false;

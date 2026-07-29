@@ -553,6 +553,13 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // יומן שגיאות שרת במשרד הטכנולוגי
+  adminErrorsHeader: { he: "תקלות שרת", en: "Server errors" },
+  adminErrorsSub: { he: "כשלים בפונקציות ה-AI — כאן תראו אותם גם כשהמשתמש לא דיווח", en: "AI function failures — visible here even when no user reported them" },
+  errorsEmpty: { he: "אין תקלות. הכול עובד.", en: "No errors. Everything is running." },
+  errorMarkHandled: { he: "סימון כטופל", en: "Mark handled" },
+  errorHandled: { he: "טופל", en: "Handled" },
+
   // הצהרת נגישות (ת"י 5568 / WCAG 2.0 AA)
   accessibility: { he: "נגישות", en: "Accessibility" },
   a11yTitle: { he: "הצהרת נגישות", en: "Accessibility statement" },
