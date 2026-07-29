@@ -234,7 +234,7 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const { requireUser, adminGetCase, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog } =
+    const { requireUser, adminGetCase, adminPatch, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -307,6 +307,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const result = JSON.parse(verdict) as ValidateResult;
 
     // כתיבת התוצאה מהשרת — חוקי המסד חוסמים את הלקוח מלגעת בסטטוס בעצמו
+    const validatedAt = Date.now();
     await adminUpdateCase(data.caseId, {
       title: result.title,
       category: result.category,
@@ -314,7 +315,25 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       legalBasis: result.legalBasis ?? "",
       recommendation: result.recommendation ?? "",
       status: result.validated ? "matching" : "rejected",
+      // הרגע שבו התיק נעשה זמין לעורכי דין — הבסיס למדידת תגובתיות
+      validatedAt,
     });
+
+    /*
+     * התזכיר המלא נשמר ואינו נזרק: הוא עבודה של משפטן בכיר — עילות, יסודותיהן,
+     * התיישנות, טענות נגד ומסלול — וחוסך לעורך הדין את שעת העבודה הראשונה.
+     * בתת-אוסף נפרד כדי שנוכל להגביל אותו למנוי Pro בעתיד בלי מיגרציה.
+     */
+    if (result.validated) {
+      try {
+        await adminPatch(`cases/${encodeURIComponent(data.caseId)}/memo/full`, {
+          text: memo,
+          at: validatedAt,
+        });
+      } catch {
+        /* התזכיר הוא תוספת — כשל בשמירתו לא יפיל את הוולידציה */
+      }
+    }
 
     // התראה מחוץ לאפליקציה — הבדיקה לוקחת עד דקה והלקוח לרוב כבר עזב את המסך
     await sendPush(
@@ -439,7 +458,8 @@ export interface NotifyInterestInput {
 export const notifyInterestFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as NotifyInterestInput)
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireUser, adminGetCase, sendPush, withErrorLog } = await import("./server-admin");
+    const { requireUser, adminGetCase, recordLawyerResponse, sendPush, withErrorLog } =
+      await import("./server-admin");
     return withErrorLog("notifyInterest", async () => {
       const uid = await requireUser(data.idToken);
       const c = await adminGetCase(data.caseId);
@@ -447,6 +467,10 @@ export const notifyInterestFn = createServerFn({ method: "POST" })
 
       const interestedIds = (c.interestedIds as string[] | undefined) ?? [];
       if (!interestedIds.includes(uid)) return { sent: false };
+
+      // מדד התגובתיות: מהרגע שהתיק נעשה זמין ועד ההצעה
+      const baseline = Number(c.validatedAt ?? c.createdAt ?? 0);
+      if (baseline > 0) await recordLawyerResponse(uid, Date.now() - baseline);
 
       await sendPush(
         c.clientId as string,

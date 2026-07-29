@@ -68,6 +68,15 @@ service cloud.firestore {
 
       allow delete: if false;
 
+      /*
+       * התזכיר המשפטי המלא — עבודה שנועדה לעורכי דין מאומתים.
+       * נכתב מהשרת (עוקף חוקים); בעתיד תיווסף כאן בדיקת מנוי Pro.
+       */
+      match /memo/{docId} {
+        allow read: if isApprovedLawyer() || isAdmin();
+        allow write: if false;
+      }
+
       // פרטי הקשר של עו"ד על התיק — נכתבים בהבעת עניין, נחשפים ללקוח רק אחרי שבחר בו
       match /contacts/{lawyerUid} {
         allow write: if signedIn() && request.auth.uid == lawyerUid && isApprovedLawyer();
@@ -146,6 +155,13 @@ service cloud.firestore {
         && request.resource.data.status == 'open';
       allow read, update: if isAdmin();
       allow delete: if false;
+    }
+
+    // מדד תגובתיות של עו"ד — נכתב בשרת בלבד, גלוי לכל מחובר כדי שלקוח
+    // יוכל לראות אותו על ההצעה. אין לאף אחד הרשאת כתיבה מהדפדפן.
+    match /lawyerStats/{uid} {
+      allow read: if signedIn();
+      allow write: if false;
     }
 
     // יומן שגיאות שרת — נכתב מהשרת (עוקף חוקים); האדמין קורא ומסמן טופל

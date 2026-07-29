@@ -95,20 +95,28 @@ export async function adminGetCase(caseId: string): Promise<Record<string, unkno
   return out;
 }
 
-/** עדכון שדות מחרוזת על תיק בהרשאות שרת (עוקף את חוקי המסד). */
-export async function adminUpdateCase(
-  caseId: string,
-  fields: Record<string, string>,
+type Primitive = string | number | boolean;
+
+function encode(v: Primitive): FsValue {
+  if (typeof v === "boolean") return { booleanValue: v };
+  if (typeof v === "number") {
+    return Number.isInteger(v) ? { integerValue: String(v) } : { doubleValue: v };
+  }
+  return { stringValue: v };
+}
+
+/** כתיבת שדות על מסמך כלשהו בהרשאות שרת (עוקף את חוקי המסד). */
+export async function adminPatch(
+  path: string,
+  fields: Record<string, Primitive>,
 ): Promise<void> {
   const mask = Object.keys(fields)
     .map((k) => `updateMask.fieldPaths=${encodeURIComponent(k)}`)
     .join("&");
   const body = {
-    fields: Object.fromEntries(
-      Object.entries(fields).map(([k, v]) => [k, { stringValue: v }]),
-    ),
+    fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, encode(v)])),
   };
-  const res = await fetch(`${DOCS}/cases/${encodeURIComponent(caseId)}?${mask}`, {
+  const res = await fetch(`${DOCS}/${path}?${mask}`, {
     method: "PATCH",
     headers: {
       Authorization: `Bearer ${await accessToken()}`,
@@ -118,6 +126,41 @@ export async function adminUpdateCase(
   });
   if (!res.ok) {
     throw new Error(`firestore patch failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
+  }
+}
+
+export function adminUpdateCase(
+  caseId: string,
+  fields: Record<string, Primitive>,
+): Promise<void> {
+  return adminPatch(`cases/${encodeURIComponent(caseId)}`, fields);
+}
+
+/** קריאת מסמך כלשהו בהרשאות שרת. null אם אינו קיים. */
+export async function adminGetDoc(path: string): Promise<Record<string, unknown> | null> {
+  const res = await fetch(`${DOCS}/${path}`, {
+    headers: { Authorization: `Bearer ${await accessToken()}` },
+  });
+  if (!res.ok) return null;
+  const doc = (await res.json()) as { fields?: Record<string, FsValue> };
+  const out: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(doc.fields ?? {})) out[k] = decode(v);
+  return out;
+}
+
+/**
+ * רישום תגובה של עו"ד לתיק — בסיס למדד התגובתיות שהפלטפורמה מודדת בעצמה.
+ * נעשה בשרת בלבד: מדד ששקוף ללקוחות אסור שיהיה ניתן לניפוח מהדפדפן.
+ */
+export async function recordLawyerResponse(uid: string, responseMs: number): Promise<void> {
+  try {
+    const path = `lawyerStats/${encodeURIComponent(uid)}`;
+    const cur = (await adminGetDoc(path)) ?? {};
+    const responses = Number(cur.responses ?? 0) + 1;
+    const totalResponseMs = Number(cur.totalResponseMs ?? 0) + Math.max(0, responseMs);
+    await adminPatch(path, { responses, totalResponseMs, updatedAt: Date.now() });
+  } catch {
+    /* מדד שנכשל לא אמור להפיל הבעת עניין */
   }
 }
 

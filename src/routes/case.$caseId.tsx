@@ -8,7 +8,15 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { caseImageUrl, readCaseLawyerContact, readCaseRaw, type CaseImage, type LawyerContactDoc } from "../lib/db";
+import {
+  avgResponseLabel,
+  caseImageUrl,
+  readCaseLawyerContact,
+  readCaseRaw,
+  readLawyerStats,
+  type CaseImage,
+  type LawyerContactDoc,
+} from "../lib/db";
 import { BadgeCheck } from "lucide-react";
 import { normalizePhone } from "../lib/auth-service";
 import { toneClasses, useStatusMeta } from "../lib/status";
@@ -51,6 +59,26 @@ function CaseDetail() {
       })
       .catch(() => {});
   }, [caseId]);
+
+  /*
+   * מדד התגובתיות של כל עו"ד שהביע עניין — הפלטפורמה מדדה אותו בעצמה,
+   * ולכן הוא אמת ולא הצהרה שיווקית.
+   */
+  const interestedIdsKey = item?.interested.map((l) => l.id).join(",") ?? "";
+  const [responseLabels, setResponseLabels] = useState<Record<string, string | null>>({});
+  useEffect(() => {
+    const ids = interestedIdsKey ? interestedIdsKey.split(",") : [];
+    if (!ids.length) return;
+    let cancelled = false;
+    void Promise.all(
+      ids.map(async (id) => [id, avgResponseLabel(await readLawyerStats(id))] as const),
+    ).then((pairs) => {
+      if (!cancelled) setResponseLabels(Object.fromEntries(pairs));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [interestedIdsKey]);
 
   // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
@@ -286,6 +314,7 @@ function CaseDetail() {
                         <LawyerChoiceCard
                           lawyer={l}
                           offer={item.offers?.[l.id]}
+                          responseLabel={responseLabels[l.id]}
                           onChoose={() => chooseLawyer(item.id, l.id)}
                         />
                       </Rise>
@@ -304,10 +333,13 @@ function CaseDetail() {
 function LawyerChoiceCard({
   lawyer,
   offer,
+  responseLabel,
   onChoose,
 }: {
   lawyer: Lawyer;
   offer?: CaseOffer;
+  /** מדד תגובתיות שהפלטפורמה מדדה — לא הצהרה של עורך הדין */
+  responseLabel?: string | null;
   onChoose: () => void;
 }) {
   const t = useT();
@@ -359,6 +391,14 @@ function LawyerChoiceCard({
               )}
             </span>
           </div>
+
+          {responseLabel && (
+            <p className="mt-1.5 text-[12px] text-foreground">
+              <span className="text-muted-foreground">{t("responseTimeLabel")} </span>
+              <span className="font-bold">{responseLabel}</span>
+              <span className="text-muted-foreground"> {t("responseTimeAvg")}</span>
+            </p>
+          )}
 
           {offer.noWinNoFee && (
             <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success">

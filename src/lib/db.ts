@@ -643,6 +643,51 @@ export function watchServerErrors(
   );
 }
 
+/* ---------- תזכיר משפטי מלא + מדד תגובתיות ---------- */
+
+/**
+ * התזכיר המשפטי המלא של התיק — עבודת המשפטן שה-AI כתב.
+ * נשמר בתת-אוסף כדי שנוכל להגביל אותו למנוי Pro בעתיד בלי מיגרציה.
+ */
+export async function readCaseMemo(caseId: string): Promise<string | null> {
+  try {
+    const snap = await getDoc(doc(fbDb(), "cases", caseId, "memo", "full"));
+    return snap.exists() ? ((snap.data().text as string) ?? null) : null;
+  } catch {
+    return null;
+  }
+}
+
+export interface LawyerStats {
+  responses: number;
+  totalResponseMs: number;
+}
+
+/** מדד תגובתיות שהפלטפורמה מדדה בעצמה — נכתב בשרת בלבד. */
+export async function readLawyerStats(uid: string): Promise<LawyerStats | null> {
+  try {
+    const snap = await getDoc(doc(fbDb(), "lawyerStats", uid));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    return {
+      responses: Number(d.responses ?? 0),
+      totalResponseMs: Number(d.totalResponseMs ?? 0),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/** ניסוח זמן תגובה ממוצע בעברית קריאה. null כשאין עדיין נתונים. */
+export function avgResponseLabel(stats: LawyerStats | null): string | null {
+  if (!stats || stats.responses < 1) return null;
+  const mins = Math.round(stats.totalResponseMs / stats.responses / 60000);
+  if (mins < 60) return `${Math.max(1, mins)} דק׳`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours} שעות`;
+  return `${Math.round(hours / 24)} ימים`;
+}
+
 export async function markServerErrorHandled(id: string): Promise<void> {
   await updateDoc(doc(fbDb(), "serverErrors", id), { handled: true });
 }

@@ -553,6 +553,14 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // התזכיר המשפטי המלא + מדד תגובתיות
+  memoHeader: { he: "התזכיר המשפטי המלא", en: "Full legal memo" },
+  memoSub: { he: "ניתוח עילות, יסודותיהן, התיישנות, טענות נגד ומסלול — נכתב לפני שראיתם את התיק.", en: "Causes of action, their elements, limitation, counterarguments and track — written before you opened the case." },
+  memoShow: { he: "הצגה", en: "Show" },
+  memoHide: { he: "הסתרה", en: "Hide" },
+  responseTimeLabel: { he: "מגיב בתוך", en: "Responds within" },
+  responseTimeAvg: { he: "בממוצע", en: "on average" },
+
   // מצבי הפיד של עורך הדין
   feedErrorTitle: { he: "לא הצלחנו לטעון את הפניות", en: "Couldn't load leads" },
   feedErrorSub: { he: "ייתכן שחשבונך עדיין לא מוגדר כעורך דין, או שאין חיבור. נסו לרענן — אם זה חוזר, פנו אלינו דרך העזרה.", en: "Your account may not be set as a lawyer yet, or you're offline. Refresh — if it persists, contact us via Help." },

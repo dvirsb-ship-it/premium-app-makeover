@@ -12,6 +12,7 @@ import { useRequireAuth } from "../lib/require-auth";
 import {
   caseImageUrl,
   categoryHasStatutoryCap,
+  readCaseMemo,
   PLTD_MAX_PERCENT,
   readCaseRaw,
   submitAppeal,
@@ -132,6 +133,14 @@ function LawyerCaseDetail() {
     model === "contingency" &&
     Number(amount) > PLTD_MAX_PERCENT &&
     categoryHasStatutoryCap(item?.category ?? "");
+
+  // התזכיר המשפטי המלא — עבודת המשפטן שה-AI כתב, נחסך מעורך הדין
+  const [memo, setMemo] = useState<string | null>(null);
+  const [memoOpen, setMemoOpen] = useState(false);
+  useEffect(() => {
+    if (!item) return;
+    void readCaseMemo(caseId).then(setMemo).catch(() => {});
+  }, [item, caseId]);
 
   // ערעור על הוולידציה
   const [appealOpen, setAppealOpen] = useState(false);
@@ -334,6 +343,30 @@ function LawyerCaseDetail() {
                   <dd className="mt-0.5 text-[12px] font-bold text-foreground">{details.hasDocumentation ? t("docYes") : t("docNo")}</dd>
                 </div>
               </dl>
+            </div>
+          )}
+
+          {memo && (
+            <div className="liquid-glass mt-4 rounded-3xl p-5">
+              <button
+                type="button"
+                onClick={() => setMemoOpen((v) => !v)}
+                className="flex w-full items-center gap-2 text-start"
+              >
+                <Scale className="size-4 shrink-0 text-gold" strokeWidth={2.2} />
+                <span className="flex-1 text-sm font-bold text-foreground">{t("memoHeader")}</span>
+                <span className="text-[11px] font-semibold text-gold">
+                  {memoOpen ? t("memoHide") : t("memoShow")}
+                </span>
+              </button>
+              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                {t("memoSub")}
+              </p>
+              {memoOpen && (
+                <p className="mt-3 whitespace-pre-line border-t border-border pt-3 text-[13px] leading-relaxed text-foreground/90">
+                  {memo}
+                </p>
+              )}
             </div>
           )}
 
