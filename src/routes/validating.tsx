@@ -9,6 +9,7 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { haptic } from "../lib/haptics";
 import { fanOutNewCase, notify, readCaseRaw } from "../lib/db";
 import { fbAuth } from "../lib/firebase";
 import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
@@ -118,6 +119,7 @@ function Validating() {
       if (!res.validated) {
         const parts = [res.summary || t("valRejectedSub")];
         if (res.recommendation) parts.push(res.recommendation);
+        haptic("warning");
         setRejected(parts.join("\n\n"));
         return;
       }
@@ -131,18 +133,41 @@ function Validating() {
         interested: [],
       };
       addCase(newCase);
+      haptic("success");
       navigate({ to: "/submitted", search: { id: caseId } });
     },
     [addCase, navigate, t],
   );
 
-  // מסיימים רק כשגם האנימציה וגם הוולידציה האמיתית הסתיימו
+  // האנימציה נגמרה והתוצאה כבר כאן — מציגים אותה
   useEffect(() => {
     if (animDone && result) {
       setCurrent(stepKeys.length);
       finish(result);
     }
   }, [animDone, result, finish]);
+
+  /*
+   * האנימציה נגמרה והבדיקה המעמיקה עדיין רצה — לא מחזיקים את המשתמש מול המסך.
+   * הבקשה ממשיכה ברקע (אותה לשונית), הסטטוס בדף התיק מתעדכן בזמן אמת,
+   * ובסיום נשלחת התראה. כך נשמר הרגע הנעים בלי דקה של המתנה מיותרת.
+   */
+  useEffect(() => {
+    if (!animDone || result || rejected || stuck) return;
+    let caseId = "";
+    try {
+      caseId = sessionStorage.getItem("justask-active-case") ?? "";
+    } catch {
+      /* ignore */
+    }
+    if (!caseId) return;
+    const tm = window.setTimeout(() => {
+      if (finished.current) return;
+      finished.current = true;
+      navigate({ to: "/case/$caseId", params: { caseId } });
+    }, 1200);
+    return () => window.clearTimeout(tm);
+  }, [animDone, result, rejected, stuck, navigate]);
 
   function retry() {
     finished.current = false;

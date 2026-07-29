@@ -4,9 +4,15 @@
  */
 import type { SensitiveRegion } from "./ai/intake.functions";
 
-/** צד מקסימלי לתמונה שנשלחת — מקטין עלות ונפח, מספיק לזיהוי ולקריאה. */
-const MAX_SIDE = 1600;
-const JPEG_QUALITY = 0.82;
+/**
+ * התמונה היא ראיה — מסמך רפואי מטושטש מאבד את ערכו.
+ * לכן שומרים ברזולוציה גבוהה, ושולחים ל-AI עותק מוקטן בלבד:
+ * הזיהוי מחזיר קואורדינטות מנורמלות, כך שהן מתאימות לכל רזולוציה.
+ */
+const MAX_SIDE = 2400;
+const JPEG_QUALITY = 0.92;
+const DETECT_MAX_SIDE = 1280;
+const DETECT_QUALITY = 0.8;
 /** שוליים סביב כל תיבה (יחסית לצד התמונה) — ביטחון נגד תיבות הדוקות מדי. */
 const BOX_PADDING = 0.012;
 
@@ -30,28 +36,32 @@ export interface PendingImage {
   description: string;
 }
 
-/** דחיסת קובץ תמונה ל-JPEG בגודל סביר. */
-export async function prepareImage(file: File): Promise<PreparedImage> {
-  const bitmap = await createImageBitmap(file);
-  const scale = Math.min(1, MAX_SIDE / Math.max(bitmap.width, bitmap.height));
-  const w = Math.round(bitmap.width * scale);
-  const h = Math.round(bitmap.height * scale);
-
+function draw(bitmap: ImageBitmap, maxSide: number): HTMLCanvasElement {
+  const scale = Math.min(1, maxSide / Math.max(bitmap.width, bitmap.height));
   const canvas = document.createElement("canvas");
-  canvas.width = w;
-  canvas.height = h;
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
   const ctx = canvas.getContext("2d");
   if (!ctx) throw new Error("canvas unavailable");
-  ctx.drawImage(bitmap, 0, 0, w, h);
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  return canvas;
+}
+
+/** מכין שתי גרסאות: איכותית לשמירה, ומוקטנת לזיהוי ה-AI. */
+export async function prepareImage(file: File): Promise<PreparedImage> {
+  const bitmap = await createImageBitmap(file);
+  const full = draw(bitmap, MAX_SIDE);
+  const small = draw(bitmap, DETECT_MAX_SIDE);
   bitmap.close();
 
-  const dataUrl = canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-  const origBlob = await canvasToBlob(canvas);
+  const dataUrl = small.toDataURL("image/jpeg", DETECT_QUALITY);
+  const origBlob = await canvasToBlob(full);
   return {
     origBlob,
     base64: dataUrl.slice(dataUrl.indexOf(",") + 1),
-    width: w,
-    height: h,
+    width: full.width,
+    height: full.height,
   };
 }
 

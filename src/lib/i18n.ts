@@ -553,6 +553,10 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // בדיקה מעמיקה שרצה ברקע
+  deepCheckRunning: { he: "הבדיקה המשפטית המעמיקה רצה", en: "Deep legal review in progress" },
+  deepCheckRunningSub: { he: "כותבים תזכיר משפטי מלא עבור עורכי הדין. אפשר לצאת — נעדכן אתכם כשזה יסתיים.", en: "Preparing the full legal memo for lawyers. Feel free to leave — we'll notify you when it's done." },
+
   // התראות דחיפה
   notifLawyerInterest: { he: "עורך דין הביע עניין", en: "A lawyer showed interest" },
   notifLawyerInterestSub: { he: "כשעורך דין מבקש לטפל בתיק שלכם", en: "When a lawyer asks to take your case" },

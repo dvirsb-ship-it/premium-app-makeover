@@ -8,6 +8,7 @@ import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import type { ChatMessage } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import {
   detectSensitiveRegionsFn,
@@ -83,6 +84,7 @@ function Intake() {
           description,
         };
         setPendingImages((prev) => [...prev, img]);
+        haptic("success");
       }
     } catch {
       pushAssistant(t("imageCensorFailed"));
@@ -169,6 +171,7 @@ function Intake() {
       setPendingImages([]);
     }
     setTyping(true);
+    haptic("light");
 
     try {
       const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
@@ -242,6 +245,7 @@ function Intake() {
       } catch {
         /* ignore */
       }
+
       navigate({ to: "/validating" });
     } catch {
       setSubmitting(false);
