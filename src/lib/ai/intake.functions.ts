@@ -126,8 +126,18 @@ export interface IntakeTurnResult {
 export const intakeTurn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as IntakeTurnInput)
   .handler(async ({ data }): Promise<IntakeTurnResult> => {
-    const { requireUser } = await import("./server-admin");
-    await requireUser(data.idToken);
+    try {
+      const { requireUser } = await import("./server-admin");
+      await requireUser(data.idToken);
+    } catch (e) {
+      // אבחון זמני: לוגי השרת אינם מגיעים ל-Cloud Logging, לכן השגיאה חוזרת למסך
+      const msg = e instanceof Error ? e.message : String(e);
+      return {
+        reply: `⚠️ DIAG auth: ${msg} | tokenLen=${(data.idToken ?? "").length}`,
+        ready: null,
+        notSuitable: null,
+      };
+    }
 
     const contents: GeminiContent[] = data.messages.map((m) => ({
       role: m.from === "assistant" ? "model" : "user",
