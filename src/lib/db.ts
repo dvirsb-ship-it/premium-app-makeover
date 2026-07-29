@@ -711,6 +711,78 @@ export interface AdminCaseRow {
   firstOfferAt?: number;
 }
 
+/* ---------- ציר הזמן שאחרי החיבור ---------- */
+
+/**
+ * אבני הדרך שעורך הדין מסמן לאחר החיבור.
+ * זה לא רק עדכון ללקוח: זה הרגע שבו הפלטפורמה יודעת אם החיבור **הבשיל** —
+ * הנתון שעליו יתבסס החיוב פר-חיבור, ושעד היום לא היה קיים כלל.
+ */
+export type MilestoneKey = "met" | "demandSent" | "filed" | "closed";
+
+export const MILESTONE_ORDER: MilestoneKey[] = ["met", "demandSent", "filed", "closed"];
+
+export interface CaseMilestone {
+  key: MilestoneKey;
+  at: number;
+  note?: string;
+}
+
+/** אבני הדרך של התיק — בזמן אמת, לשני הצדדים. */
+export function watchMilestones(
+  caseId: string,
+  cb: (rows: CaseMilestone[]) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "cases", caseId, "milestones"),
+    (snap) => {
+      const rows = snap.docs.map((d) => ({ id: d.id, ...(d.data() as CaseMilestone) }));
+      rows.sort(
+        (a, b) => MILESTONE_ORDER.indexOf(a.key) - MILESTONE_ORDER.indexOf(b.key) || a.at - b.at,
+      );
+      cb(rows);
+    },
+    () => cb([]),
+  );
+}
+
+/** עורך הדין הנבחר מסמן אבן דרך. מזהה המסמך הוא המפתח — סימון חוזר מעדכן. */
+export async function markMilestone(
+  caseId: string,
+  key: MilestoneKey,
+  note?: string,
+): Promise<void> {
+  await setDoc(doc(fbDb(), "cases", caseId, "milestones", key), {
+    key,
+    at: Date.now(),
+    ...(note?.trim() ? { note: stripContactInfo(note.trim()) } : {}),
+  });
+  // התראה ללקוח — זה כל הטעם: שהוא לא ישאל "מה קורה עם התיק שלי"
+  const c = await readCaseRaw(caseId);
+  if (c) {
+    await notify(c.clientId, {
+      type: "case_milestone",
+      title: MILESTONE_TITLES[key],
+      body: note?.trim() || MILESTONE_BODIES[key],
+      caseId,
+    });
+  }
+}
+
+const MILESTONE_TITLES: Record<MilestoneKey, string> = {
+  met: "נפגשתם עם עורך הדין",
+  demandSent: "נשלח מכתב דרישה",
+  filed: "הוגשה תביעה",
+  closed: "התיק הסתיים",
+};
+
+const MILESTONE_BODIES: Record<MilestoneKey, string> = {
+  met: "עורך הדין סימן שהפגישה התקיימה.",
+  demandSent: "מכתב הדרישה נשלח לצד שכנגד.",
+  filed: "התביעה הוגשה לבית המשפט.",
+  closed: "עורך הדין סימן שהטיפול בתיק הושלם.",
+};
+
 /* ---------- לוח המשפך — חדר הבקרה של האדמין ---------- */
 
 export interface FunnelStats {

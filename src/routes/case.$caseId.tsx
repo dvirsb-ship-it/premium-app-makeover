@@ -11,6 +11,8 @@ import { useAppStore } from "../lib/store";
 import {
   avgResponseLabel,
   caseImageUrl,
+  watchMilestones,
+  type CaseMilestone,
   readCaseLawyerContact,
   readCaseRaw,
   readLawyerStats,
@@ -46,6 +48,9 @@ function CaseDetail() {
   const [recommendation, setRecommendation] = useState<string>("");
   // רשימת ההכנה שנגזרה מהראיון — התוצר שהלקוח לא קיבל עד היום
   const [checklist, setChecklist] = useState<string[]>([]);
+  // ציר הזמן שאחרי החיבור — כדי שלא ישאל "מה קורה עם התיק שלי"
+  const [milestones, setMilestones] = useState<CaseMilestone[]>([]);
+  useEffect(() => watchMilestones(caseId, setMilestones), [caseId]);
   // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
@@ -213,6 +218,34 @@ function CaseDetail() {
                   </p>
                 </div>
               )}
+            </div>
+          )}
+
+          {milestones.length > 0 && (
+            <div className="liquid-glass mt-3 rounded-3xl p-5">
+              <p className="text-[13px] font-bold text-foreground">{t("timelineHeader")}</p>
+              <ol className="mt-3 space-y-3">
+                {milestones.map((m) => (
+                  <li key={m.key} className="flex gap-3">
+                    <span className="mt-0.5 grid size-6 shrink-0 place-items-center rounded-full bg-success/15 text-success">
+                      <Check className="size-3.5" strokeWidth={3} />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[13px] font-bold text-foreground">
+                        {t(`ms_${m.key}` as never)}
+                      </p>
+                      {m.note && (
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+                          {m.note}
+                        </p>
+                      )}
+                      <p className="mt-0.5 text-[11px] text-muted-foreground/80">
+                        {new Date(m.at).toLocaleDateString("he-IL")}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ol>
             </div>
           )}
 

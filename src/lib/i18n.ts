@@ -553,6 +553,18 @@ export const strings = {
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
+  // ציר הזמן שאחרי החיבור
+  timelineHeader: { he: "מה קרה בתיק", en: "Case progress" },
+  timelineLawyerHeader: { he: "עדכון התקדמות", en: "Update progress" },
+  timelineLawyerSub: { he: "הלקוח מקבל התראה על כל אבן דרך. זה מה שחוסך את שאלת ״מה קורה עם התיק שלי״.", en: "The client is notified on each milestone — it saves the \"what's happening with my case\" question." },
+  ms_met: { he: "נפגשתם עם עורך הדין", en: "Met with the lawyer" },
+  ms_demandSent: { he: "נשלח מכתב דרישה", en: "Demand letter sent" },
+  ms_filed: { he: "הוגשה תביעה", en: "Claim filed" },
+  ms_closed: { he: "התיק הסתיים", en: "Case closed" },
+  msMarkBtn: { he: "סימון", en: "Mark" },
+  msMarked: { he: "סומן", en: "Marked" },
+  msNotePh: { he: "הערה ללקוח (לא חובה)", en: "Note to the client (optional)" },
+
   // רשימת ההכנה ללקוח
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },

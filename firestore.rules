@@ -77,6 +77,20 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      /*
+       * אבני דרך שאחרי החיבור — עורך הדין הנבחר מסמן, הלקוח קורא.
+       * זה גם הנתון שעליו יתבסס החיוב פר-חיבור, ולכן רק העו"ד הנבחר כותב.
+       */
+      match /milestones/{key} {
+        allow read: if signedIn() && (
+          get(/databases/$(database)/documents/cases/$(caseId)).data.clientId == request.auth.uid
+          || get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == request.auth.uid
+          || isAdmin()
+        );
+        allow write: if signedIn()
+          && get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == request.auth.uid;
+      }
+
       // פרטי הקשר של עו"ד על התיק — נכתבים בהבעת עניין, נחשפים ללקוח רק אחרי שבחר בו
       match /contacts/{lawyerUid} {
         allow write: if signedIn() && request.auth.uid == lawyerUid && isApprovedLawyer();

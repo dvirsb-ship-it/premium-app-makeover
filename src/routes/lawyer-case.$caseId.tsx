@@ -12,7 +12,12 @@ import { useRequireAuth } from "../lib/require-auth";
 import {
   caseImageUrl,
   categoryHasStatutoryCap,
+  markMilestone,
   readCaseMemo,
+  watchMilestones,
+  MILESTONE_ORDER,
+  type CaseMilestone,
+  type MilestoneKey,
   PLTD_MAX_PERCENT,
   readCaseRaw,
   submitAppeal,
@@ -134,6 +139,24 @@ function LawyerCaseDetail() {
     Number(amount) > PLTD_MAX_PERCENT &&
     categoryHasStatutoryCap(item?.category ?? "");
 
+  /*
+   * אבני דרך — הלקוח מקבל התראה על כל סימון, וזה גם הנתון שעליו יתבסס
+   * החיוב פר-חיבור. עד היום לא היה לפלטפורמה שום מושג אם חיבור הבשיל.
+   */
+  const [milestones, setMilestones] = useState<CaseMilestone[]>([]);
+  const [msNote, setMsNote] = useState("");
+  useEffect(() => watchMilestones(caseId, setMilestones), [caseId]);
+  const marked = new Set(milestones.map((m) => m.key));
+
+  function mark(key: MilestoneKey) {
+    void markMilestone(caseId, key, msNote)
+      .then(() => {
+        setMsNote("");
+        toast.success(t("msMarked"));
+      })
+      .catch(() => toast.error(t("authErrGeneric")));
+  }
+
   // התזכיר המשפטי המלא — עבודת המשפטן שה-AI כתב, נחסך מעורך הדין
   const [memo, setMemo] = useState<string | null>(null);
   const [memoOpen, setMemoOpen] = useState(false);
@@ -206,6 +229,47 @@ function LawyerCaseDetail() {
                 </div>
               </div>
             )}
+
+            <div className="liquid-glass mt-4 rounded-3xl p-5">
+              <h3 className="text-sm font-bold text-foreground">{t("timelineLawyerHeader")}</h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+                {t("timelineLawyerSub")}
+              </p>
+              <input
+                className={`${offerInputCls} mt-3`}
+                value={msNote}
+                onChange={(e) => setMsNote(e.target.value)}
+                placeholder={t("msNotePh")}
+              />
+              <div className="mt-3 space-y-2">
+                {MILESTONE_ORDER.map((k) => {
+                  const done = marked.has(k);
+                  return (
+                    <div
+                      key={k}
+                      className="flex items-center gap-3 rounded-2xl border border-white/10 bg-foreground/[0.04] px-3.5 py-2.5"
+                    >
+                      <span className="flex-1 text-[13px] font-semibold text-foreground">
+                        {t(`ms_${k}` as never)}
+                      </span>
+                      {done ? (
+                        <span className="rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                          {t("msMarked")}
+                        </span>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => mark(k)}
+                          className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                        >
+                          {t("msMarkBtn")}
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
 
             <div className="liquid-glass mt-4 rounded-3xl p-5">
               <div className="flex items-center gap-2">
