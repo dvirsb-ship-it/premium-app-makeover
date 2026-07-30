@@ -126,9 +126,10 @@ export interface IntakeTurnResult {
 export const intakeTurn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as IntakeTurnInput)
   .handler(async ({ data }): Promise<IntakeTurnResult> => {
-    const { requireUser, withErrorLog } = await import("./server-admin");
+    const { requireUser, enforceDailyCap, withErrorLog } = await import("./server-admin");
     return withErrorLog("intakeTurn", async () => {
-    await requireUser(data.idToken);
+    const uid = await requireUser(data.idToken);
+    await enforceDailyCap(uid, "intakeTurn");
 
     const contents: GeminiContent[] = data.messages.map((m) => ({
       role: m.from === "assistant" ? "model" : "user",
@@ -238,11 +239,12 @@ export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
     const {
-      requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds,
+      requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
+    await enforceDailyCap(uid, "validateCase");
 
     const raw = await adminGetCase(data.caseId);
     if (!raw) throw new Error("case not found");
@@ -455,9 +457,10 @@ export interface DetectRegionsInput {
 export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as DetectRegionsInput)
   .handler(async ({ data }): Promise<{ regions: SensitiveRegion[]; description: string }> => {
-    const { requireUser, withErrorLog } = await import("./server-admin");
+    const { requireUser, enforceDailyCap, withErrorLog } = await import("./server-admin");
     return withErrorLog("detectSensitiveRegions", async () => {
-    await requireUser(data.idToken);
+    const uid = await requireUser(data.idToken);
+    await enforceDailyCap(uid, "detectRegions");
 
     const text = await generate(
       [
@@ -545,5 +548,31 @@ export const notifyInterestFn = createServerFn({ method: "POST" })
         "lawyerInterest",
       );
       return { sent: true };
+    });
+  });
+
+
+/* ---------- ביצוע מחיקת חשבון ---------- */
+
+export interface PurgeInput {
+  targetUid: string;
+  idToken: string;
+}
+
+/**
+ * מוחק חשבון וכל הנגזר ממנו. אדמין-על בלבד — זו הפעולה ההרסנית ביותר
+ * במערכת, ולכן היא לא נגישה לחשבון הבדיקות ולא לבעל החשבון עצמו.
+ */
+export const purgeAccountFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as PurgeInput)
+  .handler(async ({ data }): Promise<{ cases: number }> => {
+    const { requireIdentity, purgeAccount, withErrorLog } = await import("./server-admin");
+    return withErrorLog("purgeAccount", async () => {
+      // האימייל נלקח מהטוקן המאומת, לא ממסמך המשתמש שהוא עצמו כותב
+      const me = await requireIdentity(data.idToken);
+      if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
+        throw new Error("forbidden");
+      }
+      return purgeAccount(data.targetUid);
     });
   });

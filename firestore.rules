@@ -110,8 +110,17 @@ service cloud.firestore {
           || get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == request.auth.uid
           || isAdmin()
         );
-        allow write: if signedIn()
-          && get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == request.auth.uid;
+        /*
+         * רק הוספה, ובחותמת אמת. אלו הרשומות שהחיוב פר-חיבור יתבסס עליהן,
+         * ולכן עורך הדין אינו יכול למחוק אבן דרך שסימן או לתארך אותה אחורה.
+         */
+        allow create: if signedIn()
+          && get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId == request.auth.uid
+          && request.resource.data.key == key
+          && request.resource.data.at is int
+          && request.resource.data.at > request.time.toMillis() - 120000
+          && request.resource.data.at < request.time.toMillis() + 120000;
+        allow update, delete: if false;
       }
 
       // פרטי הקשר של עו"ד על התיק — נכתבים בהבעת עניין, נחשפים ללקוח רק אחרי שבחר בו
@@ -212,6 +221,12 @@ service cloud.firestore {
     // יוכל לראות אותו על ההצעה. אין לאף אחד הרשאת כתיבה מהדפדפן.
     match /lawyerStats/{uid} {
       allow read: if signedIn();
+      allow write: if false;
+    }
+
+    // מונה שימוש יומי — נכתב בשרת בלבד; המשתמש רשאי לראות את שלו
+    match /usage/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
       allow write: if false;
     }
 

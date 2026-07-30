@@ -561,7 +561,7 @@ function VerificationQueue() {
                     <button
                       type="button"
                       disabled={!canAct} onClick={() =>
-                        void markDeletionDone(d.id).catch(() => toast.error(t("authErrGeneric")))
+                        void markDeletionDone(d.id, d.userId).catch(() => toast.error(t("authErrGeneric")))
                       }
                       className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
                     >

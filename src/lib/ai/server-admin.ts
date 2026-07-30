@@ -30,10 +30,37 @@ export async function requireUser(idToken: string | undefined): Promise<string> 
   if (!res.ok) {
     throw new Error(`unauthenticated: ${(await res.text()).slice(0, 120)}`);
   }
-  const data = (await res.json()) as { users?: { localId?: string }[] };
+  const data = (await res.json()) as {
+    users?: { localId?: string; email?: string; emailVerified?: boolean }[];
+  };
   const uid = data.users?.[0]?.localId;
   if (!uid) throw new Error("unauthenticated: token has no user");
   return uid;
+}
+
+/**
+ * זהות מאומתת מול גוגל — כולל האימייל.
+ * חשוב: אסור להסתמך על שדה email שבמסמך המשתמש, כי המשתמש כותב אותו בעצמו.
+ */
+export async function requireIdentity(
+  idToken: string | undefined,
+): Promise<{ uid: string; email: string; emailVerified: boolean }> {
+  if (!idToken) throw new Error("unauthenticated: missing id token");
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    },
+  );
+  if (!res.ok) throw new Error(`unauthenticated: ${(await res.text()).slice(0, 120)}`);
+  const data = (await res.json()) as {
+    users?: { localId?: string; email?: string; emailVerified?: boolean }[];
+  };
+  const u = data.users?.[0];
+  if (!u?.localId) throw new Error("unauthenticated: token has no user");
+  return { uid: u.localId, email: u.email ?? "", emailVerified: !!u.emailVerified };
 }
 
 /* ---------- אסימון חשבון השירות (Cloud Run metadata) ---------- */
@@ -217,6 +244,126 @@ export async function sendPush(
     );
   } catch {
     /* התראה היא תוספת, לא תנאי */
+  }
+}
+
+/* ---------- מחיקת חשבון בפועל ---------- */
+
+async function adminDelete(path: string): Promise<void> {
+  await fetch(`${DOCS}/${path}`, {
+    method: "DELETE",
+    headers: { Authorization: `Bearer ${await accessToken()}` },
+  }).catch(() => undefined);
+}
+
+/** מזהי מסמכים באוסף לפי שדה — לאיתור כל התיקים של המשתמש. */
+async function adminQueryIds(
+  collectionId: string,
+  field: string,
+  value: string,
+): Promise<string[]> {
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: field },
+            op: "EQUAL",
+            value: { stringValue: value },
+          },
+        },
+        limit: 500,
+      },
+    }),
+  });
+  if (!res.ok) return [];
+  const rows = (await res.json()) as { document?: { name?: string } }[];
+  return rows.map((r) => r.document?.name?.split("/").pop()).filter((x): x is string => !!x);
+}
+
+async function adminDeleteStorage(path: string): Promise<void> {
+  await fetch(
+    `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${await accessToken()}` } },
+  ).catch(() => undefined);
+}
+
+/**
+ * מחיקה אמיתית של חשבון וכל מה שנגזר ממנו.
+ * עד כה בקשת מחיקה רק נרשמה — התקנון הבטיח "מחיקה מלאה תוך 14 יום"
+ * ושום קוד לא מחק דבר. זו הפונקציה שהופכת את ההבטחה לאמת.
+ */
+export async function purgeAccount(uid: string): Promise<{ cases: number }> {
+  const caseIds = await adminQueryIds("cases", "clientId", uid);
+
+  for (const id of caseIds) {
+    const c = await adminGetDoc(`cases/${id}`);
+    const images = (c?.images as { origPath?: string; censPath?: string }[] | undefined) ?? [];
+    for (const img of images) {
+      if (img.origPath) await adminDeleteStorage(img.origPath);
+      if (img.censPath) await adminDeleteStorage(img.censPath);
+    }
+    // תתי-אוספים אינם נמחקים עם המסמך ב-Firestore
+    await adminDelete(`cases/${id}/memo/full`);
+    for (const k of ["met", "demandSent", "filed", "closed"]) {
+      await adminDelete(`cases/${id}/milestones/${k}`);
+    }
+    await adminDelete(`cases/${id}`);
+  }
+
+  for (const nid of await adminQueryIds("notifications", "userId", uid)) {
+    await adminDelete(`notifications/${nid}`);
+  }
+
+  await adminDelete(`lawyerProfiles/${uid}`);
+  await adminDelete(`lawyerContacts/${uid}`);
+  await adminDelete(`verifications/${uid}`);
+  await adminDelete(`lawyerStats/${uid}`);
+  await adminDelete(`usage/${uid}`);
+  await adminDelete(`users/${uid}`);
+
+  return { cases: caseIds.length };
+}
+
+/* ---------- הגבלת קצב ---------- */
+
+/**
+ * תקרה יומית לכל משתמש, פר-פעולה.
+ * שלוש פונקציות ה-AI פתוחות לכל חשבון גוגל, ו-intakeTurn שולח את כל
+ * התמליל בכל תור — לולאה מתוסרטת מייצרת עלות ריבועית. המונה נשמר בשרת
+ * בלבד; חוקי המסד אוסרים כתיבה מהדפדפן, כך שאי אפשר לאפס אותו.
+ */
+const DAILY_CAPS: Record<string, number> = {
+  intakeTurn: 120,
+  validateCase: 15,
+  detectRegions: 30,
+};
+
+export async function enforceDailyCap(uid: string, action: string): Promise<void> {
+  const cap = DAILY_CAPS[action];
+  if (!cap) return;
+  const day = new Date().toISOString().slice(0, 10);
+  const path = `usage/${encodeURIComponent(uid)}`;
+  let used = 0;
+  try {
+    const cur = (await adminGetDoc(path)) ?? {};
+    if (cur.day === day) used = Number(cur[action] ?? 0);
+    const next: Record<string, string | number | boolean> = { day };
+    next[action] = used + 1;
+    // יום חדש מאפס את שאר המונים בפעם הראשונה שנוגעים בהם
+    await adminPatch(path, next);
+  } catch {
+    // כשל במונה לא יחסום משתמש אמיתי
+    return;
+  }
+  if (used >= cap) {
+    throw new Error(`daily cap reached for ${action}`);
   }
 }
 

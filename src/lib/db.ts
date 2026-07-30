@@ -621,7 +621,15 @@ export function watchDeletionRequests(
   );
 }
 
-export async function markDeletionDone(id: string): Promise<void> {
+/**
+ * ביצוע מחיקה אמיתי: השרת מוחק את החשבון וכל הנגזר ממנו, ורק אז
+ * הבקשה מסומנת כטופלה. קודם הכפתור רק סימן — והתקנון הבטיח מחיקה מלאה.
+ */
+export async function markDeletionDone(id: string, targetUid: string): Promise<void> {
+  const { purgeAccountFn } = await import("./ai/intake.functions");
+  const { fbAuth } = await import("./firebase");
+  const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+  await purgeAccountFn({ data: { targetUid, idToken } });
   await updateDoc(doc(fbDb(), "deletionRequests", id), { status: "done" });
 }
 
