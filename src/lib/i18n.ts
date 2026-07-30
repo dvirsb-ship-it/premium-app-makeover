@@ -569,6 +569,9 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
+  submittedStep1: { he: "הפנייה עברה את הבדיקה המשפטית הראשונית", en: "Your case passed the initial legal review" },
+  submittedStep2: { he: "עורכי דין מתאימים בתחום קיבלו התראה", en: "Matching lawyers in the field were notified" },
+  submittedStep3: { he: "נעדכן אותך ברגע שמישהו יביע עניין", en: "We'll update you the moment someone shows interest" },
   submittedGoodLuck: { he: "בהצלחה בבחירת עורך הדין שלך", en: "Good luck choosing your lawyer" },
   submittedToHome: { he: "המשך לדף הבית", en: "Continue to home" },
   closeAria: { he: "סגירה", en: "Close" },

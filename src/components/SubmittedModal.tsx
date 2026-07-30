@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { Check, X } from "lucide-react";
+import type { StringKey } from "../lib/i18n";
 import { useT } from "../lib/i18n";
 
 /**
@@ -33,7 +34,8 @@ export function SubmittedModal({
         exit={{ opacity: 0, y: 12, scale: 0.98 }}
         transition={{ type: "spring", stiffness: 260, damping: 24 }}
         onClick={(e) => e.stopPropagation()}
-        className="liquid-glass relative w-full max-w-sm rounded-[32px] p-7 text-center shadow-luxe"
+        /* אטום בכוונה: זו הודעה, לא רקע. הזכוכית שייכת למשטח שמאחוריה. */
+        className="relative w-full max-w-sm rounded-[32px] border border-border bg-card p-7 text-center shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
       >
         <button
           type="button"
@@ -74,10 +76,19 @@ export function SubmittedModal({
         <h2 className="mt-6 text-xl font-black leading-snug text-foreground">
           {t("submittedTitle")}
         </h2>
-        <p className="mx-auto mt-3 max-w-[19rem] text-[14px] leading-relaxed text-muted-foreground">
-          {t("submittedSub")}
-        </p>
-        <p className="mt-3 text-[13px] font-semibold text-gold">{t("submittedGoodLuck")}</p>
+        {/* מה שכבר קרה — כמשימות שהושלמו, לא כפסקה */}
+        <ul className="mt-5 space-y-3 text-start">
+          {(["submittedStep1", "submittedStep2", "submittedStep3"] as StringKey[]).map((k) => (
+            <li key={k} className="flex items-start gap-3">
+              <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold">
+                <Check className="size-3 text-[#0F172A]" strokeWidth={3.5} />
+              </span>
+              <span className="text-[13.5px] leading-relaxed text-foreground/90">{t(k)}</span>
+            </li>
+          ))}
+        </ul>
+
+        <p className="mt-6 text-[13px] font-semibold text-gold">{t("submittedGoodLuck")}</p>
 
         <div className="mt-7 space-y-2.5">
           <button
