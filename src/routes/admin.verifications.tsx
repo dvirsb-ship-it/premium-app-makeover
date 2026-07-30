@@ -35,11 +35,13 @@ import {
   markTicketHandled,
   resolveAppeal,
   watchAllCasesAdmin,
+  watchIntakeFunnel,
   watchAppeals,
   watchDeletionRequests,
   watchServerErrors,
   watchSupportTickets,
   type AdminCaseRow,
+  type IntakeFunnel,
   type AppealDoc,
   type DeletionRequestDoc,
   type ServerErrorDoc,
@@ -125,6 +127,7 @@ function VerificationQueue() {
   const [allCases, setAllCases] = useState<AdminCaseRow[]>([]);
   const [deletions, setDeletions] = useState<DeletionRequestDoc[]>([]);
   const [errors, setErrors] = useState<ServerErrorDoc[]>([]);
+  const [intake, setIntake] = useState<IntakeFunnel | null>(null);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
     const fail = () => setLoadFailed(true);
@@ -132,11 +135,13 @@ function VerificationQueue() {
     const un2 = watchAllCasesAdmin(setAllCases, fail);
     const un3 = watchDeletionRequests(setDeletions, fail);
     const un4 = watchServerErrors(setErrors, fail);
+    const un5 = watchIntakeFunnel(setIntake, fail);
     return () => {
       un1();
       un2();
       un3();
       un4();
+      un5();
     };
   }, [authReady, user]);
 
@@ -476,6 +481,55 @@ function VerificationQueue() {
         {/* חדר הבקרה — עונה על "האם זה מצליח", לא רק "האם זה עובד" */}
         <h2 className="text-base font-bold text-foreground">{t("funnelHeader")}</h2>
         <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{t("funnelSub")}</p>
+
+        {/*
+          * השלב שלפני התיק. עד עכשיו הוא היה חור שחור: מי שפתח את הצ'אט
+          * ונטש לא הופיע בשום מקום, וזה רוב האנשים בשלב השקה. הפער בין
+          * "פתחו" ל"כתבו" הוא המשפט הראשון של ה-AI; הפער בין "כתבו"
+          * ל"קיבלו הכרעה" הוא אורך השיחה.
+          */}
+        {intake && intake.opened > 0 && (
+          <div className="mt-4 rounded-3xl border border-border bg-card p-5">
+            <p className="text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              {t("intakeFunnelHeader")}
+            </p>
+            <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
+              {t("intakeFunnelSub")}
+            </p>
+            <div className="mt-4 space-y-2.5">
+              {([
+                ["intakeFunnelOpened", intake.opened, undefined],
+                ["intakeFunnelEngaged", intake.engaged, intake.opened],
+                ["intakeFunnelDecided", intake.decided, intake.engaged],
+                ["intakeFunnelSubmitted", intake.submitted, intake.decided],
+              ] as const).map(([key, value, of]) => {
+                const pct = of && of > 0 ? Math.round((value / of) * 100) : null;
+                return (
+                  <div key={key} className="flex items-center gap-3">
+                    <span className="w-32 shrink-0 text-[12px] text-muted-foreground">{t(key)}</span>
+                    <div className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+                      <div
+                        className="h-full rounded-full bg-gold"
+                        style={{ width: `${intake.opened ? (value / intake.opened) * 100 : 0}%` }}
+                      />
+                    </div>
+                    <span className="w-20 shrink-0 text-end text-[12px] font-bold text-foreground">
+                      {value}
+                      {pct !== null && (
+                        <span className="ms-1 font-medium text-muted-foreground">{pct}%</span>
+                      )}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {intake.notSuitable > 0 && (
+              <p className="mt-4 border-t border-border pt-3 text-[11.5px] leading-relaxed text-muted-foreground">
+                {intake.notSuitable} · {t("intakeFunnelNotSuitable")}
+              </p>
+            )}
+          </div>
+        )}
         {(() => {
           const f = computeFunnel(allCases);
           const steps: { label: string; value: number; of?: number }[] = [

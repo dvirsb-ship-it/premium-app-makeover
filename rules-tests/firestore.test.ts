@@ -434,6 +434,74 @@ describe("memo", () => {
   });
 });
 
+/* ---------- מדידת המשפך ---------- */
+
+describe("funnelEvents", () => {
+  it("משתמש כותב אירוע על עצמו", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("client1"), "funnelEvents/e1"), {
+        uid: "client1",
+        event: "intake_opened",
+        at: Date.now(),
+      }),
+    );
+  });
+
+  it("אי אפשר לכתוב אירוע בשם מישהו אחר", async () => {
+    await assertFails(
+      setDoc(doc(as("client1"), "funnelEvents/e2"), {
+        uid: "client2",
+        event: "intake_opened",
+        at: Date.now(),
+      }),
+    );
+  });
+
+  it("האוסף אינו צינור כתיבה חופשי", async () => {
+    // שדה נוסף, טקסט ארוך, או חותמת שאינה מספר — הכל נדחה
+    await assertFails(
+      setDoc(doc(as("client1"), "funnelEvents/e3"), {
+        uid: "client1",
+        event: "intake_opened",
+        at: Date.now(),
+        payload: "תוכן השיחה של המשתמש",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(as("client1"), "funnelEvents/e4"), {
+        uid: "client1",
+        event: "x".repeat(60),
+        at: Date.now(),
+      }),
+    );
+  });
+
+  it("אירוע שנכתב אינו ניתן לשינוי או למחיקה מהדפדפן", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "funnelEvents/e5"), {
+        uid: "client1",
+        event: "intake_opened",
+        at: Date.now(),
+      });
+    });
+    const { deleteDoc } = await import("firebase/firestore");
+    await assertFails(updateDoc(doc(as("client1"), "funnelEvents/e5"), { event: "x" }));
+    await assertFails(deleteDoc(doc(as("client1"), "funnelEvents/e5")));
+  });
+
+  it("רק האדמין קורא", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "funnelEvents/e6"), {
+        uid: "client1",
+        event: "intake_opened",
+        at: Date.now(),
+      });
+    });
+    await assertFails(getDoc(doc(as("client1"), "funnelEvents/e6")));
+    await assertSucceeds(getDoc(doc(as("viewer", VIEWER), "funnelEvents/e6")));
+  });
+});
+
 /* ---------- ברירת המחדל: הכל חסום ---------- */
 
 describe("ברירת מחדל", () => {

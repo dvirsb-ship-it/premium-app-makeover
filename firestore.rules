@@ -239,6 +239,23 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    /*
+     * מדידת המשפך שלפני התיק — שמות אירועים בלבד, בלי תוכן שיחה.
+     * המשתמש כותב רק על עצמו ורק את השדות האלה, כדי שהאוסף לא יהפוך
+     * לצינור כתיבה חופשי. קריאה לאדמין בלבד; אין עדכון ואין מחיקה
+     * מהדפדפן (המחיקה נעשית בשרת עם מחיקת החשבון).
+     */
+    match /funnelEvents/{id} {
+      allow create: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.keys().hasOnly(['uid', 'event', 'at'])
+        && request.resource.data.event is string
+        && request.resource.data.event.size() < 40
+        && request.resource.data.at is int;
+      allow read: if isAdmin();
+      allow update, delete: if false;
+    }
+
     // מונה שימוש יומי — נכתב בשרת בלבד; המשתמש רשאי לראות את שלו
     match /usage/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;

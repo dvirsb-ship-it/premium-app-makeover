@@ -403,6 +403,11 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
     await del(`ratings/${rid}`);
   }
 
+  /* אירועי המשפך נושאים uid — מידע התנהגותי שחייב ללכת עם החשבון */
+  for (const eid of await adminQueryIds("funnelEvents", "uid", uid)) {
+    await del(`funnelEvents/${eid}`);
+  }
+
   await del(`lawyerProfiles/${uid}`);
   await del(`lawyerContacts/${uid}`);
   await del(`verifications/${uid}`);

@@ -858,6 +858,46 @@ export interface FunnelStats {
  * "אושרו ואפס התעניינות" הוא אות הכיול החשוב: אם בקטגוריה שלמה עורכי דין
  * לא נוגעים בתיקים, כנראה שומר הסף רחב מדי שם.
  */
+/**
+ * המשפך שלפני התיק — כמה אנשים בכלל התחילו, וכמה נשרו בדרך.
+ *
+ * לוח הבקרה ידע לספור תיקים, אבל תיק נוצר רק בסוף. מי שפתח את הצ'אט,
+ * כתב שתי שורות ונטש היה בלתי נראה — וזה רוב האנשים בשלב השקה.
+ * נספרים משתמשים ייחודיים ולא אירועים, כדי שרענון דף לא ינפח את המספר.
+ */
+export interface IntakeFunnel {
+  opened: number;
+  engaged: number;
+  decided: number;
+  submitted: number;
+  notSuitable: number;
+}
+
+export function watchIntakeFunnel(
+  cb: (f: IntakeFunnel) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "funnelEvents"),
+    (snap) => {
+      const uniq: Record<string, Set<string>> = {};
+      for (const d of snap.docs) {
+        const { uid, event } = d.data() as { uid: string; event: string };
+        (uniq[event] ??= new Set()).add(uid);
+      }
+      const n = (e: string) => uniq[e]?.size ?? 0;
+      cb({
+        opened: n("intake_opened"),
+        engaged: n("intake_first_message"),
+        decided: n("intake_ready") + n("intake_not_suitable"),
+        submitted: n("intake_submitted"),
+        notSuitable: n("intake_not_suitable"),
+      });
+    },
+    (err) => onError?.(err),
+  );
+}
+
 export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
   const passedRows = rows.filter((r) => r.status !== "rejected" && r.status !== "validating");
   const offerGaps = rows

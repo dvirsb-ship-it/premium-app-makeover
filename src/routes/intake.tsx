@@ -17,6 +17,7 @@ import {
   type IntakeReady,
 } from "../lib/ai/intake.functions";
 import { createCase, uploadCaseImages } from "../lib/db";
+import { identify, initAnalytics, track } from "../lib/analytics";
 import { fbAuth } from "../lib/firebase";
 import { censorImage, prepareImage, type PendingImage } from "../lib/image-censor";
 import { Scale } from "lucide-react";
@@ -33,6 +34,18 @@ function Intake() {
   const t = useT();
   const { dir } = useSettings();
   const { user } = useAppStore();
+
+  /*
+   * מדידת המשפך שלפני התיק — מי פתח, מי כתב, מי הגיע להכרעה, מי שלח.
+   * בלי זה תיק שלא נוצר הוא בלתי נראה לגמרי, וזה רוב האנשים בשלב השקה.
+   */
+  const firstMsgSent = useRef(false);
+  useEffect(() => {
+    if (!user) return;
+    identify(user.uid);
+    initAnalytics();
+    track("intake_opened");
+  }, [user]);
 
   const openers: ChatMessage[] = useMemo(
     () => [
@@ -187,6 +200,11 @@ function Intake() {
     // אפשר לשלוח תמונה גם בלי טקסט
     if ((!text && !attached.length) || typing || censoring) return;
 
+    if (!firstMsgSent.current) {
+      firstMsgSent.current = true;
+      track("intake_first_message");
+    }
+
     // תשובה אחרי סיכום — המשתמש מתקן/מוסיף, ההכרעה נפתחת מחדש
     if (ready || notSuitable) {
       setReady(false);
@@ -241,9 +259,11 @@ function Intake() {
       if (res.ready) {
         readyData.current = res.ready;
         setReady(true);
+        track("intake_ready");
       }
       if (res.notSuitable) {
         setNotSuitable(res.notSuitable);
+        track("intake_not_suitable");
       }
       setStep((s) => s + 1);
     } catch {
@@ -271,6 +291,7 @@ function Intake() {
       messages.filter((m) => m.from === "user").map((m) => m.text).join("\n");
     setSubmitting(true);
     try {
+      track("intake_submitted");
       const caseId = await createCase({
         clientId: uid,
         description,
@@ -541,12 +562,14 @@ function Intake() {
               <button
                 type="button"
                 onClick={() => {
+                  track("intake_restarted");
                   clearDraft();
                   sentImages.current = [];
                   setPendingImages([]);
                   setMessages(openers);
                   setStep(0);
                   setInput("");
+                  firstMsgSent.current = false;
                 }}
                 className="mb-2 w-full py-1 text-center text-[12px] font-semibold text-muted-foreground"
               >

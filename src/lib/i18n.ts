@@ -657,6 +657,13 @@ export const strings = {
   deletionMarkDone: { he: "סימון כבוצע", en: "Mark done" },
   deletionDone: { he: "בוצע", en: "Done" },
 
+  intakeFunnelHeader: { he: "לפני שנוצר תיק", en: "Before a case exists" },
+  intakeFunnelSub: { he: "משתמשים ייחודיים. מי שפתח את השיחה ונטש לא הופיע בשום מקום עד עכשיו — כאן רואים איפה בדיוק עוזבים.", en: "Unique users. Anyone who opened the chat and left was invisible until now — this shows exactly where they drop." },
+  intakeFunnelOpened: { he: "פתחו את השיחה", en: "Opened the chat" },
+  intakeFunnelEngaged: { he: "כתבו הודעה", en: "Sent a message" },
+  intakeFunnelDecided: { he: "הגיעו להכרעה", en: "Reached a decision" },
+  intakeFunnelSubmitted: { he: "שלחו לבדיקה", en: "Submitted for review" },
+  intakeFunnelNotSuitable: { he: "קיבלו תשובה כנה שאין להם תיק — זה מוצר, לא כישלון", en: "were honestly told they have no case — that's the product, not a failure" },
   deletionPreview: { he: "בדיקה יבשה", en: "Dry run" },
   deletionPreviewTitle: { he: "מה יימחק — בלי למחוק", en: "What would be deleted — nothing is" },
   deletionPreviewSub: { he: "זו הרצה יבשה בלבד. שום דבר לא נמחק. עברו על הרשימה, ורק אז סמנו כבוצע.", en: "This is a dry run only. Nothing was deleted. Review the list, then mark as done." },
