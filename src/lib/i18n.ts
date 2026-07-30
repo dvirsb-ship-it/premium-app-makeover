@@ -569,6 +569,18 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
+  // הבית של הלקוח
+  homeHello: { he: "שלום", en: "Hello" },
+  homeHelloNamed: { he: "שלום, {name}", en: "Hello, {name}" },
+  homeSub: { he: "התיקים שלך, במקום אחד", en: "Your cases, in one place" },
+  homeCaseUntitled: { he: "הפנייה שלך", en: "Your case" },
+  homeNewCase: { he: "פנייה חדשה", en: "New case" },
+  homeFirstCase: { he: "שיתוף המקרה שלי", en: "Share my case" },
+  homeEmptyTitle: { he: "עוד לא שיתפת מקרה", en: "No case shared yet" },
+  homeEmptySub: { he: "ספרו מה קרה בשיחה קצרה, ונבדוק אם יש עילה משפטית לפני שנפנה לעורכי דין.", en: "Tell us what happened in a short chat — we check whether there's a legal basis before reaching out to lawyers." },
+  homeOtherCases: { he: "פניות נוספות", en: "Other cases" },
+  homeAllCases: { he: "לכל התיקים", en: "See all cases" },
+
   // הפרדת הרשאות אדמין
   adminViewOnly: { he: "מצב צפייה", en: "View-only mode" },
   adminViewOnlySub: { he: "החשבון הזה רואה את כל המשרד אך אינו מבצע פעולות. אישור עורכי דין, הכרעה בערעורים וסימון טיפול נעשים מחשבון justask.adv בלבד — כך בדיקה כלקוח לא תאשר בטעות עורך דין אמיתי.", en: "This account can see everything but cannot act. Approving lawyers, resolving appeals and marking items handled are done from justask.adv only." },

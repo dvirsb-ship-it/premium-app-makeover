@@ -1,15 +1,18 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Scale, UserRound } from "lucide-react";
+import { ArrowLeft, ArrowRight, Plus, Scale, Sparkles, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 
 import { BrandMark } from "../components/BrandMark";
 import { BottomNav } from "../components/BottomNav";
 import { HeroVideo } from "../components/HeroVideo";
-import { Pressable, Rise, Stagger } from "../components/motion";
+import { Page, Pressable, Rise, Stagger } from "../components/motion";
+import { NotificationBell } from "../components/NotificationBell";
 import { useT } from "../lib/i18n";
+import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
+import { toneClasses, useStatusMeta } from "../lib/status";
 import type { Role } from "../lib/types";
 
 
@@ -36,7 +39,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { role, setRole } = useAppStore();
+  const { role, setRole, user } = useAppStore();
   const t = useT();
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -63,7 +66,15 @@ function Index() {
     navigate({ to: role ? "/intake-tips" : "/auth" });
   }
 
+  // עורך דין שלוחץ "ראשי" קיבל עד כה את מסך הבחירה — יש לו בית משלו
+  useEffect(() => {
+    if (gateChecked && role === "lawyer") navigate({ to: "/lawyer", replace: true });
+  }, [gateChecked, role, navigate]);
+
   if (!gateChecked) return null;
+
+  // המערכת כבר יודעת מי אתה — אין סיבה לשאול שוב בכל כניסה
+  if (role === "client" && user) return <ClientHome />;
 
   return (
     <AppShell bare outerClassName="studio-stage !overflow-y-auto">
@@ -151,6 +162,143 @@ function Index() {
       </div>
 
       {role !== null && <BottomNav />}
+    </AppShell>
+  );
+}
+
+/**
+ * הבית של הלקוח.
+ *
+ * התפקיד הרגשי כאן הוא לא תפריט — אלא תחושה שמישהו מחזיק את התיק בשבילך.
+ * לכן התיק הפעיל הוא האלמנט הגדול והיחיד שמושך תשומת לב, והשאר שקט:
+ * פעולה ראשית אחת, ורשימה מצומצמת של השאר.
+ */
+function ClientHome() {
+  const navigate = useNavigate();
+  const t = useT();
+  const { cases, user } = useAppStore();
+  const { dir } = useSettings();
+  const statusMeta = useStatusMeta();
+  const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
+
+  const firstName = (user?.displayName ?? "").trim().split(" ")[0];
+  const [active, ...rest] = cases;
+  const activeMeta = active ? statusMeta(active.status) : null;
+  const interested = active?.interested.length ?? 0;
+
+  return (
+    <AppShell withNav>
+      <Page>
+        <header className="flex items-start justify-between gap-3 pb-6 pt-8">
+          <div className="min-w-0">
+            <h1 className="text-2xl font-black leading-tight text-foreground">
+              {firstName ? t("homeHelloNamed").replace("{name}", firstName) : t("homeHello")}
+            </h1>
+            <p className="mt-1 text-sm text-muted-foreground">{t("homeSub")}</p>
+          </div>
+          <NotificationBell />
+        </header>
+
+        <Stagger className="space-y-4 pb-10">
+          {active ? (
+            <Rise>
+              <Pressable
+                onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
+                className="liquid-glass w-full rounded-3xl p-5 text-start"
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
+                  >
+                    {activeMeta!.label}
+                  </span>
+                  <Arrow className="size-5 shrink-0 text-muted-foreground/50" />
+                </div>
+
+                <h2 className="mt-3 text-lg font-bold leading-snug text-foreground">
+                  {active.title || t("homeCaseUntitled")}
+                </h2>
+                <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                  {active.summary}
+                </p>
+
+                {/* רגע הערך: מישהו רוצה את התיק שלך */}
+                {interested > 0 && active.status !== "connected" && (
+                  <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gold/10 px-3.5 py-2.5">
+                    <Sparkles className="size-4 shrink-0 text-gold" />
+                    <span className="text-[13px] font-bold text-foreground">
+                      {interested} {t("lawyersInterestedCount")}
+                    </span>
+                  </div>
+                )}
+              </Pressable>
+            </Rise>
+          ) : (
+            <Rise>
+              <div className="liquid-glass rounded-3xl p-6 text-center">
+                <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-gold/15 text-gold">
+                  <Scale className="size-6" strokeWidth={2} />
+                </span>
+                <h2 className="mt-4 text-base font-bold text-foreground">{t("homeEmptyTitle")}</h2>
+                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
+                  {t("homeEmptySub")}
+                </p>
+              </div>
+            </Rise>
+          )}
+
+          <Rise>
+            <Pressable
+              onClick={() => navigate({ to: "/intake-tips" })}
+              className="btn-gold flex w-full items-center justify-center gap-2 rounded-3xl py-4 text-base font-bold"
+            >
+              <Plus className="size-5" />
+              {active ? t("homeNewCase") : t("homeFirstCase")}
+            </Pressable>
+          </Rise>
+
+          {rest.length > 0 && (
+            <Rise>
+              <div className="liquid-glass overflow-hidden rounded-3xl">
+                <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
+                  {t("homeOtherCases")}
+                </p>
+                {rest.slice(0, 3).map((c, i) => {
+                  const m = statusMeta(c.status);
+                  return (
+                    <button
+                      key={c.id}
+                      type="button"
+                      onClick={() => navigate({ to: "/case/$caseId", params: { caseId: c.id } })}
+                      className={`flex w-full items-center gap-3 p-4 text-start ${i !== Math.min(rest.length, 3) - 1 ? "border-b border-border" : ""}`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-bold text-foreground">
+                          {c.title || t("homeCaseUntitled")}
+                        </p>
+                        <p className="mt-0.5 text-[11px] text-muted-foreground">{m.label}</p>
+                      </div>
+                      <Arrow className="size-4 shrink-0 text-muted-foreground/40" />
+                    </button>
+                  );
+                })}
+              </div>
+            </Rise>
+          )}
+
+          {cases.length > 1 && (
+            <Rise>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/cases" })}
+                className="w-full py-1 text-center text-[13px] font-semibold text-gold"
+              >
+                {t("homeAllCases")}
+              </button>
+            </Rise>
+          )}
+        </Stagger>
+      </Page>
     </AppShell>
   );
 }
