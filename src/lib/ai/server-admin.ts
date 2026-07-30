@@ -220,6 +220,65 @@ export async function sendPush(
   }
 }
 
+/* ---------- הזמנת עורכי דין (בשרת) ---------- */
+
+/** התראה למשתמש — נכתבת בהרשאות שרת. */
+export async function adminNotify(
+  userId: string,
+  n: { type: string; title: string; body: string; caseId?: string },
+): Promise<void> {
+  const fields: Record<string, FsValue> = {
+    userId: { stringValue: userId },
+    type: { stringValue: n.type },
+    title: { stringValue: n.title },
+    body: { stringValue: n.body },
+    read: { booleanValue: false },
+    createdAt: { integerValue: String(Date.now()) },
+  };
+  if (n.caseId) fields.caseId = { stringValue: n.caseId };
+  await fetch(`${DOCS}/notifications`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ fields }),
+  });
+}
+
+/**
+ * מזהי עורכי הדין *המאושרים* בלבד.
+ * קודם הפיצוץ רץ מול כל lawyerProfiles — כולל מי שטרם אושר — ומהדפדפן
+ * של הלקוח, כך שאם הוא סגר את הטאב אף עורך דין לא נודע על התיק.
+ */
+export async function adminApprovedLawyerIds(): Promise<string[]> {
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: "verifications" }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: "status" },
+            op: "EQUAL",
+            value: { stringValue: "approved" },
+          },
+        },
+        limit: 500,
+      },
+    }),
+  });
+  if (!res.ok) return [];
+  const rows = (await res.json()) as { document?: { name?: string } }[];
+  return rows
+    .map((r) => r.document?.name?.split("/").pop())
+    .filter((x): x is string => !!x);
+}
+
 /* ---------- יומן שגיאות שרת ---------- */
 
 /**

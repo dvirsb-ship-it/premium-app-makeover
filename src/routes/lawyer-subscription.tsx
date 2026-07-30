@@ -161,12 +161,15 @@ function LawyerSubscription() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.9, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         type="button"
-        className="btn-gold mt-4 flex w-full items-center justify-center gap-2 rounded-[22px] py-4 text-[15px] font-bold"
+        disabled
+        className="mt-4 flex w-full cursor-default items-center justify-center gap-2 rounded-[22px] border border-border py-4 text-[15px] font-bold text-muted-foreground"
       >
         <Check className="size-5" strokeWidth={2.4} />
-        {t("joinPro")}
-        <ChevronLeft className={`size-4 ${flip}`} strokeWidth={2.4} />
+        {t("proLaunchFree")}
       </motion.button>
+      <p className="mt-2.5 text-center text-[12px] leading-relaxed text-muted-foreground">
+        {t("proLaunchFreeSub")}
+      </p>
 
       <p className="mt-4 pb-10 text-center text-[11px] leading-relaxed text-muted-foreground">
         {t("subFineText")}

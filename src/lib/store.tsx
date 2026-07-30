@@ -13,6 +13,8 @@ import type { CaseOffer } from "./db";
 
 /** ההצעה כפי שהעו"ד ממלא אותה — חותמת הזמן נוספת בשכבת הנתונים. */
 type OfferInput = Omit<CaseOffer, "at" | "fee">;
+import { toast } from "sonner";
+import { translate } from "./i18n";
 import { fbAuth, isBrowser } from "./firebase";
 import { maskLawyerName } from "./privacy";
 import {
@@ -63,6 +65,16 @@ interface AppState {
 const AppContext = createContext<AppState | null>(null);
 
 const ROLE_CACHE_KEY = "justask-role-v2";
+
+/** שפת הממשק מחוץ להקשר של React — ה-store אינו צרכן של ספק ההגדרות. */
+function uiLang(): "he" | "en" {
+  try {
+    const raw = localStorage.getItem("justask-settings-v1");
+    return JSON.parse(raw ?? "{}").lang === "en" ? "en" : "he";
+  } catch {
+    return "he";
+  }
+}
 
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -197,7 +209,21 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       const contact = u
         ? { name: u.displayName ?? "", phone: u.phoneNumber ?? "", email: u.email ?? "" }
         : undefined;
-      void chooseLawyerDb(caseId, lawyerId, contact).catch(() => {});
+      /*
+       * כתיבה שנכשלה השאירה את הלקוח במסך "נוצר חיבור" מזויף: הוא ראה שם
+       * של עורך דין, ניסה להשיג פרטי קשר שלא נכתבו מעולם, ולא ידע כלום.
+       * נכשל — מחזירים את המצב ואומרים את זה.
+       */
+      void chooseLawyerDb(caseId, lawyerId, contact).catch(() => {
+        setCases((prev) =>
+          prev.map((c) =>
+            c.id === caseId
+              ? { ...c, chosenLawyerId: undefined, status: "has_interest" }
+              : c,
+          ),
+        );
+        toast.error(translate("actionFailedRetry", uiLang()));
+      });
     },
     [user],
   );
@@ -233,7 +259,17 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         initials: displayName.slice(0, 2),
         blurb: "",
       };
-      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {});
+      // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
+      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {
+        setFeed((prev) =>
+          prev.map((f) =>
+            f.id === feedId
+              ? { ...f, expressed: false, interestedCount: Math.max(0, f.interestedCount - 1) }
+              : f,
+          ),
+        );
+        toast.error(translate("actionFailedRetry", uiLang()));
+      });
     },
     [user, myLawyerProfile],
   );

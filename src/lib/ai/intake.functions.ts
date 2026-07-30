@@ -237,8 +237,10 @@ ${VALIDATION_SYSTEM.slice(VALIDATION_SYSTEM.indexOf("כללי פלט:"))}`;
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
-    const { requireUser, adminGetCase, adminPatch, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog } =
-      await import("./server-admin");
+    const {
+      requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds,
+      adminPatch, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog,
+    } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
 
@@ -246,13 +248,35 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     if (!raw) throw new Error("case not found");
     const c = raw as {
       clientId: string;
+      status?: string;
       description: string;
       incidentDate?: string;
       damageType?: string;
       hasDocumentation?: boolean;
+      title?: string;
+      category?: string;
+      summary?: string;
+      legalBasis?: string;
+      recommendation?: string;
       images?: { origPath: string }[];
     };
     if (c.clientId !== uid) throw new Error("forbidden");
+
+    /*
+     * מחסום חזרתיות. בלעדיו אפשר היה להריץ את הבדיקה שוב על תיק שכבר הוכרע:
+     * לגלגל מחדש תיק שנדחה עד שיאושר, או לאפס תיק מחובר בחזרה ל-matching.
+     * תיק שכבר הוכרע מחזיר את ההכרעה השמורה במקום להישפט מחדש.
+     */
+    if (c.status && c.status !== "validating") {
+      return {
+        validated: c.status !== "rejected",
+        title: c.title ?? "",
+        category: c.category ?? "",
+        summary: c.summary ?? "",
+        legalBasis: c.legalBasis ?? "",
+        recommendation: c.recommendation ?? "",
+      };
+    }
 
     const caseText = `התאריך היום: ${new Date().toISOString().slice(0, 10)}
 תיאור המקרה: ${c.description}
@@ -349,6 +373,28 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         });
       } catch {
         /* התזכיר הוא תוספת — כשל בשמירתו לא יפיל את הוולידציה */
+      }
+    }
+
+    /*
+     * הזמנת עורכי הדין — בשרת ולא בדפדפן של הלקוח. קודם זה רץ אצלו אחרי
+     * המתנה של כדקה, כך שסגירת הטאב פירושה שאף עורך דין לא נודע על התיק.
+     */
+    if (result.validated) {
+      try {
+        const ids = await adminApprovedLawyerIds();
+        await Promise.all(
+          ids.map((id) =>
+            adminNotify(id, {
+              type: "new_case",
+              title: `תיק חדש בתחום ${result.category}`,
+              body: `"${result.title}" ממתין לעורך דין — היו הראשונים להביע עניין`,
+              caseId: data.caseId,
+            }).catch(() => undefined),
+          ),
+        );
+      } catch {
+        /* ההזמנה נכשלה — הכשל נרשם ביומן ע"י withErrorLog אם היא זרקה */
       }
     }
 

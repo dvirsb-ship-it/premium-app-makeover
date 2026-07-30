@@ -156,6 +156,8 @@ function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
 export function watchMyCases(
   uid: string,
   cb: (cases: Case[]) => void,
+  // כשל הרשאות נראה בדיוק כמו "אין תיקים" — הלקוח היה חושב שהתיק שלו נעלם
+  onError?: (err: unknown) => void,
 ): () => void {
   // המיון בצד הלקוח — חוסך אינדקס מורכב (where + orderBy)
   const q = query(collection(fbDb(), "cases"), where("clientId", "==", uid));
@@ -165,7 +167,10 @@ export function watchMyCases(
         .map((d) => toCase(d.id, d.data() as CaseDoc))
         .sort((a, b) => b.createdAt - a.createdAt),
     );
-  }, () => cb([]));
+  }, (err) => {
+    cb([]);
+    onError?.(err);
+  });
 }
 
 /** פיד עורך הדין: תיקים שעברו ולידציה וזמינים — בזמן אמת. */
@@ -633,6 +638,8 @@ export interface ServerErrorDoc {
 /** שגיאות שרת אחרונות — לאדמין. חדשות תחילה, עד 30. */
 export function watchServerErrors(
   cb: (rows: ServerErrorDoc[]) => void,
+  // "אין תקלות. הכול עובד" כשהמאזין עצמו נדחה זו בדיוק ההטעיה שהיומן בא למנוע
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "serverErrors"),
@@ -643,7 +650,10 @@ export function watchServerErrors(
         .slice(0, 30);
       cb(rows);
     },
-    () => cb([]),
+    (err) => {
+      cb([]);
+      onError?.(err);
+    },
   );
 }
 

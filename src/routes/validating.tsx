@@ -10,7 +10,7 @@ import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
 import { haptic } from "../lib/haptics";
-import { fanOutNewCase, notify, readCaseRaw } from "../lib/db";
+import { notify, readCaseRaw } from "../lib/db";
 import { fbAuth } from "../lib/firebase";
 import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
 
@@ -59,11 +59,8 @@ function Validating() {
       if (!raw) throw new Error("case not found");
       const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
       // השרת מאמת את הטוקן, קורא את התיק (כולל התמונות) וכותב את התוצאה בעצמו
+      // הזמנת עורכי הדין נעשית בשרת בתוך הפונקציה — לא תלויה בטאב של הלקוח
       const res = await validateCaseFn({ data: { caseId, idToken } });
-      if (res.validated) {
-        // הזמנת עורכי הדין בתחום — לא חוסם את המסך אם נכשל
-        void fanOutNewCase(caseId, res.title, res.category).catch(() => {});
-      }
       // התראה ללקוח — כך התוצאה מחכה לו גם אם עזב את המסך באמצע
       void notify(raw.clientId, res.validated
         ? {

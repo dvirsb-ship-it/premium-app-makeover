@@ -1,12 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Award, Briefcase, MessageCircle, Phone, Star } from "lucide-react";
+import { Award, Briefcase } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
-import lawyerPortrait from "../assets/lawyer-portrait.jpg";
 import { useRequireAuth } from "../lib/require-auth";
+import { avgResponseLabel, readLawyerStats } from "../lib/db";
 
 export const Route = createFileRoute("/lawyer-profile/$lawyerId")({
   head: () => ({
@@ -61,14 +62,23 @@ function LawyerProfile() {
     );
   }
 
+  const [responseLabel, setResponseLabel] = useState<string | null>(null);
+  useEffect(() => {
+    void readLawyerStats(lawyerId)
+      .then((st) => setResponseLabel(avgResponseLabel(st)))
+      .catch(() => {});
+  }, [lawyerId]);
+
+  /*
+   * "תיקים שנוהלו" היה Math.round(years * 8.4) — מספר מומצא שהוצג כעובדה.
+   * דירוג וביקורות היו תמיד אפס כי אין עדיין מנגנון משוב. הוסרו.
+   * נשאר רק מה שנמדד או ידוע: ותק, ומדד תגובתיות שהפלטפורמה מדדה בעצמה.
+   */
   const stats = [
-    { n: `${lawyer.reviews}`, label: t("happyClients"), icon: Star },
-    { n: `${lawyer.rating}`, label: t("avgRating"), icon: Award },
-    {
-      n: `${Math.round(lawyer.years * 8.4)}`,
-      label: t("casesHandled"),
-      icon: Briefcase,
-    },
+    ...(lawyer.years > 0
+      ? [{ n: `${lawyer.years}`, label: t("yearsExperience"), icon: Award }]
+      : []),
+    ...(responseLabel ? [{ n: responseLabel, label: t("responseTimeLabel"), icon: Briefcase }] : []),
   ];
 
   return (
@@ -82,14 +92,10 @@ function LawyerProfile() {
         className="liquid-glass relative mt-5 overflow-hidden rounded-[28px] p-4"
       >
         <div className="flex items-center gap-4">
-          <div className="relative size-24 shrink-0 overflow-hidden rounded-3xl ring-1 ring-gold/30">
-            <img
-              src={lawyerPortrait}
-              alt={lawyer.name}
-              width={512}
-              height={640}
-              className="h-full w-full object-cover object-[center_20%]"
-            />
+          {/* קודם הוצגה כאן תמונת סטוק עם alt של שם עורך הדין — כלומר תמונה
+              של אדם אחר שהוצגה כמוהו. ראשי תיבות הם אמת. */}
+          <div className="grid size-24 shrink-0 place-items-center rounded-3xl bg-gold/12 text-2xl font-black text-gold-ink ring-1 ring-gold/30">
+            {lawyer.initials || lawyer.name.slice(0, 2)}
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
@@ -155,25 +161,20 @@ function LawyerProfile() {
         </p>
       </motion.div>
 
+      {/* שני הכפתורים כאן לא היו מחוברים לכלום. פרטי הקשר נחשפים בדף התיק
+          אחרי החיבור, ולכן ההפניה היא לשם — במקום כפתור שלא עושה דבר. */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="mt-4 flex gap-3 pb-10"
+        className="mt-4 pb-10"
       >
         <button
           type="button"
-          className="btn-gold flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-bold"
+          onClick={() => navigate({ to: "/cases" })}
+          className="liquid-glass flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-semibold text-foreground"
         >
-          <MessageCircle className="size-4" strokeWidth={2.4} />
-          {t("sendMessage")}
-        </button>
-        <button
-          type="button"
-          className="liquid-glass flex flex-1 items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-semibold text-foreground"
-        >
-          <Phone className="size-4 text-gold" strokeWidth={2.2} />
-          {t("callAction")}
+          {t("toMyCases")}
         </button>
       </motion.div>
     </AppShell>
