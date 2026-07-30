@@ -68,12 +68,22 @@ function LawyerFeed() {
    * ועורך דין שנרשם ולא המשיך לאימות היה מקבל מסך ריק בלי שום הסבר.
    */
   const [verLoaded, setVerLoaded] = useState(false);
+  /*
+   * כשל בקריאת הסטטוס אינו "לא הגיש". בלי ההפרדה הזו כשל רשת רגעי היה
+   * מציע לעורך דין *מאושר* להתחיל אימות מחדש — בדיוק ההיפך מהאמת.
+   */
+  const [verError, setVerError] = useState(false);
   useEffect(() => {
     if (!user) return;
-    return watchMyVerification(user.uid, (rec) => {
-      setVerStatus(rec?.status ?? null);
-      setVerLoaded(true);
-    });
+    return watchMyVerification(
+      user.uid,
+      (rec) => {
+        setVerStatus(rec?.status ?? null);
+        setVerLoaded(true);
+        setVerError(false);
+      },
+      () => setVerError(true),
+    );
   }, [user]);
   return (
     <AppShell withNav>
@@ -139,7 +149,7 @@ function LawyerFeed() {
         </motion.div>
       )}
 
-      {verLoaded && verStatus === null && (
+      {verLoaded && !verError && verStatus === null && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -160,6 +170,25 @@ function LawyerFeed() {
             >
               {t("interestLockedCta")}
             </button>
+          </div>
+        </motion.div>
+      )}
+
+      {verError && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="liquid-glass mt-4 flex items-start gap-3 rounded-2xl border border-destructive/30 px-4 py-3.5"
+          role="alert"
+        >
+          <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-destructive/15 text-destructive">
+            <ShieldAlert className="size-4.5" strokeWidth={2.2} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-bold text-foreground">{t("verStatusErrorTitle")}</p>
+            <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
+              {t("verStatusErrorSub")}
+            </p>
           </div>
         </motion.div>
       )}

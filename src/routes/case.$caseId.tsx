@@ -56,7 +56,8 @@ function CaseDetail() {
   const [checklist, setChecklist] = useState<string[]>([]);
   // ציר הזמן שאחרי החיבור — כדי שלא ישאל "מה קורה עם התיק שלי"
   const [milestones, setMilestones] = useState<CaseMilestone[]>([]);
-  useEffect(() => watchMilestones(caseId, setMilestones), [caseId]);
+  /* כשל אינו 'אין התקדמות' — לא מאפסים ציר זמן שכבר נטען */
+  useEffect(() => watchMilestones(caseId, setMilestones, () => {}), [caseId]);
   // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
   const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {

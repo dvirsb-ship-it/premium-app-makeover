@@ -50,6 +50,8 @@ interface AppState {
   feed: FeedCase[];
   /** true כשטעינת הפיד נכשלה (לרוב הרשאות) — להבדיל מ״אין פניות״. */
   feedError: boolean;
+  /** true כשטעינת תיקי הלקוח נכשלה — להבדיל מ״אין תיקים״. */
+  casesError: boolean;
   expressInterest: (feedId: string, offer?: OfferInput) => void;
   getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
@@ -84,6 +86,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [feed, setFeed] = useState<FeedCase[]>([]);
   // פיד שנכשל נראה בדיוק כמו פיד ריק — לכן מבדילים ביניהם במפורש
   const [feedError, setFeedError] = useState(false);
+  // "אין תיקים" מול "לא הצלחנו לטעון" — ללקוח זה ההבדל בין שקט לבהלה
+  const [casesError, setCasesError] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   // מטמון תפקיד מקומי — טעינה מיידית לפני שהשרת עונה
@@ -129,7 +133,14 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setCases([]);
       return;
     }
-    return watchMyCases(user.uid, setCases);
+    return watchMyCases(
+      user.uid,
+      (rows) => {
+        setCases(rows);
+        setCasesError(false);
+      },
+      () => setCasesError(true),
+    );
   }, [user, role]);
 
   // התראות — בזמן אמת, לכל תפקיד
@@ -138,7 +149,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setNotifications([]);
       return;
     }
-    return watchNotifications(user.uid, setNotifications);
+    /*
+     * כשל כאן היה מציג פעמון ריק — כלומר "אין לך עדכונים" בזמן שיש.
+     * משאירים את מה שכבר נטען ולא מוחקים אותו למצב ריק מזויף.
+     */
+    return watchNotifications(user.uid, setNotifications, () => {});
   }, [user]);
 
   // הפרופיל המקצועי של עורך הדין (עיר + התמחויות) — לדירוג הפיד
@@ -313,6 +328,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       getCase,
       feed,
       feedError,
+      casesError,
       expressInterest,
       getFeedCase,
       user,
@@ -321,7 +337,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, expressInterest, getFeedCase, user, authReady, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

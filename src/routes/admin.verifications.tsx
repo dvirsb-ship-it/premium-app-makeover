@@ -93,15 +93,23 @@ function VerificationQueue() {
     }
   }, [authReady, user, navigate]);
 
+  /*
+   * דגל כשל אחד לכל המשרד. חמש הרשימות כאן הציגו "אין בקשות ממתינות",
+   * "אין ערעורים", "אין פניות" — גם כשהמאזין עצמו נדחה. זה בדיוק הכשל
+   * שכבר תפסנו ביומן השגיאות ("אין תקלות. הכול עובד" בזמן שהוא שבור),
+   * ובתור האימות הוא הגרוע מכולם: עורך דין אמיתי ממתין ואף אחד לא יודע.
+   */
+  const [loadFailed, setLoadFailed] = useState(false);
+
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
-    return watchVerifications(setRows);
+    return watchVerifications(setRows, () => setLoadFailed(true));
   }, [authReady, user]);
 
   const [appeals, setAppeals] = useState<AppealDoc[]>([]);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
-    return watchAppeals(setAppeals);
+    return watchAppeals(setAppeals, () => setLoadFailed(true));
   }, [authReady, user]);
 
   function handleAppeal(appeal: AppealDoc, accepted: boolean) {
@@ -116,10 +124,11 @@ function VerificationQueue() {
   const [errors, setErrors] = useState<ServerErrorDoc[]>([]);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
-    const un1 = watchSupportTickets(setTickets);
-    const un2 = watchAllCasesAdmin(setAllCases);
-    const un3 = watchDeletionRequests(setDeletions);
-    const un4 = watchServerErrors(setErrors);
+    const fail = () => setLoadFailed(true);
+    const un1 = watchSupportTickets(setTickets, fail);
+    const un2 = watchAllCasesAdmin(setAllCases, fail);
+    const un3 = watchDeletionRequests(setDeletions, fail);
+    const un4 = watchServerErrors(setErrors, fail);
     return () => {
       un1();
       un2();
@@ -183,6 +192,23 @@ function VerificationQueue() {
       })()}
 
       <main className="mt-5 flex-1 pb-10">
+        {/*
+          * מוצג *מעל* המונה והרשימות: כשהטעינה נכשלה, כל "אין X" שמתחת
+          * אינו אמת אלא היעדר נתונים. בלי השורה הזו המשרד נראה שקט בדיוק
+          * כשהוא הכי שבור.
+          */}
+        {loadFailed && (
+          <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-destructive/35 bg-destructive/[0.06] p-4" role="alert">
+            <ShieldAlert className="mt-0.5 size-4 shrink-0 text-destructive" />
+            <div>
+              <p className="text-[12px] font-bold text-foreground">{t("loadFailedTitle")}</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                {t("loadFailedSub")}
+              </p>
+            </div>
+          </div>
+        )}
+
         {!canAct && (
           <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4">
             <ShieldAlert className="mt-0.5 size-4 shrink-0 text-gold" />

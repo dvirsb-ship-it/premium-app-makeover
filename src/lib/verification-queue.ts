@@ -74,6 +74,11 @@ export async function enqueueVerification(
 /** כל הבקשות — לאדמין, בזמן אמת (חדשות ראשונות). */
 export function watchVerifications(
   cb: (rows: VerificationRecord[]) => void,
+  /*
+   * כשל כאן הציג "אין בקשות ממתינות" בזמן שעורך דין אמיתי ממתין בתור.
+   * זו הרשימה שעליה נשען כל גיוס עורכי הדין — היא לא תשקר בשקט.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "verifications"),
@@ -84,7 +89,7 @@ export function watchVerifications(
           .sort((a, b) => b.submittedAt - a.submittedAt),
       );
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -92,6 +97,12 @@ export function watchVerifications(
 export function watchMyVerification(
   uid: string,
   cb: (rec: VerificationRecord | null) => void,
+  /*
+   * קריטי להפריד: null פירושו "טרם הגיש בקשה", והמסך מציע על סמך זה
+   * להתחיל אימות. אם כשל רשת היה מחזיר null גם הוא, עורך דין *מאושר*
+   * היה מקבל הצעה להירשם מחדש. לכן בכשל לא נוגעים ב-cb בכלל.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     doc(fbDb(), "verifications", uid),
@@ -102,7 +113,7 @@ export function watchMyVerification(
           : null,
       );
     },
-    () => cb(null),
+    (err) => onError?.(err),
   );
 }
 

@@ -32,3 +32,8 @@ dist-ssr
 *.sw?
 .env
 .claude/
+
+# Firebase emulator
+firebase-debug.log
+firestore-debug.log
+.firebase/

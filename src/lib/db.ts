@@ -110,12 +110,8 @@ export interface CaseImage {
   at: number;
 }
 
-export const PLTD_MAX_PERCENT = 13;
-
-/** קטגוריות שבהן הצעה באחוזים עשויה להיות כפופה לתקרה סטטוטורית. */
-export function categoryHasStatutoryCap(category: string): boolean {
-  return category === "נזיקין ותאונות" || category === "ביטוח";
-}
+/* הכללים המשפטיים חיים ב-legal.ts (טהור, נבדק) — כאן רק ייצוא-מחדש */
+export { PLTD_MAX_PERCENT, categoryHasStatutoryCap } from "./legal";
 
 function toCase(id: string, d: CaseDoc): Case {
   return {
@@ -144,29 +140,7 @@ function agoLabel(ms: number, lang: "he" | "en" = "he"): string {
   return `לפני ${Math.round(mins / (60 * 24))} ימים`;
 }
 
-/**
- * חודשים שנותרו עד ההתיישנות.
- *
- * הוולידציה כבר מחשבת את זה ומנמקת אותו ב-legalBasis, אבל בפרוזה שאיש
- * לא סורק. עורך דין שרואה "נותרו 9 חודשים" מטפל בתיק היום; אותו תיק
- * בלי המספר נראה כמו כל תיק אחר בפיד.
- *
- * שמרני בכוונה: תקופה קצרה יותר כשהיא ידועה, ושתיקה כשהתאריך לא נקרא.
- * הצגת מספר שגוי כאן גרועה בהרבה מאי-הצגה.
- */
-const LIMITATION_YEARS: Record<string, number> = { "ביטוח": 3 };
-const DEFAULT_LIMITATION_YEARS = 7;
-
-function limitationMonthsLeft(incidentDate: string | undefined, category: string) {
-  if (!incidentDate || !/^\d{4}-\d{2}-\d{2}$/.test(incidentDate)) return undefined;
-  const start = new Date(`${incidentDate}T00:00:00`);
-  if (Number.isNaN(start.getTime())) return undefined;
-  const years = LIMITATION_YEARS[category] ?? DEFAULT_LIMITATION_YEARS;
-  const deadline = new Date(start);
-  deadline.setFullYear(deadline.getFullYear() + years);
-  const months = Math.floor((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44));
-  return months < 0 ? 0 : months;
-}
+import { limitationMonthsLeft } from "./legal";
 
 function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
   return {
@@ -199,7 +173,7 @@ export function watchMyCases(
         .sort((a, b) => b.createdAt - a.createdAt),
     );
   }, (err) => {
-    cb([]);
+    // לא cb([]) — "אין תיקים" הוא שקר כשהתיק קיים והקריאה נדחתה
     onError?.(err);
   });
 }
@@ -385,7 +359,15 @@ export async function submitAppeal(input: {
 }
 
 /** כל הערעורים — לאדמין, בזמן אמת (פתוחים ראשונים, חדשים ראשונים). */
-export function watchAppeals(cb: (rows: AppealDoc[]) => void): () => void {
+export function watchAppeals(
+  cb: (rows: AppealDoc[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
+): () => void {
   return onSnapshot(
     collection(fbDb(), "appeals"),
     (snap) => {
@@ -396,7 +378,7 @@ export function watchAppeals(cb: (rows: AppealDoc[]) => void): () => void {
       );
       cb(rows);
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -546,6 +528,12 @@ export async function submitSupportTicket(input: {
 
 export function watchSupportTickets(
   cb: (rows: SupportTicketDoc[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "supportTickets"),
@@ -557,7 +545,7 @@ export function watchSupportTickets(
       );
       cb(rows);
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -604,6 +592,12 @@ export async function requestAccountDeletion(input: {
 
 export function watchDeletionRequests(
   cb: (rows: DeletionRequestDoc[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "deletionRequests"),
@@ -614,7 +608,7 @@ export function watchDeletionRequests(
       );
       cb(rows);
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -775,6 +769,12 @@ export interface CaseMilestone {
 export function watchMilestones(
   caseId: string,
   cb: (rows: CaseMilestone[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "cases", caseId, "milestones"),
@@ -785,7 +785,7 @@ export function watchMilestones(
       );
       cb(rows);
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -878,6 +878,12 @@ export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
 
 export function watchAllCasesAdmin(
   cb: (rows: AdminCaseRow[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   return onSnapshot(
     collection(fbDb(), "cases"),
@@ -904,7 +910,7 @@ export function watchAllCasesAdmin(
           .sort((a, b) => b.createdAt - a.createdAt),
       );
     },
-    () => cb([]),
+    (err) => onError?.(err),
   );
 }
 
@@ -935,6 +941,12 @@ export async function notify(
 export function watchNotifications(
   uid: string,
   cb: (items: AppNotification[]) => void,
+  /*
+   * שגיאה כאן היא לרוב דחיית הרשאות או נפילת רשת, והיא *אינה* "אין תוצאות".
+   * עד עכשיו היא נבלעה ל-cb([]) — כלומר המסך הציג מצב ריק תקין בזמן שהוא
+   * שבור. זה קרה ארבע פעמים נפרד בפרויקט הזה. הכשל מדווח, ולא ממציא נתון.
+   */
+  onError?: (err: unknown) => void,
 ): () => void {
   const q = query(collection(fbDb(), "notifications"), where("userId", "==", uid));
   return onSnapshot(q, (snap) => {
@@ -943,7 +955,7 @@ export function watchNotifications(
         .map((d) => ({ id: d.id, ...(d.data() as Omit<AppNotification, "id">) }))
         .sort((a, b) => b.createdAt - a.createdAt),
     );
-  }, () => cb([]));
+  }, (err) => onError?.(err));
 }
 
 export async function markNotificationRead(id: string): Promise<void> {

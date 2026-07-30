@@ -31,7 +31,7 @@ function Cases() {
 
   useRequireAuth();
   const navigate = useNavigate();
-  const { cases } = useAppStore();
+  const { cases, casesError } = useAppStore();
   const { dir } = useSettings();
   const t = useT();
   const statusMeta = useStatusMeta();
@@ -65,7 +65,15 @@ function Cases() {
           </div>
         </div>
 
-        {loading ? (
+        {/* כשל טעינה אינו "אין תיקים" — ללקוח זה נראה כאילו הפנייה שלו נעלמה */}
+        {casesError ? (
+          <div className="rounded-3xl border border-destructive/30 bg-destructive/[0.05] p-6 text-center" role="alert">
+            <p className="text-sm font-bold text-foreground">{t("loadFailedTitle")}</p>
+            <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+              {t("casesErrorSub")}
+            </p>
+          </div>
+        ) : loading ? (
           <CaseListSkeleton count={3} />
         ) : cases.length === 0 ? (
           <EmptyState

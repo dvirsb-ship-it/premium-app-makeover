@@ -657,6 +657,11 @@ export const strings = {
   deletionMarkDone: { he: "סימון כבוצע", en: "Mark done" },
   deletionDone: { he: "בוצע", en: "Done" },
 
+  verStatusErrorTitle: { he: "לא הצלחנו לבדוק את סטטוס האימות שלך", en: "Couldn't check your verification status" },
+  verStatusErrorSub: { he: "זו תקלת תקשורת ולא שינוי בסטטוס. רעננו את הדף — אם זה חוזר, פנו אלינו דרך העזרה.", en: "This is a connection issue, not a status change. Refresh — if it persists, contact us via Help." },
+  casesErrorSub: { he: "התיקים שלך לא נעלמו — רק לא הצלחנו לטעון אותם כרגע. רעננו את הדף.", en: "Your cases haven't gone anywhere — we just couldn't load them. Refresh the page." },
+  loadFailedTitle: { he: "הרשימה לא נטענה", en: "This list didn't load" },
+  loadFailedSub: { he: "זו תקלה ולא רשימה ריקה. רעננו את הדף.", en: "This is a failure, not an empty list. Refresh the page." },
   verifiedLawyerChip: { he: "זהות ורישיון אומתו", en: "Identity & license verified" },
 
   /* ---------- מנוי עורכי דין ---------- */

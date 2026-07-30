@@ -61,7 +61,8 @@ function LawyerCaseDetail() {
   const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
   useEffect(() => {
     if (!user) return;
-    return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null));
+    /* כשל אינו "לא מאושר" — משאירים את הסטטוס הידוע ולא מורידים הרשאה בטעות */
+    return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null), () => {});
   }, [user]);
 
   // תמונות התיק: עד החיבור — הגרסה המצונזרת בלבד; אחרי החיבור — המקור
@@ -147,7 +148,8 @@ function LawyerCaseDetail() {
    */
   const [milestones, setMilestones] = useState<CaseMilestone[]>([]);
   const [msNote, setMsNote] = useState("");
-  useEffect(() => watchMilestones(caseId, setMilestones), [caseId]);
+  /* כשל אינו 'אין התקדמות' — לא מאפסים ציר זמן שכבר נטען */
+  useEffect(() => watchMilestones(caseId, setMilestones, () => {}), [caseId]);
   const marked = new Set(milestones.map((m) => m.key));
 
   function mark(key: MilestoneKey) {

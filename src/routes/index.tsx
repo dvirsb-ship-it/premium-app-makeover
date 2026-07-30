@@ -192,7 +192,7 @@ function ClientHome() {
   const navigate = useNavigate();
   const { done } = Route.useSearch();
   const t = useT();
-  const { cases, user, notifications } = useAppStore();
+  const { cases, casesError, user, notifications } = useAppStore();
   const { dir } = useSettings();
   const statusMeta = useStatusMeta();
   const ago = useTimeAgo();
@@ -288,13 +288,18 @@ function ClientHome() {
             </Rise>
           ) : (
             <Rise>
-              <div className="liquid-glass rounded-[30px] p-6 text-center">
+              {/* "עוד לא שיתפת מקרה" מול "לא הצלחנו לטעון" — לא אותו דבר */}
+              <div className={casesError
+                ? "rounded-[30px] border border-destructive/30 bg-destructive/[0.05] p-6 text-center"
+                : "liquid-glass rounded-[30px] p-6 text-center"}>
                 <span className="chip-emblem mx-auto grid size-14 place-items-center">
                   <Scale className="relative z-10 size-6 text-gold-ink" strokeWidth={2} />
                 </span>
-                <h2 className="mt-4 text-base font-bold text-foreground">{t("homeEmptyTitle")}</h2>
+                <h2 className="mt-4 text-base font-bold text-foreground">
+                  {t(casesError ? "loadFailedTitle" : "homeEmptyTitle")}
+                </h2>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
-                  {t("homeEmptySub")}
+                  {t(casesError ? "casesErrorSub" : "homeEmptySub")}
                 </p>
               </div>
             </Rise>
