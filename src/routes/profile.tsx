@@ -1,5 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { motion } from "motion/react";
+import { toast } from "sonner";
 import {
   Accessibility,
   Bell,
@@ -48,7 +50,8 @@ const items: { icon: typeof Bell; key: StringKey; to: string }[] = [
 function Profile() {
 
   useRequireAuth();  const navigate = useNavigate();
-  const { role, setRole, user } = useAppStore();
+  const { role, setRole, signOut, user } = useAppStore();
+  const [signingOut, setSigningOut] = useState(false);
   const { theme, toggleTheme, lang, setLang, dir } = useSettings();
   const t = useT();
   const flip = dir === "ltr" ? "rotate-180" : "";
@@ -238,11 +241,22 @@ function Profile() {
           <Rise>
             <button
               type="button"
+              disabled={signingOut}
               onClick={() => {
-                setRole(null);
-                navigate({ to: "/" });
+                /*
+                 * ניתוק אמיתי: קודם הכפתור רק איפס את התפקיד, וה-session של
+                 * Firebase נשאר חי — ולכן גוגל חזרה לאותו חשבון ולא הציעה אחר.
+                 */
+                if (signingOut) return;
+                setSigningOut(true);
+                /*
+                 * מנווטים לפני הניתוק: שער ההתחברות מגיב מיד לכך שהמשתמש
+                 * התנתק ומפנה ל-/auth, וזה היה מעקף את מסך הפתיחה.
+                 */
+                navigate({ to: "/welcome" });
+                void signOut().catch(() => toast.error(t("authErrGeneric")));
               }}
-              className="liquid-glass flex w-full items-center justify-center gap-2 rounded-3xl p-4 text-sm font-bold text-destructive transition active:scale-[0.99]"
+              className="liquid-glass flex w-full items-center justify-center gap-2 rounded-3xl p-4 text-sm font-bold text-destructive transition active:scale-[0.99] disabled:opacity-60"
             >
               <LogOut className="size-5" />
               {t("logout")}
