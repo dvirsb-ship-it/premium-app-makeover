@@ -569,6 +569,8 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
+  intakeRestart: { he: "התחלת שיחה חדשה", en: "Start a new conversation" },
+
   // הבית של הלקוח
   homeHello: { he: "שלום", en: "Hello" },
   homeHelloNamed: { he: "שלום, {name}", en: "Hello, {name}" },

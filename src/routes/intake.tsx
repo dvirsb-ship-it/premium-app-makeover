@@ -43,6 +43,16 @@ function Intake() {
   const [messages, setMessages] = useState<ChatMessage[]>(openers);
   const [input, setInput] = useState("");
   const DRAFT_KEY = "justask-intake-draft";
+  // טיוטה נועדה להציל שיחה שנקטעה, לא להחזיר שיחה שהסתיימה
+  const DRAFT_MAX_AGE_MS = 6 * 60 * 60 * 1000;
+
+  function clearDraft() {
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+    } catch {
+      /* ignore */
+    }
+  }
   const [step, setStep] = useState(0);
   const [typing, setTyping] = useState(false);
   const [ready, setReady] = useState(false);
@@ -132,13 +142,18 @@ function Intake() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw) as ChatMessage[];
+      const saved = JSON.parse(raw) as { at?: number; messages?: ChatMessage[] };
+      const stale = !saved.at || Date.now() - saved.at > DRAFT_MAX_AGE_MS;
+      if (stale || !Array.isArray(saved.messages)) {
+        clearDraft();
+        return;
+      }
       // תמונות אינן נשמרות (blob מקומי שפג) — משחזרים טקסט בלבד
-      if (Array.isArray(saved) && saved.length > openers.length) {
-        setMessages(saved.map((m) => ({ ...m, images: undefined })));
+      if (saved.messages.length > openers.length) {
+        setMessages(saved.messages.map((m) => ({ ...m, images: undefined })));
       }
     } catch {
-      /* ignore */
+      clearDraft();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -146,7 +161,7 @@ function Intake() {
   useEffect(() => {
     try {
       if (messages.length > openers.length) {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(messages));
+        localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), messages }));
       }
     } catch {
       /* ignore */
@@ -272,10 +287,10 @@ function Intake() {
       }
       try {
         sessionStorage.setItem("justask-active-case", caseId);
-        localStorage.removeItem(DRAFT_KEY);
       } catch {
         /* ignore */
       }
+      clearDraft();
 
       navigate({ to: "/validating" });
     } catch {
@@ -478,7 +493,10 @@ function Intake() {
                   </div>
                   <button
                     type="button"
-                    onClick={() => navigate({ to: "/cases" })}
+                    onClick={() => {
+                      clearDraft();
+                      navigate({ to: "/" });
+                    }}
                     className="liquid-glass mt-3 w-full rounded-2xl py-2.5 text-[13px] font-semibold text-foreground transition active:scale-[0.98]"
                   >
                     {t("valGoCases")}
@@ -515,6 +533,24 @@ function Intake() {
                 </motion.button>
               )}
             </AnimatePresence>
+
+            {/* דרך יזומה להתחיל מחדש — בלי זה שיחה שנתקעה נשארת לנצח */}
+            {messages.length > 2 && !ready && !notSuitable && (
+              <button
+                type="button"
+                onClick={() => {
+                  clearDraft();
+                  sentImages.current = [];
+                  setPendingImages([]);
+                  setMessages(openers);
+                  setStep(0);
+                  setInput("");
+                }}
+                className="mb-2 w-full py-1 text-center text-[12px] font-semibold text-muted-foreground"
+              >
+                {t("intakeRestart")}
+              </button>
+            )}
 
             {/* תמונות שצורפו — תצוגה של הגרסה המצונזרת, כפי שעו"ד יראה */}
             <AnimatePresence>

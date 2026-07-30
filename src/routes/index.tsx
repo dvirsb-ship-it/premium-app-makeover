@@ -170,13 +170,13 @@ function Index() {
  * הבית של הלקוח.
  *
  * התפקיד הרגשי כאן הוא לא תפריט — אלא תחושה שמישהו מחזיק את התיק בשבילך.
- * לכן התיק הפעיל הוא האלמנט הגדול והיחיד שמושך תשומת לב, והשאר שקט:
- * פעולה ראשית אחת, ורשימה מצומצמת של השאר.
+ * לכן התיק הפעיל הוא האלמנט הגדול והיחיד שמושך תשומת לב, והשאר מסודר
+ * בקוביות זכוכית שקטות.
  */
 function ClientHome() {
   const navigate = useNavigate();
   const t = useT();
-  const { cases, user } = useAppStore();
+  const { cases, user, notifications } = useAppStore();
   const { dir } = useSettings();
   const statusMeta = useStatusMeta();
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
@@ -185,26 +185,35 @@ function ClientHome() {
   const [active, ...rest] = cases;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
+  const unread = notifications.filter((n) => !n.read).length;
+
+  const tiles: { key: string; label: string; value: string; to: string }[] = [
+    { key: "cases", label: t("navCases"), value: String(cases.length), to: "/cases" },
+    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications" },
+    { key: "profile", label: t("profile"), value: "", to: "/profile" },
+    { key: "help", label: t("help"), value: "", to: "/settings/help" },
+  ];
 
   return (
     <AppShell withNav>
       <Page>
-        <header className="flex items-start justify-between gap-3 pb-6 pt-8">
+        <header className="flex items-start justify-between gap-3 pb-7 pt-9">
           <div className="min-w-0">
-            <h1 className="text-2xl font-black leading-tight text-foreground">
-              {firstName ? t("homeHelloNamed").replace("{name}", firstName) : t("homeHello")}
+            <p className="text-sm font-semibold text-muted-foreground">{t("homeHello")}</p>
+            <h1 className="mt-0.5 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
+              {firstName || t("meBadge")}
             </h1>
-            <p className="mt-1 text-sm text-muted-foreground">{t("homeSub")}</p>
+            <p className="mt-1.5 text-sm text-muted-foreground">{t("homeSub")}</p>
           </div>
           <NotificationBell />
         </header>
 
-        <Stagger className="space-y-4 pb-10">
+        <Stagger className="space-y-3.5 pb-10">
           {active ? (
             <Rise>
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
-                className="liquid-glass w-full rounded-3xl p-5 text-start"
+                className="liquid-glass w-full rounded-[28px] p-5 text-start shadow-luxe"
               >
                 <div className="flex items-center justify-between gap-3">
                   <span
@@ -235,7 +244,7 @@ function ClientHome() {
             </Rise>
           ) : (
             <Rise>
-              <div className="liquid-glass rounded-3xl p-6 text-center">
+              <div className="liquid-glass rounded-[28px] p-6 text-center shadow-luxe">
                 <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-gold/15 text-gold">
                   <Scale className="size-6" strokeWidth={2} />
                 </span>
@@ -250,16 +259,34 @@ function ClientHome() {
           <Rise>
             <Pressable
               onClick={() => navigate({ to: "/intake-tips" })}
-              className="btn-gold flex w-full items-center justify-center gap-2 rounded-3xl py-4 text-base font-bold"
+              className="btn-gold flex w-full items-center justify-center gap-2 rounded-[28px] py-4 text-base font-bold"
             >
               <Plus className="size-5" />
               {active ? t("homeNewCase") : t("homeFirstCase")}
             </Pressable>
           </Rise>
 
+          {/* קוביות הזכוכית — הכול מסודר ובהישג יד */}
+          <Rise>
+            <div className="grid grid-cols-2 gap-3.5">
+              {tiles.map((tile) => (
+                <Pressable
+                  key={tile.key}
+                  onClick={() => navigate({ to: tile.to })}
+                  className="liquid-glass flex aspect-square flex-col justify-between rounded-[28px] p-4 text-start"
+                >
+                  <span className="text-2xl font-black leading-none text-gold" dir="ltr">
+                    {tile.value}
+                  </span>
+                  <span className="text-[13px] font-bold text-foreground">{tile.label}</span>
+                </Pressable>
+              ))}
+            </div>
+          </Rise>
+
           {rest.length > 0 && (
             <Rise>
-              <div className="liquid-glass overflow-hidden rounded-3xl">
+              <div className="liquid-glass overflow-hidden rounded-[28px]">
                 <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                   {t("homeOtherCases")}
                 </p>
@@ -283,18 +310,6 @@ function ClientHome() {
                   );
                 })}
               </div>
-            </Rise>
-          )}
-
-          {cases.length > 1 && (
-            <Rise>
-              <button
-                type="button"
-                onClick={() => navigate({ to: "/cases" })}
-                className="w-full py-1 text-center text-[13px] font-semibold text-gold"
-              >
-                {t("homeAllCases")}
-              </button>
             </Rise>
           )}
         </Stagger>
