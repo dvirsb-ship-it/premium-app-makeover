@@ -33,6 +33,8 @@
   --color-gold: var(--gold);
   --color-gold-foreground: var(--gold-foreground);
   --color-gold-light: var(--gold-light);
+  --color-gold-ink: var(--gold-ink);
+  --color-success-ink: var(--success-ink);
   --color-success: var(--success);
   --color-success-foreground: var(--success-foreground);
   --color-background: var(--background);
@@ -72,8 +74,8 @@
 
 :root {
   --radius: 1rem;
-  /* slate-50 canvas */
-  --background: oklch(0.984 0.003 247.858);
+  /* לבן שקוף על כמעט-לבן אינו נראה. הורדת הקנבס נותנת לכרטיסים מקום להתרומם. */
+  --background: oklch(0.958 0.006 255);
   --foreground: oklch(0.208 0.042 265.755);
   --card: oklch(1 0 0);
   --card-foreground: oklch(0.208 0.042 265.755);
@@ -82,16 +84,18 @@
   /* navy #0F172A */
   --primary: oklch(0.208 0.042 265.755);
   --primary-foreground: oklch(0.984 0.003 247.858);
-  --secondary: oklch(0.968 0.007 247.896);
+  /* חייבים לרדת יחד עם הקנבס — אחרת כל תלם ומסלול-מתג באפליקציה מתהפך למוגבה */
+  --secondary: oklch(0.930 0.009 252);
   --secondary-foreground: oklch(0.208 0.042 265.755);
-  --muted: oklch(0.968 0.007 247.896);
-  --muted-foreground: oklch(0.554 0.046 257.417);
-  --accent: oklch(0.968 0.007 247.896);
+  --muted: oklch(0.930 0.009 252);
+  /* 0.554 נותן 4.22:1 על הקנבס החדש — נכשל AA. 0.510 עובר בכל המשטחים. */
+  --muted-foreground: oklch(0.510 0.045 257);
+  --accent: oklch(0.936 0.009 252);
   --accent-foreground: oklch(0.208 0.042 265.755);
   --destructive: oklch(0.577 0.245 27.325);
   --destructive-foreground: oklch(0.984 0.003 247.858);
-  --border: oklch(0.929 0.013 255.508);
-  --input: oklch(0.929 0.013 255.508);
+  --border: oklch(0.884 0.011 255);
+  --input: oklch(0.884 0.011 255);
   --ring: oklch(0.76 0.13 85);
   /* navy */
   --navy: oklch(0.208 0.042 265.755);
@@ -105,6 +109,44 @@
   --gold-hi: #f1e4c3;
   --gold-mid: #d4af37;
   --gold-lo: #b8912b;
+  /* לזהב שני תפקידים: --gold ממלא (כפתורים, אמבלמה), --gold-ink כותב.
+     --gold על רקע בהיר נותן 2.16:1 — טקסט ואייקוני זהב נכשלים AA היום,
+     באפליקציה שיש בה הצהרת נגישות. --gold-ink עובר בכל המשטחים. */
+  --gold-ink: oklch(0.52 0.115 80);
+  --success-ink: oklch(0.50 0.13 162);
+
+  /* המילוי מפריד את הזכוכית מהקנבס פעם אחת; השלבים עצמם הם צל, לא מילוי.
+     דיו הצל הוא כחול-כהה ולא שחור — שחור על קנבס קריר נקרא כלכלוך. */
+  --glass-fill: oklch(1 0 0 / 0.82);
+  --glass-fill-quiet: oklch(1 0 0 / 0.72);
+  --glass-fill-raised: oklch(1 0 0 / 0.90);
+  --glass-blur: 18px;
+  --glass-sat: 155%;
+  --surface-sunken: oklch(0.930 0.009 252);
+  --glass-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.55) 0%, oklch(1 0 0 / 0) 34%);
+
+  --sh: 0.25 0.05 265;
+  --elev-1:
+    0 1px 1.5px -0.5px oklch(var(--sh) / 0.06),
+    0 4px 9px -4px oklch(var(--sh) / 0.09);
+  --elev-2:
+    0 1px 1.5px -0.5px oklch(var(--sh) / 0.07),
+    0 4px 9px -3px oklch(var(--sh) / 0.08),
+    0 14px 24px -12px oklch(var(--sh) / 0.13);
+  --elev-3:
+    0 1px 2px -0.5px oklch(var(--sh) / 0.08),
+    0 5px 11px -3px oklch(var(--sh) / 0.09),
+    0 18px 32px -14px oklch(var(--sh) / 0.14),
+    0 44px 72px -36px oklch(var(--sh) / 0.20);
+  --rim-inset: inset 0 1px 0 oklch(1 0 0 / 0.95);
+  --recess:
+    inset 0 1px 2px oklch(var(--sh) / 0.08),
+    inset 0 0 0 1px oklch(var(--sh) / 0.05),
+    0 1px 0 oklch(1 0 0 / 0.85);
+  --rim-top: oklch(1 0 0 / 0.95);
+  --rim-mid: oklch(var(--sh) / 0.05);
+  --rim-bot: oklch(var(--sh) / 0.14);
+
   --gold-glow: 212 175 55;
   /* success emerald */
   --success: oklch(0.7 0.14 162);
@@ -166,6 +208,28 @@
   --gold-mid: #d4af37;
   --gold-lo: #b8912b;
   --gold-glow: 212 175 55;
+
+  /* מצב כהה: העומק הוא אור פולט ולא צל מוטל, ולכן שלבי ההגבהה שקופים.
+     "transparent" ולא none — none בתוך רשימת צללים מפיל את כל ההצהרה. */
+  --gold-ink: oklch(0.84 0.11 88);
+  --success-ink: oklch(0.70 0.14 162);
+
+  --glass-fill: oklch(1 0 0 / 0.06);
+  --glass-fill-quiet: oklch(1 0 0 / 0.03);
+  --glass-fill-raised: oklch(1 0 0 / 0.10);
+  --glass-blur: 24px;
+  --glass-sat: 170%;
+  --surface-sunken: oklch(1 0 0 / 0.025);
+  --glass-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.05) 0%, oklch(1 0 0 / 0) 26%);
+
+  --elev-1: 0 0 0 oklch(0 0 0 / 0);
+  --elev-2: 0 0 0 oklch(0 0 0 / 0);
+  --elev-3: 0 30px 64px -30px oklch(0 0 0 / 0.60);
+  --rim-inset: inset 0 1px 1px oklch(1 0 0 / 0.12);
+  --recess: inset 0 1px 3px oklch(0 0 0 / 0.35), inset 0 0 0 1px oklch(1 0 0 / 0.05);
+  --rim-top: oklch(1 0 0 / 0.45);
+  --rim-mid: oklch(1 0 0 / 0);
+  --rim-bot: oklch(1 0 0 / 0.45);
   --success: oklch(0.7 0.14 162);
   --success-foreground: oklch(0.984 0.003 247.858);
 }
@@ -240,39 +304,120 @@
  * Liquid glass design language (Apple-style frosted surfaces)
  * Theme-aware: light surfaces by default, luminous glass on the dark theme.
  * ------------------------------------------------------------------------- */
+/* ---------------------------------------------------------------------------
+ * זכוכית נוזלית — מונעת טוקנים, כך שכל 126 השימושים משתדרגים במקום.
+ * הבלוק הזה אינו בתוך @layer ולכן גובר על כל utility של Tailwind ללא קשר
+ * לספציפיות. לכן כל וריאנט למטה הוא סלקטור מורכב ולא @utility.
+ * ------------------------------------------------------------------------- */
 .liquid-glass {
   position: relative;
-  background: rgba(255, 255, 255, 0.38);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  background-color: var(--glass-fill);
+  background-image: var(--glass-sheen);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
   transform: translateZ(0);
-  will-change: transform;
   isolation: isolate;
-  box-shadow:
-    0 1px 2px rgba(15, 23, 42, 0.05),
-    0 18px 40px -22px rgba(15, 23, 42, 0.28),
-    inset 0 1px 1px rgba(255, 255, 255, 0.55);
+  box-shadow: var(--elev-2), var(--rim-inset);
 }
-
 
 .liquid-glass::before {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  padding: 1.4px;
+  padding: 1.25px;
   background: linear-gradient(
     180deg,
-    rgba(255, 255, 255, 0.75) 0%,
-    rgba(15, 23, 42, 0.04) 30%,
-    rgba(15, 23, 42, 0.02) 70%,
-    rgba(15, 23, 42, 0.07) 100%
+    var(--rim-top) 0%,
+    var(--rim-mid) 30%,
+    var(--rim-mid) 70%,
+    var(--rim-bot) 100%
   );
   mask:
     linear-gradient(#000 0 0) content-box,
     linear-gradient(#000 0 0);
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
   mask-composite: exclude;
+  -webkit-mask-composite: xor;
   pointer-events: none;
+}
+
+/* ── סולם ההגבהה. מוגבה = משהו חי; שקט = רשימה; שטוח = כלי. ─────────── */
+.liquid-glass.glass-raised {
+  background-color: var(--glass-fill-raised);
+  box-shadow: var(--elev-3), var(--rim-inset);
+}
+
+.liquid-glass.glass-quiet {
+  background-color: var(--glass-fill-quiet);
+  box-shadow: var(--elev-1), var(--rim-inset);
+}
+
+/* במצב בהיר המילוי כמעט אטום, ולכן ה-blur מחושב ונזרק — מבוזבז על iOS.
+   במצב כהה ה-blur הוא כל האפקט, ולכן הוא נשאר. אותה מחלקה, פיזיקה נכונה. */
+.liquid-glass.glass-flat {
+  background-color: color-mix(in oklab, white 88%, var(--background));
+  background-image: var(--glass-sheen);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: var(--elev-1), var(--rim-inset);
+}
+.dark .liquid-glass.glass-flat {
+  background-color: var(--glass-fill);
+  backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  box-shadow: var(--rim-inset);
+}
+
+/* המישור השלישי — חרוט לתוך הקנבס, מתחת לקו הבסיס */
+.surface-sunken {
+  position: relative;
+  background: var(--surface-sunken);
+  box-shadow: var(--recess);
+}
+
+/* ── השפה החמה: מצב התיק נקרא כאור על הקצה, ואינו יכול לשקר ─────────── */
+.liquid-glass.glass-warm::before {
+  background: linear-gradient(180deg,
+    oklch(0.76 0.13 85 / 0.80) 0%,
+    var(--rim-mid) 32%, var(--rim-mid) 70%, var(--rim-bot) 100%);
+}
+.liquid-glass.glass-lit::before {
+  background: linear-gradient(180deg,
+    oklch(0.70 0.14 162 / 0.70) 0%,
+    var(--rim-mid) 32%, var(--rim-mid) 70%, var(--rim-bot) 100%);
+}
+
+/* ── אמבלמת JustAsk בקנה מידה שלישי — אותו סקוויר-קל, גוון הפוך לבהיר ── */
+.chip-emblem {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28%;
+  background: linear-gradient(180deg,
+    oklch(1 0 0) 0%, oklch(0.968 0.030 90) 55%, oklch(0.935 0.048 88) 100%);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.95),
+    inset 0 0 0 1px oklch(0.76 0.13 85 / 0.32),
+    0 5px 12px -7px oklch(0.76 0.13 85 / 0.45);
+}
+.chip-emblem::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.65), transparent);
+  pointer-events: none;
+}
+.dark .chip-emblem {
+  background: linear-gradient(180deg,
+    oklch(1 0 0 / 0.14) 0%, oklch(0.76 0.13 85 / 0.14) 100%);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.18),
+    inset 0 0 0 1px oklch(0.76 0.13 85 / 0.32);
+}
+.dark .chip-emblem::after {
+  background: linear-gradient(180deg, oklch(1 0 0 / 0.10), transparent);
 }
 
 .liquid-glass-selected {

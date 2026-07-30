@@ -23,7 +23,8 @@ import { SubmittedModal } from "../components/SubmittedModal";
 import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
-import { toneClasses, useStatusMeta } from "../lib/status";
+import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
+import { cn } from "../lib/utils";
 import type { Role } from "../lib/types";
 
 
@@ -195,6 +196,7 @@ function ClientHome() {
   const { cases, user, notifications } = useAppStore();
   const { dir } = useSettings();
   const statusMeta = useStatusMeta();
+  const ago = useTimeAgo();
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   const firstName = (user?.displayName ?? "").trim().split(" ")[0];
@@ -209,9 +211,10 @@ function ClientHome() {
     value: string;
     to: string;
     icon: typeof FolderOpen;
+    alert?: boolean;
   }[] = [
     { key: "cases", label: t("navCases"), value: String(cases.length), to: "/cases", icon: FolderOpen },
-    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications", icon: Bell },
+    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications", icon: Bell, alert: unread > 0 },
     { key: "profile", label: t("profile"), value: "", to: "/profile", icon: UserRound },
     { key: "help", label: t("help"), value: "", to: "/settings/help", icon: LifeBuoy },
   ];
@@ -234,50 +237,61 @@ function ClientHome() {
             <h1 className="mt-0.5 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
               {firstName || t("meBadge")}
             </h1>
-            <p className="mt-1.5 text-sm text-muted-foreground">{t("homeSub")}</p>
+            {!active && (
+              <p className="mt-1.5 text-sm text-muted-foreground">{t("homeSub")}</p>
+            )}
           </div>
           <NotificationBell />
         </header>
 
-        <Stagger className="space-y-3.5 pb-10">
+        <Stagger className="pb-12">
           {active ? (
             <Rise>
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
-                className="liquid-glass w-full rounded-[28px] p-5 text-start shadow-luxe"
+                className={cn(
+                  "liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
+                  interested > 0 && active.status !== "connected" && "glass-warm",
+                  active.status === "connected" && "glass-lit",
+                )}
               >
-                <div className="flex items-center justify-between gap-3">
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
-                  >
-                    {activeMeta!.label}
-                  </span>
-                  <Arrow className="size-5 shrink-0 text-muted-foreground/50" />
+                <div className="p-5">
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
+                    >
+                      {activeMeta!.label}
+                    </span>
+                    <span className="text-[11px] font-medium text-muted-foreground">
+                      {ago(active.createdAt)}
+                    </span>
+                  </div>
+
+                  <h2 className="mt-3.5 text-[1.35rem] font-extrabold leading-[1.2] tracking-tight text-foreground">
+                    {active.title || t("homeCaseUntitled")}
+                  </h2>
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                    {active.summary}
+                  </p>
                 </div>
 
-                <h2 className="mt-3 text-lg font-bold leading-snug text-foreground">
-                  {active.title || t("homeCaseUntitled")}
-                </h2>
-                <p className="mt-1.5 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
-                  {active.summary}
-                </p>
-
-                {/* רגע הערך: מישהו רוצה את התיק שלך */}
+                {/* רגע הערך — חותמת בשולי הכרטיס, לא מדבקה שצפה בתוכו */}
                 {interested > 0 && active.status !== "connected" && (
-                  <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gold/10 px-3.5 py-2.5">
-                    <Sparkles className="size-4 shrink-0 text-gold" />
+                  <div className="flex items-center gap-2.5 border-t border-gold/25 bg-gold/[0.08] px-5 py-3.5">
+                    <Sparkles className="size-4 shrink-0 text-gold-ink" strokeWidth={2} />
                     <span className="text-[13px] font-bold text-foreground">
                       {interested} {t("lawyersInterestedCount")}
                     </span>
+                    <Arrow className="ms-auto size-4 shrink-0 text-gold-ink/70" />
                   </div>
                 )}
               </Pressable>
             </Rise>
           ) : (
             <Rise>
-              <div className="liquid-glass rounded-[28px] p-6 text-center shadow-luxe">
-                <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-gold/15 text-gold">
-                  <Scale className="size-6" strokeWidth={2} />
+              <div className="liquid-glass rounded-[30px] p-6 text-center">
+                <span className="chip-emblem mx-auto grid size-14 place-items-center">
+                  <Scale className="relative z-10 size-6 text-gold-ink" strokeWidth={2} />
                 </span>
                 <h2 className="mt-4 text-base font-bold text-foreground">{t("homeEmptyTitle")}</h2>
                 <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">
@@ -287,39 +301,49 @@ function ClientHome() {
             </Rise>
           )}
 
-          <Rise>
+          <Rise className="mt-3">
             <Pressable
               onClick={() => navigate({ to: "/intake-tips" })}
-              className="btn-gold flex w-full items-center justify-center gap-2 rounded-[28px] py-4 text-base font-bold"
+              className={cn(
+                "tap flex w-full items-center justify-center gap-2 rounded-full font-bold",
+                active
+                  ? "surface-sunken py-3.5 text-[15px] text-foreground ring-1 ring-inset ring-gold/35"
+                  : "btn-gold py-4 text-base",
+              )}
             >
-              <Plus className="size-5" />
+              <Plus className={cn("size-[18px]", active && "text-gold-ink")} strokeWidth={2.5} />
               {active ? t("homeNewCase") : t("homeFirstCase")}
             </Pressable>
           </Rise>
 
           {/* קוביות הזכוכית — הכול מסודר ובהישג יד */}
-          <Rise>
-            <div className="grid grid-cols-2 gap-3.5">
+          <Rise className="mt-6">
+            <div className="grid grid-cols-2 gap-3">
               {tiles.map((tile) => (
                 <Pressable
                   key={tile.key}
                   onClick={() => navigate({ to: tile.to })}
-                  className="liquid-glass relative flex aspect-square flex-col items-center justify-center gap-3 rounded-[28px] p-4"
+                  className="liquid-glass glass-flat tap relative flex aspect-square flex-col items-center justify-center gap-3 rounded-[22px] p-4"
                 >
-                  {/* מונה קטן בפינה — הסמל הוא הגיבור, לא המספר */}
-                  {tile.value && tile.value !== "0" && (
+                  {/* זהב = משהו מחכה לך. ספירת תיקים היא מלאי, לא התראה. */}
+                  {tile.alert ? (
                     <span
-                      className="absolute end-3.5 top-3.5 grid min-w-6 place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-black text-[#0F172A]"
                       dir="ltr"
+                      className="chip-gold absolute end-3.5 top-3.5 grid min-w-5 place-items-center rounded-full px-1.5 py-px text-[11px] font-black tabular-nums"
                     >
                       {tile.value}
                     </span>
-                  )}
-                  <tile.icon
-                    className="size-12 text-gold drop-shadow-[0_6px_18px_rgba(212,175,55,0.35)]"
-                    strokeWidth={1.6}
-                    aria-hidden
-                  />
+                  ) : tile.value && tile.value !== "0" ? (
+                    <span
+                      dir="ltr"
+                      className="absolute end-4 top-3.5 text-[13px] font-bold tabular-nums text-muted-foreground"
+                    >
+                      {tile.value}
+                    </span>
+                  ) : null}
+                  <span className="chip-emblem grid size-12 place-items-center">
+                    <tile.icon className="relative z-10 size-5 text-gold-ink" strokeWidth={1.9} aria-hidden />
+                  </span>
                   <span className="text-[13px] font-bold text-foreground">{tile.label}</span>
                 </Pressable>
               ))}
@@ -327,8 +351,8 @@ function ClientHome() {
           </Rise>
 
           {rest.length > 0 && (
-            <Rise>
-              <div className="liquid-glass overflow-hidden rounded-[28px]">
+            <Rise className="mt-6">
+              <div className="liquid-glass glass-quiet overflow-hidden rounded-[26px]">
                 <p className="px-5 pb-1 pt-4 text-xs font-bold uppercase tracking-wide text-muted-foreground">
                   {t("homeOtherCases")}
                 </p>
