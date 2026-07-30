@@ -569,6 +569,9 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
+  submittedGoodLuck: { he: "בהצלחה בבחירת עורך הדין שלך", en: "Good luck choosing your lawyer" },
+  submittedToHome: { he: "המשך לדף הבית", en: "Continue to home" },
+  closeAria: { he: "סגירה", en: "Close" },
   intakeRestart: { he: "התחלת שיחה חדשה", en: "Start a new conversation" },
 
   // הבית של הלקוח

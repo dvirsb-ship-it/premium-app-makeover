@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import {
   ArrowLeft,
@@ -19,6 +19,7 @@ import { BottomNav } from "../components/BottomNav";
 import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
+import { SubmittedModal } from "../components/SubmittedModal";
 import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
@@ -27,6 +28,10 @@ import type { Role } from "../lib/types";
 
 
 export const Route = createFileRoute("/")({
+  // מזהה תיק שזה עתה נשלח — מציג את אישור הקליטה מעל הבית.
+  // המפתח מושמט כשאינו קיים, כדי שניווטים רגילים ל-"/" לא ידרשו search.
+  validateSearch: (search: Record<string, unknown>): { done?: string } =>
+    typeof search.done === "string" ? { done: search.done } : {},
   head: () => ({
     meta: [
       { title: "JustAsk — Your direct path to justice" },
@@ -185,6 +190,7 @@ function Index() {
  */
 function ClientHome() {
   const navigate = useNavigate();
+  const { done } = Route.useSearch();
   const t = useT();
   const { cases, user, notifications } = useAppStore();
   const { dir } = useSettings();
@@ -212,6 +218,15 @@ function ClientHome() {
 
   return (
     <AppShell withNav>
+      <AnimatePresence>
+        {done && (
+          <SubmittedModal
+            onClose={() => navigate({ to: "/", search: {}, replace: true })}
+            onViewCase={() => navigate({ to: "/case/$caseId", params: { caseId: done } })}
+          />
+        )}
+      </AnimatePresence>
+
       <Page>
         <header className="flex items-start justify-between gap-3 pb-7 pt-9">
           <div className="min-w-0">

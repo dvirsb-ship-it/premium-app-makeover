@@ -134,7 +134,7 @@ function Validating() {
       };
       addCase(newCase);
       haptic("success");
-      navigate({ to: "/submitted", search: { id: caseId } });
+      navigate({ to: "/", search: { done: caseId } });
     },
     [addCase, navigate, t],
   );
@@ -168,7 +168,7 @@ function Validating() {
     const tm = window.setTimeout(() => {
       if (finished.current) return;
       finished.current = true;
-      navigate({ to: "/submitted", search: { id: caseId } });
+      navigate({ to: "/", search: { done: caseId } });
     }, 1200);
     return () => window.clearTimeout(tm);
   }, [animDone, result, rejected, stuck, navigate]);
