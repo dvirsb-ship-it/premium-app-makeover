@@ -224,6 +224,21 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    /*
+     * דירוגי לקוחות על עורכי דין — נכתבים בשרת בלבד (rateLawyerFn).
+     * מזהה המסמך הוא מזהה התיק, כך שדירוג אחד לכל חיבור.
+     * הלקוח קורא את שלו כדי שהמסך ידע להציג "כבר דירגת"; העו"ד קורא את
+     * מה שנכתב עליו. הממוצע הציבורי נחשף דרך lawyerStats בלבד.
+     */
+    match /ratings/{caseId} {
+      allow read: if signedIn() && (
+        resource.data.clientId == request.auth.uid
+        || resource.data.lawyerId == request.auth.uid
+        || isAdmin()
+      );
+      allow write: if false;
+    }
+
     // מונה שימוש יומי — נכתב בשרת בלבד; המשתמש רשאי לראות את שלו
     match /usage/{uid} {
       allow read: if signedIn() && request.auth.uid == uid;

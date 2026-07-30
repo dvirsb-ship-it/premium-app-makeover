@@ -16,7 +16,6 @@ import {
   setDoc,
   updateDoc,
   where,
-  type Query,
   type Timestamp,
 } from "firebase/firestore";
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
@@ -92,6 +91,12 @@ interface CaseDoc {
   validatedAt?: number;
   /** רשימת ההכנה שנגזרה מהראיון — מוצגת ללקוח. */
   clientChecklist?: string[];
+  /**
+   * כמה עורכי דין מאומתים בתחום קיבלו את התיק (נכתב מהשרת בסיום הוולידציה).
+   * בלי המספר הזה "נעדכן אותך ברגע שמישהו יביע עניין" נאמר גם כשאין אף
+   * עורך דין בתחום — הבטחה שאין מי שיקיים.
+   */
+  notifiedLawyers?: number;
 }
 
 export interface CaseImage {
@@ -123,6 +128,7 @@ function toCase(id: string, d: CaseDoc): Case {
     interested: d.interested ?? [],
     chosenLawyerId: d.chosenLawyerId,
     offers: d.offers,
+    notifiedLawyers: d.notifiedLawyers,
   };
 }
 
@@ -138,8 +144,33 @@ function agoLabel(ms: number, lang: "he" | "en" = "he"): string {
   return `לפני ${Math.round(mins / (60 * 24))} ימים`;
 }
 
+/**
+ * חודשים שנותרו עד ההתיישנות.
+ *
+ * הוולידציה כבר מחשבת את זה ומנמקת אותו ב-legalBasis, אבל בפרוזה שאיש
+ * לא סורק. עורך דין שרואה "נותרו 9 חודשים" מטפל בתיק היום; אותו תיק
+ * בלי המספר נראה כמו כל תיק אחר בפיד.
+ *
+ * שמרני בכוונה: תקופה קצרה יותר כשהיא ידועה, ושתיקה כשהתאריך לא נקרא.
+ * הצגת מספר שגוי כאן גרועה בהרבה מאי-הצגה.
+ */
+const LIMITATION_YEARS: Record<string, number> = { "ביטוח": 3 };
+const DEFAULT_LIMITATION_YEARS = 7;
+
+function limitationMonthsLeft(incidentDate: string | undefined, category: string) {
+  if (!incidentDate || !/^\d{4}-\d{2}-\d{2}$/.test(incidentDate)) return undefined;
+  const start = new Date(`${incidentDate}T00:00:00`);
+  if (Number.isNaN(start.getTime())) return undefined;
+  const years = LIMITATION_YEARS[category] ?? DEFAULT_LIMITATION_YEARS;
+  const deadline = new Date(start);
+  deadline.setFullYear(deadline.getFullYear() + years);
+  const months = Math.floor((deadline.getTime() - Date.now()) / (1000 * 60 * 60 * 24 * 30.44));
+  return months < 0 ? 0 : months;
+}
+
 function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
   return {
+    limitationMonthsLeft: limitationMonthsLeft(d.incidentDate, d.category),
     id,
     title: d.title,
     category: d.category,
@@ -479,50 +510,16 @@ export async function writeLawyerProfile(
   );
 }
 
-// קטגוריית הוולידציה → התמחויות רלוונטיות (מזהי ההתמחות של טופס ההצטרפות)
-const CATEGORY_SPECS: Record<string, string[]> = {
-  "נזיקין ותאונות": ["injury", "civil"],
-  "רשלנות רפואית": ["medical", "injury"],
-  "דיני עבודה": ["employment"],
-  "ביטוח": ["insurance", "injury"],
-  "צרכנות": ["consumer", "civil"],
-  "מקרקעין": ["estate"],
-};
-
-/** האם קטגוריית תיק רלוונטית להתמחויות של עו"ד ("אחר" פתוח לכולם). */
-export function categoryMatchesSpecialties(
-  category: string,
-  specialties: string[],
-): boolean {
-  const specs = CATEGORY_SPECS[category];
-  if (!specs) return true;
-  return specialties.some((s) => specs.includes(s));
-}
-
-/** תיק עבר ולידציה — הזמנה לכל עורכי הדין בתחום לצפות בו. */
-export async function fanOutNewCase(
-  caseId: string,
-  title: string,
-  category: string,
-): Promise<number> {
-  const specs = CATEGORY_SPECS[category];
-  const col = collection(fbDb(), "lawyerProfiles");
-  const q: Query = specs
-    ? query(col, where("specialties", "array-contains-any", specs))
-    : col;
-  const snap = await getDocs(q);
-  await Promise.all(
-    snap.docs.map((d) =>
-      notify(d.id, {
-        type: "new_case",
-        title: `תיק חדש בתחום ${category}`,
-        body: `"${title}" ממתין לעורך דין — היו הראשונים להביע עניין`,
-        caseId,
-      }),
-    ),
-  );
-  return snap.size;
-}
+/*
+ * מיפוי קטגוריה→התמחות חי ב-src/lib/specialties.ts, כי גם השרת צריך אותו
+ * והוא אינו יכול לייבא קובץ שנוגע ב-firebase. הייצוא כאן נשמר כדי שקוראים
+ * קיימים לא יישברו.
+ *
+ * הוסרה מכאן fanOutNewCase — היא סיננה לפי תחום כמו שצריך, אבל רצה
+ * בדפדפן של הלקוח ואיש לא קרא לה מאז שההזמנה עברה לשרת. הגרסה החיה
+ * היא adminApprovedLawyerIds(category) ב-ai/server-admin.ts.
+ */
+export { categoryMatchesSpecialties } from "./specialties";
 
 /* ---------- פניות תמיכה (המשרד הטכנולוגי) ---------- */
 
@@ -683,6 +680,9 @@ export async function readCaseMemo(caseId: string): Promise<string | null> {
 export interface LawyerStats {
   responses: number;
   totalResponseMs: number;
+  /** דירוגי לקוחות שהצטברו — נכתבים בשרת בלבד (rateLawyerFn). */
+  ratings: number;
+  ratingSum: number;
 }
 
 /** מדד תגובתיות שהפלטפורמה מדדה בעצמה — נכתב בשרת בלבד. */
@@ -694,6 +694,8 @@ export async function readLawyerStats(uid: string): Promise<LawyerStats | null> 
     return {
       responses: Number(d.responses ?? 0),
       totalResponseMs: Number(d.totalResponseMs ?? 0),
+      ratings: Number(d.ratings ?? 0),
+      ratingSum: Number(d.ratingSum ?? 0),
     };
   } catch {
     return null;
@@ -708,6 +710,29 @@ export function avgResponseLabel(stats: LawyerStats | null): string | null {
   const hours = Math.round(mins / 60);
   if (hours < 24) return `${hours} שעות`;
   return `${Math.round(hours / 24)} ימים`;
+}
+
+/** ממוצע הדירוגים של עו"ד. null כשאין עדיין דירוגים — ואז לא מציגים כוכבים. */
+export function avgRating(stats: LawyerStats | null): number | null {
+  if (!stats || stats.ratings < 1) return null;
+  return stats.ratingSum / stats.ratings;
+}
+
+/**
+ * הדירוג שכבר ניתן על תיק, אם ניתן. משמש כדי לא לבקש מהלקוח לדרג פעמיים.
+ * החוקים מרשים לו לקרוא רק את הדירוג שהוא עצמו נתן.
+ */
+export async function readMyRating(
+  caseId: string,
+): Promise<{ stars: number; note: string } | null> {
+  try {
+    const snap = await getDoc(doc(fbDb(), "ratings", caseId));
+    if (!snap.exists()) return null;
+    const d = snap.data();
+    return { stars: Number(d.stars ?? 0), note: String(d.note ?? "") };
+  } catch {
+    return null;
+  }
 }
 
 export async function markServerErrorHandled(id: string): Promise<void> {

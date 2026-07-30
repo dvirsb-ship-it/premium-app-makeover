@@ -40,6 +40,8 @@ export interface Case {
   chosenLawyerId?: string;
   /** הצעות שצירפו עורכי דין להבעת העניין, לפי מזהה עו"ד. */
   offers?: Record<string, CaseOffer>;
+  /** כמה עורכי דין מאומתים בתחום קיבלו את התיק. undefined = תיק ישן. */
+  notifiedLawyers?: number;
 }
 
 /** מודל שכר הטרחה. בנזקי גוף בישראל אחוזים מהפיצוי הם הנפוץ ביותר. */
@@ -76,4 +78,9 @@ export interface FeedCase {
   expressed?: boolean;
   /** התאמה לעו"ד הצופה — לפי קרבה והתמחות. */
   match?: "high" | "medium";
+  /**
+   * חודשים שנותרו עד ההתיישנות. undefined כשאין תאריך אירוע תקין.
+   * זה הנתון שגורם לעורך דין לקפוץ על תיק — וה-AI כבר חישב אותו.
+   */
+  limitationMonthsLeft?: number;
 }

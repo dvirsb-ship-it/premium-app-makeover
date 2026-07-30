@@ -151,7 +151,14 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     void readLawyerProfile(user.uid).then(setMyLawyerProfile).catch(() => {});
   }, [user, role]);
 
-  // פיד עורך הדין — בזמן אמת, מדורג: קרבה ← התמחות ← טריות
+  /*
+   * פיד עורך הדין — מסונן לפי תחום, ואז מדורג לפי קרבה גאוגרפית.
+   *
+   * עד כאן ההתמחות רק *דירגה*: תיק מחוץ לתחום ירד למטה אבל עדיין הופיע.
+   * זה סתר ארבעה משפטים באפליקציה ("תראו רק פניות שמתאימות") ובעיקר
+   * הרס את הפיד — עורך דין שרואה תיקים שאינם שלו מפסיק לסרוק אותו.
+   * מי שטרם בחר תחומים רואה הכל, כדי שלא ייתקע מול פיד ריק בלי הסבר.
+   */
   useEffect(() => {
     if (!user || role !== "lawyer") {
       setFeed([]);
@@ -160,17 +167,18 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     const myCity = (myLawyerProfile?.city ?? "").trim();
     const mySpecs = myLawyerProfile?.specialties ?? [];
     return watchLawyerFeed(user.uid, (items) => {
-      const score = (f: FeedCase) => {
-        const near = !!myCity && f.location.trim() === myCity;
-        const fit = mySpecs.length > 0 && categoryMatchesSpecialties(f.category, mySpecs);
-        return (near ? 2 : 0) + (fit ? 1 : 0);
-      };
-      const ranked = items
-        .map((f) => {
-          const s = score(f);
-          return { ...f, match: s >= 3 ? ("high" as const) : s >= 1 ? ("medium" as const) : undefined };
-        })
-        .sort((a, b) => score(b) - score(a));
+      const inField =
+        mySpecs.length === 0
+          ? items
+          : items.filter((f) => categoryMatchesSpecialties(f.category, mySpecs));
+      const ranked = inField
+        .map((f) => ({
+          ...f,
+          match: (!!myCity && f.location.trim() === myCity
+            ? "high"
+            : "medium") as "high" | "medium",
+        }))
+        .sort((a, b) => (a.match === b.match ? 0 : a.match === "high" ? -1 : 1));
       setFeed(ranked);
       setFeedError(false);
     }, () => setFeedError(true));

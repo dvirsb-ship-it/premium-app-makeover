@@ -194,6 +194,43 @@ export async function recordLawyerResponse(uid: string, responseMs: number): Pro
   }
 }
 
+/**
+ * דירוג לקוח על עורך הדין — נכתב בשרת בלבד.
+ *
+ * זה החוליה שסגרה את הלולאה: עד כה rating היה מקובע ל-0 בקוד, ולכן
+ * הפירמידה שתכננו ל-Pro לא הייתה יכולה להתבסס על איכות אמיתית לעולם.
+ * הדירוג נשמר פעם אחת לתיק (מזהה המסמך הוא מזהה התיק) כדי שלא יהיה
+ * ניתן להצביע פעמיים על אותו חיבור.
+ */
+export async function recordLawyerRating(
+  caseId: string,
+  lawyerId: string,
+  clientId: string,
+  stars: number,
+  note: string,
+): Promise<void> {
+  const path = `ratings/${encodeURIComponent(caseId)}`;
+  if (await adminGetDoc(path)) throw new Error("already rated");
+
+  const clean = Math.min(5, Math.max(1, Math.round(stars)));
+  await adminPatch(path, {
+    caseId,
+    lawyerId,
+    clientId,
+    stars: clean,
+    note: note.slice(0, 500),
+    at: Date.now(),
+  });
+
+  const statsPath = `lawyerStats/${encodeURIComponent(lawyerId)}`;
+  const cur = (await adminGetDoc(statsPath)) ?? {};
+  await adminPatch(statsPath, {
+    ratings: Number(cur.ratings ?? 0) + 1,
+    ratingSum: Number(cur.ratingSum ?? 0) + clean,
+    updatedAt: Date.now(),
+  });
+}
+
 /* ---------- התראות דחיפה (FCM HTTP v1) ---------- */
 
 /** קריאת מסמך משתמש בהרשאות שרת — לשליפת טוקני הדחיפה והעדפותיו. */
@@ -394,11 +431,20 @@ export async function adminNotify(
 }
 
 /**
- * מזהי עורכי הדין *המאושרים* בלבד.
- * קודם הפיצוץ רץ מול כל lawyerProfiles — כולל מי שטרם אושר — ומהדפדפן
- * של הלקוח, כך שאם הוא סגר את הטאב אף עורך דין לא נודע על התיק.
+ * עורכי הדין *המאושרים* שהתיק בתחום שלהם.
+ *
+ * שתי טעויות היו כאן קודם. הראשונה: הפיצוץ רץ מול כל lawyerProfiles —
+ * כולל מי שטרם אושר — ומהדפדפן של הלקוח, כך שסגירת טאב פירושה שאף עורך
+ * דין לא נודע על התיק. השנייה, שנולדה בתיקון הראשונה: הסינון לפי תחום
+ * נשאר בדפדפן ולא הועבר לכאן, ולכן *כל* עורך דין מאושר קיבל *כל* תיק.
+ * עורך דין שמקבל תיק נזיקין שלישי כשהוא רשום לרשלנות רפואית מכבה התראות.
+ *
+ * מסמך verifications כבר מכיל specialties, ולכן הסינון נעשה על התשובה
+ * ולא בשאילתה — array-contains-any יחד עם שוויון היה דורש אינדקס מורכב,
+ * וכשל אינדקס כאן פירושו שאף אחד לא מקבל התראה.
  */
-export async function adminApprovedLawyerIds(): Promise<string[]> {
+export async function adminApprovedLawyerIds(category?: string): Promise<string[]> {
+  const { categoryMatchesSpecialties } = await import("../specialties");
   const res = await fetch(`${DOCS}:runQuery`, {
     method: "POST",
     headers: {
@@ -420,8 +466,18 @@ export async function adminApprovedLawyerIds(): Promise<string[]> {
     }),
   });
   if (!res.ok) return [];
-  const rows = (await res.json()) as { document?: { name?: string } }[];
+  const rows = (await res.json()) as {
+    document?: { name?: string; fields?: Record<string, FsValue> };
+  }[];
   return rows
+    .filter((r) => {
+      if (!category) return true;
+      const specs = decode(r.document?.fields?.specialties);
+      // עו"ד שאין לו תחומים כלל (רשומה ישנה) ממשיך לקבל הכל — עדיף
+      // מלהשתיק אותו בשקט בלי שידע
+      if (!Array.isArray(specs) || specs.length === 0) return true;
+      return categoryMatchesSpecialties(category, specs as string[]);
+    })
     .map((r) => r.document?.name?.split("/").pop())
     .filter((x): x is string => !!x);
 }

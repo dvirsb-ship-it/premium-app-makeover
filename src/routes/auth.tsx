@@ -24,9 +24,9 @@ export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
       { title: "Sign in — JustAsk" },
-      { name: "description", content: "Sign in or create your JustAsk account with Google, Apple, email, or phone." },
+      { name: "description", content: "Sign in or create your JustAsk account with Google." },
       { property: "og:title", content: "Sign in — JustAsk" },
-      { property: "og:description", content: "Sign in to JustAsk with Google, Apple, email, or phone." },
+      { property: "og:description", content: "Sign in to JustAsk with Google." },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex" },
     ],

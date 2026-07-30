@@ -26,6 +26,7 @@ import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { writeLawyerContact, writeLawyerProfile } from "../lib/db";
+import { SPECIALTIES, type SpecId as SharedSpecId } from "../lib/specialties";
 import { cn } from "../lib/utils";
 import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -53,44 +54,16 @@ export const Route = createFileRoute("/lawyer-onboarding")({
 
 /* ---------- Types ---------- */
 
-type SpecId =
-  | "injury"
-  | "employment"
-  | "estate"
-  | "civil"
-  | "family"
-  | "criminal"
-  | "commercial"
-  | "tax"
-  | "corporate"
-  | "ip"
-  | "immigration"
-  | "medical"
-  | "insurance"
-  | "consumer"
-  | "administrative"
-  | "military"
-  | "other";
-
-const SPECIALTIES: { id: SpecId; labelKey: StringKey }[] = [
-  { id: "injury", labelKey: "specInjury" },
-  { id: "employment", labelKey: "specEmployment" },
-  { id: "estate", labelKey: "specEstate" },
-  { id: "civil", labelKey: "specCivil" },
-  { id: "family", labelKey: "specFamily" },
-  { id: "criminal", labelKey: "specCriminal" },
-  { id: "commercial", labelKey: "specCommercial" },
-  { id: "tax", labelKey: "specTax" },
-  { id: "corporate", labelKey: "specCorporate" },
-  { id: "ip", labelKey: "specIp" },
-  { id: "immigration", labelKey: "specImmigration" },
-  { id: "medical", labelKey: "specMedical" },
-  { id: "insurance", labelKey: "specInsurance" },
-  { id: "consumer", labelKey: "specConsumer" },
-  { id: "administrative", labelKey: "specAdministrative" },
-  { id: "military", labelKey: "specMilitary" },
-  { id: "other", labelKey: "specOther" },
-];
+/*
+ * הרשימה באה מ-src/lib/specialties.ts ולא מכאן.
+ *
+ * קודם היו כאן 17 תחומים — פלילי, משפחה, מיסים, קניין רוחני, הגירה,
+ * תאגידים, צבאי, מנהלי — בעוד הוולידציה מסווגת ל-7 קטגוריות בלבד.
+ * עורך דין שבחר אחד מעשרת התחומים שאין להם קטגוריה תואמת היה נרשם,
+ * עובר אימות, ולא מקבל אף פנייה. לעולם. עדיף להגיד לו מראש מה אנחנו
+ * מכסים מאשר להשאיר אותו ממתין לתור שלא יגיע.
+ */
+type SpecId = SharedSpecId;
 
 type StepId = "intro" | "identity" | "bar" | "education" | "specialties" | "review";
 const STEPS: StepId[] = ["intro", "identity", "bar", "education", "specialties", "review"];
@@ -115,7 +88,6 @@ interface FormState {
   gradYear: string;
   diplomaFile: Uploaded | null;
   specialties: Set<SpecId>;
-  otherSpecialty: string;
 }
 
 type IssueField =
@@ -130,8 +102,7 @@ type IssueField =
   | "university"
   | "gradYear"
   | "diploma"
-  | "specialties"
-  | "otherSpec";
+  | "specialties";
 
 interface Issue {
   field: IssueField;
@@ -193,8 +164,6 @@ function collectIssues(form: FormState): Issue[] {
 
   if (form.specialties.size === 0)
     issues.push({ field: "specialties", messageKey: "issueSpecialties", step: "specialties" });
-  if (form.specialties.has("other") && form.otherSpecialty.trim().length < 2)
-    issues.push({ field: "otherSpec", messageKey: "issueOtherSpec", step: "specialties" });
 
   return issues;
 }
@@ -223,7 +192,6 @@ function LawyerOnboarding() {
     gradYear: "",
     diplomaFile: null,
     specialties: new Set<SpecId>(["injury"]),
-    otherSpecialty: "",
   });
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
@@ -288,7 +256,6 @@ function LawyerOnboarding() {
                 university: form.university,
                 gradYear: form.gradYear,
                 specialties: [...form.specialties],
-                otherSpecialty: form.specialties.has("other") ? form.otherSpecialty.trim() : "",
               },
               { barCard: form.barCardFile, diploma: form.diplomaFile },
             );
@@ -403,8 +370,6 @@ function LawyerOnboarding() {
                 <SpecialtiesStep
                   selected={form.specialties}
                   toggle={toggleSpec}
-                  otherText={form.otherSpecialty}
-                  onOtherChange={(v) => update("otherSpecialty", v)}
                 />
               )}
               {step === "review" && <ReviewStep form={form} />}
@@ -916,16 +881,11 @@ function EducationStep({
 function SpecialtiesStep({
   selected,
   toggle,
-  otherText,
-  onOtherChange,
 }: {
   selected: Set<SpecId>;
   toggle: (id: SpecId) => void;
-  otherText: string;
-  onOtherChange: (v: string) => void;
 }) {
   const t = useT();
-  const showOther = selected.has("other");
   return (
     <div>
       <StepHeading titleKey="stepSpecTitle" descKey="stepSpecDesc" />
@@ -954,25 +914,9 @@ function SpecialtiesStep({
           );
         })}
       </div>
-      {showOther && (
-        <motion.div
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-4"
-        >
-          <input
-            type="text"
-            value={otherText}
-            onChange={(e) => onOtherChange(e.target.value)}
-            placeholder={t("specOtherPlaceholder")}
-            maxLength={80}
-            aria-label={t("specOtherPlaceholder")}
-            className="liquid-glass w-full rounded-2xl border-0 bg-white/5 px-4 py-3 text-[14px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
-          />
-        </motion.div>
-      )}
-      <p className="mt-4 text-[11px] text-muted-foreground">
-        {selected.size} · {t("stepSpecTitle")}
+      {/* מה אנחנו באמת מכסים — נאמר מראש ולא מתגלה אחרי חודש של פיד ריק */}
+      <p className="mt-5 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
+        {t("specCoverageNote")}
       </p>
     </div>
   );
@@ -1016,12 +960,6 @@ function ReviewStep({ form }: { form: FormState }) {
           lines={[
             [...form.specialties]
               .map((id) => {
-                if (id === "other") {
-                  const label = t("specOther");
-                  return form.otherSpecialty.trim()
-                    ? `${label}: ${form.otherSpecialty.trim()}`
-                    : label;
-                }
                 const spec = SPECIALTIES.find((s) => s.id === id);
                 return spec ? t(spec.labelKey) : id;
               })

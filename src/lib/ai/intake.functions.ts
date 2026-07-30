@@ -381,10 +381,19 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     /*
      * הזמנת עורכי הדין — בשרת ולא בדפדפן של הלקוח. קודם זה רץ אצלו אחרי
      * המתנה של כדקה, כך שסגירת הטאב פירושה שאף עורך דין לא נודע על התיק.
+     * הסינון לפי תחום נעשה כאן ולא בדפדפן: זו ההבטחה שהלקוח מסמן עליה וי
+     * במסך ההסכמה ("יועברו רק לעורכי דין מתאימים").
      */
+    let notified = 0;
     if (result.validated) {
       try {
-        const ids = await adminApprovedLawyerIds();
+        const ids = await adminApprovedLawyerIds(result.category);
+        notified = ids.length;
+        /*
+         * כמה עורכי דין באמת קיבלו את התיק. בלי המספר הזה הלקוח מקבל
+         * "נעדכן אותך" גם כשאין אף עורך דין בתחום — הבטחה שאין מי שיקיים.
+         */
+        await adminUpdateCase(data.caseId, { notifiedLawyers: notified });
         await Promise.all(
           ids.map((id) =>
             adminNotify(id, {
@@ -406,7 +415,9 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       result.validated
         ? {
             title: "התיק שלך עבר את הבדיקה המשפטית ✓",
-            body: `"${result.title}" אושר — עורכי דין בתחום קיבלו התראה`,
+            body: notified > 0
+              ? `"${result.title}" אושר — ${notified} עורכי דין בתחום קיבלו התראה`
+              : `"${result.title}" אושר. עדיין אין עורך דין מאומת בתחום הזה — נודיע לך ברגע שיצטרף`,
             link: `/case/${data.caseId}`,
           }
         : {
@@ -551,6 +562,49 @@ export const notifyInterestFn = createServerFn({ method: "POST" })
     });
   });
 
+
+/* ---------- דירוג עורך הדין אחרי סיום התיק ---------- */
+
+export interface RateInput {
+  caseId: string;
+  stars: number;
+  note: string;
+  idToken: string;
+}
+
+/**
+ * הלקוח מדרג את עורך הדין שבחר.
+ *
+ * הדירוג הוא הקצה השני של הלולאה: בלעדיו הפירמידה שתכננו ל-Pro אין לה
+ * על מה להתבסס, ו-rating נשאר 0 לנצח. הכתיבה בשרת ולא בדפדפן כי זהו
+ * נתון שמוצג ללקוחות אחרים — כל נתיב כתיבה מהלקוח היה ניתן לניפוח.
+ *
+ * מותר רק לבעל התיק, רק על עורך הדין שהוא באמת בחר, ורק פעם אחת לתיק.
+ */
+export const rateLawyerFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as RateInput)
+  .handler(async ({ data }): Promise<{ saved: boolean }> => {
+    const { requireUser, adminGetCase, recordLawyerRating, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("rateLawyer", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c) return { saved: false };
+      if (c.clientId !== uid) throw new Error("forbidden");
+
+      const lawyerId = c.chosenLawyerId as string | undefined;
+      if (!lawyerId) return { saved: false };
+
+      await recordLawyerRating(
+        data.caseId,
+        lawyerId,
+        uid,
+        Number(data.stars) || 0,
+        String(data.note ?? ""),
+      );
+      return { saved: true };
+    });
+  });
 
 /* ---------- ביצוע מחיקת חשבון ---------- */
 

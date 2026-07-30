@@ -7,10 +7,14 @@ import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
+import { OfferComparison } from "../components/OfferComparison";
+import { RateLawyerCard } from "../components/RateLawyerCard";
 import { useAppStore } from "../lib/store";
 import {
+  avgRating,
   avgResponseLabel,
   caseImageUrl,
+  readMyRating,
   watchMilestones,
   type CaseMilestone,
   readCaseLawyerContact,
@@ -74,19 +78,42 @@ function CaseDetail() {
    */
   const interestedIdsKey = item?.interested.map((l) => l.id).join(",") ?? "";
   const [responseLabels, setResponseLabels] = useState<Record<string, string | null>>({});
+  /* דירוג אמיתי שהצטבר מלקוחות קודמים — לא המספר המקובע שהיה בקוד */
+  const [ratings, setRatings] = useState<Record<string, { avg: number; count: number } | null>>({});
   useEffect(() => {
     const ids = interestedIdsKey ? interestedIdsKey.split(",") : [];
     if (!ids.length) return;
     let cancelled = false;
     void Promise.all(
-      ids.map(async (id) => [id, avgResponseLabel(await readLawyerStats(id))] as const),
-    ).then((pairs) => {
-      if (!cancelled) setResponseLabels(Object.fromEntries(pairs));
+      ids.map(async (id) => {
+        const st = await readLawyerStats(id);
+        const avg = avgRating(st);
+        return [
+          id,
+          avgResponseLabel(st),
+          avg === null ? null : { avg, count: st?.ratings ?? 0 },
+        ] as const;
+      }),
+    ).then((rows) => {
+      if (cancelled) return;
+      setResponseLabels(Object.fromEntries(rows.map((r) => [r[0], r[1]])));
+      setRatings(Object.fromEntries(rows.map((r) => [r[0], r[2]])));
     });
     return () => {
       cancelled = true;
     };
   }, [interestedIdsKey]);
+
+  /*
+   * בקשת הדירוג — רק אחרי שעורך הדין סימן שהתיק הסתיים, ורק אם הלקוח
+   * טרם דירג. בלי הבדיקה הזו היינו מבקשים ממנו לדרג שוב בכל כניסה.
+   */
+  const closed = milestones.some((m) => m.key === "closed");
+  const [rated, setRated] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (!closed) return;
+    void readMyRating(caseId).then((r) => setRated(r !== null));
+  }, [closed, caseId]);
 
   // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
@@ -232,6 +259,17 @@ function CaseDetail() {
             </div>
           )}
 
+          {/* התיק נסגר — הרגע היחיד שבו יש טעם לשאול איך היה */}
+          {closed && rated === false && (
+            <RateLawyerCard caseId={caseId} onDone={() => setRated(true)} />
+          )}
+          {closed && rated === true && (
+            <p className="mt-3 flex items-center justify-center gap-1.5 text-[12px] font-semibold text-gold">
+              <Check className="size-3.5" strokeWidth={3} />
+              {t("rateDone")}
+            </p>
+          )}
+
           {checklist.length > 0 && item.status !== "rejected" && (
             <div className="liquid-glass mt-3 rounded-3xl p-4">
               <p className="text-[13px] font-bold text-foreground">{t("checklistHeader")}</p>
@@ -340,10 +378,28 @@ function CaseDetail() {
                 </div>
 
                 {item.interested.length === 0 ? (
-                  <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
-                    {t("noInterestYet")}
-                  </div>
+                  /*
+                   * "נעדכן אותך ברגע שמישהו יביע עניין" מניח שיש מי שיביע.
+                   * כשאף עורך דין מאומת לא מכסה את התחום, ההמתנה היא
+                   * לתור שלא קיים — ועדיף להגיד את זה מאשר להשתיק.
+                   */
+                  item.notifiedLawyers === 0 ? (
+                    <div className="rounded-3xl border border-gold/30 bg-gold/[0.06] p-6 text-center">
+                      <p className="text-[14px] font-bold text-foreground">
+                        {t("noLawyersYetTitle")}
+                      </p>
+                      <p className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">
+                        {t("noLawyersYetSub")}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
+                      {t("noInterestYet")}
+                    </div>
+                  )
                 ) : (
+                  <>
+                  <OfferComparison interested={item.interested} offers={item.offers} />
                   <Stagger className="space-y-4">
                     {item.interested.map((l) => (
                       <Rise key={l.id}>
@@ -351,11 +407,13 @@ function CaseDetail() {
                           lawyer={l}
                           offer={item.offers?.[l.id]}
                           responseLabel={responseLabels[l.id]}
+                          rating={ratings[l.id]}
                           onChoose={() => chooseLawyer(item.id, l.id)}
                         />
                       </Rise>
                     ))}
                   </Stagger>
+                  </>
                 )}
               </motion.div>
             )}
@@ -370,12 +428,15 @@ function LawyerChoiceCard({
   lawyer,
   offer,
   responseLabel,
+  rating,
   onChoose,
 }: {
   lawyer: Lawyer;
   offer?: CaseOffer;
   /** מדד תגובתיות שהפלטפורמה מדדה — לא הצהרה של עורך הדין */
   responseLabel?: string | null;
+  /** ממוצע דירוגי לקוחות. null כשעדיין אין — ואז מוצג תג האימות במקום. */
+  rating?: { avg: number; count: number } | null;
   onChoose: () => void;
 }) {
   const t = useT();
@@ -390,14 +451,33 @@ function LawyerChoiceCard({
             {lawyer.name}
           </h4>
           <p className="truncate text-xs text-muted-foreground">{lawyer.firm}</p>
-          <div className="mt-1 flex items-center gap-2 text-xs">
-            <span className="flex items-center gap-0.5 font-bold text-foreground">
-              <Star className="size-3.5 fill-gold text-gold" />
-              {lawyer.rating}
-            </span>
-            <span className="text-muted-foreground">
-              ({lawyer.reviews}) · {lawyer.years} {t("yearsExperience")}
-            </span>
+          {/*
+            * דירוג מוצג רק כשהוא קיים. "★ 0 (0)" אינו נקרא כ"אין נתונים"
+            * אלא כ"עורך דין גרוע", והוא היה מופיע על *כל* עורך דין עד
+            * שיצטבר דירוג ראשון — כלומר על כולם, בכל הפעמים הראשונות.
+            */}
+          <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
+            {rating ? (
+              <>
+                <span className="flex items-center gap-0.5 font-bold text-foreground">
+                  <Star className="size-3.5 fill-gold text-gold" />
+                  {rating.avg.toFixed(1)}
+                </span>
+                <span className="text-muted-foreground">
+                  ({rating.count} {t("ratingCount")})
+                </span>
+              </>
+            ) : (
+              <span className="flex items-center gap-1 font-semibold text-gold">
+                <BadgeCheck className="size-3.5" strokeWidth={2.4} />
+                {t("verifiedLawyerChip")}
+              </span>
+            )}
+            {lawyer.years > 0 && (
+              <span className="text-muted-foreground">
+                {lawyer.years} {t("yearsExperience")}
+              </span>
+            )}
           </div>
         </div>
       </div>

@@ -62,9 +62,17 @@ function LawyerFeed() {
 
   // סטטוס האימות של עורך הדין — באנר קבוע עד לאישור
   const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
+  /*
+   * "טרם נטען" ו"מעולם לא הגיש" הם שני מצבים שונים שנראו זהים (שניהם null),
+   * ועורך דין שנרשם ולא המשיך לאימות היה מקבל מסך ריק בלי שום הסבר.
+   */
+  const [verLoaded, setVerLoaded] = useState(false);
   useEffect(() => {
     if (!user) return;
-    return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null));
+    return watchMyVerification(user.uid, (rec) => {
+      setVerStatus(rec?.status ?? null);
+      setVerLoaded(true);
+    });
   }, [user]);
   return (
     <AppShell withNav>
@@ -130,6 +138,31 @@ function LawyerFeed() {
         </motion.div>
       )}
 
+      {verLoaded && verStatus === null && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="liquid-glass mt-4 flex items-start gap-3 rounded-2xl border border-gold/35 px-4 py-3.5"
+          role="status"
+        >
+          <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
+            <ShieldCheck className="size-4.5" strokeWidth={2.2} aria-hidden />
+          </span>
+          <div className="min-w-0 flex-1">
+            <p className="text-[13px] font-bold text-foreground">
+              {t("interestLockedTitle")}
+            </p>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/lawyer-onboarding" })}
+              className="mt-1.5 text-[12px] font-bold text-gold underline-offset-2 hover:underline"
+            >
+              {t("interestLockedCta")}
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {verStatus === "rejected" && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -154,8 +187,14 @@ function LawyerFeed() {
       )}
 
       <div className="mt-6 space-y-3">
-        {/* פיד שנכשל ופיד ריק נראים זהה — לכן מפרידים ביניהם במפורש */}
-        {feedError ? (
+        {/*
+          * שלושה מצבים שנראו זהים ולכן בלבלו: פיד ריק, פיד שנכשל, ופיד
+          * שחסום כי האימות טרם אושר. השלישי הוא לא תקלה — החוקים מונעים
+          * קריאת תיקים מעו"ד לא מאושר, וה-onSnapshot נכשל בצדק. עד עכשיו
+          * עורך דין חדש ראה באנר ירוק "אפשר לצפות בתיקים" ומיד מתחתיו
+          * שגיאה אדומה. הבאנר למעלה כבר אומר את האמת; כאן פשוט שותקים.
+          */}
+        {verStatus !== "approved" ? null : feedError ? (
           <div className="liquid-glass rounded-3xl border border-destructive/30 p-5 text-center">
             <p className="text-sm font-bold text-foreground">{t("feedErrorTitle")}</p>
             <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
@@ -221,6 +260,17 @@ function LawyerFeed() {
                       {t("matchMedium")}
                     </span>
                   )}
+                  {/*
+                    * חלון ההתיישנות — מוצג רק כשהוא נסגר (פחות משנה וחצי).
+                    * תג שמופיע על כל תיק מפסיק להיות סימן ומתחיל להיות רעש.
+                    */}
+                  {typeof f.limitationMonthsLeft === "number" &&
+                    f.limitationMonthsLeft <= 18 && (
+                      <span className="rounded-full bg-warning-ink/12 px-2 py-0.5 text-[10px] font-bold text-warning-ink">
+                        {t("limitationLeft")} {f.limitationMonthsLeft}{" "}
+                        {t("limitationMonths")}
+                      </span>
+                    )}
                 </div>
                 <p className="mt-1 truncate text-[15px] font-semibold text-foreground">
                   {f.title}

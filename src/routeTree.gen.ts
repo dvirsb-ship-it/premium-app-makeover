@@ -11,7 +11,6 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as WelcomeRouteImport } from './routes/welcome'
 import { Route as ValidatingRouteImport } from './routes/validating'
-import { Route as SubmittedRouteImport } from './routes/submitted'
 import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificationsRouteImport } from './routes/notifications'
@@ -41,11 +40,6 @@ const WelcomeRoute = WelcomeRouteImport.update({
 const ValidatingRoute = ValidatingRouteImport.update({
   id: '/validating',
   path: '/validating',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SubmittedRoute = SubmittedRouteImport.update({
-  id: '/submitted',
-  path: '/submitted',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileRoute = ProfileRouteImport.update({
@@ -161,7 +155,6 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -186,7 +179,6 @@ export interface FileRoutesByTo {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -212,7 +204,6 @@ export interface FileRoutesById {
   '/notifications': typeof NotificationsRoute
   '/onboarding': typeof OnboardingRoute
   '/profile': typeof ProfileRoute
-  '/submitted': typeof SubmittedRoute
   '/validating': typeof ValidatingRoute
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
@@ -239,7 +230,6 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/profile'
-    | '/submitted'
     | '/validating'
     | '/welcome'
     | '/admin/verifications'
@@ -264,7 +254,6 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/profile'
-    | '/submitted'
     | '/validating'
     | '/welcome'
     | '/admin/verifications'
@@ -289,7 +278,6 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/onboarding'
     | '/profile'
-    | '/submitted'
     | '/validating'
     | '/welcome'
     | '/admin/verifications'
@@ -315,7 +303,6 @@ export interface RootRouteChildren {
   NotificationsRoute: typeof NotificationsRoute
   OnboardingRoute: typeof OnboardingRoute
   ProfileRoute: typeof ProfileRoute
-  SubmittedRoute: typeof SubmittedRoute
   ValidatingRoute: typeof ValidatingRoute
   WelcomeRoute: typeof WelcomeRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
@@ -343,13 +330,6 @@ declare module '@tanstack/react-router' {
       path: '/validating'
       fullPath: '/validating'
       preLoaderRoute: typeof ValidatingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/submitted': {
-      id: '/submitted'
-      path: '/submitted'
-      fullPath: '/submitted'
-      preLoaderRoute: typeof SubmittedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile': {
@@ -507,7 +487,6 @@ const rootRouteChildren: RootRouteChildren = {
   NotificationsRoute: NotificationsRoute,
   OnboardingRoute: OnboardingRoute,
   ProfileRoute: ProfileRoute,
-  SubmittedRoute: SubmittedRoute,
   ValidatingRoute: ValidatingRoute,
   WelcomeRoute: WelcomeRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
