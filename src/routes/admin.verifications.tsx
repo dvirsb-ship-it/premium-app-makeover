@@ -160,6 +160,28 @@ function VerificationQueue() {
         onBack={() => navigate({ to: "/" })}
       />
 
+      {(() => {
+        const waiting =
+          rows.filter((r) => r.status === "pending").length +
+          appeals.filter((a) => a.status === "open").length +
+          tickets.filter((x) => x.status === "open").length +
+          deletions.filter((d) => d.status === "open").length +
+          errors.filter((e) => !e.handled).length;
+        return waiting > 0 ? (
+          <div className="mt-4 flex items-center gap-3 rounded-2xl border border-gold/35 bg-gold/[0.10] p-4">
+            <span className="grid size-9 shrink-0 place-items-center rounded-full bg-gold text-[15px] font-black text-[#0F172A]">
+              {waiting}
+            </span>
+            <div>
+              <p className="text-[13px] font-bold text-foreground">{t("adminWaiting")}</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                {t("adminWaitingSub")}
+              </p>
+            </div>
+          </div>
+        ) : null;
+      })()}
+
       <main className="mt-5 flex-1 pb-10">
         {!canAct && (
           <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4">

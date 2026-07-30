@@ -577,6 +577,8 @@ export const strings = {
   closeAria: { he: "סגירה", en: "Close" },
   intakeRestart: { he: "התחלת שיחה חדשה", en: "Start a new conversation" },
 
+  adminWaiting: { he: "ממתין לך", en: "Waiting for you" },
+  adminWaitingSub: { he: "אימותים, ערעורים, פניות תמיכה, בקשות מחיקה ותקלות שטרם טופלו — הכול מרוכז כאן.", en: "Verifications, appeals, support tickets, deletion requests and unhandled errors — all counted here." },
   proLaunchFree: { he: "בתקופת ההשקה — הכול כלול, בחינם", en: "During launch — everything included, free" },
   proLaunchFreeSub: { he: "אין כרגע מה לרכוש: כל התכונות פתוחות לכל עורך דין מאומת. נעדכן מראש לפני שמנוי ייכנס לתוקף.", en: "There is nothing to buy right now — every feature is open to all verified lawyers. We'll give notice before any subscription starts." },
   actionFailedRetry: { he: "הפעולה לא נשמרה. בדקו את החיבור ונסו שוב.", en: "That didn't save. Check your connection and try again." },
