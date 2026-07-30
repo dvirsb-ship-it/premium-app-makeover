@@ -289,16 +289,22 @@ function ClientHome() {
                 <Pressable
                   key={tile.key}
                   onClick={() => navigate({ to: tile.to })}
-                  className="liquid-glass flex aspect-square flex-col justify-between rounded-[28px] p-4 text-start"
+                  className="liquid-glass relative flex aspect-square flex-col items-center justify-center gap-3 rounded-[28px] p-4"
                 >
-                  <div className="flex items-start justify-between">
-                    <TileMark icon={tile.icon} />
-                    {tile.value && (
-                      <span className="text-2xl font-black leading-none text-gold" dir="ltr">
-                        {tile.value}
-                      </span>
-                    )}
-                  </div>
+                  {/* מונה קטן בפינה — הסמל הוא הגיבור, לא המספר */}
+                  {tile.value && tile.value !== "0" && (
+                    <span
+                      className="absolute end-3.5 top-3.5 grid min-w-6 place-items-center rounded-full bg-gold px-1.5 py-0.5 text-[11px] font-black text-[#0F172A]"
+                      dir="ltr"
+                    >
+                      {tile.value}
+                    </span>
+                  )}
+                  <tile.icon
+                    className="size-12 text-gold drop-shadow-[0_6px_18px_rgba(212,175,55,0.35)]"
+                    strokeWidth={1.6}
+                    aria-hidden
+                  />
                   <span className="text-[13px] font-bold text-foreground">{tile.label}</span>
                 </Pressable>
               ))}
@@ -336,22 +342,5 @@ function ClientHome() {
         </Stagger>
       </Page>
     </AppShell>
-  );
-}
-
-/**
- * סמל הקובייה — אותו טיפול של אמבלמת JustAsk במיניאטורה:
- * סקוויר-קל בגרדיאנט זהב עם ברק עליון, כדי שכל קובייה תרגיש
- * חלק מאותה משפחה ולא אייקון גנרי.
- */
-function TileMark({ icon: Icon }: { icon: typeof FolderOpen }) {
-  return (
-    <span className="relative grid size-11 place-items-center overflow-hidden rounded-[28%] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] shadow-[0_10px_22px_-10px_rgba(212,175,55,0.65)]">
-      <span
-        aria-hidden
-        className="absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),transparent)]"
-      />
-      <Icon className="relative z-10 size-5 text-[#0F172A]" strokeWidth={2.3} />
-    </span>
   );
 }
