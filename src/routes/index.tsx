@@ -20,7 +20,7 @@ import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
-import { useT } from "../lib/i18n";
+import { translate, useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
@@ -33,19 +33,18 @@ export const Route = createFileRoute("/")({
   // המפתח מושמט כשאינו קיים, כדי שניווטים רגילים ל-"/" לא ידרשו search.
   validateSearch: (search: Record<string, unknown>): { done?: string } =>
     typeof search.done === "string" ? { done: search.done } : {},
+  /*
+   * ה-meta בעברית — זה מה שנשלח בוואטסאפ ומה שגוגל מאנדקס, על עמוד
+   * שמוגש כ-lang="he" dir="rtl". תצוגה מקדימה באנגלית לקהל ישראלי היא
+   * שריד מהתבנית. הקופי נשלף מ-i18n כדי שלא יהיו שתי גרסאות לתחזק.
+   */
   head: () => ({
     meta: [
-      { title: "JustAsk — A free first legal check" },
-      {
-        name: "description",
-        content:
-          "Before you hire a lawyer, check for free whether you have a case. A short chat, a review against Israeli law, and only if there are grounds do we connect you to verified lawyers in that field.",
-      },
-      { property: "og:title", content: "JustAsk — A free first legal check" },
-      {
-        property: "og:description",
-        content: "Find out for free whether you have a case — before you pay anyone.",
-      },
+      { title: translate("rootMetaTitle", "he") },
+      { name: "description", content: translate("rootMetaDesc", "he") },
+      { property: "og:title", content: translate("rootMetaTitle", "he") },
+      { property: "og:description", content: translate("rootOgDesc", "he") },
+      { property: "og:locale", content: "he_IL" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

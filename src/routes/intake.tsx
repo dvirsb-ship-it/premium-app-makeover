@@ -22,6 +22,8 @@ import { censorImage, prepareImage, type PendingImage } from "../lib/image-censo
 import { Scale } from "lucide-react";
 
 export const Route = createFileRoute("/intake")({
+  /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
+  head: () => ({ meta: [{ name: "robots", content: "noindex" }] }),
   component: Intake,
 });
 

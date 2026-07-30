@@ -28,6 +28,7 @@ export const Route = createFileRoute("/settings/notifications")({
       { property: "og:title", content: "Notifications — JustAsk" },
       { property: "og:description", content: "Choose the alerts that matter to you." },
       { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: NotificationsSettings,

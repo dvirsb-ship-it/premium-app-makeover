@@ -11,6 +11,8 @@ import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/onboarding")({
+  /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
+  head: () => ({ meta: [{ name: "robots", content: "noindex" }] }),
   component: Onboarding,
 });
 

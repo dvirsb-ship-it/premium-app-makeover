@@ -16,6 +16,7 @@ export const Route = createFileRoute("/notifications")({
     meta: [
       { title: "Notifications — JustAsk" },
       { name: "description", content: "All updates about your cases in one place." },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: Notifications,

@@ -33,6 +33,7 @@ export const Route = createFileRoute("/profile")({
       { property: "og:title", content: "Profile — JustAsk" },
       { property: "og:description", content: "Manage your account and preferences." },
       { property: "og:type", content: "profile" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: Profile,

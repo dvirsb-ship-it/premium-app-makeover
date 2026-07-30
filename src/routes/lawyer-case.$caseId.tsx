@@ -35,6 +35,8 @@ const offerInputCls =
   "block w-full rounded-2xl border border-white/10 bg-foreground/[0.04] px-4 py-3 text-[14px] text-foreground placeholder:text-muted-foreground/60 outline-none transition focus:border-gold/50";
 
 export const Route = createFileRoute("/lawyer-case/$caseId")({
+  /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
+  head: () => ({ meta: [{ name: "robots", content: "noindex" }] }),
   component: LawyerCaseDetail,
 });
 

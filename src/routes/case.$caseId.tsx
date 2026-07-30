@@ -32,6 +32,8 @@ import type { CaseOffer, Lawyer } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/case/$caseId")({
+  /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
+  head: () => ({ meta: [{ name: "robots", content: "noindex" }] }),
   component: CaseDetail,
 });
 

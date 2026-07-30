@@ -15,6 +15,8 @@ import { fbAuth } from "../lib/firebase";
 import { validateCaseFn, type ValidateResult } from "../lib/ai/intake.functions";
 
 export const Route = createFileRoute("/validating")({
+  /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
+  head: () => ({ meta: [{ name: "robots", content: "noindex" }] }),
   component: Validating,
 });
 

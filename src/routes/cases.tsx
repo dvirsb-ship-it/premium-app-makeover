@@ -21,6 +21,7 @@ export const Route = createFileRoute("/cases")({
       { property: "og:title", content: "My cases — JustAsk" },
       { property: "og:description", content: "Track your legal cases and lawyer offers in one place." },
       { property: "og:type", content: "website" },
+      { name: "robots", content: "noindex" },
     ],
   }),
   component: Cases,
