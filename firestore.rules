@@ -11,8 +11,18 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lawyer';
     }
 
+    // צפייה במשרד הטכנולוגי
     function isAdmin() {
       return signedIn() && request.auth.token.email in ['dvirsb@gmail.com', 'justask.adv@gmail.com'];
+    }
+
+    /*
+     * הרשאה לפעול — אישור עו"ד, הכרעה בערעור, סימון טיפול.
+     * dvirsb הוא חשבון הבדיקות כלקוח ולכן צופה בלבד: קליק מוטעה בזמן בדיקה
+     * לא אמור לאשר עורך דין אמיתי.
+     */
+    function isSuperAdmin() {
+      return signedIn() && request.auth.token.email == 'justask.adv@gmail.com';
     }
 
     // עו"ד שאושר בתור האימות — רק הוא רשאי להביע עניין בתיקים
@@ -59,9 +69,9 @@ service cloud.firestore {
           && request.resource.data.status == 'has_interest'
           && resource.data.status in ['matching', 'has_interest']
         )
-        // האדמין מכריע בערעורים — שינוי סטטוס בלבד
+        // אדמין-העל מכריע בערעורים — שינוי סטטוס בלבד
         || (
-          isAdmin()
+          isSuperAdmin()
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
         )
       );
@@ -135,7 +145,7 @@ service cloud.firestore {
         && request.resource.data.status == 'pending';
       allow update: if (signedIn() && request.auth.uid == uid)
         || (
-          isAdmin()
+          isSuperAdmin()
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['status', 'reviewedAt'])
         );
@@ -149,7 +159,7 @@ service cloud.firestore {
         && request.resource.data.status == 'open';
       allow read: if signedIn()
         && (resource.data.lawyerId == request.auth.uid || isAdmin());
-      allow update: if isAdmin()
+      allow update: if isSuperAdmin()
         && request.resource.data.diff(resource.data).affectedKeys()
              .hasOnly(['status', 'reviewedAt']);
       allow delete: if false;
@@ -158,7 +168,8 @@ service cloud.firestore {
     // פניות תמיכה — כל מחובר פותח; רק האדמין קורא ומטפל
     match /supportTickets/{id} {
       allow create: if signedIn() && request.resource.data.status == 'open';
-      allow read, update: if isAdmin();
+      allow read: if isAdmin();
+      allow update: if isSuperAdmin();
       allow delete: if false;
     }
 
@@ -167,7 +178,8 @@ service cloud.firestore {
       allow create: if signedIn()
         && request.resource.data.userId == request.auth.uid
         && request.resource.data.status == 'open';
-      allow read, update: if isAdmin();
+      allow read: if isAdmin();
+      allow update: if isSuperAdmin();
       allow delete: if false;
     }
 
@@ -181,7 +193,7 @@ service cloud.firestore {
     // יומן שגיאות שרת — נכתב מהשרת (עוקף חוקים); האדמין קורא ומסמן טופל
     match /serverErrors/{id} {
       allow read: if isAdmin();
-      allow update: if isAdmin()
+      allow update: if isSuperAdmin()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['handled']);
       allow create, delete: if false;
     }

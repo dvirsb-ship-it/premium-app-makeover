@@ -16,7 +16,7 @@ import { TopBar } from "../components/TopBar";
 import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
-import { isAdminUser } from "../lib/admin";
+import { isAdminUser, isSuperAdmin } from "../lib/admin";
 import { cn } from "../lib/utils";
 import {
   updateVerification,
@@ -82,6 +82,8 @@ function VerificationQueue() {
   const { lang } = useSettings();
   const navigate = useNavigate();
   const { user, authReady } = useAppStore();
+  // חשבון צופה: רואה הכל, אינו פועל (החוקים אוכפים את זה ממילא)
+  const canAct = isSuperAdmin(user);
   const [rows, setRows] = useState<VerificationRecord[]>([]);
 
   // גישה לאדמין בלבד (החוקים בשרת אוכפים את זה ממילא — זו רק חוויית משתמש)
@@ -159,6 +161,17 @@ function VerificationQueue() {
       />
 
       <main className="mt-5 flex-1 pb-10">
+        {!canAct && (
+          <div className="mb-4 flex items-start gap-2.5 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4">
+            <ShieldAlert className="mt-0.5 size-4 shrink-0 text-gold" />
+            <div>
+              <p className="text-[12px] font-bold text-foreground">{t("adminViewOnly")}</p>
+              <p className="mt-0.5 text-[11px] leading-relaxed text-muted-foreground">
+                {t("adminViewOnlySub")}
+              </p>
+            </div>
+          </div>
+        )}
         {rows.length === 0 ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -255,7 +268,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => handleUpdate(rec.id, "approved")}
+                        disabled={!canAct} onClick={() => handleUpdate(rec.id, "approved")}
                         className="btn-gold flex h-11 items-center justify-center gap-2 rounded-full text-[13px] font-bold"
                       >
                         <ShieldCheck className="size-4" strokeWidth={2.4} aria-hidden />
@@ -264,7 +277,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => handleUpdate(rec.id, "rejected")}
+                        disabled={!canAct} onClick={() => handleUpdate(rec.id, "rejected")}
                         className="flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-[13px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
                       >
                         <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
@@ -327,7 +340,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => handleAppeal(a, true)}
+                        disabled={!canAct} onClick={() => handleAppeal(a, true)}
                         className="btn-gold flex h-11 items-center justify-center gap-2 rounded-full text-[13px] font-bold"
                       >
                         <ShieldCheck className="size-4" strokeWidth={2.4} aria-hidden />
@@ -336,7 +349,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        onClick={() => handleAppeal(a, false)}
+                        disabled={!canAct} onClick={() => handleAppeal(a, false)}
                         className="flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-[13px] font-semibold text-foreground"
                       >
                         <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
@@ -365,7 +378,7 @@ function VerificationQueue() {
                   {tk.status === "open" ? (
                     <button
                       type="button"
-                      onClick={() =>
+                      disabled={!canAct} onClick={() =>
                         void markTicketHandled(tk.id).catch(() => toast.error(t("authErrGeneric")))
                       }
                       className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
@@ -490,7 +503,7 @@ function VerificationQueue() {
                   ) : (
                     <button
                       type="button"
-                      onClick={() =>
+                      disabled={!canAct} onClick={() =>
                         void markServerErrorHandled(e.id).catch(() => toast.error(t("authErrGeneric")))
                       }
                       className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
@@ -525,7 +538,7 @@ function VerificationQueue() {
                   {d.status === "open" ? (
                     <button
                       type="button"
-                      onClick={() =>
+                      disabled={!canAct} onClick={() =>
                         void markDeletionDone(d.id).catch(() => toast.error(t("authErrGeneric")))
                       }
                       className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"

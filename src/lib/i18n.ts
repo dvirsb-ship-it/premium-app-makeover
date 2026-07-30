@@ -569,6 +569,10 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
+  // הפרדת הרשאות אדמין
+  adminViewOnly: { he: "מצב צפייה", en: "View-only mode" },
+  adminViewOnlySub: { he: "החשבון הזה רואה את כל המשרד אך אינו מבצע פעולות. אישור עורכי דין, הכרעה בערעורים וסימון טיפול נעשים מחשבון justask.adv בלבד — כך בדיקה כלקוח לא תאשר בטעות עורך דין אמיתי.", en: "This account can see everything but cannot act. Approving lawyers, resolving appeals and marking items handled are done from justask.adv only." },
+
   // חדר הבקרה — לוח המשפך
   funnelHeader: { he: "לוח בקרה", en: "Control room" },
   funnelSub: { he: "האם זה מצליח, לא רק האם זה עובד. מתעדכן בזמן אמת.", en: "Whether it's succeeding, not just whether it's up. Live." },
