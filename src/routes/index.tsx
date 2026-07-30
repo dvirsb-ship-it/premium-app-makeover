@@ -35,16 +35,16 @@ export const Route = createFileRoute("/")({
     typeof search.done === "string" ? { done: search.done } : {},
   head: () => ({
     meta: [
-      { title: "JustAsk — Your direct path to justice" },
+      { title: "JustAsk — A free first legal check" },
       {
         name: "description",
         content:
-          "Premium legal concierge. Share your case in minutes and get matched with expert lawyers — private, secure, personal.",
+          "Before you hire a lawyer, check for free whether you have a case. A short chat, a review against Israeli law, and only if there are grounds do we connect you to verified lawyers in that field.",
       },
-      { property: "og:title", content: "JustAsk — Your direct path to justice" },
+      { property: "og:title", content: "JustAsk — A free first legal check" },
       {
         property: "og:description",
-        content: "Get matched with expert lawyers in minutes. Private and secure.",
+        content: "Find out for free whether you have a case — before you pay anyone.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

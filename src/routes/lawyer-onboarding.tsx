@@ -38,7 +38,7 @@ export const Route = createFileRoute("/lawyer-onboarding")({
       {
         name: "description",
         content:
-          "Verify your identity, bar license and specialties to join the JustAsk lawyer roster.",
+          "Verify your identity, bar license and practice areas to receive matching cases on JustAsk.",
       },
       { property: "og:title", content: "JustAsk — Lawyer verification" },
       {

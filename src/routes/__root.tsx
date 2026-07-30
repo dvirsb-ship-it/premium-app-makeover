@@ -87,19 +87,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "JustAsk — הגישה הישירה שלך לצדק" },
+      { title: "JustAsk — בדיקה משפטית ראשונית, חינם" },
       {
         name: "description",
         content:
-          "JustAsk מחברת בין נפגעים לעורכי דין מומחים. שתפו את המקרה, עברו בדיקת התאמה וקבלו הצעות מעורכי דין רלוונטיים.",
+          "לפני שפונים לעורך דין — בדקו בחינם אם יש לכם עילה. שיחה קצרה, בדיקה מול הדין הישראלי, ואם יש תיק נחבר אתכם לעורכי דין מאומתים בתחום.",
       },
       { name: "author", content: "JustAsk" },
       { name: "theme-color", content: "#0F172A" },
-      { property: "og:title", content: "JustAsk — הגישה הישירה שלך לצדק" },
+      { property: "og:title", content: "JustAsk — בדיקה משפטית ראשונית, חינם" },
       {
         property: "og:description",
         content:
-          "פלטפורמה משפטית פרמיום המחברת בין נפגעים לעורכי דין מומחים בתחומם.",
+          "בדקו בחינם אם יש לכם עילה משפטית — ורק אם יש, נחבר אתכם לעורך דין מאומת בתחום.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

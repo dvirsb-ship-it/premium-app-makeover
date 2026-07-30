@@ -197,7 +197,7 @@ export const strings = {
   // Lawyer onboarding
   lawyerOnboardMetaTitle: { he: "JustAsk — הרשמת עורך דין", en: "JustAsk — Lawyer signup" },
   lawyerOnboardMetaDesc: { he: "בחרו את תחומי ההתמחות שלכם כדי לקבל פניות רלוונטיות ב-JustAsk.", en: "Choose your practice areas to receive relevant leads on JustAsk." },
-  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות להצטרפות לנבחרת עורכי הדין של JustAsk.", en: "Pick practice areas to join the JustAsk lawyer roster." },
+  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי לקבל פניות שכבר עברו בדיקה משפטית.", en: "Pick practice areas to receive cases that already passed a legal review." },
   lawyerOnboardTitle: { he: "הרשמת עורך דין", en: "Lawyer signup" },
   lawyerOnboardSubtitle: { he: "בחרו את תחומי ההתמחות שלכם", en: "Choose your practice areas" },
   joinRosterBadge: { he: "JustAsk · הצטרפות כעורך דין", en: "JustAsk · Join as a lawyer" },
@@ -222,9 +222,9 @@ export const strings = {
   subHeroDesc: { he: "כל התיקים בתחום שלך, מיד כשהם עוברים את הבדיקה המשפטית — עם התזכיר המשפטי המלא שנכתב עליהם.", en: "Every case in your field, the moment it passes the legal review — with the full legal memo written for it." },
 
   // Root meta
-  rootMetaTitle: { he: "JustAsk — הגישה הישירה שלך לצדק", en: "JustAsk — Your direct path to justice" },
-  rootMetaDesc: { he: "JustAsk מחברת בין נפגעים לעורכי דין מומחים. שתפו את המקרה, עברו בדיקת התאמה וקבלו הצעות מעורכי דין רלוונטיים.", en: "JustAsk connects people with expert lawyers. Share your case, get matched, and receive offers from relevant lawyers." },
-  rootOgDesc: { he: "פלטפורמה משפטית פרמיום המחברת בין נפגעים לעורכי דין מומחים בתחומם.", en: "A premium legal platform connecting people with expert lawyers in their field." },
+  rootMetaTitle: { he: "JustAsk — בדיקה משפטית ראשונית, חינם", en: "JustAsk — A free first legal check" },
+  rootMetaDesc: { he: "לפני שפונים לעורך דין — בדקו בחינם אם יש לכם עילה. שיחה קצרה, בדיקה מול הדין הישראלי, ואם יש תיק נחבר אתכם לעורכי דין מאומתים בתחום.", en: "Before hiring a lawyer, check for free whether you have a case. A short chat, a review against Israeli law, and if there's a case we connect you to verified lawyers in that field." },
+  rootOgDesc: { he: "בדקו בחינם אם יש לכם עילה משפטית — ורק אם יש, נחבר אתכם לעורך דין מאומת בתחום.", en: "Check for free whether you have legal grounds — and only if you do, we connect you to a verified lawyer in that field." },
 
   // Welcome onboarding
   welcomeSkip: { he: "דלג", en: "Skip" },
