@@ -1,7 +1,17 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Plus, Scale, Sparkles, UserRound } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Bell,
+  FolderOpen,
+  LifeBuoy,
+  Plus,
+  Scale,
+  Sparkles,
+  UserRound,
+} from "lucide-react";
 import { AppShell } from "../components/AppShell";
 
 import { BrandMark } from "../components/BrandMark";
@@ -187,11 +197,17 @@ function ClientHome() {
   const interested = active?.interested.length ?? 0;
   const unread = notifications.filter((n) => !n.read).length;
 
-  const tiles: { key: string; label: string; value: string; to: string }[] = [
-    { key: "cases", label: t("navCases"), value: String(cases.length), to: "/cases" },
-    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications" },
-    { key: "profile", label: t("profile"), value: "", to: "/profile" },
-    { key: "help", label: t("help"), value: "", to: "/settings/help" },
+  const tiles: {
+    key: string;
+    label: string;
+    value: string;
+    to: string;
+    icon: typeof FolderOpen;
+  }[] = [
+    { key: "cases", label: t("navCases"), value: String(cases.length), to: "/cases", icon: FolderOpen },
+    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications", icon: Bell },
+    { key: "profile", label: t("profile"), value: "", to: "/profile", icon: UserRound },
+    { key: "help", label: t("help"), value: "", to: "/settings/help", icon: LifeBuoy },
   ];
 
   return (
@@ -275,9 +291,14 @@ function ClientHome() {
                   onClick={() => navigate({ to: tile.to })}
                   className="liquid-glass flex aspect-square flex-col justify-between rounded-[28px] p-4 text-start"
                 >
-                  <span className="text-2xl font-black leading-none text-gold" dir="ltr">
-                    {tile.value}
-                  </span>
+                  <div className="flex items-start justify-between">
+                    <TileMark icon={tile.icon} />
+                    {tile.value && (
+                      <span className="text-2xl font-black leading-none text-gold" dir="ltr">
+                        {tile.value}
+                      </span>
+                    )}
+                  </div>
                   <span className="text-[13px] font-bold text-foreground">{tile.label}</span>
                 </Pressable>
               ))}
@@ -315,5 +336,22 @@ function ClientHome() {
         </Stagger>
       </Page>
     </AppShell>
+  );
+}
+
+/**
+ * סמל הקובייה — אותו טיפול של אמבלמת JustAsk במיניאטורה:
+ * סקוויר-קל בגרדיאנט זהב עם ברק עליון, כדי שכל קובייה תרגיש
+ * חלק מאותה משפחה ולא אייקון גנרי.
+ */
+function TileMark({ icon: Icon }: { icon: typeof FolderOpen }) {
+  return (
+    <span className="relative grid size-11 place-items-center overflow-hidden rounded-[28%] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] shadow-[0_10px_22px_-10px_rgba(212,175,55,0.65)]">
+      <span
+        aria-hidden
+        className="absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0.55),transparent)]"
+      />
+      <Icon className="relative z-10 size-5 text-[#0F172A]" strokeWidth={2.3} />
+    </span>
   );
 }
