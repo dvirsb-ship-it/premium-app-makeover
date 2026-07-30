@@ -637,8 +637,8 @@ export const strings = {
   offerNonBindingShort: { he: "הערכה ראשונית ואינה מחייבת. המחייב הוא הסכם שכר טרחה חתום.", en: "Preliminary, non-binding estimate. Only a signed fee agreement is binding." },
 
   // בדיקה מעמיקה שרצה ברקע
-  deepCheckRunning: { he: "הבדיקה המשפטית המעמיקה רצה", en: "Deep legal review in progress" },
-  deepCheckRunningSub: { he: "כותבים תזכיר משפטי מלא עבור עורכי הדין. אפשר לצאת — נעדכן אתכם כשזה יסתיים.", en: "Preparing the full legal memo for lawyers. Feel free to leave — we'll notify you when it's done." },
+  deepCheckRunning: { he: "הפנייה התקבלה ובבדיקה", en: "Received and under review" },
+  deepCheckRunningSub: { he: "אין מה לעשות מכאן — נעדכן אתכם בהתראה ברגע שהבדיקה תסתיים.", en: "Nothing to do from here — we'll notify you as soon as the review is done." },
 
   // התראות דחיפה
   notifLawyerInterest: { he: "עורך דין הביע עניין", en: "A lawyer showed interest" },

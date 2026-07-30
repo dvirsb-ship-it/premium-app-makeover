@@ -161,10 +161,14 @@ function Validating() {
       /* ignore */
     }
     if (!caseId) return;
+    /*
+     * הבדיקה המעמיקה עדיין רצה, אבל שומר הסף כבר אישר את הפנייה — ולכן
+     * הלקוח מקבל את אישור הקליטה במקום ספינר. שאר העדכונים מגיעים בהתראה.
+     */
     const tm = window.setTimeout(() => {
       if (finished.current) return;
       finished.current = true;
-      navigate({ to: "/case/$caseId", params: { caseId } });
+      navigate({ to: "/submitted", search: { id: caseId } });
     }, 1200);
     return () => window.clearTimeout(tm);
   }, [animDone, result, rejected, stuck, navigate]);

@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Loader2, MessageCircle, Phone, Star } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, MessageCircle, Phone, Scale, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import { AppShell } from "../components/AppShell";
@@ -156,33 +156,16 @@ function CaseDetail() {
           </div>
 
           {item.status === "validating" && (
-            <div className="liquid-glass mt-3 rounded-3xl p-5">
-              <div className="flex items-center gap-3">
-                <Loader2 className="size-5 shrink-0 animate-spin text-gold" />
-                <div className="min-w-0">
-                  <p className="text-[13px] font-bold text-foreground">
-                    {t("deepCheckRunning")}
-                  </p>
-                  <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
-                    {t("deepCheckRunningSub")}
-                  </p>
-                </div>
+            <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
+              <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-gold/12 text-gold">
+                <Scale className="size-4.5" strokeWidth={2.2} aria-hidden />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[13px] font-bold text-foreground">{t("deepCheckRunning")}</p>
+                <p className="mt-0.5 text-[12px] leading-relaxed text-muted-foreground">
+                  {t("deepCheckRunningSub")}
+                </p>
               </div>
-              {/* מוצג רק אם הבדיקה נתקעה — למשל אם הדפדפן נסגר באמצע */}
-              <button
-                type="button"
-                onClick={() => {
-                  try {
-                    sessionStorage.setItem("justask-active-case", item.id);
-                  } catch {
-                    /* ignore */
-                  }
-                  navigate({ to: "/validating" });
-                }}
-                className="mt-4 w-full rounded-2xl border border-border py-2.5 text-[12px] font-semibold text-muted-foreground transition active:scale-[0.98]"
-              >
-                {t("resumeValidation")}
-              </button>
             </div>
           )}
 
