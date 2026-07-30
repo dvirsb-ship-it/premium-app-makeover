@@ -336,36 +336,81 @@ async function adminDeleteStorage(path: string): Promise<void> {
  * עד כה בקשת מחיקה רק נרשמה — התקנון הבטיח "מחיקה מלאה תוך 14 יום"
  * ושום קוד לא מחק דבר. זו הפונקציה שהופכת את ההבטחה לאמת.
  */
-export async function purgeAccount(uid: string): Promise<{ cases: number }> {
+export interface PurgeReport {
+  cases: number;
+  /** כל נתיב שנמחק (או שהיה נמחק, בהרצה יבשה) — לאימות לפני ואחרי. */
+  paths: string[];
+  storage: string[];
+  dryRun: boolean;
+}
+
+/**
+ * מחיקת חשבון וכל הנגזר ממנו.
+ *
+ * `dryRun` מדווח בדיוק מה היה נמחק בלי לגעת בכלום. זו הפעולה ההרסנית
+ * ביותר במערכת ואין ממנה חזרה — ולכן חייבת להיות דרך לאמת אותה על חשבון
+ * אמיתי מבלי לבצע אותה. אל תריצו אותה "רטובה" בפעם הראשונה על חשבון
+ * שאכפת לכם ממנו.
+ */
+export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeReport> {
+  const paths: string[] = [];
+  const storage: string[] = [];
+  const del = async (path: string) => {
+    paths.push(path);
+    if (!dryRun) await adminDelete(path);
+  };
+  const delFile = async (path: string) => {
+    storage.push(path);
+    if (!dryRun) await adminDeleteStorage(path);
+  };
+
   const caseIds = await adminQueryIds("cases", "clientId", uid);
 
   for (const id of caseIds) {
     const c = await adminGetDoc(`cases/${id}`);
     const images = (c?.images as { origPath?: string; censPath?: string }[] | undefined) ?? [];
     for (const img of images) {
-      if (img.origPath) await adminDeleteStorage(img.origPath);
-      if (img.censPath) await adminDeleteStorage(img.censPath);
+      if (img.origPath) await delFile(img.origPath);
+      if (img.censPath) await delFile(img.censPath);
     }
     // תתי-אוספים אינם נמחקים עם המסמך ב-Firestore
-    await adminDelete(`cases/${id}/memo/full`);
+    await del(`cases/${id}/memo/full`);
     for (const k of ["met", "demandSent", "filed", "closed"]) {
-      await adminDelete(`cases/${id}/milestones/${k}`);
+      await del(`cases/${id}/milestones/${k}`);
     }
-    await adminDelete(`cases/${id}`);
+    /*
+     * פרטי הקשר שנחשפו לעו"ד על התיק — הם נכתבים תחת מזהה עורך הדין,
+     * ולכן לא נמחקים עם מסמך התיק ולא נתפסים בשאילתה לפי clientId.
+     */
+    for (const lid of ((c?.interestedIds as string[] | undefined) ?? [])) {
+      await del(`cases/${id}/contacts/${lid}`);
+    }
+    await del(`cases/${id}`);
   }
 
   for (const nid of await adminQueryIds("notifications", "userId", uid)) {
-    await adminDelete(`notifications/${nid}`);
+    await del(`notifications/${nid}`);
   }
 
-  await adminDelete(`lawyerProfiles/${uid}`);
-  await adminDelete(`lawyerContacts/${uid}`);
-  await adminDelete(`verifications/${uid}`);
-  await adminDelete(`lawyerStats/${uid}`);
-  await adminDelete(`usage/${uid}`);
-  await adminDelete(`users/${uid}`);
+  /*
+   * דירוגים — מסמך הדירוג נושא clientId, כלומר הוא מידע אישי שנשאר
+   * אחרי "מחיקה מלאה". נמחק גם כשהמשתמש הוא עורך הדין המדורג.
+   */
+  for (const rid of await adminQueryIds("ratings", "clientId", uid)) {
+    await del(`ratings/${rid}`);
+  }
+  for (const rid of await adminQueryIds("ratings", "lawyerId", uid)) {
+    await del(`ratings/${rid}`);
+  }
 
-  return { cases: caseIds.length };
+  await del(`lawyerProfiles/${uid}`);
+  await del(`lawyerContacts/${uid}`);
+  await del(`verifications/${uid}`);
+  await del(`lawyerStats/${uid}`);
+  await del(`usage/${uid}`);
+  await del(`users/${uid}`);
+
+  return { cases: caseIds.length, paths, storage, dryRun };
 }
 
 /* ---------- הגבלת קצב ---------- */

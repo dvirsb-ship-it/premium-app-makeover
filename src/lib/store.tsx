@@ -208,8 +208,22 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       } catch {
         /* ignore */
       }
+      /*
+       * כישלון כאן נבלע בשקט — וזה בדיוק הבאג שכבר תפס אותנו: התפקיד
+       * במטמון המקומי אמר "עורך דין", המסכים התנהגו בהתאם, אבל במסד לא
+       * נכתב כלום ולכן החוקים דחו כל קריאה. הפיד נראה ריק בלי סיבה.
+       * עכשיו: מנסים שוב פעם אחת, ואם גם זה נכשל — אומרים למשתמש.
+       */
       const u = user ?? fbAuth().currentUser;
-      if (u) void writeUserRole(u.uid, r).catch(() => {});
+      if (u) {
+        void writeUserRole(u.uid, r)
+          .catch(() => writeUserRole(u.uid, r))
+          .catch(() => {
+            toast.error(translate("roleSaveFailed", uiLang()));
+            setRoleState(null);
+            try { localStorage.removeItem(ROLE_CACHE_KEY); } catch { /* ignore */ }
+          });
+      }
     },
     [user],
   );

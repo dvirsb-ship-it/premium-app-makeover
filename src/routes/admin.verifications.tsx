@@ -17,6 +17,8 @@ import { useT } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { isAdminUser, isSuperAdmin } from "../lib/admin";
+import { fbAuth } from "../lib/firebase";
+import { notifyVerificationFn } from "../lib/ai/intake.functions";
 import { cn } from "../lib/utils";
 import {
   updateVerification,
@@ -28,6 +30,7 @@ import {
 import {
   computeFunnel,
   markDeletionDone,
+  previewDeletion,
   markServerErrorHandled,
   markTicketHandled,
   resolveAppeal,
@@ -137,12 +140,37 @@ function VerificationQueue() {
     };
   }, [authReady, user]);
 
+  /*
+   * אישור פותח לאדם זר גישה לתיקים משפטיים של לקוחות — פעולה שאין ממנה
+   * דרך חזרה נקייה (העו"ד כבר קיבל הודעה שאושר). לחיצה אחת בטעות ברשימה
+   * צפופה היא תרחיש אמיתי, ולכן יש שלב אישור עם השם לפני הביצוע.
+   */
+  const [confirming, setConfirming] = useState<{ rec: VerificationRecord; status: VerificationStatus } | null>(null);
+  /** תוצאת ההרצה היבשה של המחיקה — מה היה נמחק, בלי שנמחק. */
+  const [preview, setPreview] = useState<{ cases: number; paths: string[]; storage: string[] } | null>(null);
+
   function handleUpdate(id: string, status: VerificationStatus) {
     void updateVerification(id, status)
-      .then(() =>
-        toast.success(status === "approved" ? t("approvedToast") : t("rejectedToast")),
-      )
-      .catch(() => toast.error(t("authErrGeneric")));
+      .then(async () => {
+        toast.success(status === "approved" ? t("approvedToast") : t("rejectedToast"));
+        /*
+         * דחיפה החוצה. עד עכשיו נשלחה רק התראה בתוך האפליקציה, כלומר
+         * עורך דין שהמתין יומיים היה מגלה שאושר רק אם במקרה נכנס.
+         * כישלון כאן לא הופך אישור שהצליח לכישלון.
+         */
+        try {
+          const idToken = await fbAuth().currentUser?.getIdToken();
+          if (idToken) {
+            await notifyVerificationFn({
+              data: { targetUid: id, approved: status === "approved", idToken },
+            });
+          }
+        } catch {
+          /* ההתראה נכשלה — ההחלטה עצמה נשמרה */
+        }
+      })
+      .catch(() => toast.error(t("authErrGeneric")))
+      .finally(() => setConfirming(null));
   }
 
   function openFile(path?: string) {
@@ -316,7 +344,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        disabled={!canAct} onClick={() => handleUpdate(rec.id, "approved")}
+                        disabled={!canAct} onClick={() => setConfirming({ rec, status: "approved" })}
                         className="btn-gold flex h-11 items-center justify-center gap-2 rounded-full text-[13px] font-bold"
                       >
                         <ShieldCheck className="size-4" strokeWidth={2.4} aria-hidden />
@@ -325,7 +353,7 @@ function VerificationQueue() {
                       <motion.button
                         type="button"
                         whileTap={{ scale: 0.97 }}
-                        disabled={!canAct} onClick={() => handleUpdate(rec.id, "rejected")}
+                        disabled={!canAct} onClick={() => setConfirming({ rec, status: "rejected" })}
                         className="flex h-11 items-center justify-center gap-2 rounded-full border border-white/15 bg-white/5 text-[13px] font-semibold text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
                       >
                         <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
@@ -584,15 +612,34 @@ function VerificationQueue() {
                     </p>
                   </div>
                   {d.status === "open" ? (
-                    <button
-                      type="button"
-                      disabled={!canAct} onClick={() =>
-                        void markDeletionDone(d.id, d.userId).catch(() => toast.error(t("authErrGeneric")))
-                      }
-                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
-                    >
-                      {t("deletionMarkDone")}
-                    </button>
+                    <div className="flex shrink-0 gap-1.5">
+                      {/*
+                        * "בדיקה יבשה" קודם. מחיקה היא הפעולה ההרסנית ביותר
+                        * במערכת ואין ממנה חזרה — צריך לראות מה בדיוק ייעלם
+                        * לפני שלוחצים, ולא לגלות אחרי.
+                        */}
+                      <button
+                        type="button"
+                        disabled={!canAct}
+                        onClick={() =>
+                          void previewDeletion(d.userId)
+                            .then(setPreview)
+                            .catch(() => toast.error(t("authErrGeneric")))
+                        }
+                        className="rounded-full border border-border px-3 py-1 text-[11px] font-bold text-muted-foreground transition active:scale-95"
+                      >
+                        {t("deletionPreview")}
+                      </button>
+                      <button
+                        type="button"
+                        disabled={!canAct} onClick={() =>
+                          void markDeletionDone(d.id, d.userId).catch(() => toast.error(t("authErrGeneric")))
+                        }
+                        className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                      >
+                        {t("deletionMarkDone")}
+                      </button>
+                    </div>
                   ) : (
                     <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
                       {t("deletionDone")}
@@ -636,6 +683,100 @@ function VerificationQueue() {
             ))}
           </ul>
         )}
+      <AnimatePresence>
+        {preview && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 grid place-items-center bg-[#0F172A]/60 px-5 backdrop-blur-md"
+            onClick={() => setPreview(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              onClick={(e) => e.stopPropagation()}
+              className="flex max-h-[80vh] w-full max-w-md flex-col rounded-[28px] border border-border bg-card p-6 shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
+            >
+              <h2 className="text-[17px] font-black text-foreground">{t("deletionPreviewTitle")}</h2>
+              <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+                {t("deletionPreviewSub")}
+              </p>
+              <p className="mt-3 text-[12px] font-bold text-gold">
+                {preview.cases} · {t("adminCasesHeader")} — {preview.paths.length + preview.storage.length} {t("deletionPreviewItems")}
+              </p>
+              <ul className="mt-3 min-h-0 flex-1 overflow-y-auto rounded-2xl bg-muted/40 p-3 text-start" dir="ltr">
+                {[...preview.paths, ...preview.storage].map((x) => (
+                  <li key={x} className="truncate py-0.5 font-mono text-[11px] text-muted-foreground">
+                    {x}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() => setPreview(null)}
+                className="mt-5 w-full rounded-2xl border border-border py-3 text-[14px] font-bold text-foreground"
+              >
+                {t("closeAria")}
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* אישור לפני פעולה שנותנת לזר גישה לתיקים — או חוסמת עורך דין אמיתי */}
+      <AnimatePresence>
+        {confirming && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 grid place-items-center bg-[#0F172A]/60 px-5 backdrop-blur-md"
+            onClick={() => setConfirming(null)}
+          >
+            <motion.div
+              initial={{ opacity: 0, y: 20, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 10, scale: 0.98 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-sm rounded-[28px] border border-border bg-card p-6 text-center shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
+            >
+              <h2 className="text-[17px] font-black text-foreground">
+                {t(confirming.status === "approved" ? "confirmApproveTitle" : "confirmRejectTitle")}
+              </h2>
+              <p className="mt-2 text-[14px] font-bold text-gold">{confirming.rec.fullName}</p>
+              <p className="mt-0.5 text-[12px] text-muted-foreground">
+                {t("fieldBarNumber")} {confirming.rec.barNumber}
+              </p>
+              <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
+                {t(confirming.status === "approved" ? "confirmApproveBody" : "confirmRejectBody")}
+              </p>
+              <div className="mt-6 space-y-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleUpdate(confirming.rec.id, confirming.status)}
+                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold"
+                >
+                  {t(confirming.status === "approved" ? "approve" : "reject")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfirming(null)}
+                  className="w-full py-2 text-[13px] font-semibold text-muted-foreground"
+                >
+                  {t("cancelAction")}
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       </main>
     </AppShell>
   );

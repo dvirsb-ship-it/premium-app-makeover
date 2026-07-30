@@ -624,6 +624,19 @@ export async function markDeletionDone(id: string, targetUid: string): Promise<v
   await updateDoc(doc(fbDb(), "deletionRequests", id), { status: "done" });
 }
 
+/**
+ * הרצה יבשה של המחיקה — מחזירה בדיוק מה היה נמחק, בלי לגעת בכלום.
+ * זו הדרך לאמת את הפעולה ההרסנית ביותר במערכת לפני שמריצים אותה באמת.
+ */
+export async function previewDeletion(
+  targetUid: string,
+): Promise<{ cases: number; paths: string[]; storage: string[] }> {
+  const { purgeAccountFn } = await import("./ai/intake.functions");
+  const { fbAuth } = await import("./firebase");
+  const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+  return purgeAccountFn({ data: { targetUid, idToken, dryRun: true } });
+}
+
 /* ---------- יומן שגיאות שרת (נכתב מהשרת בלבד) ---------- */
 
 export interface ServerErrorDoc {

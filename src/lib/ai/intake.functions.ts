@@ -606,11 +606,57 @@ export const rateLawyerFn = createServerFn({ method: "POST" })
     });
   });
 
+/* ---------- הודעה לעורך דין על החלטת אימות ---------- */
+
+export interface VerificationDecisionInput {
+  targetUid: string;
+  approved: boolean;
+  idToken: string;
+}
+
+/**
+ * דחיפה החוצה על החלטת האימות.
+ *
+ * ההחלטה עצמה נכתבת מהדפדפן (נאכף בחוקים, ומכוסה בבדיקות), אבל התראה
+ * בתוך האפליקציה בלבד פירושה שעורך דין שהמתין יומיים יגלה שאושר רק אם
+ * במקרה ייכנס. זה בדיוק האדם שגייסנו אישית — הוא צריך לדעת מיד.
+ *
+ * לעולם לא זורקת: אישור שהצליח לא ייראה ככישלון בגלל התראה שנכשלה.
+ */
+export const notifyVerificationFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as VerificationDecisionInput)
+  .handler(async ({ data }): Promise<{ sent: boolean }> => {
+    const { requireIdentity, sendPush, withErrorLog } = await import("./server-admin");
+    return withErrorLog("notifyVerification", async () => {
+      const me = await requireIdentity(data.idToken);
+      if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
+        throw new Error("forbidden");
+      }
+      await sendPush(
+        data.targetUid,
+        data.approved
+          ? {
+              title: "האימות שלך אושר 🎉",
+              body: "הפרופיל אומת — מעכשיו הפניות בתחומים שלך פתוחות בפניך",
+              link: "/lawyer",
+            }
+          : {
+              title: "האימות לא אושר",
+              body: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים",
+              link: "/lawyer-onboarding",
+            },
+      );
+      return { sent: true };
+    });
+  });
+
 /* ---------- ביצוע מחיקת חשבון ---------- */
 
 export interface PurgeInput {
   targetUid: string;
   idToken: string;
+  /** הרצה יבשה: מדווחת מה היה נמחק בלי לגעת בכלום. */
+  dryRun?: boolean;
 }
 
 /**
@@ -619,7 +665,7 @@ export interface PurgeInput {
  */
 export const purgeAccountFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as PurgeInput)
-  .handler(async ({ data }): Promise<{ cases: number }> => {
+  .handler(async ({ data }) => {
     const { requireIdentity, purgeAccount, withErrorLog } = await import("./server-admin");
     return withErrorLog("purgeAccount", async () => {
       // האימייל נלקח מהטוקן המאומת, לא ממסמך המשתמש שהוא עצמו כותב
@@ -627,6 +673,6 @@ export const purgeAccountFn = createServerFn({ method: "POST" })
       if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
         throw new Error("forbidden");
       }
-      return purgeAccount(data.targetUid);
+      return purgeAccount(data.targetUid, data.dryRun === true);
     });
   });

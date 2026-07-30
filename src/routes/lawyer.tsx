@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, Clock, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Calendar, Check, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { NotificationBell } from "../components/NotificationBell";
@@ -232,8 +232,35 @@ function LawyerFeed() {
             </p>
           </div>
         ) : feed.length === 0 ? (
-          <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
-            {t("feedEmpty")}
+          /*
+           * עורך הדין הראשון שיאושר ייכנס לפיד ריק — זה בלתי נמנע בשלב
+           * ההשקה, אבל "אין כרגע פניות בתחומכם" נקרא כמו מוצר מת ולא
+           * כמו יום ראשון. אומרים לו איפה אנחנו, מה כבר עובד, ומה יקרה
+           * כשתגיע פנייה. זה עורך דין שגויס אישית — הוא ראוי להקשר.
+           */
+          <div className="rounded-3xl border border-gold/25 bg-gold/[0.05] p-7 text-center">
+            <span className="mx-auto grid size-12 place-items-center rounded-full bg-gold/12 ring-1 ring-gold/25">
+              <Scale className="size-5 text-gold" strokeWidth={1.9} />
+            </span>
+            <p className="mt-4 text-[15px] font-bold text-foreground">
+              {t("feedFirstRunTitle")}
+            </p>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
+              {t("feedFirstRunSub")}
+            </p>
+            <ul className="mt-5 space-y-2.5 text-start">
+              {(["feedFirstRun1", "feedFirstRun2", "feedFirstRun3"] as const).map((k) => (
+                <li key={k} className="flex items-start gap-2.5">
+                  <span className="mt-0.5 grid size-4.5 shrink-0 place-items-center rounded-full bg-gold">
+                    <Check className="size-2.5 text-[#0F172A]" strokeWidth={4} />
+                  </span>
+                  <span className="text-[12.5px] leading-relaxed text-foreground/90">{t(k)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-5 border-t border-gold/15 pt-4 text-[12px] leading-relaxed text-muted-foreground">
+              {t("feedFirstRunNotify")}
+            </p>
           </div>
         ) : null}
 
