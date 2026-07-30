@@ -38,13 +38,19 @@ service cloud.firestore {
 
     // תיקים — בידוד מלא: לקוח רואה רק את שלו; עו"ד רואה רק תיקים שעברו ולידציה
     match /cases/{caseId} {
+      // תיק נולד תמיד במצב בדיקה; רק השרת מעביר אותו הלאה
       allow create: if signedIn()
-        && request.resource.data.clientId == request.auth.uid;
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.status == 'validating'
+        && request.resource.data.interestedIds.size() == 0
+        && !('offers' in request.resource.data);
 
       allow read: if signedIn() && (
         resource.data.clientId == request.auth.uid
         || resource.data.chosenLawyerId == request.auth.uid
-        || (isLawyer() && resource.data.status in ['matching', 'has_interest'])
+        // עו"ד *מאושר* בלבד. role נכתב ע"י המשתמש עצמו, ולכן isLawyer לבדו
+        // איפשר לכל חשבון מחובר לקרוא את כל התיקים בפיד.
+        || (isApprovedLawyer() && resource.data.status in ['matching', 'has_interest'])
         || isAdmin()
       );
 
@@ -66,6 +72,13 @@ service cloud.firestore {
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['interested', 'interestedIds', 'status', 'offers'])
           && request.resource.data.interestedIds.hasAll(resource.data.interestedIds)
+          && request.resource.data.interested.size() >= resource.data.interested.size()
+          // הצעות של אחרים אינן ניתנות לעריכה או למחיקה
+          && (
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['offers'])
+            || request.resource.data.offers.diff(resource.data.get('offers', {}))
+                 .affectedKeys().hasOnly([request.auth.uid])
+          )
           && request.resource.data.status == 'has_interest'
           && resource.data.status in ['matching', 'has_interest']
         )
@@ -143,7 +156,19 @@ service cloud.firestore {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
       allow create: if signedIn() && request.auth.uid == uid
         && request.resource.data.status == 'pending';
-      allow update: if (signedIn() && request.auth.uid == uid)
+      /*
+       * בעל הבקשה רשאי לתקן את פרטיו ולהגיש מחדש — אך לעולם לא לאשר את עצמו.
+       * ללא ההגבלה הזו כל משתמש מחובר יכול היה לכתוב status:'approved' על
+       * המסמך שלו ולהפוך לעורך דין מאומת.
+       */
+      allow update: if (
+          signedIn() && request.auth.uid == uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['reviewedAt'])
+          && (
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
+            || request.resource.data.status == 'pending'
+          )
+        )
         || (
           isSuperAdmin()
           && request.resource.data.diff(resource.data).affectedKeys()
