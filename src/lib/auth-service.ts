@@ -26,8 +26,15 @@ const EMAIL_KEY = "justask-auth-email";
  * בלעדיו אין הבדל בין "המשתמש פשוט פתח את האפליקציה ואינו מחובר" לבין
  * "המשתמש חזר מגוגל וההתחברות נפלה בשקט". שניהם נראים כמו מסך התחברות,
  * והמשתמש לוחץ שוב, ושוב — זו הלולאה שדווחה.
+ *
+ * ב-localStorage ולא ב-sessionStorage: ב-PWA של iOS ההפניה עלולה לפתוח
+ * הקשר גלישה חדש, ואז sessionStorage נמחק — כלומר דווקא במקרה שבו הכי
+ * חשוב לזהות כשל, הסימון היה נעלם והמסך היה שותק שוב.
  */
-const REDIRECT_FLAG = "justask-auth-redirecting";
+const REDIRECT_FLAG = "justask-auth-redirect-at";
+
+/** אחרי זה הניסיון כבר אינו רלוונטי, ואין להציג עליו שגיאה. */
+const REDIRECT_STALE_MS = 10 * 60 * 1000;
 
 /**
  * האם להשתמש בהפניה במקום בחלון קופץ.
@@ -57,7 +64,7 @@ export async function signInGoogle(): Promise<UserCredential | null> {
   provider.setCustomParameters({ prompt: "select_account" });
   if (prefersRedirect()) {
     try {
-      sessionStorage.setItem(REDIRECT_FLAG, "1");
+      localStorage.setItem(REDIRECT_FLAG, String(Date.now()));
     } catch {
       /* מצב פרטי — נוותר על האבחון, לא על ההתחברות */
     }
@@ -96,8 +103,9 @@ async function withDeadline<T>(p: Promise<T>, ms: number): Promise<T | undefined
 export async function consumeRedirectSignIn(): Promise<RedirectOutcome> {
   let pending = false;
   try {
-    pending = sessionStorage.getItem(REDIRECT_FLAG) === "1";
-    sessionStorage.removeItem(REDIRECT_FLAG);
+    const at = Number(localStorage.getItem(REDIRECT_FLAG) ?? 0);
+    pending = at > 0 && Date.now() - at < REDIRECT_STALE_MS;
+    localStorage.removeItem(REDIRECT_FLAG);
   } catch {
     /* ignore */
   }
