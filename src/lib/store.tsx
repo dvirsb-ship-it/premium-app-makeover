@@ -23,7 +23,7 @@ import {
   ensureUserDoc,
   expressInterestDb,
   markNotificationRead,
-  readLawyerProfile,
+  watchLawyerProfile,
   readUserRole,
   watchLawyerFeed,
   watchMyCases,
@@ -163,7 +163,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setMyLawyerProfile(null);
       return;
     }
-    void readLawyerProfile(user.uid).then(setMyLawyerProfile).catch(() => {});
+    /*
+     * מנוי חי ולא קריאה חד-פעמית — אחרת התחומים שנבחרו בהרשמה אינם
+     * מגיעים לפיד עד לטעינה הבאה של האפליקציה, וזה בדיוק המסך הראשון.
+     */
+    return watchLawyerProfile(user.uid, setMyLawyerProfile, () => {});
   }, [user, role]);
 
   /*

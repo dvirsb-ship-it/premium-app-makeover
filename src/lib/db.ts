@@ -481,6 +481,27 @@ export async function readLawyerProfile(
   return snap.exists() ? (snap.data() as LawyerProfileDoc) : null;
 }
 
+/**
+ * הפרופיל המקצועי בזמן אמת.
+ *
+ * קודם זו הייתה קריאה חד-פעמית ב-useEffect: היא רצה בהתחברות — לפני
+ * שהפרופיל בכלל נוצר — והחזירה null. ההרשמה כתבה את הפרופיל, אבל שום
+ * דבר לא הפעיל את הקריאה מחדש, ולכן הפיד המשיך לחשוב שאין לעורך הדין
+ * תחומים ולא סינן כלום. עורך דין שסימן נזיקין ראה תיקי דיני עבודה
+ * בדיוק במסך הראשון שלו.
+ */
+export function watchLawyerProfile(
+  uid: string,
+  cb: (p: LawyerProfileDoc | null) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  return onSnapshot(
+    doc(fbDb(), "lawyerProfiles", uid),
+    (snap) => cb(snap.exists() ? (snap.data() as LawyerProfileDoc) : null),
+    (err) => onError?.(err),
+  );
+}
+
 export async function writeLawyerProfile(
   uid: string,
   p: Omit<LawyerProfileDoc, "createdAt">,
