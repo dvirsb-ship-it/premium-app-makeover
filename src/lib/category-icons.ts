@@ -1,4 +1,5 @@
 import {
+  Bandage,
   Banknote,
   Building2,
   CarFront,
@@ -21,9 +22,7 @@ import {
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
 import type { SpecId } from "./specialties";
-import { BrokenBone } from "../components/icons";
 
-/* סמל אחד מותאם ושאר lucide — טיפוס משותף רחב דיו לשניהם */
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 
 /**
@@ -38,7 +37,7 @@ type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
  */
 
 export const SPEC_ICON: Record<SpecId, IconComponent> = {
-  injury: BrokenBone,
+  injury: Bandage,
   medical: Stethoscope,
   traffic: CarFront,
   insurance: ShieldCheck,
@@ -63,7 +62,7 @@ export const SPEC_ICON: Record<SpecId, IconComponent> = {
 
 /** קטגוריית תיק (כפי שהוולידציה מחזירה) → סמל. */
 const CATEGORY_ICON: Record<string, IconComponent> = {
-  "נזיקין ותאונות": BrokenBone,
+  "נזיקין ותאונות": Bandage,
   "רשלנות רפואית": Stethoscope,
   "תעבורה": CarFront,
   "ביטוח": ShieldCheck,
