@@ -67,7 +67,8 @@ const GOOGLE_ONLY = true;
 function Auth() {
   const navigate = useNavigate();
   const t = useT();
-  const { role, setRole, user, authReady } = useAppStore();
+  const { role, setRole, user, authReady, authRedirectFailed, clearAuthRedirectError } =
+    useAppStore();
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
   const [code, setCode] = useState("");
@@ -212,11 +213,35 @@ function Auth() {
               </p>
             </Rise>
 
+            {/*
+              חזרנו מגוגל בלי חשבון מחובר. בלי ההודעה הזו המסך נראה בדיוק
+              כמו פתיחה רגילה, המשתמש לוחץ שוב — ונכנס ללולאה בלי לדעת למה.
+            */}
+            {authRedirectFailed && (
+              <Rise>
+                <div
+                  role="alert"
+                  className="rounded-2xl border border-destructive/40 bg-destructive/10 px-4 py-3 text-start"
+                >
+                  <p className="flex items-center gap-1.5 text-xs font-bold text-destructive">
+                    <AlertCircle className="size-3.5 shrink-0" aria-hidden />
+                    {t("authRedirectFailed")}
+                  </p>
+                  <p className="mt-1 text-[11px] leading-relaxed text-foreground/75">
+                    {t("authRedirectFailedHint")}
+                  </p>
+                </div>
+              </Rise>
+            )}
+
             {/* Social auth */}
             <Rise>
               <button
                 type="button"
-                onClick={() => proceed("google")}
+                onClick={() => {
+                  clearAuthRedirectError();
+                  void proceed("google");
+                }}
                 disabled={busy}
                 aria-busy={loading === "google"}
                 aria-label={t("continueGoogle")}

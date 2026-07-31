@@ -59,6 +59,9 @@ interface AppState {
   user: User | null;
   /** false עד שסטטוס ההתחברות ידוע — מונע ניתוב שגוי בזמן רענון. */
   authReady: boolean;
+  /** true אם חזרנו מהפניית התחברות בלי חשבון מחובר. מסך ההתחברות אומר זאת. */
+  authRedirectFailed: boolean;
+  clearAuthRedirectError: () => void;
   signOut: () => Promise<void>;
   /** התראות המשתמש — בזמן אמת, החדשות ראשונות. */
   notifications: AppNotification[];
@@ -82,6 +85,7 @@ function uiLang(): "he" | "en" {
 export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [authRedirectFailed, setAuthRedirectFailed] = useState(false);
   const [role, setRoleState] = useState<Role | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [feed, setFeed] = useState<FeedCase[]>([]);
@@ -105,32 +109,49 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!isBrowser) return;
     /*
-     * חזרה מהפניית התחברות — נקלטת לפני שמאזינים לשינוי המצב, כדי
-     * שהמשתמש לא יראה הבזק של מסך ההתחברות אחרי שכבר התחבר.
+     * חזרה מהפניית התחברות — נקלטת **לפני** שמאזינים לשינוי המצב.
+     *
+     * זה חייב להיות await ולא fire-and-forget: אחרת onAuthStateChanged
+     * יורה null לפני שההפניה נקלטה, authReady יהפוך ל-true, השער ישלח
+     * את המשתמש למסך ההתחברות — והוא ילחץ שוב. זו הלולאה שדווחה.
      */
-    void consumeRedirectSignIn();
-    const unsub = onAuthStateChanged(fbAuth(), async (u) => {
-      setUser(u);
-      if (u) {
-        // סנכרון פרופיל + תפקיד מהשרת
-        void ensureUserDoc(u.uid, {
-          email: u.email ?? undefined,
-          phone: u.phoneNumber ?? undefined,
-          name: u.displayName ?? undefined,
-        });
-        try {
-          const serverRole = await readUserRole(u.uid);
-          if (serverRole) {
-            setRoleState(serverRole);
-            try { localStorage.setItem(ROLE_CACHE_KEY, serverRole); } catch { /* ignore */ }
+    let cancelled = false;
+    let unsubAuth: (() => void) | undefined;
+
+    void (async () => {
+      const outcome = await consumeRedirectSignIn();
+      if (cancelled) return;
+      if (outcome.status === "failed") setAuthRedirectFailed(true);
+
+      unsubAuth = onAuthStateChanged(fbAuth(), async (u) => {
+        setUser(u);
+        if (u) {
+          // התחברות שהצליחה מוחקת שגיאה קודמת — אחרת היא נשארת על המסך
+          setAuthRedirectFailed(false);
+          // סנכרון פרופיל + תפקיד מהשרת
+          void ensureUserDoc(u.uid, {
+            email: u.email ?? undefined,
+            phone: u.phoneNumber ?? undefined,
+            name: u.displayName ?? undefined,
+          });
+          try {
+            const serverRole = await readUserRole(u.uid);
+            if (serverRole) {
+              setRoleState(serverRole);
+              try { localStorage.setItem(ROLE_CACHE_KEY, serverRole); } catch { /* ignore */ }
+            }
+          } catch {
+            /* offline — נשארים עם המטמון */
           }
-        } catch {
-          /* offline — נשארים עם המטמון */
         }
-      }
-      setAuthReady(true);
-    });
-    return unsub;
+        setAuthReady(true);
+      });
+    })();
+
+    return () => {
+      cancelled = true;
+      unsubAuth?.();
+    };
   }, []);
 
   // תיקי הלקוח — בזמן אמת
@@ -341,6 +362,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     void markNotificationRead(id).catch(() => {});
   }, []);
 
+  const clearAuthRedirectError = useCallback(() => setAuthRedirectFailed(false), []);
+
   const signOut = useCallback(async () => {
     try {
       await fbSignOut(fbAuth());
@@ -365,11 +388,13 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       getFeedCase,
       user,
       authReady,
+      authRedirectFailed,
+      clearAuthRedirectError,
       signOut,
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

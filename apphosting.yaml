@@ -22,18 +22,20 @@ env:
     availability:
       - BUILD
   - variable: VITE_FIREBASE_AUTH_DOMAIN
-    # ⚠️ הוחזר ל-firebaseapp.com אחרי בדיקה חיה.
+    # ⚠️ חייב להישאר הדומיין שלנו — לא firebaseapp.com.
     #
-    # ה-proxy ב-src/server.ts עובד ו-/__/auth/handler מוגש מהדומיין שלנו,
-    # אבל גוגל דחתה את ההתחברות ב-redirect_uri_mismatch: כתובת ההחזרה
-    # החדשה לא הייתה רשומה ב-OAuth client. היא נוספה שם — אבל גוגל
-    # מזהירה שההפצה אורכת "5 דקות עד כמה שעות", ולכן אי אפשר להישען
-    # עליה כרגע.
+    # עם firebaseapp.com, המצב הזמני של ההפניה נשמר על דומיין זר, וספארי
+    # חוסם אותו כאחסון צד-שלישי. getRedirectResult חוזר ריק, המשתמש חוזר
+    # מגוגל עדיין מנותק, לוחץ שוב — ולולאת התחברות. זה קרה בבדיקה אמיתית
+    # ב-31/07/2026.
     #
-    # להעביר חזרה לדומיין שלנו רק אחרי שבודקים ידנית שההתחברות עוברת
-    # מקצה לקצה. עד אז: authDomain כאן, signInWithRedirect בנייד — וזו
-    # ההגדרה הסטנדרטית שרוב האפליקציות עובדות איתה.
-    value: justask-6bfb9.firebaseapp.com
+    # התלות: כתובת ההחזרה חייבת להיות רשומה ב-OAuth client
+    # (40146464592-980gh7hmr9l3sdua3ddilciv05j5s5p7) —
+    # https://<הדומיין>/__/auth/handler. אם משנים דומיין, לרשום שם קודם
+    # ולחכות להפצה, אחרת גוגל תחזיר redirect_uri_mismatch לכולם.
+    #
+    # מוגש ע"י proxyFirebaseAuth ב-src/server.ts.
+    value: justask--justask-6bfb9.europe-west4.hosted.app
     availability:
       - BUILD
   - variable: VITE_FIREBASE_PROJECT_ID

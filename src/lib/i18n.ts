@@ -56,6 +56,11 @@ export const strings = {
   authErrEmail: { he: "כתובת האימייל לא תקינה", en: "That email address doesn't look right" },
   authErrPhone: { he: "מספר הטלפון לא תקין", en: "That phone number doesn't look right" },
   authErrGeneric: { he: "לא הצלחנו להתחבר. נסו שוב.", en: "We couldn't sign you in. Please try again." },
+  authRedirectFailed: { he: "ההתחברות לא הושלמה", en: "Sign-in didn't complete" },
+  authRedirectFailedHint: {
+    he: "חזרתם מגוגל בלי חשבון מחובר. אם הדפדפן חוסם קובצי Cookie של צד שלישי או שאתם בגלישה פרטית — כבו את החסימה ונסו שוב.",
+    en: "You came back from Google without a signed-in account. If your browser blocks third-party cookies or you're in private browsing, turn that off and try again.",
+  },
   authToastSent: { he: "שלחנו קישור התחברות", en: "Sign-in link sent" },
   authToastSentSub: { he: "בדקו את תיבת הדואר או ההודעות", en: "Check your inbox or messages" },
   authToastWelcome: { he: "ברוכים הבאים ל־JustAsk", en: "Welcome to JustAsk" },

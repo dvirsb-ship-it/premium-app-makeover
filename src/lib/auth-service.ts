@@ -20,6 +20,15 @@ import { fbAuth } from "./firebase";
 
 const EMAIL_KEY = "justask-auth-email";
 
+/*
+ * סימון שיצאנו להפניית התחברות.
+ *
+ * בלעדיו אין הבדל בין "המשתמש פשוט פתח את האפליקציה ואינו מחובר" לבין
+ * "המשתמש חזר מגוגל וההתחברות נפלה בשקט". שניהם נראים כמו מסך התחברות,
+ * והמשתמש לוחץ שוב, ושוב — זו הלולאה שדווחה.
+ */
+const REDIRECT_FLAG = "justask-auth-redirecting";
+
 /**
  * האם להשתמש בהפניה במקום בחלון קופץ.
  *
@@ -47,24 +56,64 @@ export async function signInGoogle(): Promise<UserCredential | null> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
   if (prefersRedirect()) {
+    try {
+      sessionStorage.setItem(REDIRECT_FLAG, "1");
+    } catch {
+      /* מצב פרטי — נוותר על האבחון, לא על ההתחברות */
+    }
     await signInWithRedirect(fbAuth(), provider);
     return null;
   }
   return signInWithPopup(fbAuth(), provider);
 }
 
+export type RedirectOutcome =
+  /** לא חזרנו מהפניה — פתיחה רגילה של האפליקציה */
+  | { status: "none" }
+  /** חזרנו מהפניה והמשתמש מחובר */
+  | { status: "completed" }
+  /** יצאנו להפניה וחזרנו בלי חשבון מחובר — חייבים לומר זאת ולא לשתוק */
+  | { status: "failed" };
+
+/** ממתין להבטחה, ומוותר אחריה — כדי שכשל רשת לא יתקע את עליית האפליקציה. */
+async function withDeadline<T>(p: Promise<T>, ms: number): Promise<T | undefined> {
+  return Promise.race([
+    p,
+    new Promise<undefined>((resolve) => setTimeout(() => resolve(undefined), ms)),
+  ]);
+}
+
 /**
  * קליטת החזרה מהפניית ההתחברות.
  *
- * נקראת פעם אחת בעליית האפליקציה. לעולם לא זורקת: כשלון כאן אינו
- * אמור למנוע מהאפליקציה לעלות — המשתמש פשוט יראה את מסך ההתחברות.
+ * נקראת פעם אחת בעליית האפליקציה, ו**חייבים להמתין לה** לפני שמכריזים
+ * שהמשתמש אינו מחובר: אחרת onAuthStateChanged יורה null לפני שההפניה
+ * נקלטה, האפליקציה תשלח אותו למסך ההתחברות, והוא ילחץ שוב — לולאה.
+ *
+ * לעולם אינה זורקת ולעולם אינה תלויה: כשל כאן אינו אמור למנוע
+ * מהאפליקציה לעלות.
  */
-export async function consumeRedirectSignIn(): Promise<void> {
+export async function consumeRedirectSignIn(): Promise<RedirectOutcome> {
+  let pending = false;
   try {
-    await getRedirectResult(fbAuth());
+    pending = sessionStorage.getItem(REDIRECT_FLAG) === "1";
+    sessionStorage.removeItem(REDIRECT_FLAG);
   } catch {
-    /* ההתחברות פשוט לא הושלמה */
+    /* ignore */
   }
+
+  const auth = fbAuth();
+  try {
+    const cred = await withDeadline(getRedirectResult(auth), 12_000);
+    if (cred?.user) return { status: "completed" };
+  } catch {
+    /* נופל להכרעה למטה */
+  }
+
+  // ייתכן שה-SDK כבר קלט את המשתמש בלי להחזיר credential (למשל אחרי
+  // פסק הזמן) — זה עדיין הצלחה, ואסור להציג עליה שגיאה.
+  if (auth.currentUser) return { status: "completed" };
+  return pending ? { status: "failed" } : { status: "none" };
 }
 
 /** Apple — ידרוש הגדרת ספק בקונסולה (חשבון Apple Developer). */
@@ -114,7 +163,7 @@ export async function completeEmailLinkIfPresent(): Promise<boolean> {
 
 /** נרמול מספר ישראלי ל-E.164 (05X… → +9725X…). */
 export function normalizePhone(raw: string): string {
-  let digits = raw.replace(/[^\d+]/g, "");
+  const digits = raw.replace(/[^\d+]/g, "");
   if (digits.startsWith("+")) return digits;
   if (digits.startsWith("972")) return `+${digits}`;
   if (digits.startsWith("0")) return `+972${digits.slice(1)}`;
