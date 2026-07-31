@@ -45,9 +45,72 @@ function isH3SwallowedErrorBody(body: string): boolean {
   }
 }
 
+/*
+ * ---------- Proxy למנגנון ההתחברות של Firebase ----------
+ *
+ * הבעיה: signInWithPopup נשבר בנייד. ב-PWA שמותקנת למסך הבית iOS אינו
+ * יכול לפתוח חלון בתוך האפליקציה, ולכן הוא פותח את גוגל בספארי —
+ * והאפליקציה נשארת מאחור. מהמשתמש זה נראה כאילו היא נעלמה.
+ *
+ * הפתרון הוא signInWithRedirect, אבל לו יש מלכודת משלו: מאז SDK 9.15
+ * הוא נשען על אחסון בדומיין של authDomain, וכשזה דומיין אחר
+ * (justask-6bfb9.firebaseapp.com) ספארי חוסם אותו כצד-שלישי —
+ * וההתחברות פשוט לא חוזרת, בלי שגיאה.
+ *
+ * לכן אנחנו מגישים את ה-auth handler מהדומיין של האפליקציה עצמה.
+ * ברגע שהוא same-origin, אין אחסון צד-שלישי ואין מה לחסום.
+ */
+const AUTH_UPSTREAM = "https://justask-6bfb9.firebaseapp.com";
+
+/** כותרות שאסור להעביר הלאה — הן שייכות לחיבור עצמו ולא לתוכן. */
+const HOP_BY_HOP = new Set([
+  "host",
+  "connection",
+  "keep-alive",
+  "transfer-encoding",
+  "upgrade",
+  "content-length",
+  "content-encoding",
+]);
+
+function copyHeaders(source: Headers): Headers {
+  const out = new Headers();
+  source.forEach((value, key) => {
+    if (!HOP_BY_HOP.has(key.toLowerCase())) out.append(key, value);
+  });
+  return out;
+}
+
+async function proxyFirebaseAuth(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (!url.pathname.startsWith("/__/auth/") && !url.pathname.startsWith("/__/firebase/")) {
+    return null;
+  }
+  const target = `${AUTH_UPSTREAM}${url.pathname}${url.search}`;
+  const upstream = await fetch(target, {
+    method: request.method,
+    headers: copyHeaders(request.headers),
+    body: request.method === "GET" || request.method === "HEAD" ? undefined : request.body,
+    redirect: "manual",
+    // @ts-expect-error — נדרש ב-undici כששולחים גוף כזרם
+    duplex: "half",
+  });
+  const headers = copyHeaders(upstream.headers);
+  /*
+   * ה-SDK טוען את /__/auth/iframe בתוך iframe. כותרת המסגור של המקור
+   * מתייחסת לדומיין שלו ותחסום אותנו — היא נשלפת, וההגנה האמיתית היא
+   * רשימת הדומיינים המורשים ב-Firebase Auth.
+   */
+  headers.delete("x-frame-options");
+  headers.delete("content-security-policy");
+  return new Response(upstream.body, { status: upstream.status, headers });
+}
+
 const appHandler: ServerEntry = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      const proxied = await proxyFirebaseAuth(request);
+      if (proxied) return proxied;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
