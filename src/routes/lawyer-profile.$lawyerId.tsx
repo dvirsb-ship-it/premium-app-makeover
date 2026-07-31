@@ -1,13 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Award, Briefcase } from "lucide-react";
+import { Award, Briefcase, GraduationCap, Scale } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { avgResponseLabel, readLawyerStats } from "../lib/db";
+import { SPECIALTIES, type SpecId } from "../lib/specialties";
+import { SPEC_ICON } from "../lib/category-icons";
 
 export const Route = createFileRoute("/lawyer-profile/$lawyerId")({
   head: () => ({
@@ -99,15 +101,17 @@ function LawyerProfile() {
             {lawyer.initials || lawyer.name.slice(0, 2)}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
-              {lawyer.specialty}
-            </p>
+            {lawyer.city && (
+              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
+                {lawyer.city}
+              </p>
+            )}
             <h1 className="mt-1 truncate text-[22px] font-bold text-foreground">
               {lawyer.name.replace(/^עו״ד\s*/, "")}
             </h1>
-            <p className="truncate text-[13px] text-muted-foreground">
-              {lawyer.firm}
-            </p>
+            {lawyer.firm && (
+              <p className="truncate text-[13px] text-muted-foreground">{lawyer.firm}</p>
+            )}
             <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold">
               <Award className="size-3.5" strokeWidth={2.2} />
               {lawyer.years} {t("yearsExperience")}
@@ -154,12 +158,39 @@ function LawyerProfile() {
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
           {t("expertiseHeader")}
         </p>
-        <p className="mt-1 text-[16px] font-semibold text-foreground">
-          {lawyer.specialty}
-        </p>
-        <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-          {lawyer.blurb}
-        </p>
+        {/*
+          * קודם ישבה כאן כותרת עם מחרוזת ריקה מתחתיה, כי specialty היה
+          * מקודד "". עכשיו: התחומים שעורך הדין באמת סימן, כל אחד עם הסמל
+          * שלו — אותו סמל שהלקוח כבר ראה על כרטיס התיק.
+          */}
+        {lawyer.specialties && lawyer.specialties.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {lawyer.specialties.map((id) => {
+              const spec = SPECIALTIES.find((x) => x.id === id);
+              const Icon = SPEC_ICON[id as SpecId] ?? Scale;
+              return (
+                <span
+                  key={id}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-gold/12 px-3 py-1.5 text-[12.5px] font-semibold text-gold-ink ring-1 ring-gold/25"
+                >
+                  <Icon className="size-3.5" strokeWidth={2.1} aria-hidden />
+                  {spec ? t(spec.labelKey) : id}
+                </span>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="mt-2 text-[13px] text-muted-foreground">{t("expertiseNone")}</p>
+        )}
+
+        {lawyer.university && (
+          <div className="mt-4 flex items-center gap-2.5 border-t border-border pt-3">
+            <span className="grid size-8 shrink-0 place-items-center rounded-xl bg-gold/10 ring-1 ring-gold/20">
+              <GraduationCap className="size-4 text-gold-ink" strokeWidth={1.9} aria-hidden />
+            </span>
+            <span className="text-[13px] text-foreground">{lawyer.university}</span>
+          </div>
+        )}
       </motion.div>
 
       {/* שני הכפתורים כאן לא היו מחוברים לכלום. פרטי הקשר נחשפים בדף התיק

@@ -657,6 +657,7 @@ export const strings = {
   deletionMarkDone: { he: "סימון כבוצע", en: "Mark done" },
   deletionDone: { he: "בוצע", en: "Done" },
 
+  expertiseNone: { he: "טרם נבחרו תחומי התמחות", en: "No practice areas selected yet" },
   intakeFunnelHeader: { he: "לפני שנוצר תיק", en: "Before a case exists" },
   intakeFunnelSub: { he: "משתמשים ייחודיים. מי שפתח את השיחה ונטש לא הופיע בשום מקום עד עכשיו — כאן רואים איפה בדיוק עוזבים.", en: "Unique users. Anyone who opened the chat and left was invisible until now — this shows exactly where they drop." },
   intakeFunnelOpened: { he: "פתחו את השיחה", en: "Opened the chat" },

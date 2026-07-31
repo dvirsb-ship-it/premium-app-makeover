@@ -287,6 +287,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       if (!u) return;
       // שם מוסתר עד לחיבור רשמי — מניעת עקיפת הפלטפורמה
       const displayName = maskLawyerName(myLawyerProfile?.name || u.displayName || "עורך דין");
+      /*
+       * הנתונים נלקחים מהפרופיל שעורך הדין מילא באימות ולא מומצאים.
+       * specialty/firm/blurb היו קבועים ריקים, ולכן דף הפרופיל שהלקוח
+       * רואה לפני הבחירה היה כותרות בלי תוכן.
+       */
       const profile: Lawyer = {
         id: u.uid,
         name: displayName,
@@ -299,6 +304,9 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           : 0,
         initials: displayName.slice(0, 2),
         blurb: "",
+        specialties: myLawyerProfile?.specialties ?? [],
+        city: myLawyerProfile?.city ?? "",
+        university: myLawyerProfile?.university ?? "",
       };
       // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
       void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {

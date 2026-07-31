@@ -17,6 +17,14 @@ export interface Lawyer {
   years: number;
   initials: string;
   blurb: string;
+  /*
+   * מה שבאמת ידוע על עורך הדין, מתוך הפרופיל שהוא עצמו מילא באימות.
+   * specialty/firm/blurb היו מקודדים כמחרוזת ריקה — ולכן דף הפרופיל
+   * הציג כותרות בלי תוכן. אלה השדות שיש להם מקור.
+   */
+  specialties?: string[];
+  city?: string;
+  university?: string;
 }
 
 export interface ChatMessage {

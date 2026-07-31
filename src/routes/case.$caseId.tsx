@@ -551,7 +551,7 @@ function LawyerChoiceCard({
 
           {offer.note && (
             <p className="mt-2 text-[13px] leading-snug text-muted-foreground">
-              \u05f4{offer.note}\u05f4
+              {"\u05f4"}{offer.note}{"\u05f4"}
             </p>
           )}
 

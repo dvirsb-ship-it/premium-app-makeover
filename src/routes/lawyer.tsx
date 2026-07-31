@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
+import { categoryIcon } from "../lib/category-icons";
 import { NotificationBell } from "../components/NotificationBell";
 import {
   watchMyVerification,
@@ -12,10 +13,6 @@ import {
 import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
-import injuryImg from "../assets/categories/personal-injury.jpg";
-import employmentImg from "../assets/categories/employment.jpg";
-import realEstateImg from "../assets/categories/real-estate.jpg";
-import civilImg from "../assets/categories/civil.jpg";
 import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/lawyer")({
@@ -38,20 +35,6 @@ export const Route = createFileRoute("/lawyer")({
   }),
   component: LawyerFeed,
 });
-
-const CATEGORY_IMAGE: Record<string, string> = {
-  "דיני עבודה": employmentImg,
-  נזיקין: injuryImg,
-  "נזיקין ותאונות דרכים": injuryImg,
-  מקרקעין: realEstateImg,
-  "Employment Law": employmentImg,
-  "Personal Injury & Traffic": injuryImg,
-  "Real Estate": realEstateImg,
-};
-
-function pickImage(category: string) {
-  return CATEGORY_IMAGE[category] ?? civilImg;
-}
 
 function LawyerFeed() {
 
@@ -284,17 +267,23 @@ function LawyerFeed() {
             whileTap={{ scale: 0.98 }}
             className="liquid-glass relative flex w-full items-stretch gap-3 overflow-hidden rounded-[24px] p-3 text-start"
           >
-            <div className="relative size-[88px] shrink-0 overflow-hidden rounded-2xl">
-              <img
-                src={pickImage(f.category)}
-                alt=""
-                loading="lazy"
-                width={512}
-                height={512}
-                className="h-full w-full object-cover"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-            </div>
+            {/*
+              * סמל התחום במקום תמונת סטוק. התמונות היו כמעט זהות בכל
+              * הכרטיסים (ורובן ברירת מחדל, כי המפתחות היו שמות קטגוריה
+              * ישנים), כלומר תפסו 88px בלי לשאת מידע. סמל נקרא במבט.
+              */}
+            <span className="chip-emblem grid size-[88px] shrink-0 place-items-center rounded-2xl">
+              {(() => {
+                const Icon = categoryIcon(f.category);
+                return (
+                  <Icon
+                    className="relative z-10 size-9 text-gold-ink"
+                    strokeWidth={1.7}
+                    aria-hidden
+                  />
+                );
+              })()}
+            </span>
 
             <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
               <div className="min-w-0">
