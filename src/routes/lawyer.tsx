@@ -5,6 +5,10 @@ import { Calendar, Check, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, User
 import { AppShell } from "../components/AppShell";
 import { BottomNav } from "../components/BottomNav";
 import { categoryIcon } from "../lib/category-icons";
+import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
+import { fbAuth } from "../lib/firebase";
+import { categoryMatchesSpecialties } from "../lib/db";
+import { readLawyerProfile } from "../lib/db";
 import { NotificationBell } from "../components/NotificationBell";
 import {
   watchMyVerification,
@@ -56,6 +60,38 @@ function LawyerFeed() {
    * מציע לעורך דין *מאושר* להתחיל אימות מחדש — בדיוק ההיפך מהאמת.
    */
   const [verError, setVerError] = useState(false);
+  /*
+   * ספירות התיקים הפתוחים — לעו"ד שטרם אומת.
+   *
+   * הוא אינו רשאי לקרוא תיקים, וזה נכון שיישאר ככה. אבל מסך ריק לגמרי
+   * נראה כמו מוצר מת בדיוק ברגע שבו הוא מחליט אם להשלים את האימות.
+   * מספרים בלבד: אפס מידע על אף אדם, והוכחה שיש כאן עבודה.
+   */
+  const [counts, setCounts] = useState<OpenCountsResult | null>(null);
+  const [mySpecs, setMySpecs] = useState<string[]>([]);
+  useEffect(() => {
+    if (!user || verStatus === "approved") return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const idToken = await fbAuth().currentUser?.getIdToken();
+        if (!idToken) return;
+        const [res, prof] = await Promise.all([
+          openCaseCountsFn({ data: { idToken } }),
+          readLawyerProfile(user.uid).catch(() => null),
+        ]);
+        if (cancelled) return;
+        setCounts(res);
+        setMySpecs(prof?.specialties ?? []);
+      } catch {
+        /* ספירה שנכשלה פשוט לא מוצגת */
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [user, verStatus]);
+
   useEffect(() => {
     if (!user) return;
     return watchMyVerification(
@@ -196,6 +232,55 @@ function LawyerFeed() {
               {t("verRejectedBannerCta")}
             </button>
           </div>
+        </motion.div>
+      )}
+
+      {/*
+        * הפומו. מוצג רק כשיש באמת תיקים — פאנל שמכריז "0 תיקים ממתינים"
+        * עושה את ההיפך המדויק ממה שהוא נועד לו.
+        */}
+      {verStatus !== "approved" && counts && counts.total > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mt-4 rounded-[26px] border border-gold/30 bg-gold/[0.06] p-5"
+        >
+          {(() => {
+            const mine = mySpecs.length
+              ? counts.byCategory.filter((c) => categoryMatchesSpecialties(c.category, mySpecs))
+              : counts.byCategory;
+            const mineTotal = mine.reduce((n, c) => n + c.count, 0);
+            const show = (mineTotal > 0 ? mine : counts.byCategory).slice(0, 6);
+            const headline = mineTotal > 0 ? mineTotal : counts.total;
+            return (
+              <>
+                <p className="text-center text-[46px] font-black leading-none text-gold-ink">
+                  {headline}
+                </p>
+                <p className="mt-1.5 text-center text-[13.5px] font-bold text-foreground">
+                  {t(mineTotal > 0 ? "fomoTitleMine" : "fomoTitleAll")}
+                </p>
+                <div className="mt-4 space-y-1.5">
+                  {show.map((c) => {
+                    const Icon = categoryIcon(c.category);
+                    return (
+                      <div key={c.category} className="flex items-center gap-2.5">
+                        <Icon className="size-4 shrink-0 text-gold-ink" strokeWidth={1.9} aria-hidden />
+                        <span className="flex-1 truncate text-[12.5px] text-foreground/90">
+                          {c.category}
+                        </span>
+                        <span className="text-[12.5px] font-bold text-foreground">{c.count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-4 border-t border-gold/20 pt-3 text-center text-[12px] font-semibold text-gold-ink">
+                  {t("fomoUnlock")}
+                </p>
+              </>
+            );
+          })()}
         </motion.div>
       )}
 

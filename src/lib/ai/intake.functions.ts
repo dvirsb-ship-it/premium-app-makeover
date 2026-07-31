@@ -665,6 +665,37 @@ export const rateLawyerFn = createServerFn({ method: "POST" })
     });
   });
 
+/* ---------- ספירת תיקים פתוחים (לעו"ד שטרם אומת) ---------- */
+
+export interface OpenCountsResult {
+  total: number;
+  byCategory: { category: string; count: number }[];
+}
+
+/**
+ * כמה תיקים פתוחים יש, לפי תחום — בלי שום תוכן.
+ *
+ * מוחזר גם למי שטרם אומת, ולכן מכוון להיות חסין: מספרים בלבד, אין
+ * כותרות, אין תיאורים, אין ערים ואין תאריכים. מי שקורא את התשובה
+ * הזו לא יכול ללמוד דבר על אף אדם.
+ */
+export const openCaseCountsFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { idToken: string })
+  .handler(async ({ data }): Promise<OpenCountsResult> => {
+    const { requireUser, adminOpenCaseCounts, withErrorLog } = await import("./server-admin");
+    return withErrorLog("openCaseCounts", async () => {
+      await requireUser(data.idToken);
+      const counts = await adminOpenCaseCounts();
+      const byCategory = Object.entries(counts)
+        .map(([category, count]) => ({ category, count }))
+        .sort((a, b) => b.count - a.count);
+      return {
+        total: byCategory.reduce((n, c) => n + c.count, 0),
+        byCategory,
+      };
+    });
+  });
+
 /* ---------- בדיקת מסמכי האימות ---------- */
 
 export interface DocCheckInput {

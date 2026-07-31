@@ -532,6 +532,60 @@ export async function adminApprovedLawyerIds(category?: string): Promise<string[
     .filter((x): x is string => !!x);
 }
 
+/**
+ * ספירת התיקים הפתוחים לפי תחום — בלי שום תוכן.
+ *
+ * עורך דין שטרם אומת אינו רשאי לקרוא תיקים, וזה נכון: אין סיבה שזר
+ * לא-מאומת יראה את המקרה של אדם אמיתי. אבל מסך ריק לגמרי גם לא נכון —
+ * הוא נראה כמו מוצר מת בדיוק ברגע שבו עורך הדין מחליט אם להשקיע
+ * בהשלמת האימות.
+ *
+ * מספרים בלבד עוברים את שני התנאים: אפס מידע אישי, והוכחה שיש כאן עבודה.
+ */
+export async function adminOpenCaseCounts(): Promise<Record<string, number>> {
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: "cases" }],
+        // רק הקטגוריה והתאריך — אין סיבה למשוך תיאורי מקרים לזיכרון
+        select: { fields: [{ fieldPath: "category" }, { fieldPath: "createdAt" }] },
+        where: {
+          fieldFilter: {
+            field: { fieldPath: "status" },
+            op: "IN",
+            value: {
+              arrayValue: {
+                values: [{ stringValue: "matching" }, { stringValue: "has_interest" }],
+              },
+            },
+          },
+        },
+        limit: 500,
+      },
+    }),
+  });
+  if (!res.ok) return {};
+  const rows = (await res.json()) as { document?: { fields?: Record<string, FsValue> } }[];
+  // אותו חלון של 30 יום כמו בפיד — אחרת נציג תיקים שממילא לא יופיעו
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const out: Record<string, number> = {};
+  for (const r of rows) {
+    const f = r.document?.fields;
+    if (!f) continue;
+    const at = Number(decode(f.createdAt) ?? 0);
+    if (at < cutoff) continue;
+    const cat = String(decode(f.category) ?? "").trim();
+    if (!cat) continue;
+    out[cat] = (out[cat] ?? 0) + 1;
+  }
+  return out;
+}
+
 /* ---------- יומן שגיאות שרת ---------- */
 
 /**
