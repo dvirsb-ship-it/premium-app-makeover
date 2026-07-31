@@ -16,6 +16,7 @@ type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { toast } from "sonner";
 import { translate } from "./i18n";
 import { fbAuth, isBrowser } from "./firebase";
+import { consumeRedirectSignIn } from "./auth-service";
 import { maskLawyerName } from "./privacy";
 import {
   categoryMatchesSpecialties,
@@ -103,6 +104,11 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   // מעקב אחרי סטטוס ההתחברות
   useEffect(() => {
     if (!isBrowser) return;
+    /*
+     * חזרה מהפניית התחברות — נקלטת לפני שמאזינים לשינוי המצב, כדי
+     * שהמשתמש לא יראה הבזק של מסך ההתחברות אחרי שכבר התחבר.
+     */
+    void consumeRedirectSignIn();
     const unsub = onAuthStateChanged(fbAuth(), async (u) => {
       setUser(u);
       if (u) {

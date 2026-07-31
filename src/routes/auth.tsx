@@ -130,8 +130,9 @@ function Auth() {
     try {
       if (provider === "google") {
         setLoading(provider);
-        await signInGoogle();
-        onSignedIn();
+        // בהפניה הדפדפן עוזב את העמוד ומחזיר null — אין למה להמשיך כאן
+        const cred = await signInGoogle();
+        if (cred) onSignedIn();
         return;
       }
 

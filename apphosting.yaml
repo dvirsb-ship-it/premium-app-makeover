@@ -22,7 +22,10 @@ env:
     availability:
       - BUILD
   - variable: VITE_FIREBASE_AUTH_DOMAIN
-    value: justask-6bfb9.firebaseapp.com
+    # הדומיין של האפליקציה עצמה, ולא firebaseapp.com. את /__/auth/*
+    # אנחנו מגישים ב-proxy מ-src/server.ts, וכך ההנדלר same-origin —
+    # אין אחסון צד-שלישי שספארי יחסום, ו-signInWithRedirect עובד.
+    value: justask--justask-6bfb9.europe-west4.hosted.app
     availability:
       - BUILD
   - variable: VITE_FIREBASE_PROJECT_ID

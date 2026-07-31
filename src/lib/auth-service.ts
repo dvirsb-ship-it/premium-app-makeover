@@ -12,16 +12,59 @@ import {
   signInWithPhoneNumber,
   signInWithPopup,
   type ConfirmationResult,
+  getRedirectResult,
+  signInWithRedirect,
   type UserCredential,
 } from "firebase/auth";
 import { fbAuth } from "./firebase";
 
 const EMAIL_KEY = "justask-auth-email";
 
-export async function signInGoogle(): Promise<UserCredential> {
+/**
+ * האם להשתמש בהפניה במקום בחלון קופץ.
+ *
+ * ב-PWA שמותקנת למסך הבית iOS אינו יכול לפתוח חלון בתוך האפליקציה,
+ * ולכן פותח את גוגל בספארי — והאפליקציה נשארת מאחור. מהמשתמש זה נראה
+ * כאילו היא נעלמה. גם בדפדפן נייד רגיל התנהגות הפופאפ עלובה.
+ * בדסקטופ הפופאפ עדיף: הוא לא מוציא את המשתמש מהעמוד.
+ */
+function prefersRedirect(): boolean {
+  if (typeof window === "undefined") return false;
+  const standalone =
+    window.matchMedia?.("(display-mode: standalone)").matches === true ||
+    (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+  const mobile = /iPhone|iPad|iPod|Android/i.test(window.navigator.userAgent);
+  return standalone || mobile;
+}
+
+/**
+ * התחברות עם גוגל.
+ *
+ * בהפניה הדפדפן עוזב את העמוד ולכן אין ערך מוחזר — החזרה מטופלת
+ * ע"י consumeRedirectSignIn ו-onAuthStateChanged.
+ */
+export async function signInGoogle(): Promise<UserCredential | null> {
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: "select_account" });
+  if (prefersRedirect()) {
+    await signInWithRedirect(fbAuth(), provider);
+    return null;
+  }
   return signInWithPopup(fbAuth(), provider);
+}
+
+/**
+ * קליטת החזרה מהפניית ההתחברות.
+ *
+ * נקראת פעם אחת בעליית האפליקציה. לעולם לא זורקת: כשלון כאן אינו
+ * אמור למנוע מהאפליקציה לעלות — המשתמש פשוט יראה את מסך ההתחברות.
+ */
+export async function consumeRedirectSignIn(): Promise<void> {
+  try {
+    await getRedirectResult(fbAuth());
+  } catch {
+    /* ההתחברות פשוט לא הושלמה */
+  }
 }
 
 /** Apple — ידרוש הגדרת ספק בקונסולה (חשבון Apple Developer). */
