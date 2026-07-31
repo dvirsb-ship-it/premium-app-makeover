@@ -239,7 +239,7 @@ export const strings = {
   // Lawyer subscription
   subMetaTitle: { he: "JustAsk Pro — מנוי לעורכי דין", en: "JustAsk Pro — Lawyer membership" },
   subMetaDesc: { he: "פתחו גישה מלאה ללידים איכותיים, כלי AI ותכונות מתקדמות לעורכי דין.", en: "Unlock full access to quality leads, AI tools and advanced features for lawyers." },
-  subOgDesc: { he: "מנוי חודשי או שנתי לעורכי דין ב-JustAsk.", en: "Monthly or yearly membership for lawyers on JustAsk." },
+  subOgDesc: { he: "מנוי חודשי קבוע לעורכי דין — גישה לתיקים שעברו בדיקה משפטית, עם התזכיר המלא.", en: "A flat monthly membership for lawyers — access to legally screened cases, with the full memo." },
   subHeroDesc: { he: "כל התיקים בתחום שלך, מיד כשהם עוברים את הבדיקה המשפטית — עם התזכיר המשפטי המלא שנכתב עליהם.", en: "Every case in your field, the moment it passes the legal review — with the full legal memo written for it." },
 
   // Root meta
@@ -409,7 +409,7 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "השימוש בשירות ללקוחות הוא חינם — תמיד, כולל שיתוף המקרה, הבדיקה הראשונית והחיבור לעורך דין. שכר הטרחה עצמו סוכם ישירות מול עורך הדין הנבחר. עורכי דין: בתקופת ההשקה השימוש חינם; לאחריה ייגבה תשלום עבור חיבור שהבשיל (לקוח שבחר בעורך הדין), או מנוי Pro חודשי הכולל חיבורים, קדימות בפיד ופרופיל מורחב (מסלול שנתי מוזל). כל שינוי בתמחור יוצג באפליקציה מראש, וניתן לבטל מנוי בכל עת.",
+    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הבדיקה המשפטית והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התזכיר המשפטי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
     en: "The service is free for clients — always, including sharing your case, the initial review and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer. Lawyers: during the launch period the service is free; afterwards a fee applies per completed connection (a client who chose the lawyer), or a monthly Pro subscription including connections, feed priority and an enhanced profile (discounted yearly plan). Any pricing change will be shown in-app in advance, and subscriptions can be cancelled at any time.",
   },
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
@@ -741,7 +741,7 @@ export const strings = {
   proNow4: { he: "צירוף הצעת שכר טרחה לפני שהלקוח בוחר", en: "Attach a fee proposal before the client chooses" },
   proNow5: { he: "מדד זמן תגובה שמוצג ללקוח לצד ההצעה שלך", en: "A response-time metric shown to the client next to your offer" },
   proLaterHeader: { he: "ומה יקרה בסוף תקופת ההשקה", en: "And what happens when the launch period ends" },
-  proLaterSub: { he: "אין כרגע מחיר, אין כרטיס אשראי במערכת ואין מה לרכוש. כשנתחיל לגבות — תקבלו הודעה מראש, ותוכלו להחליט אז.", en: "There's no price, no card on file and nothing to buy. When we start charging you'll get advance notice and decide then." },
+  proLaterSub: { he: "מנוי חודשי קבוע — אותו מחיר בין אם קיבלתם לקוח אחד או עשרה. אין עמלה על לקוח ואין חלק בשכר הטרחה. אין כרגע כרטיס אשראי במערכת, ומועד תחילת החיוב יוצג מראש.", en: "A flat monthly membership — the same price whether you get one client or ten. No per-client fee and no share of your fee. No card on file today; we'll announce the start date in advance." },
 
   /* ---------- כיסוי תחומים: מה אנחנו באמת מסווגים ---------- */
   specCoverageNote: { he: "אלה התחומים ש-JustAsk מסווגת בהם פניות כרגע. תחום שאינו ברשימה עדיין לא מקבל פניות — נעדכן אתכם כשנרחיב.", en: "These are the fields JustAsk currently classifies. A field not listed doesn't receive leads yet — we'll tell you when we expand." },
