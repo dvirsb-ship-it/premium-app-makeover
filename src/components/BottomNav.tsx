@@ -1,6 +1,6 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { Home, FolderOpen, Scale, User } from "lucide-react";
+import { Home, FolderOpen, Briefcase, Scale, User } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
@@ -12,8 +12,14 @@ const clientTabs: { to: string; key: StringKey; icon: typeof Home }[] = [
   { to: "/profile", key: "navProfile", icon: User },
 ];
 
+/*
+ * לעורך הדין שני מסכים שונים לגמרי: פניות שמוצעות לו, ותיקים שהוא כבר
+ * מטפל בהם. עד עכשיו היה רק הראשון — ותיק שלקוח בחר בו פשוט נעלם מהפיד
+ * בלי שיהיה לו לאן ללכת.
+ */
 const lawyerTabs: { to: string; key: StringKey; icon: typeof Home }[] = [
-  { to: "/lawyer", key: "navLawyerCases", icon: Scale },
+  { to: "/lawyer", key: "navLawyerLeads", icon: Scale },
+  { to: "/lawyer-cases", key: "navLawyerActive", icon: Briefcase },
   { to: "/profile", key: "navProfile", icon: User },
 ];
 

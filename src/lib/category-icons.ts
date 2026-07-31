@@ -1,14 +1,17 @@
 import {
-  Bone,
   Building2,
   KeyRound,
   Scale,
   ShieldCheck,
   ShoppingBag,
   Stethoscope,
-  type LucideIcon,
 } from "lucide-react";
+import type { ComponentType, SVGProps } from "react";
+
+/* סמל אחד מותאם ושאר lucide — טיפוס משותף רחב דיו לשניהם */
+type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
 import type { SpecId } from "./specialties";
+import { BrokenBone } from "../components/icons";
 
 /**
  * סמל לכל תחום.
@@ -24,8 +27,8 @@ import type { SpecId } from "./specialties";
  * שהשרת מייבא.
  */
 
-export const SPEC_ICON: Record<SpecId, LucideIcon> = {
-  injury: Bone, // עצם שבורה
+export const SPEC_ICON: Record<SpecId, IconComponent> = {
+  injury: BrokenBone,
   medical: Stethoscope,
   employment: Building2, // מקום עבודה
   insurance: ShieldCheck,
@@ -35,8 +38,8 @@ export const SPEC_ICON: Record<SpecId, LucideIcon> = {
 };
 
 /** קטגוריית תיק (כפי שהוולידציה מחזירה) → סמל. */
-const CATEGORY_ICON: Record<string, LucideIcon> = {
-  "נזיקין ותאונות": Bone,
+const CATEGORY_ICON: Record<string, IconComponent> = {
+  "נזיקין ותאונות": BrokenBone,
   "רשלנות רפואית": Stethoscope,
   "דיני עבודה": Building2,
   "ביטוח": ShieldCheck,
@@ -46,6 +49,6 @@ const CATEGORY_ICON: Record<string, LucideIcon> = {
 };
 
 /** תמיד מחזיר סמל — קטגוריה לא מוכרת מקבלת את המאזניים. */
-export function categoryIcon(category: string): LucideIcon {
+export function categoryIcon(category: string): IconComponent {
   return CATEGORY_ICON[category] ?? Scale;
 }

@@ -222,6 +222,56 @@ export function watchLawyerFeed(
   });
 }
 
+/** תיק פעיל של עורך הדין — אחרי שהלקוח בחר בו. */
+export interface LawyerCase {
+  id: string;
+  title: string;
+  category: string;
+  summary: string;
+  location: string;
+  createdAt: number;
+  clientName: string;
+  /** כמה אבני דרך כבר סומנו — כדי להראות התקדמות ברשימה. */
+  milestonesDone?: number;
+}
+
+/**
+ * התיקים שעורך הדין נבחר לטפל בהם.
+ *
+ * עד עכשיו לא הייתה לזה שום רשימה: ברגע שהלקוח בחר, התיק יצא מהפיד
+ * (הוא כבר לא ליד) והדרך היחידה להגיע אליו הייתה דרך ההתראה. עורך דין
+ * עם חמישה לקוחות פעילים נשאר בלי מסך עבודה.
+ */
+export function watchLawyerCases(
+  uid: string,
+  cb: (rows: LawyerCase[]) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const q = query(collection(fbDb(), "cases"), where("chosenLawyerId", "==", uid));
+  return onSnapshot(
+    q,
+    (snap) => {
+      cb(
+        snap.docs
+          .map((d) => {
+            const c = d.data() as CaseDoc;
+            return {
+              id: d.id,
+              title: c.title || c.summary?.slice(0, 40) || "",
+              category: c.category,
+              summary: c.summary,
+              location: c.location || "",
+              createdAt: c.createdAt,
+              clientName: c.clientContact?.name ?? "",
+            };
+          })
+          .sort((a, b) => b.createdAt - a.createdAt),
+      );
+    },
+    (err) => onError?.(err),
+  );
+}
+
 export interface NewCaseInput {
   clientId: string;
   description: string;

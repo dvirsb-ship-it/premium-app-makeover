@@ -16,6 +16,7 @@ import { Route as OnboardingRouteImport } from './routes/onboarding'
 import { Route as NotificationsRouteImport } from './routes/notifications'
 import { Route as LawyerSubscriptionRouteImport } from './routes/lawyer-subscription'
 import { Route as LawyerOnboardingRouteImport } from './routes/lawyer-onboarding'
+import { Route as LawyerCasesRouteImport } from './routes/lawyer-cases'
 import { Route as LawyerRouteImport } from './routes/lawyer'
 import { Route as IntakeTipsRouteImport } from './routes/intake-tips'
 import { Route as IntakeRouteImport } from './routes/intake'
@@ -65,6 +66,11 @@ const LawyerSubscriptionRoute = LawyerSubscriptionRouteImport.update({
 const LawyerOnboardingRoute = LawyerOnboardingRouteImport.update({
   id: '/lawyer-onboarding',
   path: '/lawyer-onboarding',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LawyerCasesRoute = LawyerCasesRouteImport.update({
+  id: '/lawyer-cases',
+  path: '/lawyer-cases',
   getParentRoute: () => rootRouteImport,
 } as any)
 const LawyerRoute = LawyerRouteImport.update({
@@ -150,6 +156,7 @@ export interface FileRoutesByFullPath {
   '/intake': typeof IntakeRoute
   '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
+  '/lawyer-cases': typeof LawyerCasesRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
   '/notifications': typeof NotificationsRoute
@@ -174,6 +181,7 @@ export interface FileRoutesByTo {
   '/intake': typeof IntakeRoute
   '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
+  '/lawyer-cases': typeof LawyerCasesRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
   '/notifications': typeof NotificationsRoute
@@ -199,6 +207,7 @@ export interface FileRoutesById {
   '/intake': typeof IntakeRoute
   '/intake-tips': typeof IntakeTipsRoute
   '/lawyer': typeof LawyerRoute
+  '/lawyer-cases': typeof LawyerCasesRoute
   '/lawyer-onboarding': typeof LawyerOnboardingRoute
   '/lawyer-subscription': typeof LawyerSubscriptionRoute
   '/notifications': typeof NotificationsRoute
@@ -225,6 +234,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/intake-tips'
     | '/lawyer'
+    | '/lawyer-cases'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
     | '/notifications'
@@ -249,6 +259,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/intake-tips'
     | '/lawyer'
+    | '/lawyer-cases'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
     | '/notifications'
@@ -273,6 +284,7 @@ export interface FileRouteTypes {
     | '/intake'
     | '/intake-tips'
     | '/lawyer'
+    | '/lawyer-cases'
     | '/lawyer-onboarding'
     | '/lawyer-subscription'
     | '/notifications'
@@ -298,6 +310,7 @@ export interface RootRouteChildren {
   IntakeRoute: typeof IntakeRoute
   IntakeTipsRoute: typeof IntakeTipsRoute
   LawyerRoute: typeof LawyerRoute
+  LawyerCasesRoute: typeof LawyerCasesRoute
   LawyerOnboardingRoute: typeof LawyerOnboardingRoute
   LawyerSubscriptionRoute: typeof LawyerSubscriptionRoute
   NotificationsRoute: typeof NotificationsRoute
@@ -365,6 +378,13 @@ declare module '@tanstack/react-router' {
       path: '/lawyer-onboarding'
       fullPath: '/lawyer-onboarding'
       preLoaderRoute: typeof LawyerOnboardingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/lawyer-cases': {
+      id: '/lawyer-cases'
+      path: '/lawyer-cases'
+      fullPath: '/lawyer-cases'
+      preLoaderRoute: typeof LawyerCasesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/lawyer': {
@@ -482,6 +502,7 @@ const rootRouteChildren: RootRouteChildren = {
   IntakeRoute: IntakeRoute,
   IntakeTipsRoute: IntakeTipsRoute,
   LawyerRoute: LawyerRoute,
+  LawyerCasesRoute: LawyerCasesRoute,
   LawyerOnboardingRoute: LawyerOnboardingRoute,
   LawyerSubscriptionRoute: LawyerSubscriptionRoute,
   NotificationsRoute: NotificationsRoute,
