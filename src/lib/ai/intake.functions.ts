@@ -665,6 +665,119 @@ export const rateLawyerFn = createServerFn({ method: "POST" })
     });
   });
 
+/* ---------- בדיקת מסמכי האימות ---------- */
+
+export interface DocCheckInput {
+  targetUid: string;
+  idToken: string;
+}
+
+export interface DocCheckField {
+  /** מה שהוקלד בטופס */
+  typed: string;
+  /** מה שנקרא מהמסמך — ריק אם לא נמצא */
+  found: string;
+  status: "match" | "mismatch" | "missing";
+}
+
+export interface DocCheckResult {
+  ran: boolean;
+  /** האם הקובץ נראה כמו סוג המסמך שהוא אמור להיות */
+  barCardLooksReal: boolean;
+  diplomaLooksReal: boolean;
+  fields: Record<string, DocCheckField>;
+  /** הערה חופשית קצרה של הבודק — מה שראוי לתשומת לב */
+  note: string;
+}
+
+const DOC_CHECK_SYSTEM = `אתה בודק מסמכים של פלטפורמה משפטית ישראלית. קיבלת שני צילומים שעורך דין העלה — תעודת חבר בלשכת עורכי הדין ותעודת בוגר במשפטים — ואת הפרטים שהוא הקליד בטופס.
+
+תפקידך אחד בלבד: **לקרוא מה כתוב במסמכים ולהשוות למה שהוקלד.** אינך מאמת מול הלשכה ואינך קובע אם התעודה אותנטית — אתה קורא ומצליב.
+
+לכל שדה קבע:
+- "match" — הערך במסמך תואם למה שהוקלד (התעלם מהבדלי רווחים, ניקוד, "עו״ד" בתחילת שם)
+- "mismatch" — הערך במסמך שונה בבירור
+- "missing" — לא הצלחת לקרוא את הערך מהמסמך
+
+השדות: fullName, idNumber, barNumber, barYear, university, gradYear.
+
+בנוסף:
+- barCardLooksReal — האם התמונה אכן נראית כתעודת חבר לשכת עורכי הדין (ולא צילום מסך אקראי, סלפי, או מסמך אחר)
+- diplomaLooksReal — האם התמונה אכן נראית כתעודת סיום תואר במשפטים
+- note — משפט אחד קצר בעברית על מה שראוי לתשומת לב האדם שיאשר. אם הכול תקין: "לא נמצאו אי-התאמות".
+
+השב JSON בלבד.`;
+
+/**
+ * בדיקת המסמכים שהועלו — לעיני האדם שמאשר.
+ *
+ * ⚠️ מה זה לא: **אין כאן אימות מול לשכת עורכי הדין.** בדקנו — הדאטאסט
+ * הפתוח של חברי הלשכה עודכן לאחרונה בינואר 2023, ולכן עורך דין שהוסמך
+ * מאז היה נדחה בטעות ומי שהושעה מאז היה עובר. הפנקס החי חוסם גישה
+ * אוטומטית. אימות מול מקור סמכותי נשאר פעולה אנושית.
+ *
+ * מה זה כן: קריאה אמיתית של המסמכים והצלבה מול מה שהוקלד. זה תופס
+ * טעויות הקלדה, קובץ שהועלה בטעות וזיוף רשלני — ומקצר את הבדיקה
+ * האנושית מחמש דקות לעשר שניות. וזו הפעם הראשונה שמסך "הבדיקה
+ * החכמה" מתאר משהו שבאמת קורה.
+ */
+export const checkVerificationDocsFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as DocCheckInput)
+  .handler(async ({ data }): Promise<DocCheckResult> => {
+    const { requireIdentity, adminGetDoc, downloadImageBase64, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("checkVerificationDocs", async () => {
+      const me = await requireIdentity(data.idToken);
+      if (!["justask.adv@gmail.com", "dvirsb@gmail.com"].includes(me.email)) {
+        throw new Error("forbidden");
+      }
+
+      const empty: DocCheckResult = {
+        ran: false,
+        barCardLooksReal: false,
+        diplomaLooksReal: false,
+        fields: {},
+        note: "",
+      };
+
+      const rec = await adminGetDoc(`verifications/${encodeURIComponent(data.targetUid)}`);
+      if (!rec) return empty;
+      const files = (rec.files ?? {}) as { barCard?: string; diploma?: string };
+
+      const parts: GeminiPart[] = [];
+      const barCard = files.barCard ? await downloadImageBase64(files.barCard) : null;
+      const diploma = files.diploma ? await downloadImageBase64(files.diploma) : null;
+      if (barCard) parts.push({ inline_data: { mime_type: "image/jpeg", data: barCard } });
+      if (diploma) parts.push({ inline_data: { mime_type: "image/jpeg", data: diploma } });
+      // בלי מסמך אחד לפחות אין מה לקרוא — ולא נמציא תשובה
+      if (!parts.length) return empty;
+
+      const typed = {
+        fullName: String(rec.fullName ?? ""),
+        idNumber: String(rec.idNumber ?? ""),
+        barNumber: String(rec.barNumber ?? ""),
+        barYear: String(rec.barYear ?? ""),
+        university: String(rec.university ?? ""),
+        gradYear: String(rec.gradYear ?? ""),
+      };
+      parts.push({
+        text: `הפרטים שהוקלדו בטופס:\n${JSON.stringify(typed, null, 1)}\n\nהתמונה הראשונה היא תעודת הלשכה; השנייה (אם קיימת) היא תעודת הבוגר.`,
+      });
+
+      const raw = await generate([{ role: "user", parts }], {
+        system: DOC_CHECK_SYSTEM,
+        json: true,
+        temperature: 0.1,
+      });
+      try {
+        const parsed = JSON.parse(raw) as Omit<DocCheckResult, "ran">;
+        return { ...parsed, ran: true };
+      } catch {
+        return empty;
+      }
+    });
+  });
+
 /* ---------- הודעה לעורך דין על החלטת אימות ---------- */
 
 export interface VerificationDecisionInput {

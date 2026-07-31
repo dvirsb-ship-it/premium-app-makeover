@@ -14,12 +14,13 @@ import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { translate, useT } from "../lib/i18n";
+import type { StringKey } from "../lib/i18n";
 import { SPECIALTIES } from "../lib/specialties";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { isAdminUser, isSuperAdmin } from "../lib/admin";
 import { fbAuth } from "../lib/firebase";
-import { notifyVerificationFn } from "../lib/ai/intake.functions";
+import { checkVerificationDocsFn, notifyVerificationFn, type DocCheckResult } from "../lib/ai/intake.functions";
 import { cn } from "../lib/utils";
 import {
   updateVerification,
@@ -158,6 +159,25 @@ function VerificationQueue() {
   const [confirming, setConfirming] = useState<{ rec: VerificationRecord; status: VerificationStatus } | null>(null);
   /** תוצאת ההרצה היבשה של המחיקה — מה היה נמחק, בלי שנמחק. */
   const [preview, setPreview] = useState<{ cases: number; paths: string[]; storage: string[] } | null>(null);
+  /* תוצאת בדיקת המסמכים, לפי uid — כדי שלא תרוץ מחדש בכל רינדור */
+  const [docChecks, setDocChecks] = useState<Record<string, DocCheckResult | "loading">>({});
+
+  async function runDocCheck(uid: string) {
+    setDocChecks((p) => ({ ...p, [uid]: "loading" }));
+    try {
+      const idToken = await fbAuth().currentUser?.getIdToken();
+      if (!idToken) throw new Error("no token");
+      const res = await checkVerificationDocsFn({ data: { targetUid: uid, idToken } });
+      setDocChecks((p) => ({ ...p, [uid]: res }));
+    } catch {
+      toast.error(t("authErrGeneric"));
+      setDocChecks((p) => {
+        const n = { ...p };
+        delete n[uid];
+        return n;
+      });
+    }
+  }
 
   function handleUpdate(id: string, status: VerificationStatus) {
     void updateVerification(id, status)
@@ -348,6 +368,96 @@ function VerificationQueue() {
                       )}
                     </div>
                   )}
+
+                  {/*
+                    * בדיקת המסמכים — קריאה אמיתית שלהם והצלבה מול מה
+                    * שהוקלד. אינה מאמתת מול הלשכה (הדאטאסט הפתוח מ-2023
+                    * והפנקס החי חוסם גישה אוטומטית) — לשם יש כפתור.
+                    */}
+                  <div className="mt-4 rounded-2xl border border-border bg-muted/30 p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-[12px] font-bold text-foreground">{t("docCheckTitle")}</p>
+                      <div className="flex gap-1.5">
+                        <a
+                          href={`https://www.google.com/search?q=${encodeURIComponent(`ספר עורכי הדין לשכת עורכי הדין ${rec.fullName} ${rec.barNumber}`)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="rounded-full border border-border px-2.5 py-1 text-[11px] font-bold text-muted-foreground"
+                        >
+                          {t("docCheckRegistry")}
+                        </a>
+                        {docChecks[rec.id] === undefined && (
+                          <button
+                            type="button"
+                            onClick={() => void runDocCheck(rec.id)}
+                            className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-ink"
+                          >
+                            {t("docCheckRun")}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {docChecks[rec.id] === "loading" && (
+                      <p className="mt-2 text-[11.5px] text-muted-foreground">{t("docCheckRunning")}</p>
+                    )}
+
+                    {(() => {
+                      const r = docChecks[rec.id];
+                      if (!r || r === "loading") return null;
+                      if (!r.ran)
+                        return <p className="mt-2 text-[11.5px] text-muted-foreground">{t("docCheckNoFiles")}</p>;
+                      const LABEL: Record<string, StringKey> = {
+                        fullName: "fieldFullName",
+                        idNumber: "fieldIdNumber",
+                        barNumber: "fieldBarNumber",
+                        barYear: "fieldBarYear",
+                        university: "fieldUniversity",
+                        gradYear: "fieldGradYear",
+                      };
+                      return (
+                        <div className="mt-2.5 space-y-1">
+                          {Object.entries(r.fields).map(([k, f]) => (
+                            <div key={k} className="flex items-center gap-2 text-[11.5px]">
+                              <span
+                                className={
+                                  f.status === "match"
+                                    ? "text-success"
+                                    : f.status === "mismatch"
+                                      ? "text-destructive"
+                                      : "text-muted-foreground"
+                                }
+                              >
+                                {f.status === "match" ? "✓" : f.status === "mismatch" ? "✕" : "—"}
+                              </span>
+                              <span className="text-muted-foreground">
+                                {LABEL[k] ? t(LABEL[k]) : k}
+                              </span>
+                              {f.status === "mismatch" && (
+                                <span className="font-semibold text-destructive" dir="auto">
+                                  {t("docCheckOnDoc")} {f.found || "—"}
+                                </span>
+                              )}
+                            </div>
+                          ))}
+                          <div className="flex flex-wrap gap-2 pt-1.5">
+                            <span className={r.barCardLooksReal ? "text-[11px] text-success" : "text-[11px] font-bold text-destructive"}>
+                              {r.barCardLooksReal ? "✓" : "✕"} {t("docBarCard")}
+                            </span>
+                            <span className={r.diplomaLooksReal ? "text-[11px] text-success" : "text-[11px] font-bold text-destructive"}>
+                              {r.diplomaLooksReal ? "✓" : "✕"} {t("docDiploma")}
+                            </span>
+                          </div>
+                          {r.note && (
+                            <p className="pt-1 text-[11.5px] leading-relaxed text-foreground/90">{r.note}</p>
+                          )}
+                          <p className="pt-1.5 text-[10.5px] leading-relaxed text-muted-foreground/80">
+                            {t("docCheckDisclaimer")}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                  </div>
 
                   {rec.status === "pending" && (
                     <div className="mt-4 grid grid-cols-2 gap-2">
