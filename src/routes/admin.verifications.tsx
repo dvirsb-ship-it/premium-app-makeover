@@ -13,7 +13,8 @@ import {
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
-import { useT } from "../lib/i18n";
+import { translate, useT } from "../lib/i18n";
+import { SPECIALTIES } from "../lib/specialties";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { isAdminUser, isSuperAdmin } from "../lib/admin";
@@ -49,14 +50,18 @@ import {
 } from "../lib/db";
 import { exportVerificationPdf } from "../lib/pdf-export";
 
-function formatSpecialties(rec: VerificationRecord): string {
+/*
+ * המשרד הציג את מזהי התחומים הגולמיים ("injury", "employment") במקום את
+ * השמות בעברית — כלומר בכל אישור של עורך דין אמיתי צריך היה לתרגם בראש.
+ * מתייחס גם ל-"other" שכבר לא קיים בטופס; השריד הוסר.
+ */
+function formatSpecialties(rec: VerificationRecord, lang: "he" | "en"): string {
   if (!rec.specialties.length) return "—";
   return rec.specialties
-    .map((id) =>
-      id === "other" && rec.otherSpecialty?.trim()
-        ? `אחר: ${rec.otherSpecialty.trim()}`
-        : id,
-    )
+    .map((id) => {
+      const spec = SPECIALTIES.find((s) => s.id === id);
+      return spec ? translate(spec.labelKey, lang) : id;
+    })
     .join(" · ");
 }
 
@@ -315,7 +320,7 @@ function VerificationQueue() {
                     />
                     <Meta
                       label={t("stepSpecTitle")}
-                      value={formatSpecialties(rec)}
+                      value={formatSpecialties(rec, lang)}
                     />
                   </dl>
 
