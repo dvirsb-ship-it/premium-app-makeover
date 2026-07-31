@@ -371,6 +371,47 @@ function VerificationQueue() {
                       </motion.button>
                     </div>
                   )}
+
+                  {/*
+                    * השעיה. עד עכשיו ברגע שעורך דין אושר הכפתורים נעלמו
+                    * ולא הייתה שום דרך להסיר לו גישה — תלונת לקוח על
+                    * עורך דין הייתה מחייבת עריכה ידנית של המסד.
+                    *
+                    * ההשעיה חוסמת אותו מלהביע עניין בתיקים חדשים, ואינה
+                    * מנתקת חיבור קיים: לנתק לקוח מעורך הדין שלו באמצע
+                    * תיק זה לפגוע בלקוח, לא להגן עליו.
+                    */}
+                  {rec.status === "approved" && (
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        disabled={!canAct}
+                        onClick={() => setConfirming({ rec, status: "rejected" })}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-full border border-destructive/30 text-[13px] font-semibold text-destructive transition active:scale-95 disabled:opacity-50"
+                      >
+                        <ShieldAlert className="size-4" strokeWidth={2.4} aria-hidden />
+                        {t("suspendLawyer")}
+                      </button>
+                      <p className="mt-2 text-center text-[11px] leading-relaxed text-muted-foreground">
+                        {t("suspendLawyerHint")}
+                      </p>
+                    </div>
+                  )}
+
+                  {rec.status === "rejected" && (
+                    <div className="mt-4">
+                      <button
+                        type="button"
+                        disabled={!canAct}
+                        onClick={() => setConfirming({ rec, status: "approved" })}
+                        className="flex h-11 w-full items-center justify-center gap-2 rounded-full border border-gold/35 text-[13px] font-semibold text-gold-ink transition active:scale-95 disabled:opacity-50"
+                      >
+                        <ShieldCheck className="size-4" strokeWidth={2.4} aria-hidden />
+                        {t("reinstateLawyer")}
+                      </button>
+                    </div>
+                  )}
+
                 </motion.li>
               ))}
             </AnimatePresence>
@@ -806,14 +847,26 @@ function VerificationQueue() {
               className="w-full max-w-sm rounded-[28px] border border-border bg-card p-6 text-center shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
             >
               <h2 className="text-[17px] font-black text-foreground">
-                {t(confirming.status === "approved" ? "confirmApproveTitle" : "confirmRejectTitle")}
+                {t(
+                  confirming.status === "approved"
+                    ? "confirmApproveTitle"
+                    : confirming.rec.status === "approved"
+                      ? "confirmSuspendTitle"
+                      : "confirmRejectTitle",
+                )}
               </h2>
               <p className="mt-2 text-[14px] font-bold text-gold">{confirming.rec.fullName}</p>
               <p className="mt-0.5 text-[12px] text-muted-foreground">
                 {t("fieldBarNumber")} {confirming.rec.barNumber}
               </p>
               <p className="mt-3 text-[12.5px] leading-relaxed text-muted-foreground">
-                {t(confirming.status === "approved" ? "confirmApproveBody" : "confirmRejectBody")}
+                {t(
+                  confirming.status === "approved"
+                    ? "confirmApproveBody"
+                    : confirming.rec.status === "approved"
+                      ? "confirmSuspendBody"
+                      : "confirmRejectBody",
+                )}
               </p>
               <div className="mt-6 space-y-2.5">
                 <button
@@ -821,7 +874,13 @@ function VerificationQueue() {
                   onClick={() => handleUpdate(confirming.rec.id, confirming.status)}
                   className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold"
                 >
-                  {t(confirming.status === "approved" ? "approve" : "reject")}
+                  {t(
+                    confirming.status === "approved"
+                      ? "approve"
+                      : confirming.rec.status === "approved"
+                        ? "suspendLawyer"
+                        : "reject",
+                  )}
                 </button>
                 <button
                   type="button"

@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 import {
   CATEGORY_SPECS,
   SPECIALTIES,
+  SPEC_GROUPS,
   SPEC_IDS,
+  VALIDATION_CATEGORIES,
   categoryMatchesSpecialties,
 } from "./specialties";
 
@@ -36,6 +38,28 @@ describe("טבלת התחומים", () => {
   it("אין כפילויות ברשימת התחומים", () => {
     expect(new Set(SPEC_IDS).size).toBe(SPEC_IDS.length);
   });
+
+  it("כל תחום מופיע בדיוק בקבוצה אחת בטופס ההצטרפות", () => {
+    // תחום שלא בקבוצה פשוט לא יוצג — עו״ד לא יוכל לבחור בו
+    const grouped = SPEC_GROUPS.flatMap((g) => g.ids);
+    expect(new Set(grouped).size).toBe(grouped.length);
+    expect([...grouped].sort()).toEqual([...SPEC_IDS].sort());
+  });
+
+  it("רשימת הקטגוריות לפרומפט זהה למפתחות הטבלה", () => {
+    // הפרומפט נבנה מהרשימה הזו; סטייה כאן היא הבאג המקורי בדיוק
+    expect(VALIDATION_CATEGORIES).toEqual(Object.keys(CATEGORY_SPECS));
+    expect(VALIDATION_CATEGORIES.length).toBeGreaterThan(15);
+  });
+
+  it("לכל תחום מקצועי יש לפחות קטגוריה אחת שמגיעה אליו", () => {
+    for (const s of SPECIALTIES) {
+      const cats = Object.entries(CATEGORY_SPECS)
+        .filter(([, ids]) => (ids as string[]).includes(s.id))
+        .map(([c]) => c);
+      expect(cats.length, `${s.id} — אין קטגוריה שמגיעה אליו`).toBeGreaterThan(0);
+    }
+  });
 });
 
 describe("categoryMatchesSpecialties", () => {
@@ -63,5 +87,23 @@ describe("categoryMatchesSpecialties", () => {
   it("״אחר״ מגיע לאזרחי כללי בלבד", () => {
     expect(categoryMatchesSpecialties("אחר", ["civil"])).toBe(true);
     expect(categoryMatchesSpecialties("אחר", ["employment"])).toBe(false);
+  });
+
+  it("תיק פלילי מגיע לעו״ד פלילי ולא לעו״ד נזיקין", () => {
+    expect(categoryMatchesSpecialties("פלילי", ["criminal"])).toBe(true);
+    expect(categoryMatchesSpecialties("פלילי", ["injury"])).toBe(false);
+    expect(categoryMatchesSpecialties("פלילי", ["family"])).toBe(false);
+  });
+
+  it("תיק משפחה אינו מגיע לעו״ד פלילי", () => {
+    expect(categoryMatchesSpecialties("דיני משפחה", ["family"])).toBe(true);
+    expect(categoryMatchesSpecialties("דיני משפחה", ["criminal"])).toBe(false);
+  });
+
+  it("תעבורה מגיעה גם לפלילי וגם לנזיקין — הרחבה מכוונת", () => {
+    expect(categoryMatchesSpecialties("תעבורה", ["traffic"])).toBe(true);
+    expect(categoryMatchesSpecialties("תעבורה", ["criminal"])).toBe(true);
+    expect(categoryMatchesSpecialties("תעבורה", ["injury"])).toBe(true);
+    expect(categoryMatchesSpecialties("תעבורה", ["estate"])).toBe(false);
   });
 });

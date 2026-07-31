@@ -1,27 +1,37 @@
 import {
+  Banknote,
   Building2,
+  CarFront,
+  Crown,
+  FileSignature,
+  Gavel,
+  Globe,
+  HardHat,
   KeyRound,
+  Landmark,
+  Lightbulb,
+  Percent,
   Scale,
+  ScrollText,
   ShieldCheck,
+  Shield,
   ShoppingBag,
   Stethoscope,
+  Users,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
+import type { SpecId } from "./specialties";
+import { BrokenBone } from "../components/icons";
 
 /* סמל אחד מותאם ושאר lucide — טיפוס משותף רחב דיו לשניהם */
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
-import type { SpecId } from "./specialties";
-import { BrokenBone } from "../components/icons";
 
 /**
  * סמל לכל תחום.
  *
  * קודם ישבה כאן תמונת סטוק לכל תיק — בניין כהה, זהה כמעט בכל הכרטיסים,
- * ובנוסף המפתחות היו שמות קטגוריה ישנים ("נזיקין", "נזיקין ותאונות דרכים")
- * כך שרוב התיקים נפלו לתמונת ברירת המחדל. התוצאה: כל הפיד נראה אותו דבר,
- * והתמונה לא נשאה שום מידע.
- *
- * סמל נושא מידע: עורך דין סורק פיד ויודע מיד מה כל תיק, בלי לקרוא.
+ * ובנוסף המפתחות היו שמות קטגוריה ישנים כך שרוב התיקים נפלו לתמונת
+ * ברירת המחדל. סמל נושא מידע: עורך דין סורק פיד ויודע מיד מה כל תיק.
  *
  * הקובץ הזה client-only (מייבא lucide) — בכוונה נפרד מ-specialties.ts
  * שהשרת מייבא.
@@ -30,21 +40,49 @@ import { BrokenBone } from "../components/icons";
 export const SPEC_ICON: Record<SpecId, IconComponent> = {
   injury: BrokenBone,
   medical: Stethoscope,
-  employment: Building2, // מקום עבודה
+  traffic: CarFront,
   insurance: ShieldCheck,
+  employment: Building2,
   consumer: ShoppingBag,
-  estate: KeyRound, // מפתח, לא בית — כדי לא להתנגש בדיני עבודה
+  commercial: FileSignature,
   civil: Scale,
+  estate: KeyRound,
+  planning: HardHat,
+  inheritance: ScrollText,
+  family: Users,
+  criminal: Gavel,
+  military: Shield,
+  corporate: Landmark,
+  tax: Percent,
+  banking: Banknote,
+  enforcement: Crown,
+  ip: Lightbulb,
+  administrative: Landmark,
+  immigration: Globe,
 };
 
 /** קטגוריית תיק (כפי שהוולידציה מחזירה) → סמל. */
 const CATEGORY_ICON: Record<string, IconComponent> = {
   "נזיקין ותאונות": BrokenBone,
   "רשלנות רפואית": Stethoscope,
-  "דיני עבודה": Building2,
+  "תעבורה": CarFront,
   "ביטוח": ShieldCheck,
+  "דיני עבודה": Building2,
   "צרכנות": ShoppingBag,
+  "מסחרי וחוזים": FileSignature,
   "מקרקעין": KeyRound,
+  "תכנון ובנייה": HardHat,
+  "ירושה וצוואות": ScrollText,
+  "דיני משפחה": Users,
+  "פלילי": Gavel,
+  "צבאי וביטחוני": Shield,
+  "תאגידים וחברות": Landmark,
+  "מיסים": Percent,
+  "בנקאות ופיננסים": Banknote,
+  "הוצאה לפועל וחדלות פירעון": Crown,
+  "קניין רוחני": Lightbulb,
+  "מנהלי וחוקתי": Landmark,
+  "הגירה ואשרות": Globe,
   "אחר": Scale,
 };
 

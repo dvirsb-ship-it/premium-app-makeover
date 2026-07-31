@@ -26,7 +26,8 @@ import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { writeLawyerContact, writeLawyerProfile } from "../lib/db";
-import { SPECIALTIES, type SpecId as SharedSpecId } from "../lib/specialties";
+import { SPECIALTIES, SPEC_GROUPS, type SpecId as SharedSpecId } from "../lib/specialties";
+import { SPEC_ICON } from "../lib/category-icons";
 import { isValidIsraeliId } from "../lib/legal";
 import { cn } from "../lib/utils";
 import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
@@ -878,30 +879,52 @@ function SpecialtiesStep({
   return (
     <div>
       <StepHeading titleKey="stepSpecTitle" descKey="stepSpecDesc" />
-      <div className="flex flex-wrap gap-2">
-        {SPECIALTIES.map((s, i) => {
-          const isSel = selected.has(s.id);
-          return (
-            <motion.button
-              key={s.id}
-              type="button"
-              onClick={() => toggle(s.id)}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.03, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                "flex items-center gap-1.5 rounded-full px-4 py-2.5 text-[13px] font-semibold transition",
-                isSel
-                  ? "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25"
-                  : "liquid-glass text-foreground",
-              )}
-            >
-              {isSel && <Check className="size-3.5" strokeWidth={3} />}
-              {t(s.labelKey)}
-            </motion.button>
-          );
-        })}
+      {/*
+        * 21 תחומים ברצף אחד הם קיר. מקובצים לפי משפחה, וכל שבב נושא את
+        * הסמל שלו — אותו סמל שיופיע אחר כך על כרטיסי התיקים בפיד.
+        */}
+      <div className="space-y-4">
+        {SPEC_GROUPS.map((group, gi) => (
+          <motion.div
+            key={group.titleKey}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: gi * 0.05, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+              {t(group.titleKey)}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {group.ids.map((id) => {
+                const spec = SPECIALTIES.find((x) => x.id === id);
+                if (!spec) return null;
+                const isSel = selected.has(id);
+                const Icon = SPEC_ICON[id];
+                return (
+                  <button
+                    key={id}
+                    type="button"
+                    onClick={() => toggle(id)}
+                    aria-pressed={isSel}
+                    className={cn(
+                      "flex items-center gap-1.5 rounded-full px-3.5 py-2.5 text-[13px] font-semibold transition active:scale-95",
+                      isSel
+                        ? "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25"
+                        : "liquid-glass text-foreground",
+                    )}
+                  >
+                    {isSel ? (
+                      <Check className="size-3.5" strokeWidth={3} />
+                    ) : (
+                      <Icon className="size-3.5 text-gold-ink" strokeWidth={2} aria-hidden />
+                    )}
+                    {t(spec.labelKey)}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        ))}
       </div>
       {/* מה אנחנו באמת מכסים — נאמר מראש ולא מתגלה אחרי חודש של פיד ריק */}
       <p className="mt-5 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">

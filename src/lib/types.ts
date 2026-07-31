@@ -5,6 +5,8 @@ export type CaseStatus =
   | "matching"
   | "has_interest"
   | "connected"
+  /* התיק הושלם — עורך הדין סימן את אבן הדרך האחרונה */
+  | "closed"
   | "rejected";
 
 export interface Lawyer {

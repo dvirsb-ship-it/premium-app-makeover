@@ -335,6 +335,30 @@ describe("milestones", () => {
     await assertFails(deleteDoc(doc(as("lawyerOk"), "cases/openCase/milestones/met")));
   });
 
+  it("העו״ד הנבחר סוגר את התיק כשסיים", async () => {
+    await assertSucceeds(
+      updateDoc(doc(as("lawyerOk"), "cases/openCase"), { status: "closed" }),
+    );
+  });
+
+  it("עו״ד אחר אינו סוגר תיק שאינו שלו, והלקוח אינו סוגר בעצמו", async () => {
+    await assertFails(
+      updateDoc(doc(as("lawyerOther"), "cases/openCase"), { status: "closed" }),
+    );
+    await assertFails(
+      updateDoc(doc(as("client1"), "cases/openCase"), { status: "closed" }),
+    );
+  });
+
+  it("סגירה אינה יכולה לגרור שינוי שדה נוסף", async () => {
+    await assertFails(
+      updateDoc(doc(as("lawyerOk"), "cases/openCase"), {
+        status: "closed",
+        title: "שונה",
+      }),
+    );
+  });
+
   it("הלקוח קורא את ציר הזמן", async () => {
     await assertSucceeds(getDocs(collection(as("client1"), "cases/openCase/milestones")));
   });

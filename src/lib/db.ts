@@ -167,7 +167,8 @@ function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
 function casePriority(c: Case): number {
   if (c.status === "has_interest") return 0; // דורש ממך בחירה
   if (c.status === "connected") return 1; // פעיל
-  if (c.status === "rejected") return 3; // הוכרע — לתחתית
+  if (c.status === "closed") return 3; // הושלם
+  if (c.status === "rejected") return 4; // הוכרע — לתחתית
   return 2; // בבדיקה / ממתין
 }
 
@@ -231,8 +232,8 @@ export interface LawyerCase {
   location: string;
   createdAt: number;
   clientName: string;
-  /** כמה אבני דרך כבר סומנו — כדי להראות התקדמות ברשימה. */
-  milestonesDone?: number;
+  /** התיק הושלם — יורד לתחתית הרשימה ומסומן אחרת. */
+  closed: boolean;
 }
 
 /**
@@ -263,9 +264,13 @@ export function watchLawyerCases(
               location: c.location || "",
               createdAt: c.createdAt,
               clientName: c.clientContact?.name ?? "",
+              closed: c.status === "closed",
             };
           })
-          .sort((a, b) => b.createdAt - a.createdAt),
+          .sort(
+            (a, b) =>
+              Number(a.closed) - Number(b.closed) || b.createdAt - a.createdAt,
+          ),
       );
     },
     (err) => onError?.(err),
@@ -898,6 +903,17 @@ export async function markMilestone(
     at: Date.now(),
     ...(note?.trim() ? { note: stripContactInfo(note.trim()) } : {}),
   });
+  /*
+   * אבן הדרך האחרונה סוגרת את התיק.
+   *
+   * קודם התיק נשאר "נוצר חיבור" לנצח: הוא המשיך לשבת ברשימת התיקים
+   * הפעילים של עורך הדין, התערבב אצל הלקוח עם תיקים חיים, ונספר במשפך
+   * כחיבור פעיל. אחרי עשרה לקוחות הרשימה הייתה מתמלאת בתיקים גמורים.
+   */
+  if (key === "closed") {
+    await updateDoc(doc(fbDb(), "cases", caseId), { status: "closed" }).catch(() => {});
+  }
+
   // התראה ללקוח — זה כל הטעם: שהוא לא ישאל "מה קורה עם התיק שלי"
   const c = await readCaseRaw(caseId);
   if (c) {
@@ -1004,7 +1020,8 @@ export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
     rejected: rows.filter((r) => r.status === "rejected").length,
     passed: passedRows.length,
     withInterest: rows.filter((r) => r.interestedCount > 0).length,
-    connected: rows.filter((r) => r.status === "connected").length,
+    // תיק שהסתיים הוא חיבור שהבשיל, לא חיבור שנעלם
+    connected: rows.filter((r) => r.status === "connected" || r.status === "closed").length,
     medianFirstOfferMins: offerGaps.length
       ? Math.round(offerGaps[Math.floor(offerGaps.length / 2)])
       : null,

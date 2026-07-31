@@ -7,6 +7,7 @@ const LABELS: Record<CaseStatus, { he: string; en: string; tone: "gold" | "navy"
   matching: { he: "אושר בבדיקה · מחפשים עורכי דין", en: "Approved · finding lawyers", tone: "gold" },
   has_interest: { he: "יש התעניינות", en: "Interest received", tone: "navy" },
   connected: { he: "נוצר חיבור", en: "Connected", tone: "success" },
+  closed: { he: "התיק הסתיים", en: "Case closed", tone: "muted" },
   rejected: { he: "לא נמצאה עילה", en: "No cause found", tone: "muted" },
 };
 

@@ -82,6 +82,17 @@ service cloud.firestore {
           && request.resource.data.status == 'has_interest'
           && resource.data.status in ['matching', 'has_interest']
         )
+        /*
+         * העו"ד הנבחר סוגר את התיק כשסיים — ורק זה.
+         * בלי המעבר הזה תיק גמור נשאר "מחובר" לנצח: הוא ממשיך לשבת
+         * ברשימת התיקים הפעילים שלו ומתערבב אצל הלקוח עם תיקים חיים.
+         */
+        || (
+          resource.data.chosenLawyerId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status'])
+          && resource.data.status == 'connected'
+          && request.resource.data.status == 'closed'
+        )
         // אדמין-העל מכריע בערעורים — שינוי סטטוס בלבד
         || (
           isSuperAdmin()
