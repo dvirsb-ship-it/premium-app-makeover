@@ -251,11 +251,17 @@ function Profile() {
                 if (signingOut) return;
                 setSigningOut(true);
                 /*
-                 * מנווטים לפני הניתוק: שער ההתחברות מגיב מיד לכך שהמשתמש
-                 * התנתק ומפנה ל-/auth, וזה היה מעקף את מסך הפתיחה.
+                 * מנווטים לפני הניתוק *וממתינים שהניווט יתקבע*.
+                 *
+                 * בלי ה-await זו הייתה תחרות: signOut הפיל את המשתמש בזמן
+                 * שהראוטר עוד היה על /profile, שער ההתחברות הגיב מיד והפנה
+                 * ל-/auth — כלומר מסך הפתיחה נדלג לפעמים ולפעמים לא.
+                 * replace כדי שכפתור "אחורה" לא יחזיר אותו לתוך האפליקציה.
                  */
-                navigate({ to: "/welcome" });
-                void signOut().catch(() => toast.error(t("authErrGeneric")));
+                void (async () => {
+                  await navigate({ to: "/welcome", replace: true });
+                  await signOut().catch(() => toast.error(t("authErrGeneric")));
+                })();
               }}
               className="liquid-glass flex w-full items-center justify-center gap-2 rounded-3xl p-4 text-sm font-bold text-destructive transition active:scale-[0.99] disabled:opacity-60"
             >

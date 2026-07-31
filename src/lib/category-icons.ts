@@ -1,5 +1,4 @@
 import {
-  Bandage,
   Banknote,
   Building2,
   CarFront,
@@ -21,6 +20,7 @@ import {
   Users,
 } from "lucide-react";
 import type { ComponentType, SVGProps } from "react";
+import { Bandage } from "../components/icons";
 import type { SpecId } from "./specialties";
 
 type IconComponent = ComponentType<SVGProps<SVGSVGElement>>;
