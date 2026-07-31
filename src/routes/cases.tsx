@@ -92,13 +92,15 @@ function Cases() {
           <Stagger className="space-y-4">
             {cases.map((c) => {
               const meta = statusMeta(c.status);
+              /* ממתין להחלטה שלך — מסומן, ויושב ראשון ברשימה */
+              const awaiting = c.status === "has_interest";
               return (
                 <Rise key={c.id}>
                   <Pressable
                     onClick={() =>
                       navigate({ to: "/case/$caseId", params: { caseId: c.id } })
                     }
-                    className="liquid-glass w-full rounded-3xl p-5"
+                    className={`liquid-glass w-full rounded-3xl p-5 ${awaiting ? "attention-ring" : ""}`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span

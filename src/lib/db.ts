@@ -157,6 +157,20 @@ function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
   };
 }
 
+/**
+ * סדר התיקים של הלקוח — לפי מה שדורש ממנו החלטה, לא לפי מתי הגיש.
+ *
+ * תיק שעורך דין הביע בו עניין ממתין *לו*: כל יום שהוא לא רואה אותו הוא
+ * לקוח שממתין ועורך דין שממתין. תיק שנדחה כבר הוכרע ואין בו מה לעשות,
+ * ולכן הוא יורד לתחתית. בתוך כל קבוצה — החדש קודם.
+ */
+function casePriority(c: Case): number {
+  if (c.status === "has_interest") return 0; // דורש ממך בחירה
+  if (c.status === "connected") return 1; // פעיל
+  if (c.status === "rejected") return 3; // הוכרע — לתחתית
+  return 2; // בבדיקה / ממתין
+}
+
 /** תיקי הלקוח — בזמן אמת. */
 export function watchMyCases(
   uid: string,
@@ -170,7 +184,7 @@ export function watchMyCases(
     cb(
       snap.docs
         .map((d) => toCase(d.id, d.data() as CaseDoc))
-        .sort((a, b) => b.createdAt - a.createdAt),
+        .sort((a, b) => casePriority(a) - casePriority(b) || b.createdAt - a.createdAt),
     );
   }, (err) => {
     // לא cb([]) — "אין תיקים" הוא שקר כשהתיק קיים והקריאה נדחתה

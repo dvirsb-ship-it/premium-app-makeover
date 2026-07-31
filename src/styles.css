@@ -608,6 +608,92 @@
   border-radius: 0.75rem;
 }
 
+/*
+ * טבעת ההמתנה — תיק שעורך דין הביע בו עניין וממתין להחלטת הלקוח.
+ *
+ * אור זהב אחד שנע סביב הכרטיס, לא הבהוב. הבהוב קורא כהתראת שגיאה
+ * ומתיש אחרי שנייה; אור שנע קורא כ"חי" ואפשר לחיות איתו על המסך.
+ * זו ההדגשה היחידה ברשימה, ולכן מותר לה להיות ברורה.
+ */
+@property --ring-angle {
+  syntax: "<angle>";
+  initial-value: 0deg;
+  inherits: false;
+}
+
+.attention-ring {
+  position: relative;
+  isolation: isolate;
+}
+
+.attention-ring::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  z-index: -1;
+  border-radius: inherit;
+  padding: 2px;
+  /* קשת רחבה — על כרטיס רחב קשת צרה נעלמת ונראית כמו פגם רינדור */
+  background: conic-gradient(
+    from var(--ring-angle),
+    color-mix(in oklab, var(--gold) 22%, transparent) 0deg,
+    color-mix(in oklab, var(--gold) 22%, transparent) 120deg,
+    var(--gold) 200deg,
+    var(--gold-light) 250deg,
+    var(--gold) 300deg,
+    color-mix(in oklab, var(--gold) 22%, transparent) 360deg
+  );
+  /* מסכה שמשאירה רק את המסגרת — הליבה נשארת שקופה */
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  animation: ring-travel 4.5s linear infinite;
+  pointer-events: none;
+}
+
+/* הילה רכה שנושמת מתחת לטבעת — נותנת עומק בלי להוסיף תנועה שנייה */
+.attention-ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 color-mix(in oklab, var(--gold) 30%, transparent);
+  animation: ring-halo 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes ring-travel {
+  to {
+    --ring-angle: 360deg;
+  }
+}
+
+@keyframes ring-halo {
+  0%, 100% { box-shadow: 0 0 22px -4px color-mix(in oklab, var(--gold) 42%, transparent); }
+  50% { box-shadow: 0 0 38px -2px color-mix(in oklab, var(--gold) 66%, transparent); }
+}
+
+/*
+ * בלי @property (או בהעדפת תנועה מופחתת) האנימציה לא רצה — ואז
+ * הקשת הסטטית נראית כמו פגם. במצב הזה עוברים למסגרת זהב מלאה.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .attention-ring::before {
+    background: var(--gold);
+    animation: none;
+  }
+  .attention-ring::after {
+    animation: none;
+    box-shadow: 0 0 22px -4px color-mix(in oklab, var(--gold) 42%, transparent);
+  }
+}
+
 /* Respect users who prefer reduced motion */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
