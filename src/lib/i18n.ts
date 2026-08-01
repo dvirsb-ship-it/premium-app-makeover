@@ -466,7 +466,7 @@ export const strings = {
   notifCenterSub: { he: "כל העדכונים על התיקים שלך", en: "All updates about your cases" },
   notifEmpty: { he: "אין התראות עדיין", en: "No notifications yet" },
   notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
-  verifyUploadError: { he: "העלאת המסמכים נכשלה. בדקו את החיבור ונסו שוב.", en: "Uploading your documents failed. Check your connection and try again." },
+  verifyUploadError: { he: "ההגשה לא הושלמה. בדקו את החיבור ונסו שוב — אפשר לשלוח שוב בבטחה.", en: "Your submission didn't complete. Check your connection and try again — resubmitting is safe." },
   verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },
   verPendingBannerSub: { he: "אנחנו בודקים את המסמכים. הפניות בתחומכם ייפתחו ברגע שהאימות יאושר — נעדכן אותך בהתראה.", en: "We're reviewing your documents. Leads in your fields open the moment you're approved — we'll notify you." },
   verRejectedBanner: { he: "האימות לא אושר — אפשר להגיש שוב עם מסמכים מעודכנים", en: "Verification wasn't approved — you can resubmit with updated documents" },

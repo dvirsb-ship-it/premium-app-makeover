@@ -818,6 +818,39 @@ export interface VerificationDecisionInput {
 }
 
 /**
+ * הודעה לאדמין שעורך דין הגיש בקשת אימות.
+ *
+ * בלעדיה הבקשה יושבת בתור ואיש אינו יודע — הגילוי תלוי בכך שמישהו
+ * במקרה ייכנס למסך האדמין. עורך דין שגויס אישית וממתין יומיים בשקט
+ * הוא עורך דין שלא יחזור.
+ *
+ * הקריאה מגיעה מעורך הדין עצמו, ולכן היא מאמתת שקיימת לו באמת בקשה
+ * ממתינה — אחרת כל משתמש מחובר היה יכול להציף את האדמין בהתראות.
+ */
+export const notifySubmissionFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { idToken: string })
+  .handler(async ({ data }): Promise<{ sent: boolean }> => {
+    const { requireIdentity, adminGetDoc, sendPush, uidByEmail, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("notifySubmission", async () => {
+      const me = await requireIdentity(data.idToken);
+      const ver = await adminGetDoc(`verifications/${encodeURIComponent(me.uid)}`);
+      if (!ver || ver.status !== "pending") return { sent: false };
+
+      const adminUid = await uidByEmail("justask.adv@gmail.com");
+      if (!adminUid) return { sent: false };
+
+      const name = typeof ver.fullName === "string" ? ver.fullName : "עורך דין";
+      await sendPush(adminUid, {
+        title: "בקשת אימות חדשה",
+        body: `${name} הגיש/ה מסמכים לאימות`,
+        link: "/admin/verifications",
+      });
+      return { sent: true };
+    });
+  });
+
+/**
  * דחיפה החוצה על החלטת האימות.
  *
  * ההחלטה עצמה נכתבת מהדפדפן (נאכף בחוקים, ומכוסה בבדיקות), אבל התראה

@@ -246,6 +246,33 @@ export async function adminGetUser(uid: string): Promise<Record<string, unknown>
 }
 
 /**
+ * ה-uid של חשבון לפי אימייל — מתוך Firebase Auth, לא ממסמך המשתמש.
+ *
+ * חשוב שזה יגיע מ-Auth: שדה ה-email במסמך users נכתב ע"י המשתמש עצמו,
+ * ולכן מי שיכתוב שם את כתובת האדמין היה מקבל את התראות האדמין.
+ */
+export async function uidByEmail(email: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/projects/${PROJECT_ID}/accounts:lookup`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${await accessToken()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: [email] }),
+      },
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as { users?: { localId?: string }[] };
+    return data.users?.[0]?.localId ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/**
  * שליחת התראה לכל המכשירים של משתמש.
  * לעולם לא זורקת — התראה שנכשלה לא אמורה להפיל את הפעולה שיצרה אותה.
  * ההתראה נשלחת כ-data בלבד, כדי שה-service worker יציג אותה בעברית (dir=rtl).

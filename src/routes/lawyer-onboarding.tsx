@@ -31,6 +31,8 @@ import { SPEC_ICON } from "../lib/category-icons";
 import { isValidIsraeliId } from "../lib/legal";
 import { cn } from "../lib/utils";
 import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
+import { fbAuth } from "../lib/firebase";
+import { notifySubmissionFn } from "../lib/ai/intake.functions";
 import { exportVerificationPdf } from "../lib/pdf-export";
 
 export const Route = createFileRoute("/lawyer-onboarding")({
@@ -258,23 +260,44 @@ function LawyerOnboarding() {
             } catch {
               /* ignore */
             }
-            // רישום במדריך עורכי הדין — כך התראות על תיקים חדשים בתחום יגיעו אליו
+            /*
+             * שתי הכתיבות האלה אינן "תוספת" — הן התנאי לכך שההרשמה שווה
+             * משהו. בלי הפרופיל התחומים לא מגיעים למדריך, ולכן עורך הדין
+             * לא יקבל אף פנייה; בלי פרטי הקשר הלקוח שיבחר בו לא יוכל
+             * להגיע אליו. עד עכשיו הן היו void ...catch(() => {}), כלומר
+             * כשל הציג "אומת בהצלחה" בזמן שהעו״ד נשאר בלתי נראה.
+             *
+             * בקשת האימות עצמה כבר נשמרה, וכל הכתיבות כאן מזוהות לפי uid
+             * ולכן ניתנות לחזרה — הגשה חוזרת בטוחה לחלוטין.
+             */
             if (user) {
-              void writeLawyerProfile(user.uid, {
-                name: form.fullName,
-                specialties: [...form.specialties],
-                barYear: form.barYear,
-                university: form.university,
-                city: form.city.trim(),
-              }).catch(() => {});
-              // פרטי קשר — אוסף פרטי, נחשף ללקוח רק אחרי חיבור רשמי
-              void writeLawyerContact(user.uid, {
-                fullName: form.fullName,
-                phone: form.phone,
-                email: form.email,
-              }).catch(() => {});
+              await Promise.all([
+                writeLawyerProfile(user.uid, {
+                  name: form.fullName,
+                  specialties: [...form.specialties],
+                  barYear: form.barYear,
+                  university: form.university,
+                  city: form.city.trim(),
+                }),
+                // פרטי קשר — אוסף פרטי, נחשף ללקוח רק אחרי חיבור רשמי
+                writeLawyerContact(user.uid, {
+                  fullName: form.fullName,
+                  phone: form.phone,
+                  email: form.email,
+                }),
+              ]);
             }
+            /*
+             * ההגשה הצליחה — עכשיו שהאדמין ידע. אחרי setVerifyState בכוונה
+             * לא: התראה שנכשלה לא תהפוך הגשה תקינה לכישלון על המסך.
+             */
             setVerifyState("pass");
+            try {
+              const idToken = await fbAuth().currentUser?.getIdToken();
+              if (idToken) await notifySubmissionFn({ data: { idToken } });
+            } catch {
+              /* הבקשה בתור; היא תתגלה גם בלי ההתראה */
+            }
           } catch {
             toast.error(t("verifyUploadError"));
             setVerifyState("idle");
