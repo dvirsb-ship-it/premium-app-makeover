@@ -56,6 +56,7 @@ export const strings = {
   authErrEmail: { he: "כתובת האימייל לא תקינה", en: "That email address doesn't look right" },
   authErrPhone: { he: "מספר הטלפון לא תקין", en: "That phone number doesn't look right" },
   authErrGeneric: { he: "לא הצלחנו להתחבר. נסו שוב.", en: "We couldn't sign you in. Please try again." },
+  authCompleting: { he: "מסיימים את ההתחברות…", en: "Finishing sign-in…" },
   authRedirectFailed: { he: "ההתחברות לא הושלמה", en: "Sign-in didn't complete" },
   authRedirectFailedHint: {
     he: "חזרתם מגוגל בלי חשבון מחובר. אם הדפדפן חוסם קובצי Cookie של צד שלישי או שאתם בגלישה פרטית — כבו את החסימה ונסו שוב.",

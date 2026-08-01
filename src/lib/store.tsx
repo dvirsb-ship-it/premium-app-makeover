@@ -16,7 +16,7 @@ type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { toast } from "sonner";
 import { translate } from "./i18n";
 import { fbAuth, isBrowser } from "./firebase";
-import { consumeRedirectSignIn } from "./auth-service";
+import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
 import { maskLawyerName } from "./privacy";
 import {
   categoryMatchesSpecialties,
@@ -62,6 +62,8 @@ interface AppState {
   /** true אם חזרנו מהפניית התחברות בלי חשבון מחובר. מסך ההתחברות אומר זאת. */
   authRedirectFailed: boolean;
   clearAuthRedirectError: () => void;
+  /** true בזמן קליטת החזרה מגוגל — מסך ההתחברות מציג "מתחברים" ולא כפתורים. */
+  authResolving: boolean;
   signOut: () => Promise<void>;
   /** התראות המשתמש — בזמן אמת, החדשות ראשונות. */
   notifications: AppNotification[];
@@ -86,6 +88,12 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [authRedirectFailed, setAuthRedirectFailed] = useState(false);
+  /*
+   * לא נקבע ברינדור הראשון בכוונה: בשרת אין localStorage, ולכן ערך
+   * התחלתי שתלוי בו יוצר hydration mismatch — ודווקא הבהוב, שזה מה
+   * שבאנו למנוע. נקבע בפתיחת האפקט, כלומר בפריים הראשון אחרי ההרכבה.
+   */
+  const [authResolving, setAuthResolving] = useState(false);
   const [role, setRoleState] = useState<Role | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [feed, setFeed] = useState<FeedCase[]>([]);
@@ -115,6 +123,10 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
      * יורה null לפני שההפניה נקלטה, authReady יהפוך ל-true, השער ישלח
      * את המשתמש למסך ההתחברות — והוא ילחץ שוב. זו הלולאה שדווחה.
      */
+    // סינכרוני, לפני כל עבודה אסינכרונית — כך המסך מציג "מסיימים
+    // את ההתחברות" כבר בציור הבא, ולא את הכפתור שנראה ככישלון
+    if (hasPendingRedirect()) setAuthResolving(true);
+
     let cancelled = false;
     let unsubAuth: (() => void) | undefined;
 
@@ -145,6 +157,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
           }
         }
         setAuthReady(true);
+        // מרגע שסטטוס ההתחברות ידוע אין עוד מה לחכות לו
+        setAuthResolving(false);
       });
     })();
 
@@ -390,11 +404,12 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       authReady,
       authRedirectFailed,
       clearAuthRedirectError,
+      authResolving,
       signOut,
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

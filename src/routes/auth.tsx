@@ -67,8 +67,15 @@ const GOOGLE_ONLY = true;
 function Auth() {
   const navigate = useNavigate();
   const t = useT();
-  const { role, setRole, user, authReady, authRedirectFailed, clearAuthRedirectError } =
-    useAppStore();
+  const {
+    role,
+    setRole,
+    user,
+    authReady,
+    authRedirectFailed,
+    clearAuthRedirectError,
+    authResolving,
+  } = useAppStore();
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
   const [code, setCode] = useState("");
@@ -214,10 +221,30 @@ function Auth() {
             </Rise>
 
             {/*
+              חזרנו מגוגל והחיבור עוד נקלט. בלי המצב הזה המשתמש רואה שוב את
+              כפתור ההתחברות, מסיק שזה נכשל — ולוחץ שוב באמצע הקליטה.
+              זה מה שדווח כ"לא חלק" בכניסה הראשונה האמיתית.
+            */}
+            {authResolving && (
+              <Rise>
+                <div
+                  role="status"
+                  aria-live="polite"
+                  className="liquid-glass glass-hero flex items-center justify-center gap-3 rounded-2xl py-4"
+                >
+                  <Spinner className="text-gold" />
+                  <span className="text-sm font-bold text-foreground">
+                    {t("authCompleting")}
+                  </span>
+                </div>
+              </Rise>
+            )}
+
+            {/*
               חזרנו מגוגל בלי חשבון מחובר. בלי ההודעה הזו המסך נראה בדיוק
               כמו פתיחה רגילה, המשתמש לוחץ שוב — ונכנס ללולאה בלי לדעת למה.
             */}
-            {authRedirectFailed && (
+            {!authResolving && authRedirectFailed && (
               <Rise>
                 <div
                   role="alert"
@@ -234,8 +261,8 @@ function Auth() {
               </Rise>
             )}
 
-            {/* Social auth */}
-            <Rise>
+            {/* Social auth — מוסתר בזמן קליטת החזרה, כדי שלא ילחצו באמצע */}
+            {!authResolving && <Rise>
               <button
                 type="button"
                 onClick={() => {
@@ -259,7 +286,7 @@ function Auth() {
                   </>
                 )}
               </button>
-            </Rise>
+            </Rise>}
 
             {!GOOGLE_ONLY && <Rise>
               <button

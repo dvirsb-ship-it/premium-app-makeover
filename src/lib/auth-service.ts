@@ -82,6 +82,22 @@ export type RedirectOutcome =
   /** יצאנו להפניה וחזרנו בלי חשבון מחובר — חייבים לומר זאת ולא לשתוק */
   | { status: "failed" };
 
+/**
+ * האם אנחנו באמצע חזרה מהפניית התחברות — קריאה סינכרונית שאינה מוחקת.
+ *
+ * נדרשת כדי שמסך ההתחברות ידע להציג "מתחברים" במקום את הכפתורים.
+ * בלי זה המשתמש חוזר מגוגל, רואה שוב את מסך ההתחברות בזמן שהחיבור עוד
+ * נקלט ברקע — ומסיק שזה נכשל. זה מה שדווח כ"לא חלק".
+ */
+export function hasPendingRedirect(): boolean {
+  try {
+    const at = Number(localStorage.getItem(REDIRECT_FLAG) ?? 0);
+    return at > 0 && Date.now() - at < REDIRECT_STALE_MS;
+  } catch {
+    return false;
+  }
+}
+
 /** ממתין להבטחה, ומוותר אחריה — כדי שכשל רשת לא יתקע את עליית האפליקציה. */
 async function withDeadline<T>(p: Promise<T>, ms: number): Promise<T | undefined> {
   return Promise.race([
