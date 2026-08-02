@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
+import { Archive, Briefcase, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
@@ -9,6 +9,7 @@ import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { watchLawyerCases, type LawyerCase } from "../lib/db";
 import { categoryIcon } from "../lib/category-icons";
+import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/lawyer-cases")({
   /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
@@ -52,6 +53,18 @@ function LawyerCases() {
     );
   }, [user]);
 
+  /*
+   * ארכיון. תיק שהסתיים המשיך לשבת ברשימה הפעילה ולתפוס מקום, וכך אחרי
+   * עשרה לקוחות הרשימה מתמלאת בתיקים גמורים ומאבדת את הערך שלה — לראות
+   * במבט אחד על מה עובדים עכשיו.
+   *
+   * ההפרדה כאן ולא במסך נפרד: הארכיון אינו יעד שמנווטים אליו, הוא מדף
+   * שנפתח כשצריך. סגור כברירת מחדל.
+   */
+  const active = rows.filter((c) => !c.closed);
+  const archived = rows.filter((c) => c.closed);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+
   return (
     <AppShell>
       <motion.header
@@ -79,7 +92,7 @@ function LawyerCases() {
               {t("loadFailedSub")}
             </p>
           </div>
-        ) : loaded && rows.length === 0 ? (
+        ) : loaded && active.length === 0 ? (
           <div className="rounded-3xl border border-dashed border-border p-8 text-center">
             <span className="mx-auto grid size-12 place-items-center rounded-full bg-gold/10 ring-1 ring-gold/20">
               <Briefcase className="size-5 text-gold-ink" strokeWidth={1.8} />
@@ -99,7 +112,7 @@ function LawyerCases() {
             </button>
           </div>
         ) : (
-          rows.map((c, i) => {
+          active.map((c, i) => {
             const Icon = categoryIcon(c.category);
             return (
               <motion.button
@@ -142,6 +155,80 @@ function LawyerCases() {
         )}
       </div>
 
+      {/*
+        * הארכיון. מוצג רק כשיש בו משהו — כותרת "ארכיון (0)" היא רעש.
+        */}
+      {archived.length > 0 && (
+        <div className="pb-4">
+          <button
+            type="button"
+            onClick={() => setArchiveOpen((v) => !v)}
+            aria-expanded={archiveOpen}
+            className="flex min-h-11 w-full items-center gap-2.5 rounded-2xl px-1 py-2 text-start"
+          >
+            <Archive className="size-4 shrink-0 text-muted-foreground" strokeWidth={2} aria-hidden />
+            <span className="flex-1 text-[13px] font-bold text-foreground">
+              {t("archiveTitle")}
+              <span className="ms-1.5 font-semibold text-muted-foreground">
+                ({archived.length})
+              </span>
+            </span>
+            <ChevronDown
+              className={cn(
+                "size-4 shrink-0 text-muted-foreground transition-transform",
+                archiveOpen && "rotate-180",
+              )}
+              aria-hidden
+            />
+          </button>
+
+          <AnimatePresence initial={false}>
+            {archiveOpen && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="overflow-hidden"
+              >
+                <div className="space-y-2 pt-2">
+                  {archived.map((c) => {
+                    const Icon = categoryIcon(c.category);
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() =>
+                          navigate({ to: "/lawyer-case/$caseId", params: { caseId: c.id } })
+                        }
+                        className="flex w-full items-center gap-3 rounded-[20px] border border-border px-3 py-2.5 text-start opacity-70 transition hover:opacity-100"
+                      >
+                        <Icon
+                          className="size-5 shrink-0 text-muted-foreground"
+                          strokeWidth={1.7}
+                          aria-hidden
+                        />
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-[13.5px] font-semibold text-foreground">
+                            {c.title}
+                          </p>
+                          <p className="truncate text-[11.5px] text-muted-foreground">
+                            {c.clientName || t("lawyerActiveClient")}
+                            {c.location ? ` · ${c.location}` : ""}
+                          </p>
+                        </div>
+                        <span className="shrink-0 rounded-full bg-foreground/8 px-2 py-0.5 text-[10px] font-bold text-muted-foreground">
+                          {t("archiveBadge")}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      )}
     </AppShell>
   );
 }

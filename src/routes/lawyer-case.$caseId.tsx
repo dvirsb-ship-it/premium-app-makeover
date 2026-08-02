@@ -13,6 +13,7 @@ import {
   caseImageUrl,
   categoryHasStatutoryCap,
   markMilestone,
+  reconcileClosedCase,
   readCaseMemo,
   watchMilestones,
   MILESTONE_ORDER,
@@ -151,6 +152,17 @@ function LawyerCaseDetail() {
   /* כשל אינו 'אין התקדמות' — לא מאפסים ציר זמן שכבר נטען */
   useEffect(() => watchMilestones(caseId, setMilestones, () => {}), [caseId]);
   const marked = new Set(milestones.map((m) => m.key));
+
+  /*
+   * ריפוי עצמי לתיקים שנתקעו: אבן הדרך האחרונה סומנה, אבל עדכון הסטטוס
+   * נכשל בשקט (לפני שהוסר ה-catch שבלע אותו) והתיק המשיך להופיע כפעיל.
+   * במקום תיקון ידני במסד, הפתיחה הבאה של התיק סוגרת אותו.
+   */
+  useEffect(() => {
+    if (!marked.has("closed")) return;
+    void reconcileClosedCase(caseId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [caseId, milestones.length]);
 
   function mark(key: MilestoneKey) {
     void markMilestone(caseId, key, msNote)

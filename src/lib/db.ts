@@ -934,8 +934,15 @@ export async function markMilestone(
    * הפעילים של עורך הדין, התערבב אצל הלקוח עם תיקים חיים, ונספר במשפך
    * כחיבור פעיל. אחרי עשרה לקוחות הרשימה הייתה מתמלאת בתיקים גמורים.
    */
+  /*
+   * ה-catch שהיה כאן בלע את הכשל, והתוצאה הייתה בדיוק מה שדווח: אבן
+   * הדרך נשמרה ומוצגת כ"סומן", אבל התיק נשאר "נוצר חיבור" והמשיך לתפוס
+   * מקום ברשימת התיקים הפעילים. מהמסך זה נראה כאילו הכל עבד.
+   *
+   * עכשיו הכשל עולה החוצה, והמסך אומר שהסגירה לא הושלמה.
+   */
   if (key === "closed") {
-    await updateDoc(doc(fbDb(), "cases", caseId), { status: "closed" }).catch(() => {});
+    await updateDoc(doc(fbDb(), "cases", caseId), { status: "closed" });
   }
 
   // התראה ללקוח — זה כל הטעם: שהוא לא ישאל "מה קורה עם התיק שלי"
@@ -947,6 +954,28 @@ export async function markMilestone(
       body: note?.trim() || MILESTONE_BODIES[key],
       caseId,
     });
+  }
+}
+
+/**
+ * סוגר תיק שאבן הדרך האחרונה שלו סומנה אך הסטטוס לא התעדכן.
+ *
+ * נדרש בגלל תיקים שנתקעו לפני שהכשל השקט תוקן: מסמך אבן הדרך "closed"
+ * קיים, אבל הסטטוס נשאר "connected" והתיק ממשיך לתפוס מקום ברשימה
+ * הפעילה. במקום לתקן ידנית במסד, המסך מרפא את עצמו בפתיחה הבאה.
+ *
+ * לעולם לא זורקת — זו פעולת תחזוקה, וכשל בה לא אמור להפריע לצפייה בתיק.
+ */
+export async function reconcileClosedCase(caseId: string): Promise<boolean> {
+  try {
+    const ms = await getDoc(doc(fbDb(), "cases", caseId, "milestones", "closed"));
+    if (!ms.exists()) return false;
+    const snap = await getDoc(doc(fbDb(), "cases", caseId));
+    if (!snap.exists() || (snap.data() as CaseDoc).status === "closed") return false;
+    await updateDoc(doc(fbDb(), "cases", caseId), { status: "closed" });
+    return true;
+  } catch {
+    return false;
   }
 }
 
