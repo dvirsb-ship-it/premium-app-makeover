@@ -14,7 +14,17 @@ import { useAppStore } from "./store";
  */
 export function useShowsBottomNav(): boolean {
   const { pathname } = useLocation();
-  const { role } = useAppStore();
-  // בלי תפקיד אין למה לנווט — זה אורח שטרם בחר צד
-  return role !== null && routeShowsNav(pathname);
+  const { role, user } = useAppStore();
+  /*
+   * מחובר = צריך ניווט. התפקיד קובע רק אילו לשוניות מוצגות, לא אם קיים
+   * תפריט בכלל.
+   *
+   * התנאי הקודם היה role !== null בלבד, וזה נשבר במציאות: משתמש שהתחבר
+   * ושהתפקיד שלו לא הוחזר מהשרת — כשל רשת, או מסמך בלי שדה role — נשאר
+   * בתוך האפליקציה בלי שום דרך לנווט. בדיוק המצב שבו הוא הכי צריך אותה.
+   *
+   * גם role לבדו נשאר תקף, כי הוא נטען מהמטמון המקומי מיד ומונע הבהוב
+   * עד ש-Firebase מסיים לאמת את המשתמש.
+   */
+  return (!!user || role !== null) && routeShowsNav(pathname);
 }

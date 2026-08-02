@@ -89,11 +89,20 @@ function Auth() {
   const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
   const phoneRe = /^[+\d][\d\s\-().]{6,}$/;
 
-  // מי שכבר מחובר לא צריך לראות מסך התחברות — ישר פנימה
+  /*
+   * מי שכבר מחובר לא צריך לראות מסך התחברות — ישר פנימה.
+   *
+   * זה גם המסלול של כל התחברות בנייד: ההפניה מגוגל טוענת את העמוד מחדש,
+   * ולכן startedSignIn מתאפס והתנאי הזה הוא שמנתב בפועל.
+   *
+   * היעד היה "/cases" — רשימת התיקים — ולכן כל לקוח נחת על רשימה במקום
+   * על מסך הבית שלו. הבית הוא "/": שם התיק הפעיל, מצב הפנייה ומה הלאה.
+   * לעורך דין "/lawyer" הוא הבית המקביל, ולכן הוא נשאר.
+   */
   const startedSignIn = useRef(false);
   useEffect(() => {
     if (authReady && user && !startedSignIn.current) {
-      navigate({ to: role === "lawyer" ? "/lawyer" : "/cases", replace: true });
+      navigate({ to: role === "lawyer" ? "/lawyer" : "/", replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, user]);

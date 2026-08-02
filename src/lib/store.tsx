@@ -26,6 +26,7 @@ import {
   markNotificationRead,
   watchLawyerProfile,
   readUserRole,
+  watchUserRole,
   watchLawyerFeed,
   watchMyCases,
   watchNotifications,
@@ -167,6 +168,27 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       unsubAuth?.();
     };
   }, []);
+
+  /*
+   * התפקיד — מנוי חי, ולא רק הקריאה החד-פעמית שבאפקט ההתחברות.
+   *
+   * הקריאה שם עלולה להיכשל ברגע ההתחברות, ואז המשתמש נשאר בלי תפקיד עד
+   * לטעינה הבאה: הפיד ריק, ובלי תיקון נוסף גם התפריט התחתון נעלם. המנוי
+   * מתקן את עצמו ברגע שהרשת חוזרת, ומעדכן גם אם התפקיד השתנה במכשיר אחר.
+   */
+  useEffect(() => {
+    if (!user) return;
+    return watchUserRole(
+      user.uid,
+      (r) => {
+        setRoleState(r);
+        try { localStorage.setItem(ROLE_CACHE_KEY, r); } catch { /* ignore */ }
+      },
+      () => {
+        /* נשארים עם מה שכבר ידוע — ההתאוששות תגיע עם החיבור הבא */
+      },
+    );
+  }, [user]);
 
   // תיקי הלקוח — בזמן אמת
   useEffect(() => {

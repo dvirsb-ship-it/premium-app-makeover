@@ -60,6 +60,30 @@ export async function writeUserRole(uid: string, role: Role | null): Promise<voi
   await setDoc(doc(fbDb(), "users", uid), { role }, { merge: true });
 }
 
+/**
+ * מנוי חי על התפקיד.
+ *
+ * readUserRole היא קריאה חד-פעמית, וכשהיא נכשלת — רשת איטית ברגע
+ * ההתחברות — המשתמש נשאר בלי תפקיד עד לטעינה הבאה של האפליקציה. זה לא
+ * תיאורטי: זה מה שקרה בהתחברות אמיתית, והתוצאה הייתה משתמש מחובר
+ * שנחת על רשימת תיקים בלי שום דרך לנווט משם.
+ */
+export function watchUserRole(
+  uid: string,
+  cb: (role: Role) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  return onSnapshot(
+    doc(fbDb(), "users", uid),
+    (snap) => {
+      const r = snap.exists() ? (snap.data().role as Role | undefined) : undefined;
+      // תפקיד חסר במסמך אינו סיבה למחוק תפקיד שכבר ידוע לנו מהמטמון
+      if (r === "client" || r === "lawyer") cb(r);
+    },
+    (err) => onError?.(err),
+  );
+}
+
 /* ---------- cases ---------- */
 
 interface CaseDoc {
