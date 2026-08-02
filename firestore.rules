@@ -183,7 +183,13 @@ service cloud.firestore {
        */
       allow update: if (
           signedIn() && request.auth.uid == uid
-          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['reviewedAt'])
+          /*
+           * registryChecked* הוא התיעוד של הבדיקה הידנית מול פנקס הלשכה.
+           * הוא חייב להיות חסום לעורך הדין עצמו בדיוק כמו reviewedAt —
+           * אחרת הראיה שהאישור נבדק נכתבת בידי מי שהיא אמורה לבדוק.
+           */
+          && !request.resource.data.diff(resource.data).affectedKeys()
+               .hasAny(['reviewedAt', 'registryCheckedAt', 'registryCheckedBy'])
           && (
             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
             || request.resource.data.status == 'pending'
@@ -192,7 +198,7 @@ service cloud.firestore {
         || (
           isSuperAdmin()
           && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['status', 'reviewedAt'])
+               .hasOnly(['status', 'reviewedAt', 'registryCheckedAt', 'registryCheckedBy'])
         );
       allow delete: if false;
     }

@@ -157,6 +157,17 @@ function VerificationQueue() {
    * צפופה היא תרחיש אמיתי, ולכן יש שלב אישור עם השם לפני הביצוע.
    */
   const [confirming, setConfirming] = useState<{ rec: VerificationRecord; status: VerificationStatus } | null>(null);
+  /*
+   * שער הבדיקה מול הפנקס. אישור עורך דין על סמך מסמך שהוא עצמו העלה
+   * אינו אימות — הוא אמון. את הפנקס אי אפשר לבדוק אוטומטית (המאגר
+   * הפתוח מכיל שמות בלבד, והפנקס החי חסום), ולכן הבדיקה ידנית והשער
+   * הזה קיים כדי שלא תישכח ברגע לחוץ.
+   */
+  const [registryChecked, setRegistryChecked] = useState(false);
+  // כל בקשה נבדקת בנפרד — סימון שנשאר מהקודמת הוא בדיוק מה שהשער בא למנוע
+  useEffect(() => {
+    setRegistryChecked(false);
+  }, [confirming?.rec.id]);
   /** תוצאת ההרצה היבשה של המחיקה — מה היה נמחק, בלי שנמחק. */
   const [preview, setPreview] = useState<{ cases: number; paths: string[]; storage: string[] } | null>(null);
   /* תוצאת בדיקת המסמכים, לפי uid — כדי שלא תרוץ מחדש בכל רינדור */
@@ -180,7 +191,8 @@ function VerificationQueue() {
   }
 
   function handleUpdate(id: string, status: VerificationStatus) {
-    void updateVerification(id, status)
+    const checkedBy = user?.email ?? "admin";
+    void updateVerification(id, status, status === "approved" ? checkedBy : undefined)
       .then(async () => {
         toast.success(status === "approved" ? t("approvedToast") : t("rejectedToast"));
         /*
@@ -491,6 +503,19 @@ function VerificationQueue() {
                     * מנתקת חיבור קיים: לנתק לקוח מעורך הדין שלו באמצע
                     * תיק זה לפגוע בלקוח, לא להגן עליו.
                     */}
+                  {/*
+                    * הראיה לכך שהאישור לא ניתן על סמך מסמך שהוא העלה בעצמו.
+                    * בקשות שאושרו לפני שהשער נוסף פשוט לא יציגו את השורה —
+                    * ואי־הצגה היא המידע: לא נרשמה בדיקה.
+                    */}
+                  {rec.status === "approved" && rec.registryCheckedAt && (
+                    <p className="mt-3 rounded-xl bg-success/10 px-3 py-2 text-[11.5px] font-semibold leading-relaxed text-success">
+                      {t("registryCheckedOn")}{" "}
+                      {new Date(rec.registryCheckedAt).toLocaleDateString("he-IL")}
+                      {rec.registryCheckedBy ? ` · ${rec.registryCheckedBy}` : ""}
+                    </p>
+                  )}
+
                   {rec.status === "approved" && (
                     <div className="mt-4">
                       <button
@@ -978,11 +1003,45 @@ function VerificationQueue() {
                       : "confirmRejectBody",
                 )}
               </p>
+
+              {/*
+                * שער הפנקס — רק באישור. המסמכים שהועלו הם מה שהוא מסר
+                * על עצמו; הפנקס הוא המקור. אין דרך אוטומטית לבדוק אותו,
+                * ולכן הכפתור נעול עד שהבדיקה נעשתה בפועל.
+                */}
+              {confirming.status === "approved" && (
+                <div className="mt-4 rounded-2xl border border-gold/30 bg-gold/[0.06] p-4 text-start">
+                  <p className="text-[12px] font-bold text-foreground">
+                    {t("registryGateTitle")}
+                  </p>
+                  <a
+                    href="https://www.israelbar.org.il/lawyer_list.asp"
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="mt-2 inline-flex text-[12px] font-bold text-gold underline underline-offset-2"
+                  >
+                    {t("registryGateOpen")}
+                  </a>
+                  <label className="mt-3 flex cursor-pointer items-start gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={registryChecked}
+                      onChange={(e) => setRegistryChecked(e.target.checked)}
+                      className="mt-0.5 size-4 shrink-0 accent-[#D4AF37]"
+                    />
+                    <span className="text-[11.5px] leading-relaxed text-muted-foreground">
+                      {t("registryGateConfirm")}
+                    </span>
+                  </label>
+                </div>
+              )}
+
               <div className="mt-6 space-y-2.5">
                 <button
                   type="button"
+                  disabled={confirming.status === "approved" && !registryChecked}
                   onClick={() => handleUpdate(confirming.rec.id, confirming.status)}
-                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold"
+                  className="btn-gold w-full rounded-2xl py-3.5 text-[15px] font-bold disabled:cursor-not-allowed disabled:opacity-40"
                 >
                   {t(
                     confirming.status === "approved"

@@ -31,6 +31,16 @@ export interface VerificationRecord {
   submittedAt: number;
   status: VerificationStatus;
   reviewedAt?: number;
+  /*
+   * הבדיקה הידנית מול פנקס לשכת עורכי הדין.
+   *
+   * אין דרך אוטומטית: המאגר הפתוח מכיל שמות וכתובות בלבד — בלי מספרי
+   * רישיון ובלי סטטוס — והפנקס החי חסום לגישה תוכניתית. לכן האימות
+   * נעשה בעיניים, וכאן נרשם שהוא נעשה, מתי ועל ידי מי. זו התשובה
+   * לשאלה "על סמך מה אישרת את האדם הזה".
+   */
+  registryCheckedAt?: number;
+  registryCheckedBy?: string;
   files?: { barCard?: string; diploma?: string };
 }
 
@@ -117,14 +127,23 @@ export function watchMyVerification(
   );
 }
 
-/** החלטת אדמין + התראה לעורך הדין. */
+/**
+ * החלטת אדמין + התראה לעורך הדין.
+ *
+ * באישור נרשמת גם הבדיקה מול הפנקס: מי בדק ומתי. זה לא שדה קישוט —
+ * זו הראיה היחידה שיש לנו לכך שהאישור לא ניתן על סמך מסמך שהועלה.
+ */
 export async function updateVerification(
   uid: string,
   status: VerificationStatus,
+  registryCheckedBy?: string,
 ): Promise<void> {
   await updateDoc(doc(fbDb(), "verifications", uid), {
     status,
     reviewedAt: Date.now(),
+    ...(status === "approved" && registryCheckedBy
+      ? { registryCheckedAt: Date.now(), registryCheckedBy }
+      : {}),
   });
   await notify(
     uid,

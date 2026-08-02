@@ -90,6 +90,34 @@ describe("verifications", () => {
     );
   });
 
+  it("בעל הבקשה אינו יכול להעיד על עצמו שנבדק מול הפנקס", async () => {
+    /*
+     * זו הראיה היחידה לכך שהאישור לא ניתן על סמך מסמך שהוא עצמו העלה.
+     * אם הוא יכול לכתוב אותה — אין לה שום ערך.
+     */
+    await assertFails(
+      updateDoc(doc(as("lawyerPending"), "verifications/lawyerPending"), {
+        registryCheckedAt: Date.now(),
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(as("lawyerPending"), "verifications/lawyerPending"), {
+        registryCheckedBy: "justask.adv@gmail.com",
+      }),
+    );
+  });
+
+  it("אדמין-על רושם את הבדיקה מול הפנקס יחד עם האישור", async () => {
+    await assertSucceeds(
+      updateDoc(doc(as("super", SUPER), "verifications/lawyerPending"), {
+        status: "approved",
+        reviewedAt: Date.now(),
+        registryCheckedAt: Date.now(),
+        registryCheckedBy: "justask.adv@gmail.com",
+      }),
+    );
+  });
+
   it("אדמין-על מאשר; אדמין-צופה לא", async () => {
     await assertFails(
       updateDoc(doc(as("viewer", VIEWER), "verifications/lawyerPending"), {

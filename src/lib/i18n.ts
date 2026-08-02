@@ -736,6 +736,25 @@ export const strings = {
    * העובדה שפרטי הקשר נחשפים רק אחרי הבחירה — זו ההבטחה המרכזית ללקוח,
    * ולכן היא נאמרת במקום שבו הוא מחכה, ולא רק בתקנון.
    */
+  /*
+   * שער הבדיקה מול הפנקס. הנוסח מדויק בכוונה: המסמכים הם מה שעורך הדין
+   * מסר על עצמו, והפנקס הוא המקור. אין דרך אוטומטית לבדוק אותו — המאגר
+   * הפתוח מכיל שמות וכתובות בלבד, בלי מספרי רישיון ובלי סטטוס.
+   */
+  registryGateTitle: {
+    he: "לפני האישור — בדיקה מול פנקס הלשכה",
+    en: "Before approving — check the Bar registry",
+  },
+  registryGateOpen: {
+    he: "פתיחת פנקס עורכי הדין ←",
+    en: "Open the Bar registry ←",
+  },
+  registryGateConfirm: {
+    he: "בדקתי בפנקס הלשכה ששמו ומספר הרישיון תואמים, ושהרישיון בתוקף.",
+    en: "I checked the Bar registry: the name and licence number match, and the licence is valid.",
+  },
+  registryCheckedOn: { he: "אומת מול הפנקס ב־", en: "Registry-checked on" },
+
   journeyTitleActive: { he: "איפה הפנייה שלך עומדת", en: "Where your matter stands" },
   journeyTitleEmpty: { he: "מה יקרה אחרי שתשתפו", en: "What happens after you share" },
   journeyStep1: {
