@@ -747,6 +747,29 @@ export const strings = {
    * במכוון — כולל מה נשלח, לשם מה, ואיפה. עדיף לומר יותר.
    */
   /* ארכיון התיקים שהסתיימו — מדף שנפתח כשצריך, לא מסך נפרד */
+  /*
+   * תרגום ההצעות לכסף. אחוז מפיצוי אינו מספר שלקוח יכול להעריך, ובוודאי
+   * אינו בר-השוואה לתעריף שעתי או לסכום קבוע. הנוסח נזהר לא להבטיח דבר:
+   * זו אריתמטיקה על סכום שהלקוח בחר, ולא הערכה של שווי התיק.
+   */
+  meansTitle: { he: "מה זה אומר בכסף", en: "What this means in money" },
+  meansSub: {
+    he: "בחרו סכום להמחשה, וראו מה כל הצעה אומרת בפועל.",
+    en: "Pick an example amount and see what each offer actually means.",
+  },
+  meansFee: { he: "שכר טרחה:", en: "Fee:" },
+  meansLeft: { he: "נשאר לכם:", en: "You keep:" },
+  meansExpAdv: { he: "+ הוצאות\nיופחתו מהפיצוי", en: "+ expenses\ndeducted from award" },
+  meansExpClient: { he: "+ הוצאות\nעליכם בנפרד", en: "+ expenses\npaid by you" },
+  meansHourly: {
+    he: "הצעה לפי שעה אינה ניתנת לתרגום כאן — הסכום הסופי תלוי בהיקף העבודה. שאלו את עורך הדין להערכת שעות.",
+    en: "An hourly offer can't be translated here — the total depends on the work involved. Ask the lawyer for an hours estimate.",
+  },
+  meansDisclaimer: {
+    he: "הסכום שבחרתם הוא דוגמה בלבד ואינו הערכה של שווי התיק. הסכום בפועל ייקבע בהליך, והמחייב הוא הסכם שכר טרחה חתום.",
+    en: "The amount you picked is an example only, not an estimate of your case's value. The actual amount is determined in the proceeding; the signed fee agreement governs.",
+  },
+
   archiveTitle: { he: "ארכיון", en: "Archive" },
   archiveBadge: { he: "הסתיים", en: "Closed" },
 

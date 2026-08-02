@@ -1,5 +1,7 @@
 import { motion } from "motion/react";
+import { useState } from "react";
 import { useT } from "../lib/i18n";
+import { cn } from "../lib/utils";
 import type { CaseOffer, FeeModel, Lawyer } from "../lib/types";
 
 /**
@@ -107,11 +109,121 @@ export function OfferComparison({
         })}
       </div>
 
+      <WhatItMeans rows={withOffer} />
+
       {noOffer > 0 && (
         <p className="mt-5 border-t border-border pt-3 text-[11.5px] leading-relaxed text-muted-foreground">
           {noOffer} · {t("compareNoOffers")}
         </p>
       )}
     </motion.section>
+  );
+}
+
+/** סכומי דוגמה — עגולים בכוונה, כדי שייקראו כהמחשה ולא כתחזית. */
+const EXAMPLES = [50000, 100000, 250000] as const;
+
+const shekel = (n: number) => `₪${Math.round(n).toLocaleString("he-IL")}`;
+
+/**
+ * "מה זה אומר בכסף".
+ *
+ * אחוז מפיצוי הוא מספר שאין ללקוח דרך להעריך: הוא אינו יודע מה הפיצוי,
+ * ובוודאי אינו יכול להשוות 13% מול ₪500 לשעה מול סכום קבוע. שלוש
+ * ההצעות נמדדות ביחידות שונות, וכך הבחירה נעשית לפי מי שנשמע נחמד יותר.
+ *
+ * כאן הלקוח בוחר סכום דוגמה, וכל הצעה מתורגמת לאותה יחידה: כמה שכר
+ * הטרחה, וכמה נשאר אצלו. זו אריתמטיקה על מספר שהוא בחר — לא הערכה של
+ * שווי התיק, ואנחנו אומרים את זה במפורש. תיק שווה אנחנו לא יודעים
+ * להעריך, ולא נעמיד פנים שכן.
+ */
+function WhatItMeans({
+  rows,
+}: {
+  rows: { lawyer: Lawyer; offer: CaseOffer }[];
+}) {
+  const t = useT();
+  const [example, setExample] = useState<number>(EXAMPLES[1]);
+
+  // שכר שעתי אינו ניתן לתרגום בלי היקף שעות — לא נמציא אחד
+  const priceable = rows.filter((r) => r.offer.model !== "hourly");
+  const hourly = rows.filter((r) => r.offer.model === "hourly");
+  if (priceable.length === 0) return null;
+
+  return (
+    <div className="mt-6 border-t border-border pt-4">
+      <p className="text-[13px] font-bold text-foreground">{t("meansTitle")}</p>
+      <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+        {t("meansSub")}
+      </p>
+
+      <div className="mt-3 flex gap-1.5" role="group" aria-label={t("meansTitle")}>
+        {EXAMPLES.map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setExample(v)}
+            aria-pressed={example === v}
+            className={cn(
+              "min-h-11 flex-1 rounded-2xl px-2 py-2 text-[12.5px] font-bold transition",
+              example === v
+                ? "chip-gold"
+                : "border border-border text-muted-foreground",
+            )}
+          >
+            {shekel(v)}
+          </button>
+        ))}
+      </div>
+
+      <div className="mt-3 space-y-2">
+        {priceable.map(({ lawyer, offer }) => {
+          const fee =
+            offer.model === "contingency" ? (example * offer.amount) / 100 : offer.amount;
+          const left = example - fee;
+          return (
+            <div
+              key={lawyer.id}
+              className="flex items-center gap-2.5 rounded-2xl bg-foreground/[0.04] px-3 py-2.5"
+            >
+              <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full text-[10px] font-black">
+                {lawyer.initials}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] text-foreground">
+                  <span className="text-muted-foreground">{t("meansFee")} </span>
+                  <span className="font-bold" dir="ltr">{shekel(fee)}</span>
+                </p>
+                <p className="text-[12.5px] text-foreground">
+                  <span className="text-muted-foreground">{t("meansLeft")} </span>
+                  <span className="font-black text-success" dir="ltr">
+                    {shekel(Math.max(0, left))}
+                  </span>
+                </p>
+              </div>
+              {/*
+                * ההוצאות אינן חלק מהחשבון — הן משתנה שאיננו יודעים. מציינים
+                * את קיומן במפורש, כי זה בדיוק המקום שבו לקוחות מופתעים.
+                */}
+              {offer.expenses !== "included" && (
+                <span className="shrink-0 text-[10.5px] font-semibold leading-tight text-warning-ink">
+                  {t(offer.expenses === "advanced" ? "meansExpAdv" : "meansExpClient")}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {hourly.length > 0 && (
+        <p className="mt-2.5 rounded-2xl bg-foreground/[0.04] px-3 py-2.5 text-[11.5px] leading-relaxed text-muted-foreground">
+          {t("meansHourly")}
+        </p>
+      )}
+
+      <p className="mt-3 text-[10.5px] leading-relaxed text-muted-foreground/80">
+        {t("meansDisclaimer")}
+      </p>
+    </div>
   );
 }
