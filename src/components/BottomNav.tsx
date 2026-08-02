@@ -3,6 +3,7 @@ import { motion } from "motion/react";
 import { Home, FolderOpen, Briefcase, Scale, User } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../lib/store";
+import { useShowsBottomNav } from "../lib/use-bottom-nav";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -27,7 +28,10 @@ export function BottomNav() {
   const location = useLocation();
   const { role } = useAppStore();
   const t = useT();
+  const show = useShowsBottomNav();
   const tabs = role === "lawyer" ? lawyerTabs : clientTabs;
+
+  if (!show) return null;
 
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-5 pb-4">

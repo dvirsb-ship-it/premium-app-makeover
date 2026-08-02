@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Briefcase, ChevronLeft, ChevronRight } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
@@ -54,7 +53,7 @@ function LawyerCases() {
   }, [user]);
 
   return (
-    <AppShell withNav>
+    <AppShell>
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -143,7 +142,6 @@ function LawyerCases() {
         )}
       </div>
 
-      <BottomNav />
     </AppShell>
   );
 }

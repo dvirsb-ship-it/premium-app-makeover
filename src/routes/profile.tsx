@@ -16,7 +16,6 @@ import {
   Sun,
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { useSettings } from "../lib/settings";
@@ -58,7 +57,7 @@ function Profile() {
   const flip = dir === "ltr" ? "rotate-180" : "";
 
   return (
-    <AppShell withNav>
+    <AppShell>
       <Page>
         <h1 className="pb-6 pt-8 text-2xl font-black text-foreground">
           {t("profile")}
@@ -271,7 +270,6 @@ function Profile() {
           </Rise>
         </Stagger>
       </Page>
-      <BottomNav />
     </AppShell>
   );
 }

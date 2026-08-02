@@ -15,7 +15,6 @@ import {
 import { AppShell } from "../components/AppShell";
 
 import { BrandMark } from "../components/BrandMark";
-import { BottomNav } from "../components/BottomNav";
 import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
@@ -176,7 +175,6 @@ function Index() {
         </Stagger>
       </div>
 
-      {role !== null && <BottomNav />}
     </AppShell>
   );
 }
@@ -219,7 +217,7 @@ function ClientHome() {
   ];
 
   return (
-    <AppShell withNav>
+    <AppShell>
       <AnimatePresence>
         {done && (
           <SubmittedModal

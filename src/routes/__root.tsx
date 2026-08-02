@@ -15,6 +15,7 @@ import { AppStoreProvider } from "../lib/store";
 import { SettingsProvider } from "../lib/settings";
 import { Toaster } from "../components/ui/sonner";
 import { Splash } from "../components/Splash";
+import { BottomNav } from "../components/BottomNav";
 import { GlobalHaptics } from "../components/GlobalHaptics";
 import handshakeAsset from "../../public/videos/handshake.mp4.asset.json";
 import dealAsset from "../../public/videos/deal.mp4.asset.json";
@@ -161,6 +162,12 @@ function RootComponent() {
           >
             {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
             <Outlet />
+            {/*
+              תפריט הניווט מרונדר כאן פעם אחת, ולא בכל מסך בנפרד.
+              כשכל מסך רינדר אותו בעצמו הוא נשכח — במסך הבית של הלקוח
+              ובמסכי פרטי התיק — והתוצאה הייתה חוויה שונה בין הצדדים.
+            */}
+            <BottomNav />
           </Splash>
           <GlobalHaptics />
           <Toaster />

@@ -1,24 +1,28 @@
 import type { ReactNode } from "react";
 import { cn } from "../lib/utils";
+import { useShowsBottomNav } from "../lib/use-bottom-nav";
 
 /**
  * Mobile-first app canvas. Follows the global theme (light "studio white" or
  * the cinematic dark theme) via design tokens so every screen has a matching
  * white and dark version.
+ *
+ * הריפוד התחתון נגזר מאותה החלטה שמרנדרת את התפריט עצמו, ולא מ-prop
+ * שכל מסך מעביר בעצמו — כך אי אפשר לשמור מקום לתפריט שלא קיים, וזה
+ * בדיוק מה שקרה במסך הבית של הלקוח.
  */
 export function AppShell({
   children,
   className,
   outerClassName,
-  withNav = false,
   bare = false,
 }: {
   children: ReactNode;
   className?: string;
   outerClassName?: string;
-  withNav?: boolean;
   bare?: boolean;
 }) {
+  const withNav = useShowsBottomNav();
   return (
     <div
       className={cn(

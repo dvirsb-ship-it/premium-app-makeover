@@ -3,7 +3,6 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
 import { categoryIcon } from "../lib/category-icons";
 import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
 import { fbAuth } from "../lib/firebase";
@@ -105,7 +104,7 @@ function LawyerFeed() {
     );
   }, [user]);
   return (
-    <AppShell withNav>
+    <AppShell>
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -425,7 +424,6 @@ function LawyerFeed() {
         ))}
       </div>
 
-      <BottomNav />
       {/* silence unused var warnings when lang changes */}
       <span hidden>{lang}</span>
     </AppShell>

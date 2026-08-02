@@ -2,7 +2,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { BottomNav } from "../components/BottomNav";
 import { EmptyState } from "../components/EmptyState";
 import { NotificationBell } from "../components/NotificationBell";
 import { CaseListSkeleton } from "../components/Skeleton";
@@ -46,7 +45,7 @@ function Cases() {
   }, []);
 
   return (
-    <AppShell withNav>
+    <AppShell>
       <Page>
         <div className="flex items-center justify-between pb-6 pt-8">
           <div>
@@ -139,7 +138,6 @@ function Cases() {
           </Stagger>
         )}
       </Page>
-      <BottomNav />
     </AppShell>
   );
 }
