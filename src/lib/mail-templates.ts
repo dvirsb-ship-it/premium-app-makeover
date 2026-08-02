@@ -12,6 +12,25 @@ export const APP_ORIGIN = "https://app.justask.co.il";
 /** הכתובת השולחת. חייבת להיות על דומיין מאומת ב-Resend. */
 export const MAIL_FROM = "JustAsk <no-reply@justask.co.il>";
 
+/**
+ * הלוגו בראש המייל. גרסת 128px ייעודית (19KB) — לא אייקון האפליקציה
+ * המלא (1.1MB): לקוחות מייל מורידים את התמונה בכל פתיחה.
+ * כתובת מלאה ולא יחסית — במייל אין origin.
+ */
+export const LOGO_URL = `${APP_ORIGIN}/email-logo.png`;
+
+/*
+ * צבעי המותג, כערכי hex קשיחים: ב-CSS של האפליקציה הם oklch מתוך
+ * טוקנים, אבל לקוחות מייל לא מבינים oklch ולא משתני CSS.
+ * הזהב הכותב (gold-ink) ולא הזהב הממלא — טקסט זהב על לבן חייב לעבור AA,
+ * מאותו כלל שקבוע ב-styles.css.
+ */
+const INK = "#18181b";
+const GOLD_FILL = "#d4af37";
+const GOLD_INK = "#8a6a15";
+const MUTED = "#71717a";
+const SMALL_PRINT = "#a1a1aa";
+
 export interface MailContent {
   subject: string;
   html: string;
@@ -54,14 +73,19 @@ function shell(bodyHtml: string, unsubscribeUrl: string): string {
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 12px;">
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;">
-<tr><td dir="rtl" style="padding:28px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:#18181b;text-align:right;">
+<tr><td align="center" style="padding:32px 24px 0;">
+<img src="${LOGO_URL}" width="64" height="64" alt="JustAsk" style="display:block;border-radius:15px;">
+<div style="margin-top:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.2px;color:${INK};">Just<span style="color:${GOLD_INK};">Ask</span></div>
+</td></tr>
+<tr><td dir="rtl" style="padding:24px 24px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:${INK};text-align:right;">
 ${bodyHtml}
 </td></tr>
 </table>
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
-<tr><td dir="rtl" style="padding:16px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:12px;color:#71717a;text-align:right;line-height:1.6;">
-JustAsk — התאמה בין נפגעים לעורכי דין.<br>
-<a href="${unsubscribeUrl}" style="color:#71717a;">להפסיק לקבל מיילים כאלה</a>
+<tr><td dir="rtl" style="padding:18px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:11px;color:${SMALL_PRINT};text-align:right;line-height:1.7;">
+המייל הזה נשלח אליך כי יש לך חשבון ב-JustAsk, והוא נוגע לפעילות בחשבון או בתיק שלך.<br>
+JustAsk — פלטפורמה להתאמה בין נפגעים לעורכי דין. הבדיקה הראשונית אינה ייעוץ משפטי ואינה יוצרת יחסי עו"ד–לקוח.<br>
+<a href="${unsubscribeUrl}" style="color:${SMALL_PRINT};">להפסיק לקבל מיילים כאלה</a> · © JustAsk
 </td></tr>
 </table>
 </td></tr>
@@ -72,7 +96,8 @@ JustAsk — התאמה בין נפגעים לעורכי דין.<br>
 
 /** כפתור. <a> עם padding ולא <button> — כפתורי HTML לא נלחצים במייל. */
 function button(label: string, url: string): string {
-  return `<a href="${url}" style="display:inline-block;background:#18181b;color:#ffffff;text-decoration:none;padding:12px 28px;border-radius:999px;font-weight:700;font-size:15px;">${escapeHtml(label)}</a>`;
+  // זהב ממלא עם דיו כהה — btn-gold של האפליקציה, בגרסה שמייל מבין
+  return `<a href="${url}" style="display:inline-block;background:${GOLD_FILL};color:${INK};text-decoration:none;padding:12px 28px;border-radius:999px;font-weight:700;font-size:15px;">${escapeHtml(label)}</a>`;
 }
 
 /** דף ההגדרות שבו מכבים את הערוץ. כל מייל חייב לשאת אותו. */
@@ -103,7 +128,7 @@ ${button(cta, url)}`,
     unsub,
   );
 
-  const text = `${msg.title}\n\n${msg.body}\n\n${cta}: ${url}\n\nלהפסיק לקבל מיילים כאלה: ${unsub}`;
+  const text = `JustAsk\n\n${msg.title}\n\n${msg.body}\n\n${cta}: ${url}\n\nהמייל נשלח אליך כי יש לך חשבון ב-JustAsk. להפסיק לקבל מיילים כאלה: ${unsub}`;
 
   return { subject: msg.title, html, text };
 }

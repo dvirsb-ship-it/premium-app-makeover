@@ -5,6 +5,7 @@ import {
   escapeHtml,
   unsubscribeUrl,
   APP_ORIGIN,
+  LOGO_URL,
   MAIL_FROM,
 } from "./mail-templates";
 
@@ -85,5 +86,29 @@ describe("buildNotificationMail", () => {
 describe("כתובת השולח", () => {
   it("על הדומיין המאומת ב-Resend", () => {
     expect(MAIL_FROM).toContain("@justask.co.il");
+  });
+});
+
+describe("מיתוג", () => {
+  const mail = buildNotificationMail({ title: "כותרת", body: "גוף" });
+
+  it("הלוגו בראש המייל, בכתובת מלאה עם alt", () => {
+    expect(LOGO_URL).toMatch(/^https:\/\//);
+    expect(mail.html).toContain(`src="${LOGO_URL}"`);
+    expect(mail.html).toContain('alt="JustAsk"');
+  });
+
+  it("הלוגו הוא הגרסה הקטנה, לא אייקון האפליקציה המלא", () => {
+    expect(LOGO_URL).toContain("email-logo");
+    expect(LOGO_URL).not.toContain("app-icon");
+  });
+
+  it("המלל התחתון: למה התקבל המייל, ושהבדיקה אינה ייעוץ משפטי", () => {
+    expect(mail.html).toContain("כי יש לך חשבון ב-JustAsk");
+    expect(mail.html).toContain("אינה ייעוץ משפטי");
+  });
+
+  it("גם גרסת הטקסט אומרת למה התקבל המייל", () => {
+    expect(mail.text).toContain("כי יש לך חשבון ב-JustAsk");
   });
 });
