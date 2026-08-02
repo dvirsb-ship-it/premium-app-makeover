@@ -67,7 +67,7 @@ export async function requireIdentity(
 
 let cachedToken: { value: string; expiresAt: number } | null = null;
 
-export async function accessToken(): Promise<string> {
+async function accessToken(): Promise<string> {
   if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.value;
   const res = await fetch(
     "http://metadata.google.internal/computeMetadata/v1/instance/service-accounts/default/token",
