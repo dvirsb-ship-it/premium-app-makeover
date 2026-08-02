@@ -16,6 +16,7 @@ import {
   Sparkles,
   Upload,
   UserRound,
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
@@ -30,7 +31,11 @@ import { SPECIALTIES, SPEC_GROUPS, type SpecId as SharedSpecId } from "../lib/sp
 import { SPEC_ICON } from "../lib/category-icons";
 import { isValidIsraeliId } from "../lib/legal";
 import { cn } from "../lib/utils";
-import { enqueueVerification, type VerificationRecord } from "../lib/verification-queue";
+import {
+  enqueueVerification,
+  selfieVideoProblem,
+  type VerificationRecord,
+} from "../lib/verification-queue";
 import { fbAuth } from "../lib/firebase";
 import { notifySubmissionFn } from "../lib/ai/intake.functions";
 import { exportVerificationPdf } from "../lib/pdf-export";
@@ -89,6 +94,8 @@ interface FormState {
   barNumber: string;
   barYear: string;
   barCardFile: Uploaded | null;
+  /** קובץ גולמי — סרטון לא עובר דרך dataUrl (ראו enqueueVerification). */
+  selfieVideo: File | null;
   university: string;
   gradYear: string;
   diplomaFile: Uploaded | null;
@@ -104,6 +111,7 @@ type IssueField =
   | "barNumber"
   | "barYear"
   | "barCard"
+  | "selfieVideo"
   | "university"
   | "gradYear"
   | "diploma"
@@ -146,6 +154,13 @@ function collectIssues(form: FormState): Issue[] {
     issues.push({ field: "barYear", messageKey: "issueBarYear", step: "bar" });
   if (!form.barCardFile)
     issues.push({ field: "barCard", messageKey: "issueBarCard", step: "bar" });
+  {
+    const vp = selfieVideoProblem(form.selfieVideo);
+    if (vp === "missing")
+      issues.push({ field: "selfieVideo", messageKey: "issueSelfieVideo", step: "bar" });
+    else if (vp)
+      issues.push({ field: "selfieVideo", messageKey: "issueSelfieVideoFile", step: "bar" });
+  }
 
   if (form.university.trim().length < 2)
     issues.push({ field: "university", messageKey: "issueUniversity", step: "education" });
@@ -180,6 +195,7 @@ function LawyerOnboarding() {
     barNumber: "",
     barYear: "",
     barCardFile: null,
+    selfieVideo: null,
     university: "",
     gradYear: "",
     diplomaFile: null,
@@ -249,7 +265,7 @@ function LawyerOnboarding() {
                 gradYear: form.gradYear,
                 specialties: [...form.specialties],
               },
-              { barCard: form.barCardFile, diploma: form.diplomaFile },
+              { barCard: form.barCardFile, diploma: form.diplomaFile, selfieVideo: form.selfieVideo },
             );
             setRecord(rec);
             try {
@@ -845,6 +861,7 @@ function BarStep({
           onChange={(f) => update("barCardFile", f)}
           icon={<IdCard className="size-5" />}
         />
+        <VideoTile value={form.selfieVideo} onChange={(f) => update("selfieVideo", f)} />
       </div>
     </div>
   );
@@ -1038,6 +1055,90 @@ function ReviewCard({
           ))
         )}
       </div>
+    </div>
+  );
+}
+
+/* ---------- Video tile ---------- */
+
+/**
+ * סרטון האימות — הקושר בין בעל החשבון לתעודה.
+ *
+ * capture="user" פותח בטלפון ישר את המצלמה הקדמית; במחשב זה בוחר קובץ.
+ * הקובץ נשמר גולמי (File) ולא כ-dataUrl — קידוד base64 של סרטון שלם
+ * בזיכרון של טלפון הוא בדיוק סוג הדבר שקורס בשקט אצל משתמש אמיתי.
+ */
+function VideoTile({
+  value,
+  onChange,
+}: {
+  value: File | null;
+  onChange: (v: File | null) => void;
+}) {
+  const t = useT();
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  function pick(e: ChangeEvent<HTMLInputElement>) {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    if (selfieVideoProblem({ type: f.type, size: f.size })) {
+      toast.error(t("issueSelfieVideoFile"));
+      return;
+    }
+    onChange(f);
+  }
+
+  const hasFile = !!value;
+  return (
+    <div>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="video/*"
+        capture="user"
+        className="hidden"
+        onChange={pick}
+      />
+      <button
+        type="button"
+        onClick={() => inputRef.current?.click()}
+        className={cn(
+          "flex w-full items-center gap-3 rounded-2xl border border-dashed px-4 py-4 text-start transition active:scale-[0.99]",
+          hasFile
+            ? "border-gold/50 bg-gold/[0.06]"
+            : "border-white/15 bg-foreground/[0.03] hover:bg-foreground/[0.06]",
+        )}
+      >
+        <span
+          className={cn(
+            "grid size-12 shrink-0 place-items-center rounded-xl",
+            hasFile ? "bg-gold/20 text-gold" : "bg-foreground/10 text-foreground/70",
+          )}
+        >
+          <Video className="size-5" />
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-[13px] font-semibold text-foreground">
+            {hasFile && value ? value.name : t("uploadSelfieVideo")}
+          </span>
+          <span className="block text-[11px] leading-relaxed text-muted-foreground">
+            {hasFile && value
+              ? `${Math.max(1, Math.round(value.size / (1024 * 1024)))} MB · ${t("uploadReplace")}`
+              : t("selfieVideoHint")}
+          </span>
+        </span>
+        <span className="grid size-9 shrink-0 place-items-center rounded-full bg-foreground/10 text-foreground/80">
+          {hasFile ? (
+            <Check className="size-4 text-gold" strokeWidth={2.6} />
+          ) : (
+            <Upload className="size-4" />
+          )}
+        </span>
+      </button>
+      {/* ההבטחה כתובה במקום שבו נותנים את הפנים — לא בתקנון בלבד */}
+      <p className="mt-1.5 px-1 text-[11px] leading-relaxed text-muted-foreground/80">
+        {t("selfieVideoPrivacy")}
+      </p>
     </div>
   );
 }

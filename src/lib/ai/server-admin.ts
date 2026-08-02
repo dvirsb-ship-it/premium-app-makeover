@@ -469,11 +469,21 @@ async function adminQueryIds(
   return rows.map((r) => r.document?.name?.split("/").pop()).filter((x): x is string => !!x);
 }
 
-async function adminDeleteStorage(path: string): Promise<void> {
-  await fetch(
-    `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}`,
-    { method: "DELETE", headers: { Authorization: `Bearer ${await accessToken()}` } },
-  ).catch(() => undefined);
+/**
+ * מחיקת קובץ מ-Storage. לעולם לא זורקת, אבל אומרת את האמת: true רק אם
+ * הקובץ נמחק (או שכבר לא היה). מי שחותם "נמחק" — כמו מחיקת סרטון
+ * האימות — חייב לדעת אם זה באמת קרה.
+ */
+export async function adminDeleteStorage(path: string): Promise<boolean> {
+  try {
+    const res = await fetch(
+      `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodeURIComponent(path)}`,
+      { method: "DELETE", headers: { Authorization: `Bearer ${await accessToken()}` } },
+    );
+    return res.ok || res.status === 404;
+  } catch {
+    return false;
+  }
 }
 
 /**

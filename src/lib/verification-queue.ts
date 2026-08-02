@@ -3,14 +3,8 @@
  * המסמכים (רישיון לשכה, תעודת בוגר) נשמרים ב-Storage תחת verifications/{uid}/
  * והבקשה עצמה ב-verifications/{uid} — מסמך אחד לעו"ד (הגשה חוזרת מעדכנת אותו).
  */
-import {
-  collection,
-  doc,
-  onSnapshot,
-  setDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { getDownloadURL, ref, uploadString } from "firebase/storage";
+import { collection, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore";
+import { getDownloadURL, ref, uploadBytes, uploadString } from "firebase/storage";
 import { fbAuth, fbDb, fbStorage } from "./firebase";
 import { notify } from "./db";
 
@@ -41,7 +35,41 @@ export interface VerificationRecord {
    */
   registryCheckedAt?: number;
   registryCheckedBy?: string;
-  files?: { barCard?: string; diploma?: string };
+  files?: { barCard?: string; diploma?: string; selfieVideo?: string };
+  /**
+   * הסרטון נמחק מה-Storage אחרי ההחלטה. תיעוד ביומטרי נשמר רק כמה
+   * שצריך: ברגע שההשוואה נעשתה, מה שנשאר הוא העדות שהיא נעשתה — לא
+   * הפנים עצמן.
+   */
+  selfiePurgedAt?: number;
+}
+
+/* ---------- סרטון האימות ---------- */
+
+/**
+ * למה סרטון ולא שיחה: מתחזה שולט בכל מה שבטופס — בשם, במסמכים, בטלפון
+ * שמסר. הוא לא שולט בפנים שלו. סרטון קצר שבו הפנים, התעודה, ואמירת
+ * "אני נרשם ל-JustAsk" קושר את בעל החשבון לתעודה — והאזכור של JustAsk
+ * מונע שימוש חוזר בסרטון שצולם למטרה אחרת.
+ */
+export const SELFIE_VIDEO_MAX_BYTES = 80 * 1024 * 1024;
+
+export type SelfieVideoProblem = "missing" | "not-video" | "too-big";
+
+/** בדיקת קובץ הסרטון — טהורה, בלי DOM, כדי שאפשר לבדוק אותה. */
+export function selfieVideoProblem(
+  meta: { type: string; size: number } | null,
+): SelfieVideoProblem | null {
+  if (!meta) return "missing";
+  if (!meta.type.startsWith("video/")) return "not-video";
+  if (meta.size > SELFIE_VIDEO_MAX_BYTES) return "too-big";
+  return null;
+}
+
+/** נתיב הסרטון ב-Storage — נגזר מסוג הקובץ, עם סיומת בטוחה. */
+export function selfieVideoPath(uid: string, fileName: string): string {
+  const ext = (fileName.split(".").pop() || "mp4").toLowerCase().replace(/[^a-z0-9]/g, "") || "mp4";
+  return `verifications/${uid}/selfieVideo.${ext}`;
 }
 
 export interface UploadableFile {
@@ -53,13 +81,18 @@ export interface UploadableFile {
 /** הגשת בקשת אימות: מעלה את המסמכים ל-Storage וכותב את הבקשה ל-Firestore. */
 export async function enqueueVerification(
   data: Omit<VerificationRecord, "id" | "status" | "submittedAt" | "files">,
-  files: { barCard?: UploadableFile | null; diploma?: UploadableFile | null },
+  files: {
+    barCard?: UploadableFile | null;
+    diploma?: UploadableFile | null;
+    /** קובץ גולמי ולא dataUrl — סרטון של עשרות MB לא שורד קידוד base64 בזיכרון של טלפון. */
+    selfieVideo?: File | null;
+  },
 ): Promise<VerificationRecord> {
   const user = fbAuth().currentUser;
   if (!user) throw new Error("not signed in");
   const uid = user.uid;
 
-  const paths: { barCard?: string; diploma?: string } = {};
+  const paths: { barCard?: string; diploma?: string; selfieVideo?: string } = {};
   async function up(kind: "barCard" | "diploma", f?: UploadableFile | null) {
     if (!f?.dataUrl) return;
     const ext = (f.name.split(".").pop() || "bin").toLowerCase();
@@ -67,7 +100,17 @@ export async function enqueueVerification(
     await uploadString(ref(fbStorage(), path), f.dataUrl, "data_url");
     paths[kind] = path;
   }
-  await Promise.all([up("barCard", files.barCard), up("diploma", files.diploma)]);
+  async function upVideo(f?: File | null) {
+    if (!f) return;
+    const path = selfieVideoPath(uid, f.name);
+    await uploadBytes(ref(fbStorage(), path), f, { contentType: f.type || "video/mp4" });
+    paths.selfieVideo = path;
+  }
+  await Promise.all([
+    up("barCard", files.barCard),
+    up("diploma", files.diploma),
+    upVideo(files.selfieVideo),
+  ]);
 
   const rec: VerificationRecord = {
     ...data,
@@ -118,9 +161,7 @@ export function watchMyVerification(
     doc(fbDb(), "verifications", uid),
     (snap) => {
       cb(
-        snap.exists()
-          ? { id: snap.id, ...(snap.data() as Omit<VerificationRecord, "id">) }
-          : null,
+        snap.exists() ? { id: snap.id, ...(snap.data() as Omit<VerificationRecord, "id">) } : null,
       );
     },
     (err) => onError?.(err),

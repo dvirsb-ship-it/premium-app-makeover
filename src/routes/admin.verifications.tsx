@@ -9,6 +9,7 @@ import {
   Inbox,
   ShieldAlert,
   ShieldCheck,
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
@@ -356,8 +357,24 @@ function VerificationQueue() {
                     />
                   </dl>
 
-                  {(rec.files?.barCard || rec.files?.diploma) && (
+                  {(rec.files?.barCard || rec.files?.diploma || rec.files?.selfieVideo) && (
                     <div className="mt-3 flex flex-wrap gap-2">
+                      {rec.files?.selfieVideo && !rec.selfiePurgedAt && (
+                        <button
+                          type="button"
+                          onClick={() => openFile(rec.files?.selfieVideo)}
+                          className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-semibold text-foreground transition active:scale-95"
+                        >
+                          <Video className="size-3.5 text-gold" strokeWidth={2.2} aria-hidden />
+                          {t("docSelfieVideo")}
+                        </button>
+                      )}
+                      {rec.files?.selfieVideo && rec.selfiePurgedAt ? (
+                        <span className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] text-muted-foreground">
+                          <Video className="size-3.5" strokeWidth={2} aria-hidden />
+                          {t("selfiePurgedNote")}
+                        </span>
+                      ) : null}
                       {rec.files?.barCard && (
                         <button
                           type="button"

@@ -15,6 +15,16 @@ service firebase.storage {
         && (request.auth.uid == uid || isAdmin());
     }
 
+    // סרטון הסלפי לאימות — וידאו בלבד, עד 80MB (סרטון טלפון של ~20 שניות).
+    // נמחק מהשרת אחרי החלטת האימות — ראו notifyVerificationFn.
+    match /verifications/{uid}/{video} {
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && video.matches('selfieVideo\\..*')
+        && request.resource.contentType.matches('video/.*')
+        && request.resource.size < 80 * 1024 * 1024;
+    }
+
     // מסמכי תיק שהלקוח מעלה — רק בעל החשבון
     match /case-files/{uid}/{fileName=**} {
       allow read, write: if request.auth != null

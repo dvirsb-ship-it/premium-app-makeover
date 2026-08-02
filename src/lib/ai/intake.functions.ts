@@ -891,7 +891,8 @@ export const notifySubmissionFn = createServerFn({ method: "POST" })
 export const notifyVerificationFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as VerificationDecisionInput)
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireIdentity, notify, withErrorLog } = await import("./server-admin");
+    const { requireIdentity, notify, withErrorLog, adminGetDoc, adminDeleteStorage, adminPatch } =
+      await import("./server-admin");
     return withErrorLog("notifyVerification", async () => {
       const me = await requireIdentity(data.idToken);
       if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
@@ -911,6 +912,34 @@ export const notifyVerificationFn = createServerFn({ method: "POST" })
               link: "/lawyer-onboarding",
             },
       );
+
+      /*
+       * מחיקת סרטון האימות — בשני הכיוונים, אישור ודחייה.
+       *
+       * ההבטחה בטופס היא "נמחק מיד לאחר החלטת האימות", ולכן היא נאכפת
+       * כאן, בנקודה היחידה שכל החלטה עוברת בה. תיעוד פנים הוא המידע
+       * הרגיש ביותר שאנחנו מחזיקים, והדרך היחידה שהוא לא ידלוף היא
+       * שהוא לא יהיה. כשל במחיקה לא מפיל את ההחלטה — אבל נרשם ביומן,
+       * כי הבטחת פרטיות שנכשלה בשקט היא הבטחה שקרית.
+       */
+      try {
+        const ver = await adminGetDoc(`verifications/${encodeURIComponent(data.targetUid)}`);
+        const video = (ver?.files as { selfieVideo?: string } | undefined)?.selfieVideo;
+        if (video && !ver?.selfiePurgedAt) {
+          // חותמים "נמחק" רק אם המחיקה באמת קרתה
+          if (await adminDeleteStorage(video)) {
+            await adminPatch(`verifications/${encodeURIComponent(data.targetUid)}`, {
+              selfiePurgedAt: Date.now(),
+            });
+          } else {
+            const { logServerError } = await import("./server-admin");
+            await logServerError("selfiePurge", new Error(`delete failed: ${video}`));
+          }
+        }
+      } catch (err) {
+        const { logServerError } = await import("./server-admin");
+        await logServerError("selfiePurge", err);
+      }
       return { sent: true };
     });
   });

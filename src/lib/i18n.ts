@@ -293,6 +293,15 @@ export const strings = {
   fieldBarNumberPh: { he: "לדוגמה: 12345", en: "e.g. 12345" },
   fieldBarYear: { he: "שנת הסמכה", en: "Year of admission" },
   uploadBarCard: { he: "צילום תעודת עו״ד", en: "Photo of bar card" },
+  uploadSelfieVideo: { he: "סרטון סלפי לאימות", en: "Verification selfie video" },
+  selfieVideoHint: {
+    he: "עד 20 שניות: פנים גלויות, תעודת עו״ד ביד, ואמרו — ״שמי ___, ואני נרשם/ת ל-JustAsk״",
+    en: "Up to 20s: face visible, bar card in hand, and say — \"My name is ___, registering for JustAsk\"",
+  },
+  selfieVideoPrivacy: {
+    he: "הסרטון משמש להשוואה מול התעודה בלבד, ונמחק מיד לאחר החלטת האימות.",
+    en: "The video is used only to compare against your card, and is deleted right after the decision.",
+  },
 
   stepEducationTitle: { he: "תעודת השכלה", en: "Education certificate" },
   stepEducationDesc: { he: "צירוף תעודת סיום התואר במשפטים לאימות ההכשרה.", en: "Attach your LL.B. diploma to verify your training." },
@@ -346,6 +355,8 @@ export const strings = {
   issueBarNumber: { he: "מספר רישיון עורך דין חסר או קצר מדי.", en: "Bar license number is missing or too short." },
   issueBarYear: { he: "יש להזין שנת הסמכה תקינה (4 ספרות).", en: "Enter a valid admission year (4 digits)." },
   issueBarCard: { he: "לא הועלה צילום תעודת עורך דין.", en: "No photo of your bar card was uploaded." },
+  issueSelfieVideo: { he: "חסר סרטון סלפי לאימות — צלמו סרטון קצר עם התעודה ביד.", en: "Verification selfie video is missing — record a short video holding your card." },
+  issueSelfieVideoFile: { he: "הקובץ אינו סרטון, או גדול מ-80MB.", en: "The file is not a video, or exceeds 80MB." },
   issueUniversity: { he: "יש להזין שם מוסד הלימודים.", en: "Enter the name of your institution." },
   issueGradYear: { he: "יש להזין שנת סיום תואר תקינה (4 ספרות).", en: "Enter a valid graduation year (4 digits)." },
   issueDiploma: { he: "לא הועלתה תעודת בוגר.", en: "No diploma was uploaded." },
@@ -473,6 +484,8 @@ export const strings = {
   verRejectedBannerCta: { he: "הגשה מחדש", en: "Resubmit" },
   docBarCard: { he: "רישיון לשכה", en: "Bar card" },
   docDiploma: { he: "תעודת בוגר", en: "Diploma" },
+  docSelfieVideo: { he: "סרטון אימות", en: "Verification video" },
+  selfiePurgedNote: { he: "הסרטון נמחק לאחר ההחלטה (פרטיות)", en: "Video deleted after decision (privacy)" },
   interestLockedTitle: { he: "הבעת עניין נפתחת לאחר אימות הפרופיל", en: "Expressing interest unlocks after profile verification" },
   interestLockedPending: { he: "הבקשה שלך בבדיקה — נעדכן אותך ברגע שתאושר.", en: "Your application is under review — we'll notify you the moment it's approved." },
   interestLockedCta: { he: "לאימות הפרופיל", en: "Verify my profile" },
