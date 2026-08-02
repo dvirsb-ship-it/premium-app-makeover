@@ -54,8 +54,16 @@ function Cases() {
           </div>
           <div className="flex items-center gap-2">
             <NotificationBell />
+            {/*
+              * ל-/intake-tips, לא ל-/onboarding.
+              *
+              * /onboarding הוא מסך אישור התנאים מההרשמה, וסופו navigate("/").
+              * כלומר לחיצה על "מקרה חדש" כאן שלחה את הלקוח לאשר תנאים שכבר
+              * אישר, ומשם החזירה אותו למסך הבית — בלי שפתח מקרה. שני
+              * המקומות במסך הזה היו היחידים באפליקציה שהצביעו לשם.
+              */}
             <Link
-              to="/onboarding"
+              to="/intake-tips"
               className="chip-gold grid size-11 place-items-center rounded-2xl transition active:scale-95"
               aria-label={t("newCaseAria")}
             >
@@ -80,7 +88,7 @@ function Cases() {
             title={t("noCases")}
             action={
               <Link
-                to="/onboarding"
+                to="/intake-tips"
                 className="btn-gold inline-flex rounded-2xl px-6 py-3 text-sm font-bold"
               >
                 {t("shareNewCase")}
