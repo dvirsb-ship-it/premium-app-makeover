@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>JustAsk לעורכי דין — פניות שעברו בדיקה משפטית</title>
+<meta name="description" content="פנייה מגיעה אליך אחרי בדיקה משפטית, עם תזכיר מלא: עילות, התיישנות וטענות נגד. חצי שנה ללא תשלום." />
+<meta property="og:title" content="JustAsk לעורכי דין — פניות שעברו בדיקה משפטית" />
+<meta property="og:description" content="לא ליד. תיק שכבר נבדק. חצי שנה ראשונה ללא תשלום." />
+<meta property="og:locale" content="he_IL" />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://justask.co.il" />
+<meta name="twitter:card" content="summary" />
+<link rel="icon" type="image/png" href="/app-icon.png" />
+<link rel="apple-touch-icon" href="/app-icon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet" />
+<style>
+  /*
+   * הטוקנים מועתקים מהאפליקציה (styles.css, ערכת הלילה) — הדף חייב
+   * להרגיש כמו המשך שלה, גם כשהוא חי בפרויקט נפרד.
+   */
+  :root {
+    --background: oklch(0.129 0.042 264.695);
+    --foreground: oklch(0.984 0.003 247.858);
+    --muted: oklch(0.704 0.04 256.788);
+    --border: oklch(1 0 0 / 10%);
+    --gold: oklch(0.76 0.13 85);
+    --gold-hi: #f1e4c3;
+    --gold-mid: #d4af37;
+    --gold-lo: #b8912b;
+    --gold-ink: oklch(0.84 0.11 88);
+    --warning-ink: oklch(0.78 0.135 68);
+    --success: oklch(0.7 0.14 162);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: "Heebo", ui-sans-serif, system-ui, sans-serif;
+    background: var(--background);
+    color: var(--foreground);
+    text-align: center;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  body::before, body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  }
+  body::before { background: radial-gradient(120% 80% at 50% -10%, rgba(212,175,55,.16), transparent 60%); }
+  body::after  { background: radial-gradient(110% 70% at 50% 120%, rgba(56,89,168,.14), transparent 55%); }
+
+  .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 24px 80px; }
+
+  /* ---------- כותרת ---------- */
+  header { display: flex; align-items: center; justify-content: space-between; padding: 24px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 900; letter-spacing: -0.02em; }
+  .brand img { width: 34px; height: 34px; border-radius: 9px; }
+  .gold-text {
+    background: linear-gradient(180deg, var(--gold-hi), var(--gold-mid) 55%, var(--gold-lo));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .nav-cta {
+    display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+    border: 1px solid oklch(0.76 0.13 85 / 35%); border-radius: 999px;
+    color: var(--gold-ink); font-weight: 700; font-size: 13px; text-decoration: none;
+    transition: transform .15s;
+  }
+  .nav-cta:active { transform: scale(.95); }
+
+  /* ---------- גיבור ---------- */
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px; margin-top: 40px;
+    border: 1px solid oklch(0.76 0.13 85 / 30%); background: oklch(0.76 0.13 85 / 7%);
+    padding: 7px 15px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--gold-ink);
+  }
+  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold-mid); }
+  h1 { margin-top: 24px; font-size: clamp(2.6rem, 8vw, 4rem); font-weight: 900; line-height: 1.05; letter-spacing: -0.02em; }
+  .sub { margin: 20px auto 0; max-width: 430px; font-size: 16px; line-height: 1.65; color: var(--muted); }
+  .cta {
+    display: inline-block; margin-top: 32px; min-height: 48px; padding: 14px 34px;
+    border: 0; border-radius: 16px; cursor: pointer; text-decoration: none;
+    background: linear-gradient(180deg, var(--gold-hi), var(--gold-mid) 55%, var(--gold-lo));
+    color: #0f172a; font-family: inherit; font-size: 15px; font-weight: 700;
+    box-shadow: 0 10px 30px -8px oklch(0.76 0.13 85 / 45%);
+    transition: transform .15s;
+  }
+  .cta:active { transform: scale(.97); }
+  .cta-note { margin-top: 10px; font-size: 12px; color: var(--muted); }
+
+  /* ---------- הארטיפקט ---------- */
+  .artifact-label { margin-top: 64px; font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--muted); }
+  .card {
+    max-width: 430px; margin: 16px auto 0; text-align: right;
+    background: oklch(1 0 0 / 5%); border: 1px solid oklch(1 0 0 / 12%);
+    border-radius: 26px; padding: 16px; backdrop-filter: blur(14px);
+    box-shadow: 0 30px 60px -20px rgb(0 0 0 / 55%);
+  }
+  .card-top { display: flex; gap: 12px; }
+  .card-icon {
+    flex: 0 0 68px; height: 68px; display: grid; place-items: center;
+    background: linear-gradient(180deg, oklch(0.76 0.13 85 / 22%), oklch(0.76 0.13 85 / 8%));
+    border: 1px solid oklch(0.76 0.13 85 / 30%); border-radius: 16px;
+    color: var(--gold-ink);
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag-cat { font-size: 11px; font-weight: 600; letter-spacing: .08em; color: var(--gold-mid); text-transform: uppercase; }
+  .tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .tag-urgent { background: oklch(0.78 0.135 68 / 12%); color: var(--warning-ink); }
+  .tag-match { background: oklch(0.7 0.14 162 / 15%); color: var(--success); }
+  .card-title { margin-top: 5px; font-size: 15px; font-weight: 600; }
+  .card-city { margin-top: 3px; font-size: 12px; color: var(--muted); }
+  .memo { margin-top: 14px; border-top: 1px solid oklch(1 0 0 / 10%); padding-top: 14px; position: relative; }
+  .memo-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--gold-mid); }
+  .memo p { margin-top: 8px; font-size: 12.5px; line-height: 1.7; color: var(--muted); }
+  .memo::after {
+    content: ""; position: absolute; inset: auto 0 0 0; height: 44px;
+    background: linear-gradient(to top, var(--background), transparent);
+  }
+
+  /* ---------- מספרים ---------- */
+  .stats {
+    margin-top: 64px; padding: 40px 0;
+    border-top: 1px solid oklch(1 0 0 / 10%); border-bottom: 1px solid oklch(1 0 0 / 10%);
+    display: grid; gap: 32px;
+  }
+  @media (min-width: 640px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+  .stat-num { font-size: 2.6rem; font-weight: 900; line-height: 1; direction: ltr; }
+  .stat-label { margin-top: 8px; font-size: 12.5px; line-height: 1.5; color: var(--muted); }
+
+  /* ---------- שלבים ---------- */
+  h2 { margin-top: 64px; font-size: 1.8rem; font-weight: 900; letter-spacing: -0.01em; }
+  .steps { margin-top: 32px; display: grid; gap: 12px; list-style: none; }
+  @media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); } }
+  .step {
+    background: oklch(1 0 0 / 5%); border: 1px solid oklch(1 0 0 / 12%);
+    border-radius: 22px; padding: 20px; backdrop-filter: blur(14px);
+  }
+  .step-icon {
+    width: 40px; height: 40px; margin: 0 auto; display: grid; place-items: center;
+    background: oklch(0.76 0.13 85 / 12%); border: 1px solid oklch(0.76 0.13 85 / 25%);
+    border-radius: 50%; color: var(--gold-ink);
+  }
+  .step-num { margin-top: 12px; font-size: 11px; font-weight: 900; letter-spacing: .2em; color: var(--gold-mid); }
+  .step p { margin-top: 8px; font-size: 13.5px; line-height: 1.65; color: var(--muted); }
+  .disclaimer { margin-top: 24px; font-size: 11.5px; line-height: 1.6; color: oklch(0.704 0.04 256.788 / 80%); }
+
+  /* ---------- כלול / לא ---------- */
+  .compare { margin-top: 64px; display: grid; gap: 12px; }
+  @media (min-width: 768px) { .compare { grid-template-columns: 1fr 1fr; } }
+  .panel { border-radius: 26px; padding: 24px; text-align: right; }
+  .panel h3 { font-size: 1.15rem; font-weight: 900; text-align: center; }
+  .panel ul { margin-top: 16px; list-style: none; display: grid; gap: 10px; }
+  .panel li { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; line-height: 1.6; }
+  .panel-yes { border: 1px solid oklch(0.76 0.13 85 / 25%); background: oklch(0.76 0.13 85 / 5%); }
+  .panel-yes .mark { color: var(--gold-ink); font-weight: 900; }
+  .panel-no { border: 1px solid oklch(1 0 0 / 12%); }
+  .panel-no li { color: var(--muted); }
+  .panel-no .mark { color: oklch(0.704 0.04 256.788 / 50%); }
+
+  /* ---------- סיום ---------- */
+  .final {
+    margin-top: 64px; border: 1px solid oklch(0.76 0.13 85 / 25%);
+    background: oklch(0.76 0.13 85 / 5%); border-radius: 28px; padding: 48px 24px;
+  }
+  .final h2 { margin-top: 16px; }
+  .final .sub { font-size: 14px; max-width: 360px; }
+  footer { margin-top: 48px; border-top: 1px solid oklch(1 0 0 / 10%); padding-top: 24px; }
+  footer p { font-size: 12.5px; color: var(--muted); }
+  footer .rights { margin-top: 8px; font-size: 11.5px; color: oklch(0.704 0.04 256.788 / 70%); }
+
+  /* ---------- תנועה ---------- */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .85s cubic-bezier(.16,1,.3,1), transform .85s cubic-bezier(.16,1,.3,1); }
+  .reveal.in { opacity: 1; transform: none; }
+  .hero-seq { opacity: 0; transform: translateY(22px); animation: rise .9s cubic-bezier(.16,1,.3,1) forwards; }
+  @keyframes rise { to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .hero-seq { opacity: 1 !important; transform: none !important; animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <img src="/app-icon.png" alt="" width="34" height="34" />
+      <span>Just<span class="gold-text">Ask</span></span>
+    </div>
+    <a class="nav-cta" href="https://app.justask.co.il/auth">כניסה</a>
+  </header>
+
+  <!-- גיבור -->
+  <section>
+    <span class="badge hero-seq">חצי שנה ראשונה — ללא תשלום</span>
+    <h1 class="hero-seq" style="animation-delay:.1s">
+      לא ליד.<br /><span class="gold-text">תיק שכבר נבדק.</span>
+    </h1>
+    <p class="sub hero-seq" style="animation-delay:.25s">
+      הפונה מספר מה קרה, המערכת בודקת אם יש עניין משפטי וכותבת תזכיר. אתה מקבל את שניהם.
+    </p>
+    <div class="hero-seq" style="animation-delay:.4s">
+      <a class="cta" id="cta-hero" href="https://app.justask.co.il/auth">הצטרפות כעורך דין</a>
+      <p class="cta-note">אימות רישיון נדרש · ללא התחייבות</p>
+    </div>
+  </section>
+
+  <!-- הארטיפקט -->
+  <p class="artifact-label reveal">כך זה נוחת אצלך</p>
+  <div class="card reveal" aria-label="דוגמה לפנייה כפי שהיא מגיעה לעורך דין">
+    <div class="card-top">
+      <span class="card-icon" aria-hidden="true">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-45)"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M7.5 8v8M16.5 8v8"/><circle cx="10.5" cy="11" r=".5"/><circle cx="13.5" cy="11" r=".5"/><circle cx="10.5" cy="13" r=".5"/><circle cx="13.5" cy="13" r=".5"/></svg>
+      </span>
+      <div style="min-width:0;flex:1">
+        <div class="tags">
+          <span class="tag-cat">נזיקין ותאונות</span>
+          <span class="tag tag-urgent">דחוף</span>
+          <span class="tag tag-match">התאמה גבוהה</span>
+        </div>
+        <p class="card-title">החלקה על רצפה רטובה בסופרמרקט</p>
+        <p class="card-city">📍 ירושלים</p>
+      </div>
+    </div>
+    <div class="memo">
+      <p class="memo-label">📄 התזכיר המשפטי</p>
+      <p>עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת זהירות מוגברת של תופס מקרקעין כלפי מבקר. ההתיישנות טרם חלפה. תיעוד רפואי קיים, וצילום מהמקום מחזק את יסוד ההפרה…</p>
+    </div>
+  </div>
+
+  <!-- מספרים -->
+  <section class="stats">
+    <div class="reveal">
+      <span class="stat-num gold-text" data-count="100" data-suffix="%">0%</span>
+      <p class="stat-label">מהפניות עברו בדיקה משפטית</p>
+    </div>
+    <div class="reveal" style="transition-delay:.12s">
+      <span class="stat-num gold-text" data-count="21">0</span>
+      <p class="stat-label">תחומי משפט — מקבלים רק את שלך</p>
+    </div>
+    <div class="reveal" style="transition-delay:.24s">
+      <span class="stat-num gold-text" data-count="6">0</span>
+      <p class="stat-label">חודשים ללא תשלום</p>
+    </div>
+  </section>
+
+  <!-- שלבים -->
+  <h2 class="reveal">שלושה שלבים</h2>
+  <ol class="steps">
+    <li class="step reveal">
+      <span class="step-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1ZM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1ZM7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
+      <p class="step-num">01</p>
+      <p>אדם מספר מה קרה. המערכת בודקת אם יש עניין משפטי — ודוחה מה שאין.</p>
+    </li>
+    <li class="step reveal" style="transition-delay:.14s">
+      <span class="step-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+      <p class="step-num">02</p>
+      <p>הפנייה נפתחת בפניך, בלי שם ובלי פרטי קשר. אתה מביע עניין ומצרף הצעה.</p>
+    </li>
+    <li class="step reveal" style="transition-delay:.28s">
+      <span class="step-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+      <p class="step-num">03</p>
+      <p>הפונה בוחר. רק אז נחשפים פרטיו, וההסכם נכרת ישירות ביניכם.</p>
+    </li>
+  </ol>
+  <p class="disclaimer reveal">
+    הבדיקה הראשונית של JustAsk אינה ייעוץ משפטי ואינה מחליפה אותו. ההערכה המשפטית נעשית על ידי עורך הדין בלבד.
+  </p>
+
+  <!-- כלול / לא -->
+  <section class="compare">
+    <div class="panel panel-yes reveal">
+      <h3>מה כלול</h3>
+      <ul>
+        <li><span class="mark">✓</span>כל הפניות בתחומים שסימנת</li>
+        <li><span class="mark">✓</span>התזכיר המשפטי המלא</li>
+        <li><span class="mark">✓</span>התראה על כל פנייה חדשה</li>
+        <li><span class="mark">✓</span>הצעת שכר טרחה לפני שהפונה בוחר</li>
+      </ul>
+    </div>
+    <div class="panel panel-no reveal" style="transition-delay:.12s">
+      <h3>מה שלא תמצא כאן</h3>
+      <ul>
+        <li><span class="mark">—</span>אחוז מהתיק</li>
+        <li><span class="mark">—</span>מקום בתור תמורת תשלום</li>
+        <li><span class="mark">—</span>בלעדיות, או נפח בלי רלוונטיות</li>
+        <li><span class="mark">—</span>אחוזי הצלחה שאי אפשר לאמת</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- סיום -->
+  <section class="final reveal">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="oklch(0.76 0.13 85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
+    <h2>אימות רישיון, ואתה בפנים</h2>
+    <p class="sub">רישיון, תעודת בוגר, ובדיקה מול פנקס הלשכה. חצי שנה ללא תשלום.</p>
+    <a class="cta" id="cta-final" href="https://app.justask.co.il/auth" style="margin-top:28px">הצטרפות כעורך דין</a>
+    <p class="cta-note">מספר עורכי הדין בכל תחום מוגבל בשלב זה</p>
+  </section>
+
+  <footer>
+    <p>JustAsk — מחברים בין אנשים שנפגעו לעורכי הדין שיכולים לעזור להם</p>
+    <p class="rights">© 2026 JustAsk · כל הזכויות שמורות</p>
+  </footer>
+</div>
+
+<script>
+  /* חשיפה בגלילה */
+  const io = new IntersectionObserver((es) => {
+    for (const e of es) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+  }, { threshold: 0.18, rootMargin: "-40px" });
+  document.querySelectorAll(".reveal").forEach((el) => io.observe(el));
+
+  /*
+   * מספרים שרצים מאפס. easeOutQuart — רץ מהר ונבלם ארוכות בסוף; זה
+   * הסלואו-מושן. השעון מתחיל בפריים הראשון (rAF מושהה בלשונית רקע).
+   */
+  const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const nio = new IntersectionObserver((es) => {
+    for (const e of es) {
+      if (!e.isIntersecting) continue;
+      nio.unobserve(e.target);
+      const el = e.target, to = +el.dataset.count, suffix = el.dataset.suffix || "";
+      if (reduced) { el.textContent = to + suffix; continue; }
+      let start = 0;
+      const tick = (now) => {
+        if (!start) start = now;
+        const p = Math.min(1, (now - start) / 2200);
+        el.textContent = Math.round(to * (1 - Math.pow(1 - p, 4))) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }
+  }, { threshold: 0.4 });
+  document.querySelectorAll("[data-count]").forEach((el) => nio.observe(el));
+</script>
+</body>
+</html>
