@@ -13,7 +13,7 @@
     "format": "prettier --write .",
     "test": "vitest run src",
     "test:watch": "vitest src",
-    "test:rules": "firebase emulators:exec --only firestore --project justask-rules-test \"vitest run rules-tests --testTimeout=20000\"",
+    "test:rules": "firebase emulators:exec --only firestore,storage --project justask-rules-test \"vitest run rules-tests --testTimeout=20000\"",
     "test:all": "bun run test && bun run test:rules"
   },
   "dependencies": {
