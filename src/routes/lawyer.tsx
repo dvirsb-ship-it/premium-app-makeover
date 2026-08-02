@@ -19,6 +19,8 @@ import { cn } from "../lib/utils";
 import { useT, translate, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useRequireAuth } from "../lib/require-auth";
+import { PushPrimer } from "../components/PushPrimer";
+import { usePushPrimer } from "../lib/use-push-primer";
 
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
@@ -105,8 +107,20 @@ function LawyerFeed() {
       () => setVerError(true),
     );
   }, [user]);
+  /*
+   * ההסבר על ההתראות — רק לעו"ד שאושר. לפני האישור אין לו תיקים לקבל
+   * עליהם התראה, ובקשה בשלב הזה היא רעש שישרוף לנו את ההזדמנות.
+   */
+  const primer = usePushPrimer(user?.uid, verStatus === "approved");
+
   return (
     <AppShell>
+      <PushPrimer
+        open={primer.open}
+        role="lawyer"
+        onAllow={() => void primer.allow()}
+        onDismiss={primer.dismiss}
+      />
       <motion.header
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}

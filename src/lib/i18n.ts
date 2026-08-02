@@ -893,6 +893,27 @@ export const strings = {
     en: "The amount you picked is an example only, not an estimate of your case's value. The actual amount is determined in the proceeding; the signed fee agreement governs.",
   },
 
+  /*
+   * מסך ההסבר שלפני בקשת ההרשאה של המערכת. מדבר בהפסד קונקרטי ולא
+   * בתועלת מופשטת — זה מה שבאמת עומד על הפרק בשני הצדדים.
+   */
+  primerLawyerTitle: { he: "תיק חדש לא מחכה", en: "A new matter won't wait" },
+  primerLawyerBody: {
+    he: "פנייה בתחום שלך נפתחת בפני כמה עורכי דין באותו רגע. בלי התראה תגלה אותה רק בכניסה הבאה — ועד אז הלקוח כבר בחר.",
+    en: "A matter in your field opens to several lawyers at once. Without alerts you'll see it only next time you open the app — by then the client has chosen.",
+  },
+  primerClientTitle: { he: "שנעדכן אותך כשמשהו קורה?", en: "Want updates as things happen?" },
+  primerClientBody: {
+    he: "נודיע לך כשהבדיקה המשפטית מסתיימת, וכשעורך דין מביע עניין בתיק שלך. בלי זה תצטרך להיכנס ולבדוק בעצמך.",
+    en: "We'll tell you when the legal check is done, and when a lawyer responds to your matter. Without this you'll have to check yourself.",
+  },
+  primerAllow: { he: "הפעלת התראות", en: "Turn on notifications" },
+  primerLater: { he: "לא עכשיו", en: "Not now" },
+  primerNote: {
+    he: "בשלב הבא הטלפון ישאל אותך — צריך לאשר גם שם.",
+    en: "Your phone will ask next — you'll need to approve there too.",
+  },
+
   archiveTitle: { he: "ארכיון", en: "Archive" },
   archiveBadge: { he: "הסתיים", en: "Closed" },
 

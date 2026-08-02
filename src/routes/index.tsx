@@ -18,6 +18,8 @@ import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
+import { PushPrimer } from "../components/PushPrimer";
+import { usePushPrimer } from "../lib/use-push-primer";
 import { translate, useT, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
@@ -200,8 +202,20 @@ function ClientHome() {
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
 
+  /*
+   * ההסבר מוצג ללקוח רק כשיש לו תיק פעיל — לפני זה אין לו על מה לקבל
+   * התראה, והבקשה תישרף על אדם שעדיין לא הבין מה האפליקציה עושה.
+   */
+  const primer = usePushPrimer(user?.uid, cases.length > 0);
+
   return (
     <AppShell>
+      <PushPrimer
+        open={primer.open}
+        role="client"
+        onAllow={() => void primer.allow()}
+        onDismiss={primer.dismiss}
+      />
       <AnimatePresence>
         {done && (
           <SubmittedModal
