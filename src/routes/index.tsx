@@ -4,8 +4,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  Bell,
-  FolderOpen,
+  Check,
   LifeBuoy,
   Plus,
   Scale,
@@ -19,12 +18,12 @@ import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
-import { translate, useT } from "../lib/i18n";
+import { translate, useT, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
-import type { Role } from "../lib/types";
+import type { Case, Role } from "../lib/types";
 
 
 export const Route = createFileRoute("/")({
@@ -190,7 +189,7 @@ function ClientHome() {
   const navigate = useNavigate();
   const { done } = Route.useSearch();
   const t = useT();
-  const { cases, casesError, user, notifications } = useAppStore();
+  const { cases, casesError, user } = useAppStore();
   const { dir } = useSettings();
   const statusMeta = useStatusMeta();
   const ago = useTimeAgo();
@@ -200,21 +199,6 @@ function ClientHome() {
   const [active, ...rest] = cases;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
-  const unread = notifications.filter((n) => !n.read).length;
-
-  const tiles: {
-    key: string;
-    label: string;
-    value: string;
-    to: string;
-    icon: typeof FolderOpen;
-    alert?: boolean;
-  }[] = [
-    { key: "cases", label: t("navCases"), value: String(cases.length), to: "/cases", icon: FolderOpen },
-    { key: "notif", label: t("notifications"), value: String(unread), to: "/notifications", icon: Bell, alert: unread > 0 },
-    { key: "profile", label: t("profile"), value: "", to: "/profile", icon: UserRound },
-    { key: "help", label: t("help"), value: "", to: "/settings/help", icon: LifeBuoy },
-  ];
 
   return (
     <AppShell>
@@ -318,38 +302,33 @@ function ClientHome() {
             </Pressable>
           </Rise>
 
-          {/* קוביות הזכוכית — הכול מסודר ובהישג יד */}
+          {/*
+            * כאן היו ארבע קוביות ניווט, ושלוש מהן היו כפילות: "התיקים שלי"
+            * ו"פרופיל" יושבים בתפריט התחתון, ו"התראות" הוא הפעמון שבראש
+            * המסך הזה ממש. קובייה שמובילה למקום שכבר נגיש בשני מגעים אינה
+            * עוזרת — היא רק מרעישה את המסך.
+            *
+            * במקומן: מה שהלקוח באמת לא יודע. איפה הפנייה שלו נמצאת עכשיו,
+            * ומי כבר ראה אותה. "עזרה ותמיכה" נשאר, כי הוא היחיד שלא היה
+            * נגיש מכאן.
+            */}
           <Rise className="mt-6">
-            <div className="grid grid-cols-2 gap-3">
-              {tiles.map((tile) => (
-                <Pressable
-                  key={tile.key}
-                  onClick={() => navigate({ to: tile.to })}
-                  className="liquid-glass glass-flat tap relative flex aspect-square flex-col items-center justify-center gap-3 rounded-[22px] p-4"
-                >
-                  {/* זהב = משהו מחכה לך. ספירת תיקים היא מלאי, לא התראה. */}
-                  {tile.alert ? (
-                    <span
-                      dir="ltr"
-                      className="chip-gold absolute end-3.5 top-3.5 grid min-w-5 place-items-center rounded-full px-1.5 py-px text-[11px] font-black tabular-nums"
-                    >
-                      {tile.value}
-                    </span>
-                  ) : tile.value && tile.value !== "0" ? (
-                    <span
-                      dir="ltr"
-                      className="absolute end-4 top-3.5 text-[13px] font-bold tabular-nums text-muted-foreground"
-                    >
-                      {tile.value}
-                    </span>
-                  ) : null}
-                  <span className="chip-emblem grid size-12 place-items-center">
-                    <tile.icon className="relative z-10 size-5 text-gold-ink" strokeWidth={1.9} aria-hidden />
-                  </span>
-                  <span className="text-[13px] font-bold text-foreground">{tile.label}</span>
-                </Pressable>
-              ))}
-            </div>
+            <ClientJourney active={active} />
+          </Rise>
+
+          <Rise className="mt-3">
+            <Pressable
+              onClick={() => navigate({ to: "/settings/help" })}
+              className="liquid-glass glass-flat tap flex w-full items-center gap-3 rounded-[22px] px-4 py-3.5"
+            >
+              <span className="chip-emblem grid size-10 shrink-0 place-items-center">
+                <LifeBuoy className="relative z-10 size-4 text-gold-ink" strokeWidth={1.9} aria-hidden />
+              </span>
+              <span className="flex-1 text-start text-[13.5px] font-bold text-foreground">
+                {t("help")}
+              </span>
+              <Arrow className="size-4 shrink-0 text-muted-foreground/50" />
+            </Pressable>
           </Rise>
 
           {rest.length > 0 && (
@@ -383,5 +362,98 @@ function ClientHome() {
         </Stagger>
       </Page>
     </AppShell>
+  );
+}
+
+/**
+ * איפה הפנייה שלך נמצאת עכשיו.
+ *
+ * זה מה שהחליף ארבע קוביות ניווט שהובילו למקומות שכבר נגישים מהתפריט
+ * התחתון ומהפעמון שלמעלה. השאלה שהלקוח באמת מחזיק בראש אינה "איפה
+ * הפרופיל" אלא "מה קורה עם מה ששלחתי, ומי כבר ראה את זה".
+ *
+ * שלושת השלבים הם המראה של אותו הסבר שעורך הדין מקבל בסוף הפיד שלו —
+ * אותו תהליך, משני צדדיו.
+ */
+function ClientJourney({ active }: { active?: Case }) {
+  const t = useT();
+
+  /*
+   * השלב הנוכחי נגזר מהסטטוס האמיתי של התיק, לא מהערכה. בלי תיק פעיל
+   * מוצגים אותם שלבים בלי סימון — כך זה נקרא כ"מה יקרה" ולא כהתקדמות
+   * מדומה של תיק שלא קיים.
+   */
+  const step = !active
+    ? -1
+    : active.status === "validating"
+      ? 0
+      : active.status === "matching"
+        ? 1
+        : active.status === "has_interest"
+          ? 2
+          : active.status === "connected" || active.status === "closed"
+            ? 3
+            : -1;
+
+  /*
+   * המספר האמיתי של עורכי הדין שקיבלו את הפנייה. undefined בתיקים
+   * ישנים שנפתחו לפני שהתחלנו למדוד — ואז פשוט לא נאמר מספר, במקום
+   * לנחש אחד.
+   */
+  const notified = active?.notifiedLawyers;
+
+  const steps: { key: StringKey; note?: string }[] = [
+    { key: "journeyStep1" },
+    {
+      key: "journeyStep2",
+      note:
+        typeof notified === "number" && notified > 0
+          ? `${notified} ${t("journeyNotified")}`
+          : undefined,
+    },
+    { key: "journeyStep3" },
+  ];
+
+  return (
+    <div className="liquid-glass glass-quiet rounded-[26px] p-5">
+      <p className="text-[13px] font-bold text-foreground">
+        {t(active ? "journeyTitleActive" : "journeyTitleEmpty")}
+      </p>
+
+      <ol className="mt-4 space-y-4">
+        {steps.map((s, i) => {
+          const done = step > i;
+          const current = step === i;
+          return (
+            <li key={s.key} className="flex items-start gap-3">
+              <span
+                className={cn(
+                  "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-black",
+                  done && "bg-gold/20 text-gold-ink ring-1 ring-gold/30",
+                  current && "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25",
+                  !done && !current && "bg-foreground/8 text-muted-foreground ring-1 ring-foreground/10",
+                )}
+                aria-hidden
+              >
+                {done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p
+                  className={cn(
+                    "text-[12.5px] leading-relaxed",
+                    current ? "font-semibold text-foreground" : "text-muted-foreground",
+                  )}
+                >
+                  {t(s.key)}
+                </p>
+                {s.note && (
+                  <p className="mt-1 text-[12px] font-bold text-gold-ink">{s.note}</p>
+                )}
+              </div>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }

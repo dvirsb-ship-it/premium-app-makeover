@@ -731,6 +731,27 @@ export const strings = {
    * total הוא ספירת התיקים הפתוחים ב-30 הימים האחרונים, ו-untouched
    * נספר מהפיד עצמו. אין כאן אף הבטחה שאי אפשר להצביע על מקורה.
    */
+  /*
+   * מסך הבית של הלקוח. השלבים מתארים בדיוק את מה שהמערכת עושה, כולל
+   * העובדה שפרטי הקשר נחשפים רק אחרי הבחירה — זו ההבטחה המרכזית ללקוח,
+   * ולכן היא נאמרת במקום שבו הוא מחכה, ולא רק בתקנון.
+   */
+  journeyTitleActive: { he: "איפה הפנייה שלך עומדת", en: "Where your matter stands" },
+  journeyTitleEmpty: { he: "מה יקרה אחרי שתשתפו", en: "What happens after you share" },
+  journeyStep1: {
+    he: "הבדיקה המשפטית בודקת אם יש עילה, מה המועדים ומה המסלול. חינם, ותמיד תישאר חינם.",
+    en: "The legal check looks for a cause of action, the deadlines and the route. Free, and always will be.",
+  },
+  journeyStep2: {
+    he: "עורכי דין מאומתים בתחום שלכם רואים את הפנייה — בלי שמכם ובלי פרטי הקשר שלכם.",
+    en: "Verified lawyers in your area of law see the matter — without your name or contact details.",
+  },
+  journeyStep3: {
+    he: "אתם בוחרים מי מהם, ורק אז נחשפים פרטיכם לעורך הדין שבחרתם. ההסכם נכרת ישירות ביניכם.",
+    en: "You choose one, and only then are your details revealed to that lawyer. The agreement is made directly between you.",
+  },
+  journeyNotified: { he: "עורכי דין מאומתים קיבלו אותה", en: "verified lawyers received it" },
+
   pulseEyebrow: { he: "בזמן אמת", en: "LIVE" },
   pulseTitle: { he: "מה פתוח עכשיו", en: "Open right now" },
   pulseOutOf: { he: "מתוך", en: "of" },

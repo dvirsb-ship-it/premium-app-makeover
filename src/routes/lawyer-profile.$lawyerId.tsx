@@ -44,6 +44,22 @@ function LawyerProfile() {
     chosenCase?.interested.find((l) => l.id === lawyerId) ??
     cases.flatMap((c) => c.interested).find((l) => l.id === lawyerId);
 
+  /*
+   * ה-hooks האלה חייבים להיקרא לפני כל return מוקדם.
+   *
+   * הם ישבו מתחת ל-if (!lawyer), ולכן ברינדור שבו עורך הדין עוד לא נטען
+   * הם לא נקראו כלל, וברינדור הבא — אחרי שהתיקים הגיעו מ-Firestore — כן.
+   * זה בדיוק המצב ש-React זורק עליו "Rendered more hooks than during the
+   * previous render", כלומר קריסה של הדף. וזה המסלול הרגיל: התיקים
+   * נטענים בזמן אמת, אז הרינדור הראשון כמעט תמיד בלי עורך דין.
+   */
+  const [responseLabel, setResponseLabel] = useState<string | null>(null);
+  useEffect(() => {
+    void readLawyerStats(lawyerId)
+      .then((st) => setResponseLabel(avgResponseLabel(st)))
+      .catch(() => {});
+  }, [lawyerId]);
+
   if (!lawyer) {
     return (
       <AppShell>
@@ -64,13 +80,6 @@ function LawyerProfile() {
       </AppShell>
     );
   }
-
-  const [responseLabel, setResponseLabel] = useState<string | null>(null);
-  useEffect(() => {
-    void readLawyerStats(lawyerId)
-      .then((st) => setResponseLabel(avgResponseLabel(st)))
-      .catch(() => {});
-  }, [lawyerId]);
 
   /*
    * "תיקים שנוהלו" היה Math.round(years * 8.4) — מספר מומצא שהוצג כעובדה.
