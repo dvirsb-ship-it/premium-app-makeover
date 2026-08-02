@@ -42,12 +42,48 @@ interface GeminiContent {
   parts: GeminiPart[];
 }
 
+/*
+ * ---------- היכן הניתוח מתבצע ----------
+ *
+ * generativelanguage.googleapis.com היא נקודת קצה גלובלית: גוגל אינה
+ * מתחייבת היכן העיבוד קורה. אלינו נשלחים תיאורי מקרים ותמונות פציעה,
+ * ולכן זה בדיוק סוג המידע שראוי שיהיה לו מיקום ידוע.
+ *
+ * ב-Vertex AI אפשר לנעול את העיבוד לאזור. אנחנו בוחרים europe-west4—
+ * אותו אזור שבו כבר רץ השרת. (ישראל אינה אזור עיבוד נתמך ל-Gemini,
+ * ולכן האיחוד האירופי הוא המיטב האפשרי; התיקים והקבצים עצמם ממילא
+ * נשמרים ב-me-west1.)
+ */
+const VERTEX_LOCATION = "europe-west4";
+const VERTEX_PROJECT = "justask-6bfb9";
+
+/** שמות המודלים ב-Vertex שונים מהכינויים של AI Studio. */
+const VERTEX_MODELS: Record<string, string> = {
+  "gemini-flash-latest": "gemini-2.5-flash",
+  "gemini-pro-latest": "gemini-2.5-pro",
+};
+
+/*
+ * מפסק. Vertex דורש הרשאת aiplatform.user לחשבון השירות; כל עוד היא
+ * חסרה, כל קריאה תיכשל. בלי המפסק הזה כל בקשה הייתה משלמת סבב כושל
+ * לפני הנפילה חזרה — כלומר האטה קבועה של הבדיקה המשפטית.
+ *
+ * null = טרם נוסה. אחרי כשל אחד עוברים לנתיב הגלובלי עד סוף חיי
+ * התהליך; מכולה חדשה תנסה שוב, וכך הפעלת ההרשאה נכנסת לתוקף מעצמה.
+ */
+let vertexUsable: boolean | null = null;
+
+function parseCandidates(data: unknown): string {
+  const d = data as { candidates?: { content?: { parts?: { text?: string }[] } }[] };
+  const parts = d.candidates?.[0]?.content?.parts ?? [];
+  return parts.map((p) => p.text ?? "").join("").trim();
+}
+
 async function generate(
   contents: GeminiContent[],
   opts?: { system?: string; json?: boolean; schema?: object; temperature?: number; maxTokens?: number },
   model: string = INTAKE_MODEL,
 ): Promise<string> {
-  const key = await geminiKey();
   const body: Record<string, unknown> = {
     contents,
     generationConfig: {
@@ -60,6 +96,45 @@ async function generate(
   };
   if (opts?.system) body.system_instruction = { parts: [{ text: opts.system }] };
 
+  // ---------- ניסיון ראשון: Vertex באזור נעול ----------
+  const vertexModel = VERTEX_MODELS[model];
+  if (vertexUsable !== false && vertexModel) {
+    try {
+      const { accessToken } = await import("./server-admin");
+      const res = await fetch(
+        `https://${VERTEX_LOCATION}-aiplatform.googleapis.com/v1/projects/${VERTEX_PROJECT}` +
+          `/locations/${VERTEX_LOCATION}/publishers/google/models/${vertexModel}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${await accessToken()}`,
+          },
+          body: JSON.stringify(body),
+        },
+      );
+      if (res.ok) {
+        if (vertexUsable === null) {
+          vertexUsable = true;
+          console.log(`[ai] vertex ${VERTEX_LOCATION} פעיל — הניתוח מתבצע באיחוד האירופי`);
+        }
+        return parseCandidates(await res.json());
+      }
+      /*
+       * הכשל נרשם במלואו בכוונה: זו הדרך היחידה לדעת מהלוגים אם חסרה
+       * הרשאה או שמזהה המודל שגוי, בלי לשבור אף בקשה בדרך.
+       */
+      const errText = await res.text();
+      vertexUsable = false;
+      console.warn(`[ai] vertex לא זמין (${res.status}): ${errText.slice(0, 300)} — נופלים לנתיב הגלובלי`);
+    } catch (e) {
+      vertexUsable = false;
+      console.warn(`[ai] vertex נכשל: ${String(e).slice(0, 200)} — נופלים לנתיב הגלובלי`);
+    }
+  }
+
+  // ---------- נפילה חזרה: הנתיב הגלובלי, זה שעבד עד היום ----------
+  const key = await geminiKey();
   const res = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
     {
@@ -72,11 +147,7 @@ async function generate(
     const errText = await res.text();
     throw new Error(`Gemini ${res.status}: ${errText.slice(0, 200)}`);
   }
-  const data = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
-  };
-  const parts = data.candidates?.[0]?.content?.parts ?? [];
-  return parts.map((p) => p.text ?? "").join("").trim();
+  return parseCandidates(await res.json());
 }
 
 /** מודל חזק לניתוח העומק, עם נפילה חזרה למודל המהיר אם אינו זמין. */
