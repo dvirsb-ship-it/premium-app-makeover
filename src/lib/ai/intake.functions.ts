@@ -52,7 +52,12 @@ async function generate(
     contents,
     generationConfig: {
       temperature: opts?.temperature ?? 0.4,
-      maxOutputTokens: opts?.maxTokens ?? 2500,
+      /*
+       * התקציב כולל את טוקני החשיבה של המודל, לא רק את התשובה. ב-2500
+       * שיחה מורכבת הגיעה ל-MAX_TOKENS כשהחשיבה בלעה הכול — והמשתמש קיבל
+       * שתיקה. ההעלאה כאן זולה: משלמים לפי מה שנוצר בפועל, לא לפי התקרה.
+       */
+      maxOutputTokens: opts?.maxTokens ?? 8000,
       ...(opts?.json
         ? { responseMimeType: "application/json", ...(opts.schema ? { responseSchema: opts.schema } : {}) }
         : {}),
@@ -73,10 +78,34 @@ async function generate(
     throw new Error(`Gemini ${res.status}: ${errText.slice(0, 200)}`);
   }
   const data = (await res.json()) as {
-    candidates?: { content?: { parts?: { text?: string }[] } }[];
+    candidates?: {
+      content?: { parts?: { text?: string }[] };
+      finishReason?: string;
+    }[];
+    promptFeedback?: { blockReason?: string };
   };
-  const parts = data.candidates?.[0]?.content?.parts ?? [];
-  return parts.map((p) => p.text ?? "").join("").trim();
+  const cand = data.candidates?.[0];
+  const text = (cand?.content?.parts ?? []).map((p) => p.text ?? "").join("").trim();
+
+  /*
+   * תשובה ריקה עם 200.
+   *
+   * זה קרה במשתמש אמיתי: המסך הראה "מקליד", הפסיק, ושום הודעה לא הופיעה.
+   * הבקשה הצליחה — Gemini פשוט לא החזיר טקסט. שלוש סיבות אפשריות, וכולן
+   * נראו זהות מבחוץ:
+   *   MAX_TOKENS — המודל חושב, וטוקני החשיבה נספרים בתקציב הפלט. בשיחה
+   *     מורכבת הם בולעים את כל התקציב ולא נשאר דבר לתשובה.
+   *   SAFETY / blockReason — התוכן נחסם.
+   *   כשל אחר בצד המודל.
+   *
+   * החזרת מחרוזת ריקה כלפי מעלה הפכה את זה לשתיקה מוחלטת. עכשיו זו
+   * שגיאה מפורשת: המסך יציג הודעה, ויחזיר למשתמש את מה שכתב.
+   */
+  if (!text) {
+    const why = cand?.finishReason ?? data.promptFeedback?.blockReason ?? "EMPTY";
+    throw new Error(`Gemini החזיר תשובה ריקה (${why})`);
+  }
+  return text;
 }
 
 /** מודל חזק לניתוח העומק, עם נפילה חזרה למודל המהיר אם אינו זמין. */
@@ -350,7 +379,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
           ? `${MEMO_SYSTEM}\n\nמצורפות תמונות שהפונה העלה כתיעוד — התייחס אליהן בסעיפי העובדות, הנזק והראיות.`
           : MEMO_SYSTEM,
         temperature: 0.2,
-        maxTokens: 4000,
+        maxTokens: 8000,
       },
     );
 
@@ -365,7 +394,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       {
         system: VERDICT_SYSTEM,
         temperature: 0.2,
-        maxTokens: 2500,
+        maxTokens: 8000,
         json: true,
         schema: {
           type: "object",
@@ -535,7 +564,7 @@ export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
       {
         system: CENSOR_SYSTEM,
         temperature: 0.1,
-        maxTokens: 2000,
+        maxTokens: 6000,
         json: true,
         schema: {
           type: "object",
