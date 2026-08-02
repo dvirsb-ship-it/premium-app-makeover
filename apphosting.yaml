@@ -63,3 +63,10 @@ env:
     secret: GEMINI_API_KEY
     availability:
       - RUNTIME
+
+  # שליחת מיילים (Resend). בלי המפתח האפליקציה עובדת — notify פשוט לא
+  # ישלח מייל למי שאין לו פוש. זו נפילה מדודה ולא קריסה.
+  - variable: RESEND_API_KEY
+    secret: RESEND_API_KEY
+    availability:
+      - RUNTIME

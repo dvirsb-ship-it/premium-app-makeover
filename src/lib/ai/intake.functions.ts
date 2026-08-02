@@ -318,7 +318,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<ValidateResult> => {
     const {
       requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
-      adminPatch, adminUpdateCase, downloadImageBase64, sendPush, withErrorLog,
+      adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -488,7 +488,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     }
 
     // התראה מחוץ לאפליקציה — הבדיקה לוקחת עד דקה והלקוח לרוב כבר עזב את המסך
-    await sendPush(
+    await notify(
       c.clientId,
       result.validated
         ? {
@@ -613,7 +613,7 @@ export interface NotifyInterestInput {
 export const notifyInterestFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as NotifyInterestInput)
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireUser, adminGetCase, adminGetDoc, recordLawyerResponse, sendPush, withErrorLog } =
+    const { requireUser, adminGetCase, adminGetDoc, recordLawyerResponse, notify, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("notifyInterest", async () => {
       const uid = await requireUser(data.idToken);
@@ -637,7 +637,7 @@ export const notifyInterestFn = createServerFn({ method: "POST" })
       const baseline = Math.max(caseOpenedAt, approvedAt);
       if (baseline > 0) await recordLawyerResponse(uid, Date.now() - baseline);
 
-      await sendPush(
+      await notify(
         c.clientId as string,
         {
           title: "עורך דין הביע עניין בתיק שלך",
@@ -859,7 +859,7 @@ export interface VerificationDecisionInput {
 export const notifySubmissionFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as { idToken: string })
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireIdentity, adminGetDoc, sendPush, uidByEmail, withErrorLog } =
+    const { requireIdentity, adminGetDoc, notify, uidByEmail, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("notifySubmission", async () => {
       const me = await requireIdentity(data.idToken);
@@ -870,7 +870,7 @@ export const notifySubmissionFn = createServerFn({ method: "POST" })
       if (!adminUid) return { sent: false };
 
       const name = typeof ver.fullName === "string" ? ver.fullName : "עורך דין";
-      await sendPush(adminUid, {
+      await notify(adminUid, {
         title: "בקשת אימות חדשה",
         body: `${name} הגיש/ה מסמכים לאימות`,
         link: "/admin/verifications",
@@ -891,13 +891,13 @@ export const notifySubmissionFn = createServerFn({ method: "POST" })
 export const notifyVerificationFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as VerificationDecisionInput)
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireIdentity, sendPush, withErrorLog } = await import("./server-admin");
+    const { requireIdentity, notify, withErrorLog } = await import("./server-admin");
     return withErrorLog("notifyVerification", async () => {
       const me = await requireIdentity(data.idToken);
       if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
         throw new Error("forbidden");
       }
-      await sendPush(
+      await notify(
         data.targetUid,
         data.approved
           ? {

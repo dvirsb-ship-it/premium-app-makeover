@@ -273,6 +273,20 @@ export async function uidByEmail(email: string): Promise<string | null> {
 }
 
 /**
+ * מה עלה בגורל ההתראה.
+ *
+ * `sendPush` החזירה קודם void, ולכן "נשלח" ו"אין מכשיר רשום" נראו זהים
+ * למי שקרא לה. זה בדיוק ההבדל שקובע אם צריך לשלוח מייל במקום — ולכן הוא
+ * חייב לחזור החוצה.
+ */
+export type PushOutcome =
+  | "sent" /* לפחות מכשיר אחד קיבל */
+  | "no-tokens" /* אין מכשיר רשום — כאן נכנס המייל */
+  | "opted-out" /* המשתמש כיבה את הערוץ — לא פוש ולא מייל */
+  | "no-user"
+  | "failed"; /* כל המכשירים נדחו או שהקריאה נפלה */
+
+/**
  * שליחת התראה לכל המכשירים של משתמש.
  * לעולם לא זורקת — התראה שנכשלה לא אמורה להפיל את הפעולה שיצרה אותה.
  * ההתראה נשלחת כ-data בלבד, כדי שה-service worker יציג אותה בעברית (dir=rtl).
@@ -281,17 +295,17 @@ export async function sendPush(
   uid: string,
   msg: { title: string; body: string; link?: string },
   topic?: "caseUpdates" | "lawyerInterest",
-): Promise<void> {
+): Promise<PushOutcome> {
   try {
     const user = await adminGetUser(uid);
-    if (!user) return;
+    if (!user) return "no-user";
     // העדפה שכובתה מכבדת את המשתמש; ברירת המחדל היא לשלוח
-    if (topic && user[topic] === false) return;
+    if (topic && user[topic] === false) return "opted-out";
     const tokens = (user.pushTokens as string[] | undefined) ?? [];
-    if (!tokens.length) return;
+    if (!tokens.length) return "no-tokens";
 
     const token = await accessToken();
-    await Promise.all(
+    const results = await Promise.all(
       tokens.slice(0, 10).map((t) =>
         fetch(`https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`, {
           method: "POST",
@@ -303,12 +317,116 @@ export async function sendPush(
               webpush: { headers: { Urgency: "high" } },
             },
           }),
-        }).catch(() => undefined),
+        })
+          .then((r) => r.ok)
+          .catch(() => false),
       ),
     );
+    return results.some(Boolean) ? "sent" : "failed";
   } catch {
     /* התראה היא תוספת, לא תנאי */
+    return "failed";
   }
+}
+
+/* ---------- מייל ---------- */
+
+/**
+ * כתובת המייל של משתמש — מ-Firebase Auth, לא ממסמך users.
+ *
+ * מאותה סיבה שב-uidByEmail: השדה במסמך users נכתב מהדפדפן. כתובת שמגיעה
+ * מ-Auth היא זו שגוגל אימתה בהתחברות, וזו היחידה שמותר לשלוח אליה.
+ */
+export async function emailByUid(uid: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/projects/${PROJECT_ID}/accounts:lookup`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${await accessToken()}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ localId: [uid] }),
+      },
+    );
+    if (!res.ok) return null;
+    const data = (await res.json()) as { users?: { email?: string; emailVerified?: boolean }[] };
+    const u = data.users?.[0];
+    // כתובת לא מאומתת אינה ראיה לכך שהיא שייכת למי שמולנו
+    return u?.email && u.emailVerified ? u.email : null;
+  } catch {
+    return null;
+  }
+}
+
+export type MailOutcome = "sent" | "no-key" | "no-address" | "failed";
+
+/**
+ * שליחת מייל דרך Resend.
+ *
+ * REST ולא ה-SDK, מאותה סיבה שכל הקובץ הזה הוא REST. לעולם לא זורקת.
+ */
+export async function sendMail(
+  uid: string,
+  msg: { title: string; body: string; link?: string; cta?: string },
+): Promise<MailOutcome> {
+  const key = process.env.RESEND_API_KEY;
+  if (!key) return "no-key";
+  try {
+    const to = await emailByUid(uid);
+    if (!to) return "no-address";
+
+    const { buildNotificationMail, MAIL_FROM, unsubscribeUrl } = await import("../mail-templates");
+    const mail = buildNotificationMail(msg);
+
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: MAIL_FROM,
+        to,
+        subject: mail.subject,
+        html: mail.html,
+        text: mail.text,
+        // בלי אלה ספקי דואר מסמנים התראות אוטומטיות כספאם
+        headers: {
+          "List-Unsubscribe": `<${unsubscribeUrl()}>`,
+          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        },
+      }),
+    });
+    if (!res.ok) {
+      await logServerError("sendMail", new Error(`resend ${res.status}: ${await res.text()}`));
+      return "failed";
+    }
+    return "sent";
+  } catch (err) {
+    await logServerError("sendMail", err);
+    return "failed";
+  }
+}
+
+/**
+ * התראה החוצה — פוש, ומייל למי שאין לו פוש.
+ *
+ * זה הכלל: **מי שהפעיל התראות מקבל פוש; מי שלא — מקבל מייל.** לא שניהם,
+ * כי אותה ידיעה פעמיים היא הטרדה, ולא כלום, כי תיק שיושב בלי מענה הולך
+ * למישהו אחר. מי שכיבה את הערוץ במפורש לא מקבל דבר — גם לא מייל; דחיית
+ * הרשאה בטלפון היא לא כיבוי, ולכן היא כן מקבלת מייל.
+ *
+ * לעולם לא זורקת, ומחזירה את מה שקרה בפועל כדי שאפשר יהיה לבדוק.
+ */
+export async function notify(
+  uid: string,
+  msg: { title: string; body: string; link?: string; cta?: string },
+  topic?: "caseUpdates" | "lawyerInterest",
+): Promise<{ push: PushOutcome; mail: MailOutcome | "skipped" }> {
+  const push = await sendPush(uid, msg, topic);
+  if (push === "sent" || push === "opted-out" || push === "no-user") {
+    return { push, mail: "skipped" };
+  }
+  return { push, mail: await sendMail(uid, msg) };
 }
 
 /* ---------- מחיקת חשבון בפועל ---------- */
