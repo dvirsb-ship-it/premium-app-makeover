@@ -752,6 +752,92 @@ export const strings = {
    * אינו בר-השוואה לתעריף שעתי או לסכום קבוע. הנוסח נזהר לא להבטיח דבר:
    * זו אריתמטיקה על סכום שהלקוח בחר, ולא הערכה של שווי התיק.
    */
+  /* ---------- הדף הציבורי לעורכי דין ---------- */
+  /*
+   * כל טענה כאן ניתנת להצבעה על מקורה באפליקציה. במיוחד:
+   * "עברו בדיקה משפטית" ולא "לקוחות מאומתים" (איננו מאמתים לקוחות)
+   * ולא "יש להם עילה" (התקנון אומר שהבדיקה אינה ייעוץ משפטי).
+   */
+  lpMetaTitle: { he: "JustAsk לעורכי דין — פניות שעברו בדיקה משפטית", en: "JustAsk for lawyers — matters that passed a legal check" },
+  lpMetaDesc: {
+    he: "פנייה מגיעה אליך אחרי בדיקה משפטית, עם תזכיר מלא: עילות, יסודותיהן, התיישנות וטענות נגד. חצי שנה ללא תשלום.",
+    en: "Matters arrive after a legal check, with a full memo: causes of action, their elements, limitation and counterarguments. Six months free.",
+  },
+  lpNavCta: { he: "כניסה", en: "Sign in" },
+  lpBadge: { he: "חצי שנה ראשונה — ללא תשלום", en: "First six months — free" },
+  lpH1a: { he: "לא ליד.", en: "Not a lead." },
+  lpH1b: { he: "תיק שכבר נבדק.", en: "A matter already checked." },
+  lpSub: {
+    he: "הפונה מספר מה קרה בשיחה, המערכת בודקת אם יש עניין משפטי, וכותבת תזכיר מלא. אתה מקבל את שניהם — ומחליט אם לקחת.",
+    en: "The person describes what happened, the system checks whether there is a legal matter and writes a full memo. You get both — and decide whether to take it.",
+  },
+  lpHeroCta: { he: "הצטרפות כעורך דין", en: "Join as a lawyer" },
+  lpHeroNote: { he: "אימות רישיון נדרש · ללא התחייבות", en: "Licence verification required · no commitment" },
+  lpArtifactAria: { he: "דוגמה לפנייה כפי שהיא מגיעה לעורך דין", en: "Example of a matter as it reaches a lawyer" },
+
+  lpCardCat: { he: "נזיקין ותאונות", en: "Injury & accidents" },
+  lpCardUrgent: { he: "דחוף", en: "Urgent" },
+  lpCardMatch: { he: "התאמה גבוהה", en: "High match" },
+  lpCardTitle: { he: "החלקה על רצפה רטובה בסופרמרקט", en: "Slip on a wet supermarket floor" },
+  lpCardCity: { he: "ירושלים", en: "Jerusalem" },
+  lpMemoLabel: { he: "התזכיר המשפטי", en: "The legal memo" },
+  lpMemoBody: {
+    he: "עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת זהירות מוגברת של תופס מקרקעין כלפי מבקר. ההתיישנות טרם חלפה. תיעוד רפואי קיים, וצילום מהמקום מחזק את יסוד ההפרה…",
+    en: "Possible negligence claim under s.35 of the Torts Ordinance, plus an occupier's heightened duty of care toward a visitor. Limitation has not run. Medical documentation exists, and a photo of the scene supports the breach element…",
+  },
+
+  lpStat1: { he: "מהפניות עברו בדיקה משפטית לפני שהגיעו אליך", en: "of matters passed a legal check before reaching you" },
+  lpStat2Val: { he: "21", en: "21" },
+  lpStat2: { he: "תחומי משפט — מקבלים רק את שלך", en: "practice areas — you get only yours" },
+  lpStat3Val: { he: "0₪", en: "₪0" },
+  lpStat3: { he: "עמלה מהתיק. לעולם", en: "commission on your fee. Ever" },
+
+  lpHowTitle: { he: "איך פנייה מגיעה אליך", en: "How a matter reaches you" },
+  lpHowSub: {
+    he: "אותו תהליך בדיוק שאתה רואה בתוך האפליקציה — משני צדדיו.",
+    en: "Exactly the process you see inside the app — from both sides.",
+  },
+  lpStep1: {
+    he: "אדם מספר מה קרה לו בשיחה עם מנוע AI. המנוע בודק אם קיים עניין משפטי לפי סוג ההליך, ודוחה מקרים שאין בהם — ומפנה אותם למקום המתאים.",
+    en: "A person describes what happened to an AI engine. It checks whether a legal matter exists for that type of proceeding, and rejects those without one — pointing them elsewhere.",
+  },
+  lpStep2: {
+    he: "פנייה שעברה נפתחת בפני עורכי דין מאומתים בתחום שלה — בלי שם הפונה ובלי פרטי קשר. אתה מביע עניין ויכול לצרף הצעת שכר טרחה.",
+    en: "A matter that passed opens to verified lawyers in its field — without the person's name or contact details. You express interest and may attach a fee proposal.",
+  },
+  lpStep3: {
+    he: "הפונה בוחר מבין מי שהביע עניין. רק אז נחשפים פרטיו לעורך הדין שנבחר, והסכם שכר הטרחה נכרת ישירות ביניכם.",
+    en: "The person chooses among those who responded. Only then are their details revealed to the chosen lawyer, and the fee agreement is made directly between you.",
+  },
+  lpDisclaimer: {
+    he: "הבדיקה הראשונית של JustAsk אינה ייעוץ משפטי ואינה מחליפה אותו. ההערכה המשפטית נעשית על ידי עורך הדין בלבד.",
+    en: "JustAsk's initial check is not legal advice and does not replace it. The legal assessment is made by the lawyer alone.",
+  },
+
+  lpIncEyebrow: { he: "כלול, ללא תשלום", en: "Included, free" },
+  lpIncTitle: { he: "מה אתה מקבל", en: "What you get" },
+  lpInc1: { he: "כל הפניות בתחומים שסימנת, מיד עם אישור הבדיקה", en: "Every matter in the areas you selected, the moment the check passes" },
+  lpInc2: { he: "התזכיר המשפטי המלא — עילות, יסודותיהן, התיישנות וטענות נגד", en: "The full legal memo — causes of action, elements, limitation and counterarguments" },
+  lpInc3: { he: "התראה בזמן אמת על כל פנייה חדשה בתחום שלך", en: "Real-time alerts on every new matter in your field" },
+  lpInc4: { he: "צירוף הצעת שכר טרחה מובנית, לפני שהפונה בוחר", en: "Attach a structured fee proposal before the person chooses" },
+  lpInc5: { he: "מדד תגובה שאנחנו מודדים — ומוצג לפונה לצד ההצעה שלך", en: "A response metric we measure — shown to the person beside your proposal" },
+
+  lpNotEyebrow: { he: "וגם — מה שאיננו מוכרים", en: "And — what we don't sell" },
+  lpNotTitle: { he: "מה שלא תמצא כאן", en: "What you won't find here" },
+  lpNot1: { he: "אחוז מהתיק. איננו צד להסכם שכר הטרחה ואיננו נוטלים ממנו דבר", en: "A cut of your fee. We are not party to the fee agreement and take nothing from it" },
+  lpNot2: { he: "מקום בתור תמורת תשלום. הפונה רואה את כל מי שהביע עניין באותו סדר", en: "A paid place in line. The person sees everyone who responded, in the same order" },
+  lpNot3: { he: "בלעדיות על פנייה, או נפח פניות בלי רלוונטיות לתחום שלך", en: "Exclusivity on a matter, or volume without relevance to your field" },
+  lpNot4: { he: "אחוזי הצלחה או דירוגים שאי אפשר לאמת", en: "Success rates or ratings that cannot be verified" },
+
+  lpFinalTitle: { he: "אימות רישיון, ואתה בפנים", en: "Verify your licence, and you're in" },
+  lpFinalSub: {
+    he: "רישיון ותעודת בוגר, בדיקה מול פנקס לשכת עורכי הדין, ואישור. אין תשלום בחצי השנה הראשונה, ואין התחייבות אחריה.",
+    en: "Your licence and degree, a check against the Bar registry, and approval. No payment in the first six months, and no commitment after.",
+  },
+  lpFinalNote: { he: "מספר עורכי הדין בכל תחום מוגבל בשלב זה", en: "The number of lawyers per field is limited at this stage" },
+  lpFooter: { he: "JustAsk — מחברים בין אנשים שנפגעו לעורכי הדין שיכולים לעזור להם", en: "JustAsk — connecting injured people with the lawyers who can help" },
+  lpFooterRights: { he: "כל הזכויות שמורות", en: "All rights reserved" },
+
   meansTitle: { he: "מה זה אומר בכסף", en: "What this means in money" },
   meansSub: {
     he: "בחרו סכום להמחשה, וראו מה כל הצעה אומרת בפועל.",

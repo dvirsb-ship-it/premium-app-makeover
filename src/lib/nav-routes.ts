@@ -18,6 +18,8 @@
 export const FOCUSED_ROUTES = [
   "/welcome",
   "/auth",
+  /* דף ציבורי למי שאינו מחובר — אין לו למה לנווט */
+  "/lawyers",
   "/onboarding",
   "/lawyer-onboarding",
   "/intake",
