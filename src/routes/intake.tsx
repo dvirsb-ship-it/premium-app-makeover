@@ -190,6 +190,32 @@ function Intake() {
     });
   }, [messages, typing]);
 
+  /*
+   * באג ידוע של ספארי ב-iOS: אחרי סגירת המקלדת ה-visual viewport נשאר
+   * מוזח. אלמנטים בתחתית (כפתור "שליחה לבדיקת התאמה") מצוירים במקום
+   * הנכון, אבל אזור המגע שלהם נשאר איפה שהיה כשהמקלדת הייתה פתוחה —
+   * הקשה עליהם לא עושה כלום, ופתיחה מחדש של המקלדת "מתקנת" את זה.
+   * זה בדיוק מה שדווח: הכפתור עבד רק אחרי שהמקלדת יצאה.
+   *
+   * התיקון: כשה-viewport גדל חזרה (המקלדת נסגרה) מאפסים את הגלילה של
+   * החלון — העמוד עצמו ממילא אינו גליל (הגלילה פנימית), כך שאין תזוזה
+   * נראית; זה רק מכריח את ספארי לסנכרן מחדש את מפת המגע.
+   */
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    let lastHeight = vv.height;
+    const onResize = () => {
+      const keyboardClosed = vv.height > lastHeight + 50;
+      lastHeight = vv.height;
+      if (keyboardClosed) {
+        requestAnimationFrame(() => window.scrollTo(0, 0));
+      }
+    };
+    vv.addEventListener("resize", onResize);
+    return () => vv.removeEventListener("resize", onResize);
+  }, []);
+
   // ארבעה פרטים נאספים בשיחה: תיאור, תאריך, סוג נזק, תיעוד
   const totalSteps = 3;
   const progress = Math.min(step, totalSteps);
