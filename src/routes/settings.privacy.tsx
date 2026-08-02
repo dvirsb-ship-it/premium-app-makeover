@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import { Lock, ShieldCheck, UserCheck, Trash2 } from "lucide-react";
+import { Cpu, Lock, ShieldCheck, UserCheck, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
@@ -25,7 +25,16 @@ export const Route = createFileRoute("/settings/privacy")({
   component: PrivacySettings,
 });
 
+/*
+ * הרשימה תיארה הצפנה, בידוד ומחיקה — אבל לא אמרה מילה על העובדה שתיאור
+ * המקרה והתמונות נשלחים למנוע AI של גוגל לניתוח, ולא על היכן העיבוד
+ * מתבצע. זו העברה של מידע אישי — ולעיתים רפואי — לצד שלישי, וזה בדיוק
+ * מה שמשתמש זכאי לדעת לפני שהוא מקליד.
+ *
+ * הסעיף החדש ראשון ברשימה בכוונה: הוא המהותי מבין הארבעה.
+ */
 const items: { icon: typeof Lock; title: StringKey; sub: StringKey }[] = [
+  { icon: Cpu, title: "privacyAi", sub: "privacyAiSub" },
   { icon: Lock, title: "privacyEnc", sub: "privacyEncSub" },
   { icon: UserCheck, title: "privacyControl", sub: "privacyControlSub" },
   { icon: ShieldCheck, title: "privacyRls", sub: "privacyRlsSub" },

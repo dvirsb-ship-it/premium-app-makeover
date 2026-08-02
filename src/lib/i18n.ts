@@ -741,6 +741,17 @@ export const strings = {
    * מסר על עצמו, והפנקס הוא המקור. אין דרך אוטומטית לבדוק אותו — המאגר
    * הפתוח מכיל שמות וכתובות בלבד, בלי מספרי רישיון ובלי סטטוס.
    */
+  /*
+   * גילוי העיבוד ב-AI. עד עכשיו מסך הפרטיות דיבר על הצפנה ובידוד בלבד,
+   * ולא אמר שהתיאור והתמונות נשלחים למנוע של גוגל לניתוח. הנוסח מפורש
+   * במכוון — כולל מה נשלח, לשם מה, ואיפה. עדיף לומר יותר.
+   */
+  privacyAi: { he: "ניתוח ע״י בינה מלאכותית", en: "Analysis by AI" },
+  privacyAiSub: {
+    he: "הבדיקה המשפטית נעשית ע״י מנוע Gemini של גוגל. תיאור המקרה והתמונות שתעלו נשלחים אליו לצורך הבדיקה בלבד — לא לאימון המודל ולא לפרסום. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל; הניתוח עצמו מתבצע בשרתי גוגל, ולא בהכרח בישראל.",
+    en: "The legal check is performed by Google's Gemini. Your case description and any photos you upload are sent to it for that check only — not for model training and not for advertising. Cases and files are stored on Google servers in Israel; the analysis itself runs on Google servers, not necessarily in Israel.",
+  },
+
   registryGateTitle: {
     he: "לפני האישור — בדיקה מול פנקס הלשכה",
     en: "Before approving — check the Bar registry",
