@@ -125,6 +125,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap",
       },
+      /*
+       * favicon.ico קיים כקובץ אמיתי ב-public בנוסף להצהרה כאן: סורקים,
+       * לקוחות מייל ודפדפנים ותיקים מבקשים /favicon.ico בלי לקרוא את
+       * ה-HTML בכלל. בלעדיו כל בקשה כזו קיבלה את עמוד ה-404 המלא —
+       * 245 פעמים בשבוע האחרון בלוגים.
+       */
       { rel: "icon", type: "image/png", href: "/app-icon.png" },
       { rel: "apple-touch-icon", href: "/app-icon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
