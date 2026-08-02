@@ -725,6 +725,40 @@ export const strings = {
   fomoTitleMine: { he: "תיקים פתוחים בתחומים שבחרת", en: "Open cases in your fields" },
   fomoTitleAll: { he: "תיקים פתוחים ממתינים עכשיו", en: "Open cases waiting right now" },
   fomoUnlock: { he: "האימות פותח אותם", en: "Verification unlocks them" },
+
+  /*
+   * מתחת לפיד. כל מספר כאן נמדד באמת: visible הוא מה שמוצג לו בפועל,
+   * total הוא ספירת התיקים הפתוחים ב-30 הימים האחרונים, ו-untouched
+   * נספר מהפיד עצמו. אין כאן אף הבטחה שאי אפשר להצביע על מקורה.
+   */
+  pulseEyebrow: { he: "בזמן אמת", en: "LIVE" },
+  pulseTitle: { he: "מה פתוח עכשיו", en: "Open right now" },
+  pulseOutOf: { he: "מתוך", en: "of" },
+  pulseOpenNow: { he: "פניות פתוחות כרגע", en: "open matters right now" },
+  pulseElsewhere: {
+    he: "פניות נוספות פתוחות בתחומים שלא סימנת",
+    en: "more open matters are in areas you didn't select",
+  },
+  pulseMine: { he: "שלך", en: "Yours" },
+  pulseUntouched: {
+    he: "מהפניות שלך עדיין בלי אף תגובה — אתה הראשון שרואה אותן",
+    en: "of your matters have no response yet — you're first to see them",
+  },
+  pulseEditSpecs: { he: "עדכון התחומים שלי", en: "Update my practice areas" },
+
+  howTitle: { he: "מה קורה אחרי שמביעים עניין", en: "What happens after you respond" },
+  howStep1: {
+    he: "כל פנייה עוברת בדיקה משפטית לפני שהיא מגיעה אליך, ומגיעה עם תזכיר מלא — עילות, יסודותיהן, התיישנות וטענות נגד.",
+    en: "Every matter passes a legal check before it reaches you, and arrives with a full memo — causes of action, their elements, limitation and counterarguments.",
+  },
+  howStep2: {
+    he: "אתה מביע עניין ויכול לצרף הצעת שכר טרחה. הלקוח רואה את כל מי שהביע עניין — אנחנו לא מדרגים לפי תשלום.",
+    en: "You express interest and may attach a fee proposal. The client sees everyone who responded — we don't rank by payment.",
+  },
+  howStep3: {
+    he: "הלקוח בוחר. רק אז נחשפים פרטי הקשר שלו, והתיק עובר ל„התיקים שלי”. ההסכם נכרת ישירות ביניכם.",
+    en: "The client chooses. Only then are their contact details revealed and the matter moves to My cases. The agreement is made directly between you.",
+  },
   feedFirstRunTitle: { he: "אתם בין הראשונים כאן", en: "You're among the first here" },
   feedFirstRunSub: { he: "JustAsk בשלב השקה, ועדיין אין פנייה פתוחה בתחומים שבחרתם. זה לא יישאר ככה — וכשתגיע פנייה, אתם תראו אותה ראשונים.", en: "JustAsk is in launch phase and there's no open case in your fields yet. That won't last — and when one arrives, you'll see it first." },
   feedFirstRun1: { he: "כל פנייה שתגיע כבר עברה בדיקה משפטית — לא לידים גולמיים", en: "Every case that arrives already passed a legal review — not raw leads" },

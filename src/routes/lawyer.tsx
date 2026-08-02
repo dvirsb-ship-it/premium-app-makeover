@@ -14,7 +14,9 @@ import {
   type VerificationStatus,
 } from "../lib/verification-queue";
 import { useAppStore } from "../lib/store";
-import { useT, translate } from "../lib/i18n";
+import type { FeedCase } from "../lib/types";
+import { cn } from "../lib/utils";
+import { useT, translate, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useRequireAuth } from "../lib/require-auth";
 
@@ -424,8 +426,191 @@ function LawyerFeed() {
         ))}
       </div>
 
+      {/*
+        * מתחת לפיד היה שטח ריק, ועורך דין שרואה שתי פניות אינו יודע אם
+        * זה כל מה שיש או שהמערכת פשוט שקטה. שני הבלוקים האלה עונים בדיוק
+        * על זה — הראשון במספרים אמיתיים, השני בהסבר של מה קורה הלאה.
+        */}
+      {verStatus === "approved" && (
+        <>
+          <FeedPulse feed={feed} counts={counts} mySpecs={mySpecs} />
+          <HowItWorks />
+        </>
+      )}
+
       {/* silence unused var warnings when lang changes */}
       <span hidden>{lang}</span>
     </AppShell>
+  );
+}
+
+/**
+ * מה פתוח עכשיו — ולמה אתה רואה רק חלק מזה.
+ *
+ * זו השאלה שעורך דין שואב מהמסך בלי לשאול: "זה הכול?". התשובה הכנה
+ * היא שהוא רואה את התחומים שסימן, ושיש עוד. הפס מראה את היחס במבט
+ * אחד, והפירוט מסמן אילו תחומים שלו.
+ */
+function FeedPulse({
+  feed,
+  counts,
+  mySpecs,
+}: {
+  feed: FeedCase[];
+  counts: OpenCountsResult | null;
+  mySpecs: string[];
+}) {
+  const t = useT();
+  const navigate = useNavigate();
+  // בלי נתונים אמיתיים לא מציגים פאנל — לוח ריק גרוע מאין לוח
+  if (!counts || counts.total === 0) return null;
+
+  const visible = feed.length;
+  const total = counts.total;
+  const elsewhere = Math.max(0, total - visible);
+  const share = total > 0 ? Math.min(100, Math.round((visible / total) * 100)) : 0;
+  // פניות שאיש עוד לא הגיב להן — ההזדמנות האמיתית, ונתון שאפשר לאמת
+  const untouched = feed.filter((f) => f.interestedCount === 0).length;
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 12 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className="liquid-glass mt-8 rounded-[26px] p-5"
+      aria-label={t("pulseTitle")}
+    >
+      <p className="text-[11px] font-medium tracking-[0.2em] text-gold">
+        {t("pulseEyebrow")}
+      </p>
+      <h2 className="mt-1.5 text-[17px] font-bold text-foreground">
+        {t("pulseTitle")}
+      </h2>
+
+      <p className="mt-3 text-[13px] leading-relaxed text-muted-foreground">
+        <span className="font-bold text-foreground">{visible}</span>{" "}
+        {t("pulseOutOf")}{" "}
+        <span className="font-bold text-foreground">{total}</span>{" "}
+        {t("pulseOpenNow")}
+      </p>
+
+      {/* היחס במבט אחד: המילוי הוא מה שפתוח בפניך, השאר הוא מה שקיים ואינו */}
+      <div
+        className="mt-3 h-2 w-full overflow-hidden rounded-full bg-foreground/10"
+        role="img"
+        aria-label={`${visible} ${t("pulseOutOf")} ${total}`}
+      >
+        <motion.div
+          initial={{ width: 0 }}
+          whileInView={{ width: `${share}%` }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="h-full rounded-full bg-gradient-to-r from-[#F1E4C3] via-gold to-[#B8912B]"
+        />
+      </div>
+
+      {elsewhere > 0 && (
+        <p className="mt-2.5 text-[12px] leading-relaxed text-muted-foreground">
+          {elsewhere} {t("pulseElsewhere")}
+        </p>
+      )}
+
+      <div className="mt-4 space-y-1.5 border-t border-foreground/10 pt-4">
+        {counts.byCategory.slice(0, 6).map((c) => {
+          const mine = categoryMatchesSpecialties(c.category, mySpecs);
+          const Icon = categoryIcon(c.category);
+          return (
+            <div key={c.category} className="flex items-center gap-2.5">
+              <Icon
+                className={cn(
+                  "size-4 shrink-0",
+                  mine ? "text-gold" : "text-muted-foreground/60",
+                )}
+                strokeWidth={1.9}
+                aria-hidden
+              />
+              <span
+                className={cn(
+                  "flex-1 truncate text-[12.5px]",
+                  mine ? "font-semibold text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {c.category}
+              </span>
+              {mine && (
+                <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold-ink">
+                  {t("pulseMine")}
+                </span>
+              )}
+              <span
+                className={cn(
+                  "w-6 text-end text-[12.5px] font-bold tabular-nums",
+                  mine ? "text-foreground" : "text-muted-foreground",
+                )}
+              >
+                {c.count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+
+      {untouched > 0 && (
+        <p className="mt-4 rounded-2xl bg-gold/[0.07] px-3.5 py-2.5 text-[12px] font-semibold leading-relaxed text-gold-ink">
+          {untouched} {t("pulseUntouched")}
+        </p>
+      )}
+
+      {elsewhere > 0 && (
+        <button
+          type="button"
+          onClick={() => navigate({ to: "/lawyer-onboarding" })}
+          className="mt-3 min-h-11 w-full rounded-2xl border border-gold/30 py-2.5 text-[12.5px] font-bold text-gold-ink transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
+        >
+          {t("pulseEditSpecs")}
+        </button>
+      )}
+    </motion.section>
+  );
+}
+
+/**
+ * מה קורה אחרי שמביעים עניין.
+ *
+ * עורך דין חדש אינו יודע מה קורה מהרגע שהוא לוחץ ועד שיש לו לקוח, ולכן
+ * הוא מהסס. שלושת השלבים כתובים בדיוק כפי שהמערכת עובדת — כולל העובדה
+ * שהלקוח הוא שבוחר, ושפרטיו נחשפים רק אז.
+ */
+function HowItWorks() {
+  const t = useT();
+  const steps: { key: StringKey; icon: typeof Scale }[] = [
+    { key: "howStep1", icon: Scale },
+    { key: "howStep2", icon: Users },
+    { key: "howStep3", icon: Clock },
+  ];
+
+  return (
+    <section className="mt-4 rounded-[26px] border border-foreground/10 p-5">
+      <h2 className="text-[13px] font-bold text-foreground">{t("howTitle")}</h2>
+      <ol className="mt-3.5 space-y-3.5">
+        {steps.map((s, i) => {
+          const Icon = s.icon;
+          return (
+            <li key={s.key} className="flex items-start gap-3">
+              <span className="mt-0.5 grid size-7 shrink-0 place-items-center rounded-full bg-gold/12 text-[11px] font-black text-gold-ink ring-1 ring-gold/20">
+                {i + 1}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[12.5px] leading-relaxed text-muted-foreground">
+                  {t(s.key)}
+                </p>
+              </div>
+              <Icon className="mt-1 size-4 shrink-0 text-gold/50" strokeWidth={1.8} aria-hidden />
+            </li>
+          );
+        })}
+      </ol>
+    </section>
   );
 }
