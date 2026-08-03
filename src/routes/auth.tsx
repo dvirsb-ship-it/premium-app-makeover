@@ -18,7 +18,7 @@ import {
   signInApple,
   signInGoogle,
   startPhoneSignIn,
-} from "../lib/auth-service";
+hasPendingRedirect } from "../lib/auth-service";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -106,6 +106,30 @@ function Auth() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, user]);
+
+  /*
+   * מי שהגיע לכאן ישירות — כפתור "כניסה" בדף הנחיתה, קישור ששותף —
+   * ומעולם לא עבר את הפתיחה, מקבל אותה קודם. בלי זה משתמש חדש לגמרי
+   * נוחת על מסך גוגל עירום בלי שום הקשר; זה מה שקרה לדביר בבדיקה.
+   *
+   * השומרים הם הלב, כי /auth הוא גם כתובת החזרה מגוגל בנייד:
+   * authResolving / hasPendingRedirect — באמצע השלמת התחברות, לא נוגעים;
+   * user — מחובר לא צריך פתיחה; oobCode — השלמת קישור אימייל;
+   * startedSignIn — התחיל התחברות במסך הזה ממש.
+   */
+  useEffect(() => {
+    if (!authReady || user || authResolving || startedSignIn.current) return;
+    if (hasPendingRedirect()) return;
+    if (window.location.href.includes("oobCode=")) return;
+    try {
+      if (!localStorage.getItem("justask-welcomed")) {
+        navigate({ to: "/welcome", replace: true });
+      }
+    } catch {
+      /* localStorage חסום — עדיף מסך התחברות ממסך שבור */
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [authReady, user, authResolving]);
 
   // אם הגענו מקישור התחברות באימייל — משלימים אוטומטית
   useEffect(() => {
