@@ -181,7 +181,7 @@ function Welcome() {
         <motion.div
           aria-hidden
           style={{ opacity: ctaOpacity }}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[9] h-[46%] bg-gradient-to-t from-[#04060b] via-[#04060b]/55 to-transparent"
+          className="pointer-events-none absolute inset-0 z-[9] bg-[radial-gradient(95%_60%_at_50%_50%,rgba(2,4,8,0.72),rgba(2,4,8,0.35))]"
         />
 
         {/* Chrome + copy */}
