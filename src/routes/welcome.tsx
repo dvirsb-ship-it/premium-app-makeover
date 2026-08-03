@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
-import doorLeaf from "../assets/welcome/door-leaf.jpg";
+import doorRight from "../assets/welcome/door-right.webp";
 import portalFrame from "../assets/welcome/portal-frame.webp";
 import { useT } from "../lib/i18n";
 import { haptic } from "../lib/haptics";
@@ -89,23 +89,12 @@ function Welcome() {
    */
   const p = useSpring(scrollYProgress, { stiffness: 58, damping: 21, mass: 0.4 });
 
-  /*
-   * הדלתות היו מרגישות סטטיות כי הסיבוב היה ליניארי: מהירות אחידה
-   * לאורך כל הגלילה נקראת כמו סליידר, לא כמו כנף כבדה. עכשיו יש שלוש
-   * שכבות תנועה — פתיחה מואצת (הכנף "נשברת" מהמנעול ואז נפתחת),
-   * דחיפה ב-z שמביאה את הכנפיים אל המצלמה, וסדק שנפתח ומאיר.
-   * הן גם מתחילות מפוסקות קלות, כך שהמסך הראשון כבר חי.
-   */
-  const swing = cubicBezier(0.4, 0, 0.2, 1);
-  const leftRotate = useTransform(p, [0, 0.12, 0.86], [-3.5, -6, -88], { ease: swing });
-  const rightRotate = useTransform(p, [0, 0.12, 0.86], [3.5, 6, 88], { ease: swing });
-  const doorShift = useTransform(p, [0.1, 0.86], [0, -18], { ease: swing });
-  const doorShiftR = useTransform(p, [0.1, 0.86], [0, 18], { ease: swing });
-  const doorZ = useTransform(p, [0, 0.86], [0, 190], { ease: swing });
+  // Doors swing outward in real 3D; the frame pushes past the camera.
+  const leftRotate = useTransform(p, [0.1, 0.86], [0, -84]);
+  const rightRotate = useTransform(p, [0.1, 0.86], [0, 84]);
+  const doorShift = useTransform(p, [0.1, 0.86], [0, -14]);
+  const doorShiftR = useTransform(p, [0.1, 0.86], [0, 14]);
   const doorFade = useTransform(p, [0.8, 0.94], [1, 0]);
-  /* הסדק: צר וכמעט כבוי בהתחלה, רחב ולוהט ברגע שהכנפיים נפתחות */
-  const seamWidth = useTransform(p, [0, 0.55, 0.86], ["4rem", "16rem", "34rem"]);
-  const seamGlow = useTransform(p, [0, 0.2, 0.7, 0.92], [0.35, 0.7, 1, 0]);
 
   const roomScale = useTransform(p, [0, 1], [1.04, 1.42]);
   const roomOpacity = useTransform(p, [0, 0.35, 0.7], [0.35, 0.75, 1]);
@@ -231,35 +220,40 @@ function Welcome() {
         <motion.div
           aria-hidden
           style={{ opacity: doorFade }}
-          className="absolute inset-0 z-[4] [transform-style:preserve-3d] will-change-[opacity]"
+          className="absolute inset-0 z-[4] will-change-[opacity]"
         >
           <motion.div
-            style={{ rotateY: leftRotate, x: doorShift, z: doorZ, transformOrigin: "left center" }}
+            style={{ rotateY: leftRotate, x: doorShift, transformOrigin: "left center" }}
             className="absolute bottom-0 left-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
           >
-            <img src={doorLeaf} alt="" className="h-full w-full scale-x-[-1] object-fill" />
+            <img
+              src={doorRight}
+              alt=""
+              className="h-full w-full scale-x-[-1] object-fill"
+            />
             {/* צל אצל הציר ואור עדין בקצה הפנימי — נותן לכנף עובי */}
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.6),transparent_42%,rgba(240,214,146,0.12))]" />
-            {/* קצה פנימי מוזהב — קו העובי של הכנף */}
-            <div className="pointer-events-none absolute inset-y-0 right-0 w-[3px] bg-[linear-gradient(180deg,rgba(240,214,146,0.55),rgba(120,90,40,0.35))]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+            {/* חריטת הזהב — חצי הכיתוב היושב על הכנף השמאלית */}
+            <span className="pointer-events-none absolute right-0 top-[26%] pr-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
+              Just
+            </span>
           </motion.div>
 
           <motion.div
-            style={{ rotateY: rightRotate, x: doorShiftR, z: doorZ, transformOrigin: "right center" }}
+            style={{ rotateY: rightRotate, x: doorShiftR, transformOrigin: "right center" }}
             className="absolute bottom-0 right-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
           >
-            <img src={doorLeaf} alt="" className="h-full w-full object-fill" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.6),transparent_42%,rgba(240,214,146,0.12))]" />
-            <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-[linear-gradient(180deg,rgba(240,214,146,0.55),rgba(120,90,40,0.35))]" />
+            <img src={doorRight} alt="" className="h-full w-full object-fill" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+            <span className="pointer-events-none absolute left-0 top-[26%] pl-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
+              Ask
+            </span>
           </motion.div>
 
           {/* warm light spilling through the widening seam */}
-          <motion.div
-            style={{ width: seamWidth, opacity: seamGlow }}
-            className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.3),transparent)] blur-2xl will-change-[width,opacity]"
-          />
-        </motion.div>
+          <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
 
+        </motion.div>
 
 
         {/*
@@ -302,18 +296,21 @@ function Welcome() {
 
           <motion.div
             style={{ opacity: hintFade }}
-            className="flex flex-col items-center gap-1.5 text-white/60"
+            className="flex flex-col items-center gap-2"
           >
-            <span className="text-[11px] font-semibold uppercase tracking-[0.3em]">
+            <span className="rounded-full border border-gold/40 bg-black/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] text-gold backdrop-blur-md">
               {t("welcomeScrollHint")}
             </span>
             <motion.span
-              animate={{ y: [0, 7, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ y: [0, 9, 0], opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="-space-y-3 flex flex-col items-center text-gold"
             >
-              <ChevronDown className="size-5" />
+              <ChevronDown className="size-6 opacity-50" strokeWidth={2.5} />
+              <ChevronDown className="size-7" strokeWidth={2.5} />
             </motion.span>
           </motion.div>
+
         </div>
 
         {/*
