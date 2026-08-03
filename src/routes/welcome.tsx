@@ -288,18 +288,21 @@ function Welcome() {
 
           <motion.div
             style={{ opacity: hintFade }}
-            className="flex flex-col items-center gap-1.5 text-white/60"
+            className="flex flex-col items-center gap-2"
           >
-            <span className="text-[11px] font-semibold uppercase tracking-[0.3em]">
+            <span className="rounded-full border border-gold/40 bg-black/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] text-gold backdrop-blur-md">
               {t("welcomeScrollHint")}
             </span>
             <motion.span
-              animate={{ y: [0, 7, 0] }}
-              transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+              animate={{ y: [0, 9, 0], opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              className="-space-y-3 flex flex-col items-center text-gold"
             >
-              <ChevronDown className="size-5" />
+              <ChevronDown className="size-6 opacity-50" strokeWidth={2.5} />
+              <ChevronDown className="size-7" strokeWidth={2.5} />
             </motion.span>
           </motion.div>
+
         </div>
 
         {/*
