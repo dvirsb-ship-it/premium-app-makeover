@@ -9,10 +9,10 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Scale, UserRound } from "lucide-react";
+import { Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
-import doorRight from "../assets/welcome/door-right.webp";
+import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
 import { useT } from "../lib/i18n";
 import { haptic } from "../lib/haptics";
