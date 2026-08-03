@@ -3,6 +3,18 @@ import "./lib/error-capture";
 import { consumeLastCapturedError } from "./lib/error-capture";
 import { renderErrorPage } from "./lib/error-page";
 
+/*
+ * חותם הבנייה — /__build מחזיר אותו.
+ *
+ * נולד מתקלה אמיתית: הייצור החזיר 500, ושלוש פריסות רצופות שתיקנו
+ * את התלויות לא שינו דבר. שעה שלמה לא היה אפשר לענות על השאלה
+ * הבסיסית — האם הענן בכלל בונה מחדש, או מגיש קוד ישן? קונסולת
+ * הפריסות אמרה "Current" בעוד היומן הראה את אותו באנדל.
+ *
+ * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
+ */
+const BUILD_STAMP = "2026-08-03T18:40Z";
+
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
@@ -178,6 +190,12 @@ async function handleLawyerLead(request: Request): Promise<Response | null> {
 const appHandler: ServerEntry = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      // חותם הבנייה — לפני כל דבר אחר, כדי שיענה גם כשה-SSR נשבר
+      if (new URL(request.url).pathname === "/__build") {
+        return new Response(BUILD_STAMP, {
+          headers: { "content-type": "text/plain", "cache-control": "no-store" },
+        });
+      }
       const proxied = await proxyFirebaseAuth(request);
       if (proxied) return proxied;
       const lead = await handleLawyerLead(request);
