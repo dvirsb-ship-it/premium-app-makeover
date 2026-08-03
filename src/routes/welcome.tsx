@@ -233,10 +233,6 @@ function Welcome() {
             />
             {/* צל אצל הציר ואור עדין בקצה הפנימי — נותן לכנף עובי */}
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
-            {/* חריטת הזהב — חצי הכיתוב היושב על הכנף השמאלית */}
-            <span className="pointer-events-none absolute right-0 top-[26%] pr-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
-              Just
-            </span>
           </motion.div>
 
           <motion.div
@@ -245,10 +241,8 @@ function Welcome() {
           >
             <img src={doorRight} alt="" className="h-full w-full object-fill" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
-            <span className="pointer-events-none absolute left-0 top-[26%] pl-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
-              Ask
-            </span>
           </motion.div>
+
 
           {/* warm light spilling through the widening seam */}
           <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
