@@ -426,8 +426,15 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הבדיקה המשפטית והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התזכיר המשפטי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
-    en: "The service is free for clients — always, including sharing your case, the initial review and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer. Lawyers: during the launch period the service is free; afterwards a fee applies per completed connection (a client who chose the lawyer), or a monthly Pro subscription including connections, feed priority and an enhanced profile (discounted yearly plan). Any pricing change will be shown in-app in advance, and subscriptions can be cancelled at any time.",
+    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הבדיקה המשפטית והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התזכיר המשפטי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. תשלום אינו משפיע על סדר התצוגה: אין עדיפות בפיד ואין מיון לפי מחיר. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
+    /*
+     * האנגלית פיגרה אחרי העברית ואחרי המוצר: היא הבטיחה תשלום
+     * "per completed connection" ו-"feed priority" — שניהם נשקלו ונדחו.
+     * דף הגיוס מבטיח לעורכי דין את ההפך המדויק ("לא עמלה על תוצאה",
+     * "אין מקום בתור תמורת תשלום"), ותקנון שסותר את מה שהובטח בפומבי
+     * הוא בדיוק מה שעורך דין לאתיקה מחפש. תשלום אינו קונה חשיפה.
+     */
+    en: "The service is free for clients — always, including sharing your case, the initial review and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer; JustAsk is not a party to that agreement and takes no share of the fee.\n\nLawyers: a fixed monthly subscription, covering access to every case in your chosen practice areas, the full legal memo written for each one, real-time alerts and the ability to submit a fee proposal. The subscription does not depend on how many clients you receive, and includes no commission or share of any fee. Payment does not affect placement: there is no priority in the feed and no sorting by price. Cancel any time. During the launch period the subscription is free, and the billing start date will be shown in the app in advance.",
   },
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
   termsSection6Body: {
