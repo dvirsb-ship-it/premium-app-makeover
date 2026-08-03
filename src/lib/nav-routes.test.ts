@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { FOCUSED_ROUTES, routeShowsNav, showsBottomNav } from "./nav-routes";
+import { FOCUSED_ROUTES, isTabActive, routeShowsNav, showsBottomNav } from "./nav-routes";
 
 /*
  * הבדיקות האלה קיימות בגלל פער אמיתי שהתגלה בשימוש: תפריט הניווט ליווה
@@ -110,5 +110,61 @@ describe("showsBottomNav — מה שכבר עבד וחייב להישאר", () =
 
   it("תפקיד מהמטמון מספיק — מונע הבהוב עד ש-Firebase מסיים", () => {
     expect(showsBottomNav({ pathname: "/cases", role: "lawyer", signedIn: false })).toBe(true);
+  });
+});
+
+/*
+ * הבאג שדביר ראה: במסך "התיקים שלי" של עורך הדין הופיעו שתי לשוניות
+ * במקום שלוש — "פניות" נעלמה.
+ *
+ * הסיבה: "/lawyer-cases".startsWith("/lawyer") הוא true, ולכן שתי
+ * לשוניות סומנו פעילות. שתיהן רינדרו את אותו layoutId של framer-motion,
+ * שמניח יחידוּת, ואחת מהן נבלעה. אותה מלכודת תחילית שכבר נתפסה
+ * ב-routeShowsNav בין /intake ל-/intake-summary.
+ *
+ * התנאי החזק כאן הוא "בדיוק אחת" — הוא זה שתופס את הבליעה.
+ */
+
+const LAWYER_TABS = ["/lawyer", "/lawyer-cases", "/profile"] as const;
+const CLIENT_TABS = ["/", "/cases", "/profile"] as const;
+
+function activeCount(pathname: string, tabs: readonly string[]) {
+  return tabs.filter((t) => isTabActive(pathname, t)).length;
+}
+
+describe("isTabActive — הלשונית הפעילה", () => {
+  it("״התיקים שלי״ אינו מדליק גם את ״פניות״ — הבאג עצמו", () => {
+    expect(isTabActive("/lawyer-cases", "/lawyer")).toBe(false);
+    expect(isTabActive("/lawyer-cases", "/lawyer-cases")).toBe(true);
+  });
+
+  it("בכל מסך של עורך הדין פעילה בדיוק לשונית אחת", () => {
+    for (const p of ["/lawyer", "/lawyer-cases", "/lawyer-case/abc", "/profile", "/settings/notifications"]) {
+      expect(activeCount(p, LAWYER_TABS), `${p} — צריך בדיוק אחת`).toBe(1);
+    }
+  });
+
+  it("בכל מסך של הלקוח פעילה בדיוק לשונית אחת", () => {
+    for (const p of ["/", "/cases", "/case/abc", "/profile", "/settings/notifications"]) {
+      expect(activeCount(p, CLIENT_TABS), `${p} — צריך בדיוק אחת`).toBe(1);
+    }
+  });
+
+  it("מסך פרטי תיק מדליק את הלשונית שממנה הגיעו", () => {
+    expect(isTabActive("/lawyer-case/abc", "/lawyer-cases")).toBe(true);
+    expect(isTabActive("/case/abc", "/cases")).toBe(true);
+    // ולא את האחרות
+    expect(isTabActive("/lawyer-case/abc", "/lawyer")).toBe(false);
+    expect(isTabActive("/case/abc", "/")).toBe(false);
+  });
+
+  it("הגדרות שייכות לפרופיל", () => {
+    expect(isTabActive("/settings/notifications", "/profile")).toBe(true);
+  });
+
+  it("הבית של הלקוח נדלק רק על הנתיב עצמו", () => {
+    expect(isTabActive("/", "/")).toBe(true);
+    expect(isTabActive("/cases", "/")).toBe(false);
+    expect(isTabActive("/profile", "/")).toBe(false);
   });
 });

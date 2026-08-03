@@ -4,6 +4,7 @@ import { Home, FolderOpen, Briefcase, Scale, User } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useAppStore } from "../lib/store";
 import { useShowsBottomNav } from "../lib/use-bottom-nav";
+import { isTabActive } from "../lib/nav-routes";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 
@@ -37,10 +38,7 @@ export function BottomNav() {
     <div className="fixed inset-x-0 bottom-0 z-40 flex justify-center px-5 pb-4">
       <nav aria-label="Primary" className="liquid-glass flex w-full max-w-md items-center justify-around rounded-[26px] px-2 py-2">
         {tabs.map((tab) => {
-          const active =
-            tab.to === "/"
-              ? location.pathname === "/"
-              : location.pathname.startsWith(tab.to);
+          const active = isTabActive(location.pathname, tab.to);
           const Icon = tab.icon;
           return (
             <Link
