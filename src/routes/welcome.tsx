@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  cubicBezier,
   motion,
   useMotionValueEvent,
   useScroll,
@@ -53,7 +54,12 @@ const beats: { title: StringKey; body: StringKey; range: [number, number, number
 ];
 
 /* תחנות העצירה — כפולות של 75vh על מסלול גלילה של 300vh */
-const SNAP_STOPS = [0, 75, 150, 225, 300];
+/*
+ * תחנה כל 100vh — הוארך מ-75vh אחרי שהמסלול הרגיש קצר מדי בטלפון:
+ * מרחק גדול יותר לכל תנועה = מעבר איטי ונינוח יותר בין משפטים,
+ * בלי לגעת בשום טווח (התחנות נשארות ברבעים של ה-progress).
+ */
+const SNAP_STOPS = [0, 100, 200, 300, 400];
 
 function Welcome() {
   const navigate = useNavigate();
@@ -77,7 +83,12 @@ function Welcome() {
    * ההחלקה היא מה שהופך גלילה במובייל מ"קפיצות" לתנועת מצלמה. spring על
    * ה-progress ולא על כל שכבה בנפרד — כך כל השכבות נשארות מסונכרנות.
    */
-  const p = useSpring(scrollYProgress, { stiffness: 90, damping: 22, mass: 0.35 });
+  /*
+   * רך יותר משהיה (90/22): עם עצירות ה-snap, הקשיחות הישנה סיימה את
+   * המעבר מהר מדי והשאירה תחושת קפיצה. 58/21 מותח כל מעבר-תחנה לנשימה
+   * אחת מלאה.
+   */
+  const p = useSpring(scrollYProgress, { stiffness: 58, damping: 21, mass: 0.4 });
 
   // Doors swing outward in real 3D; the frame pushes past the camera.
   const leftRotate = useTransform(p, [0.1, 0.86], [0, -84]);
@@ -95,11 +106,17 @@ function Welcome() {
   const vignette = useTransform(p, [0, 0.75], [0.82, 0.42]);
   const hintFade = useTransform(p, [0, 0.05], [1, 0]);
 
-  const ctaOpacity = useTransform(p, [0.86, 0.98], [0, 1]);
+  /*
+   * ease-out על כל תנועות הכניסה: המיפוי הליניארי נחתך בחדות כשהגלילה
+   * נעצרת בתחנה האחרונה — זו הייתה ה"תקיעה". עם ההאטה פנימה, הכרטיסים
+   * מגיעים למנוחה לפני שהגלילה נגמרת.
+   */
+  const settle = cubicBezier(0.22, 1, 0.36, 1);
+  const ctaOpacity = useTransform(p, [0.84, 0.97], [0, 1], { ease: settle });
   // שניהם יוצאים מקו האמצע ונפרדים אליו כלפי מעלה ומטה.
-  const ctaUp = useTransform(p, [0.88, 1], [0, -168]);
-  const ctaDown = useTransform(p, [0.88, 1], [0, 58]);
-  const ctaLine = useTransform(p, [0.9, 1], [0, 1]);
+  const ctaUp = useTransform(p, [0.84, 1], [0, -168], { ease: settle });
+  const ctaDown = useTransform(p, [0.84, 1], [0, 58], { ease: settle });
+  const ctaLine = useTransform(p, [0.87, 1], [0, 1], { ease: settle });
   useMotionValueEvent(p, "change", (v) => setCtaLive(v > 0.9));
 
   function finish() {
@@ -135,14 +152,23 @@ function Welcome() {
   function skipToChoice() {
     const el = scrollRef.current;
     if (!el) return;
-    window.scrollTo({ top: el.offsetTop + el.scrollHeight - window.innerHeight, behavior: "auto" });
+    /*
+     * ה-snap חייב לרדת לרגע הקפיצה: mandatory תופס גלילה תוכניתית
+     * ומחזיר אותה לתחנה הקרובה — כלומר חזרה ל-0, והכפתור נראה מת.
+     * זה בדיוק מה שקרה בטלפון. היעד הוא תחנה בעצמו, אז כשהמחלקה
+     * חוזרת אין תיקון-מיקום.
+     */
+    const html = document.documentElement;
+    html.classList.remove("welcome-snap");
+    window.scrollTo({ top: el.offsetTop + el.scrollHeight - window.innerHeight, behavior: "smooth" });
+    window.setTimeout(() => html.classList.add("welcome-snap"), 1100);
   }
 
   return (
     <div
       ref={scrollRef}
       className="relative w-full bg-[#04060b] transition-opacity duration-500"
-      style={{ height: "400vh", opacity: leaving ? 0 : 1 }}
+      style={{ height: "500vh", opacity: leaving ? 0 : 1 }}
     >
       {/*
        * עוגני העצירה. scroll-snap-stop: always הוא הלב: גם הטלה חזקה
