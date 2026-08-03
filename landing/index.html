@@ -166,8 +166,43 @@
   }
   .stat-label { font-size: 12.5px; color: var(--muted); margin-top: 5px; font-weight: 500; }
 
+  /* ---------- כרטיס הפנייה — הארטיפקט ---------- */
+  /*
+   * הכרטיס שעורך הדין באמת יראה בפיד, בגרסה בהירה. טענה על ערך אפשר
+   * לנסח יפה; ארטיפקט אי אפשר לזייף, והוא זה שמשכנע.
+   */
+  .artifact-label { text-align: center; font-size: 13px; font-weight: 700; letter-spacing: .16em; color: var(--muted); padding: 42px 0 14px; }
+  .case {
+    background: #fff; border: 1px solid var(--line); border-radius: 20px; padding: 18px;
+    box-shadow: 0 20px 46px -26px rgba(150,110,20,.28);
+  }
+  .case-top { display: flex; gap: 13px; align-items: flex-start; }
+  .case-emblem {
+    flex-shrink: 0; width: 50px; height: 50px; border-radius: 15px;
+    display: grid; place-items: center; color: var(--gold-text);
+    background: linear-gradient(150deg, rgba(240,211,117,.42), rgba(212,175,55,.16));
+    border: 1px solid rgba(212,175,55,.4);
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 999px; }
+  .tag-cat { background: rgba(212,175,55,.14); color: var(--gold-text); border: 1px solid rgba(212,175,55,.35); }
+  .tag-urgent { background: #fdeeea; color: #b3402c; }
+  .tag-match { background: #e7f4ec; color: #1f7a4d; }
+  .case-title { font-size: 16px; font-weight: 800; margin-top: 7px; line-height: 1.35; }
+  .case-city { font-size: 12.5px; color: var(--muted); margin-top: 3px; display: flex; align-items: center; gap: 4px; }
+  .memo { margin-top: 14px; border-top: 1px dashed var(--line); padding-top: 13px; position: relative; }
+  .memo-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 800; color: var(--gold-text); margin-bottom: 5px; }
+  .memo p { font-size: 13.5px; color: var(--muted); line-height: 1.65; }
+  /* דהייה בתחתית — התזכיר ממשיך, וזה מה שמייצר את הרצון להיכנס */
+  .memo::after {
+    content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42px;
+    background: linear-gradient(to top, #fff, transparent); pointer-events: none;
+  }
+
   /* ---------- מה מקבלים ---------- */
   .grid-title { text-align: center; font-size: 15px; font-weight: 800; letter-spacing: .14em; color: var(--gold-text); padding: 36px 0 18px; }
+  /* אייקוני האפליקציה עצמם (lucide + הפלסטר המותאם), לא אמוג'י */
+  .ico { width: 22px; height: 22px; color: var(--gold-text); display: block; }
   .benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   @media (max-width: 480px) { .benefits { grid-template-columns: 1fr; } }
   .benefit {
@@ -175,8 +210,8 @@
     transition: transform .18s, box-shadow .18s, border-color .18s;
   }
   .benefit:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.5); box-shadow: 0 14px 30px -18px rgba(150,110,20,.35); }
-  .benefit .e { font-size: 20px; }
-  .benefit h4 { font-size: 14.5px; font-weight: 800; margin-top: 6px; }
+  .benefit .ico { margin-bottom: 8px; }
+  .benefit h4 { font-size: 14.5px; font-weight: 800; }
   .benefit p { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
 
   /* ---------- שלושה צעדים ---------- */
@@ -269,6 +304,44 @@
     </div>
   </section>
 
+  <p class="artifact-label reveal">כך זה נוחת אצלך</p>
+  <div class="case reveal" aria-label="דוגמה לפנייה כפי שהיא מגיעה לעורך דין">
+    <div class="case-top">
+      <span class="case-emblem" aria-hidden="true">
+        <!-- הפלסטר של האפליקציה: אלכסוני עם כרית באמצע, מסתובב ב-45° -->
+        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <g transform="rotate(-45 12 12)">
+            <rect x="2.5" y="8.5" width="19" height="7" rx="3.5"/>
+            <rect x="8.5" y="8.5" width="7" height="7"/>
+            <circle cx="10.6" cy="10.6" r=".45" fill="currentColor" stroke="none"/>
+            <circle cx="13.4" cy="10.6" r=".45" fill="currentColor" stroke="none"/>
+            <circle cx="10.6" cy="13.4" r=".45" fill="currentColor" stroke="none"/>
+            <circle cx="13.4" cy="13.4" r=".45" fill="currentColor" stroke="none"/>
+          </g>
+        </svg>
+      </span>
+      <div style="min-width:0;flex:1">
+        <div class="tags">
+          <span class="tag tag-cat">נזיקין ותאונות</span>
+          <span class="tag tag-urgent">דחוף</span>
+          <span class="tag tag-match">התאמה גבוהה</span>
+        </div>
+        <p class="case-title">החלקה על רצפה רטובה בסופרמרקט</p>
+        <p class="case-city">
+          <svg class="ico" style="width:14px;height:14px;color:currentColor" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+          ירושלים
+        </p>
+      </div>
+    </div>
+    <div class="memo">
+      <p class="memo-label">
+        <svg class="ico" style="width:14px;height:14px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg>
+        התזכיר המשפטי
+      </p>
+      <p>עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת זהירות מוגברת של תופס מקרקעין כלפי מבקר. ההתיישנות טרם חלפה. תיעוד רפואי קיים, וצילום מהמקום מחזק את יסוד ההפרה…</p>
+    </div>
+  </div>
+
   <section class="stats">
     <div class="reveal"><div class="stat-num">חינם</div><p class="stat-label">חצי שנה ראשונה</p></div>
     <div class="reveal" style="transition-delay:.1s"><div class="stat-num">100%</div><p class="stat-label">מהפניות עברו בדיקה משפטית</p></div>
@@ -277,12 +350,12 @@
 
   <h2 class="grid-title">מה מקבלים</h2>
   <section class="benefits">
-    <div class="benefit reveal"><span class="e">📄</span><h4>תזכיר מוכן</h4><p>תיאור, תאריכים, בסיס משפטי ומסמכים — במקום אחד, לפני שהרמת טלפון.</p></div>
-    <div class="benefit reveal" style="transition-delay:.06s"><span class="e">🎯</span><h4>רק התחומים שלך</h4><p>פנייה מגיעה רק לעורכי דין בתחום הרלוונטי. בלי רעש.</p></div>
-    <div class="benefit reveal" style="transition-delay:.12s"><span class="e">🔓</span><h4>שליטה מלאה</h4><p>אתה בוחר לאילו פניות להציע. ללא התחייבות, ניתן לעזוב בכל עת.</p></div>
-    <div class="benefit reveal" style="transition-delay:.18s"><span class="e">💰</span><h4>בלי אחוז מהתיק</h4><p>אחרי חצי השנה — מנוי קבוע ושקוף. לא עמלה על תוצאה.</p></div>
-    <div class="benefit reveal" style="transition-delay:.24s"><span class="e">⚖️</span><h4>הפונה בוחר</h4><p>אין מקום בתור תמורת תשלום. ההצעה שלך מדברת בשמך.</p></div>
-    <div class="benefit reveal" style="transition-delay:.3s"><span class="e">🔒</span><h4>פרטיות לפני הכל</h4><p>פרטי הפונה נחשפים רק לעורך הדין שנבחר — ורק אחרי הבחירה.</p></div>
+    <div class="benefit reveal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><h4>תזכיר מוכן</h4><p>תיאור, תאריכים, בסיס משפטי ומסמכים — במקום אחד, לפני שהרמת טלפון.</p></div>
+    <div class="benefit reveal" style="transition-delay:.06s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><h4>רק התחומים שלך</h4><p>פנייה מגיעה רק לעורכי דין בתחום הרלוונטי. בלי רעש.</p></div>
+    <div class="benefit reveal" style="transition-delay:.12s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg><h4>שליטה מלאה</h4><p>אתה בוחר לאילו פניות להציע. ללא התחייבות, ניתן לעזוב בכל עת.</p></div>
+    <div class="benefit reveal" style="transition-delay:.18s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><h4>בלי אחוז מהתיק</h4><p>אחרי חצי השנה — מנוי קבוע ושקוף. לא עמלה על תוצאה.</p></div>
+    <div class="benefit reveal" style="transition-delay:.24s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><h4>הפונה בוחר</h4><p>אין מקום בתור תמורת תשלום. ההצעה שלך מדברת בשמך.</p></div>
+    <div class="benefit reveal" style="transition-delay:.3s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><h4>פרטיות לפני הכל</h4><p>פרטי הפונה נחשפים רק לעורך הדין שנבחר — ורק אחרי הבחירה.</p></div>
   </section>
 
   <section class="steps">
