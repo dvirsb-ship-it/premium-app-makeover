@@ -15,21 +15,22 @@
 <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
 <style>
   /*
-   * לבן ונקי — ההחלטה של דביר: הדף הזה הוא טופס גיוס, לא חוויית מותג.
-   * עורך דין שקיבל קישור ממלא פרטים תוך חצי דקה. הזהב של JustAsk נשאר
-   * כמבטא (כפתור, דגשים) כדי שהדף, המייל והאפליקציה ידברו באותה שפה.
+   * לבן וחי — הגרסה השנייה, אחרי שדביר פסל את הראשונה ("הצבעים עצובים").
+   * המבנה של דף ה-CaseBridge שהוא אוהב: שטיפות צבע רכות ברקע, כותרת עם
+   * קו הדגשה, טופס-קודם, וגריד יתרונות. הזהב זהב באמת — לא חום: הדגשות
+   * גדולות בגרדיאנט בוהק, וטקסט קטן בזהב עמוק רק היכן שהנגישות דורשת.
    */
   :root {
-    --ink: #1b2436;
-    --muted: #5b6472;
-    --line: #e7e3d8;
+    --ink: #16223c;
+    --muted: #5d6678;
+    --line: #eee6d2;
     --gold: #d4af37;
-    --gold-hi: #e8cd6e;
-    --gold-ink: #8a6a15;
-    --bg: #fdfcf9;
-    --card: #ffffff;
+    --gold-hi: #f0d375;
+    --gold-deep: #b8901f;
+    --gold-text: #9d7a12;
+    --bg: #fffdf8;
     --ok: #1f7a4d;
-    --err: #b3261e;
+    --err: #c0362c;
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -37,100 +38,170 @@
     font-family: "Heebo", system-ui, sans-serif;
     background: var(--bg); color: var(--ink);
     -webkit-font-smoothing: antialiased; line-height: 1.6;
+    overflow-x: hidden; position: relative;
   }
-  .wrap { max-width: 560px; margin: 0 auto; padding: 0 20px; }
+  /* שטיפות הצבע — הן מה שהופך דף לבן לדף חי */
+  body::before, body::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  }
+  body::before {
+    background:
+      radial-gradient(90% 55% at 85% -5%, rgba(212, 175, 55, .22), transparent 55%),
+      radial-gradient(70% 45% at 0% 12%, rgba(240, 211, 117, .16), transparent 60%);
+  }
+  body::after {
+    background: radial-gradient(100% 50% at 50% 108%, rgba(22, 34, 60, .10), transparent 55%);
+  }
+  .wrap { max-width: 580px; margin: 0 auto; padding: 0 20px; position: relative; z-index: 1; }
 
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 0;
-  }
-  .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 20px; }
-  .brand img { width: 40px; height: 40px; display: block; }
-  .brand b { color: var(--gold-ink); font-weight: 900; }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 900; font-size: 21px; }
+  .brand img { width: 42px; height: 42px; display: block; filter: drop-shadow(0 4px 10px rgba(212,175,55,.45)); }
+  .brand b { color: var(--gold-text); }
   .signin {
-    font-size: 14px; font-weight: 600; color: var(--muted);
-    text-decoration: none; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px;
-    transition: color .2s, border-color .2s;
+    font-size: 14px; font-weight: 700; color: var(--gold-text); text-decoration: none;
+    padding: 9px 18px; border-radius: 999px;
+    border: 1.5px solid var(--gold); background: rgba(212,175,55,.08);
+    transition: background .2s, transform .12s;
   }
-  .signin:hover { color: var(--gold-ink); border-color: var(--gold); }
+  .signin:hover { background: rgba(212,175,55,.18); }
+  .signin:active { transform: scale(.97); }
 
-  .hero { text-align: center; padding: 40px 0 16px; }
+  .hero { text-align: center; padding: 44px 0 10px; }
   .badge {
-    display: inline-flex; align-items: center; gap: 7px;
-    font-size: 13px; font-weight: 600; color: var(--gold-ink);
-    border: 1px solid #e5d9b3; background: #faf6e9;
-    padding: 6px 14px; border-radius: 999px;
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13.5px; font-weight: 700; color: var(--gold-text);
+    border: 1px solid rgba(212,175,55,.45);
+    background: linear-gradient(120deg, rgba(240,211,117,.25), rgba(212,175,55,.12));
+    padding: 7px 16px; border-radius: 999px;
   }
-  .badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); }
-  h1 { font-size: clamp(2.1rem, 7vw, 3rem); font-weight: 900; line-height: 1.15; margin-top: 18px; letter-spacing: -0.5px; }
-  h1 .gold { color: var(--gold-ink); }
-  .sub { margin: 14px auto 0; max-width: 420px; color: var(--muted); font-size: 16.5px; }
+  .badge::before {
+    content: ""; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--gold); animation: pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(212,175,55,.55); } 55% { box-shadow: 0 0 0 7px rgba(212,175,55,0); } }
 
-  /* ---------- הטופס — הגיבור של הדף ---------- */
+  h1 { font-size: clamp(2.3rem, 8vw, 3.3rem); font-weight: 900; line-height: 1.13; margin-top: 20px; letter-spacing: -0.5px; }
+  h1 .gold {
+    background: linear-gradient(115deg, var(--gold-deep) 10%, var(--gold) 45%, var(--gold-hi) 62%, var(--gold-deep) 95%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  /* קו המכחול — הפרט שהופך כותרת לחתימה */
+  .stroke { position: relative; white-space: nowrap; }
+  .stroke svg { position: absolute; right: 0; left: 0; bottom: -0.18em; width: 100%; height: 0.28em; }
+  .stroke path {
+    stroke: var(--gold); stroke-width: 10; fill: none; stroke-linecap: round; opacity: .85;
+    stroke-dasharray: 320; stroke-dashoffset: 320; animation: draw .9s ease-out .5s forwards;
+  }
+  @keyframes draw { to { stroke-dashoffset: 0; } }
+  .sub { margin: 16px auto 0; max-width: 440px; color: var(--muted); font-size: 17px; }
+
+  /* ---------- הטופס — הגיבור ---------- */
   .card {
-    background: var(--card); border: 1px solid var(--line); border-radius: 20px;
-    padding: 22px; margin-top: 28px;
-    box-shadow: 0 24px 60px -30px rgba(27, 36, 54, .18);
+    position: relative; background: #fff; border-radius: 22px; padding: 24px; margin-top: 30px;
+    border: 1px solid rgba(212,175,55,.35);
+    box-shadow: 0 30px 70px -32px rgba(150, 110, 20, .35), 0 6px 18px -8px rgba(22,34,60,.08);
+  }
+  .card::before {
+    content: ""; position: absolute; inset: -1px; border-radius: 23px; padding: 1px; pointer-events: none;
+    background: linear-gradient(160deg, rgba(240,211,117,.9), rgba(212,175,55,.25) 40%, transparent 70%);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude;
   }
   .field { margin-bottom: 12px; }
   input, select {
     width: 100%; font: inherit; font-size: 15.5px; color: var(--ink);
-    background: #fff; border: 1.5px solid var(--line); border-radius: 12px;
-    padding: 13px 14px; transition: border-color .15s, box-shadow .15s;
+    background: #fffdf8; border: 1.5px solid var(--line); border-radius: 13px;
+    padding: 13px 15px; transition: border-color .15s, box-shadow .15s, background .15s;
     appearance: none; -webkit-appearance: none;
   }
-  select { background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%235b6472' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left 14px center; }
-  select:invalid { color: #8a9099; }
-  input::placeholder { color: #8a9099; }
-  input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow: 0 0 0 3px rgba(212,175,55,.18); }
+  select { background: #fffdf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239d7a12' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left 15px center; }
+  select:invalid { color: #969ca8; }
+  input::placeholder { color: #969ca8; }
+  input:focus, select:focus {
+    outline: none; border-color: var(--gold); background: #fff;
+    box-shadow: 0 0 0 4px rgba(212,175,55,.22);
+  }
   input.bad { border-color: var(--err); }
   .hp { position: absolute; left: -9999px; top: -9999px; height: 0; overflow: hidden; }
 
   .cta {
-    width: 100%; font: inherit; font-size: 17px; font-weight: 800; color: #231d09;
-    background: linear-gradient(160deg, var(--gold-hi), var(--gold));
-    border: none; border-radius: 14px; padding: 15px; cursor: pointer;
-    transition: transform .12s, filter .2s; margin-top: 4px;
+    position: relative; overflow: hidden;
+    width: 100%; font: inherit; font-size: 17.5px; font-weight: 800; color: #241a05;
+    background: linear-gradient(155deg, var(--gold-hi), var(--gold) 55%, #c39a2e);
+    border: none; border-radius: 15px; padding: 16px; cursor: pointer; margin-top: 6px;
+    box-shadow: 0 14px 30px -12px rgba(180, 135, 30, .55);
+    transition: transform .12s, box-shadow .2s;
   }
-  .cta:hover { filter: brightness(1.04); }
+  .cta:hover { transform: translateY(-1px); box-shadow: 0 18px 36px -12px rgba(180,135,30,.6); }
   .cta:active { transform: scale(.985); }
-  .cta:disabled { opacity: .6; cursor: default; }
-  .form-note { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 10px; }
-  .form-err { display: none; text-align: center; font-size: 13.5px; font-weight: 600; color: var(--err); margin-top: 10px; }
-
-  .done { display: none; text-align: center; padding: 26px 6px; }
-  .done .mark {
-    width: 58px; height: 58px; margin: 0 auto 14px; border-radius: 50%;
-    background: #e8f4ec; color: var(--ok); font-size: 28px; font-weight: 900;
-    display: flex; align-items: center; justify-content: center;
+  .cta:disabled { opacity: .65; cursor: default; }
+  /* פס האור שחוצה את הכפתור — חי, לא זז לבד יותר מדי */
+  .cta::after {
+    content: ""; position: absolute; top: 0; bottom: 0; width: 40%; left: -60%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,.5), transparent);
+    transform: skewX(-18deg); animation: shine 3.6s ease-in-out infinite;
   }
-  .done h3 { font-size: 20px; font-weight: 800; }
+  @keyframes shine { 0%, 55% { left: -60%; } 85%, 100% { left: 130%; } }
+  .form-note { text-align: center; font-size: 12.5px; color: var(--muted); margin-top: 11px; }
+  .form-err { display: none; text-align: center; font-size: 13.5px; font-weight: 700; color: var(--err); margin-top: 10px; }
+
+  .done { display: none; text-align: center; padding: 28px 6px; }
+  .done .mark {
+    width: 62px; height: 62px; margin: 0 auto 14px; border-radius: 50%;
+    background: linear-gradient(150deg, var(--gold-hi), var(--gold));
+    color: #241a05; font-size: 30px; font-weight: 900;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 12px 26px -10px rgba(180,135,30,.55);
+  }
+  .done h3 { font-size: 21px; font-weight: 900; }
   .done p { color: var(--muted); font-size: 14.5px; margin-top: 6px; }
 
   /* ---------- מספרים ---------- */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; padding: 40px 0 8px; }
-  .stat-num { font-size: 2rem; font-weight: 900; color: var(--gold-ink); line-height: 1.1; }
-  .stat-label { font-size: 12.5px; color: var(--muted); margin-top: 4px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; padding: 42px 0 6px; }
+  .stat-num {
+    font-size: 2.2rem; font-weight: 900; line-height: 1.1;
+    background: linear-gradient(120deg, var(--gold-deep), var(--gold) 60%, var(--gold-hi));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .stat-label { font-size: 12.5px; color: var(--muted); margin-top: 5px; font-weight: 500; }
+
+  /* ---------- מה מקבלים ---------- */
+  .grid-title { text-align: center; font-size: 15px; font-weight: 800; letter-spacing: .14em; color: var(--gold-text); padding: 36px 0 18px; }
+  .benefits { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  @media (max-width: 480px) { .benefits { grid-template-columns: 1fr; } }
+  .benefit {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px; padding: 15px 16px;
+    transition: transform .18s, box-shadow .18s, border-color .18s;
+  }
+  .benefit:hover { transform: translateY(-2px); border-color: rgba(212,175,55,.5); box-shadow: 0 14px 30px -18px rgba(150,110,20,.35); }
+  .benefit .e { font-size: 20px; }
+  .benefit h4 { font-size: 14.5px; font-weight: 800; margin-top: 6px; }
+  .benefit p { font-size: 13px; color: var(--muted); margin-top: 3px; line-height: 1.5; }
 
   /* ---------- שלושה צעדים ---------- */
-  .steps { padding: 34px 0 8px; }
-  .steps h2 { text-align: center; font-size: 15px; font-weight: 700; letter-spacing: .12em; color: var(--muted); margin-bottom: 20px; }
-  .step { display: flex; gap: 14px; padding: 13px 0; border-top: 1px solid var(--line); }
-  .step:last-child { border-bottom: 1px solid var(--line); }
+  .steps { padding: 40px 0 4px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; }
+  .step + .step { border-top: 1px dashed var(--line); }
   .step .n {
-    flex-shrink: 0; width: 34px; height: 34px; border-radius: 50%;
-    border: 1.5px solid var(--gold); color: var(--gold-ink);
-    font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%;
+    background: linear-gradient(150deg, rgba(240,211,117,.4), rgba(212,175,55,.18));
+    border: 1.5px solid rgba(212,175,55,.5); color: var(--gold-text);
+    font-size: 15px; font-weight: 900; display: flex; align-items: center; justify-content: center;
   }
-  .step p { font-size: 14.5px; color: var(--ink); }
-  .disclaimer { font-size: 11.5px; color: var(--muted); margin-top: 18px; line-height: 1.6; }
+  .step p { font-size: 15px; padding-top: 6px; }
+  .disclaimer { font-size: 11.5px; color: var(--muted); margin-top: 20px; line-height: 1.6; }
 
-  footer { text-align: center; padding: 36px 0 44px; color: var(--muted); font-size: 12.5px; }
-  footer a { color: var(--gold-ink); text-decoration: none; font-weight: 600; }
+  footer { text-align: center; padding: 40px 0 46px; color: var(--muted); font-size: 12.5px; }
+  footer a { color: var(--gold-text); text-decoration: none; font-weight: 700; }
 
-  .reveal { opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity .65s ease, transform .65s ease; }
   .reveal.in { opacity: 1; transform: none; }
-  @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .cta::after, .badge::before, .stroke path { animation: none; }
+    .stroke path { stroke-dashoffset: 0; }
+  }
 </style>
 </head>
 <body>
@@ -138,13 +209,13 @@
 
   <header>
     <!-- dir=ltr על הטקסט הלטיני — אחרת ה-RTL הופך את סדר המילים -->
-    <div class="brand"><img src="/logo-gold.png" alt="" width="40" height="40" /><span dir="ltr">Just<b>Ask</b></span></div>
+    <div class="brand"><img src="/logo-gold.png" alt="" width="42" height="42" /><span dir="ltr">Just<b>Ask</b></span></div>
     <a class="signin" href="https://app.justask.co.il/auth">כניסה</a>
   </header>
 
   <section class="hero">
     <span class="badge">הצטרפות מוקדמת — חצי שנה ללא תשלום</span>
-    <h1>לא ליד.<br /><span class="gold">תיק שכבר נבדק.</span></h1>
+    <h1>לא ליד.<br /><span class="gold stroke">תיק שכבר נבדק.<svg viewBox="0 0 300 22" preserveAspectRatio="none" aria-hidden="true"><path d="M6 16 C 80 8, 220 8, 294 14" /></svg></span></h1>
     <p class="sub">הפונה מספר מה קרה, המערכת בודקת אם יש עניין משפטי וכותבת תזכיר. אתה מקבל את שניהם — בתחומים שלך בלבד.</p>
   </section>
 
@@ -152,7 +223,7 @@
     הטופס הוא הדף. ההחלטה של דביר: אפס בירוקרטיה — בלי "הורד אפליקציה",
     בלי הרשמה. עורך דין ממלא חמישה שדות והכדור עובר אלינו.
   -->
-  <section class="card reveal in">
+  <section class="card">
     <form id="lead" novalidate>
       <div class="field"><input name="fullName" placeholder="שם מלא" autocomplete="name" required /></div>
       <div class="field"><input name="email" type="email" placeholder="מייל" autocomplete="email" required /></div>
@@ -204,8 +275,17 @@
     <div class="reveal" style="transition-delay:.2s"><div class="stat-num">21</div><p class="stat-label">תחומים — מקבלים רק את שלך</p></div>
   </section>
 
+  <h2 class="grid-title">מה מקבלים</h2>
+  <section class="benefits">
+    <div class="benefit reveal"><span class="e">📄</span><h4>תזכיר מוכן</h4><p>תיאור, תאריכים, בסיס משפטי ומסמכים — במקום אחד, לפני שהרמת טלפון.</p></div>
+    <div class="benefit reveal" style="transition-delay:.06s"><span class="e">🎯</span><h4>רק התחומים שלך</h4><p>פנייה מגיעה רק לעורכי דין בתחום הרלוונטי. בלי רעש.</p></div>
+    <div class="benefit reveal" style="transition-delay:.12s"><span class="e">🔓</span><h4>שליטה מלאה</h4><p>אתה בוחר לאילו פניות להציע. ללא התחייבות, ניתן לעזוב בכל עת.</p></div>
+    <div class="benefit reveal" style="transition-delay:.18s"><span class="e">💰</span><h4>בלי אחוז מהתיק</h4><p>אחרי חצי השנה — מנוי קבוע ושקוף. לא עמלה על תוצאה.</p></div>
+    <div class="benefit reveal" style="transition-delay:.24s"><span class="e">⚖️</span><h4>הפונה בוחר</h4><p>אין מקום בתור תמורת תשלום. ההצעה שלך מדברת בשמך.</p></div>
+    <div class="benefit reveal" style="transition-delay:.3s"><span class="e">🔒</span><h4>פרטיות לפני הכל</h4><p>פרטי הפונה נחשפים רק לעורך הדין שנבחר — ורק אחרי הבחירה.</p></div>
+  </section>
+
   <section class="steps">
-    <h2>איך זה עובד</h2>
     <div class="step reveal"><span class="n">1</span><p>אדם מספר מה קרה. המערכת בודקת אם יש עניין משפטי — ודוחה מה שאין.</p></div>
     <div class="step reveal"><span class="n">2</span><p>הפנייה נפתחת בפניך עם תזכיר, בלי שם ובלי פרטי קשר. אתה מביע עניין ומצרף הצעה.</p></div>
     <div class="step reveal"><span class="n">3</span><p>הפונה בוחר. רק אז נחשפים פרטיו, וההסכם נכרת ישירות ביניכם.</p></div>
