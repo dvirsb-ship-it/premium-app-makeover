@@ -83,7 +83,11 @@ function Welcome() {
   const hintFade = useTransform(p, [0, 0.05], [1, 0]);
 
   const ctaOpacity = useTransform(p, [0.86, 0.98], [0, 1]);
-  const ctaY = useTransform(p, [0.86, 0.98], [40, 0]);
+  // שניהם יוצאים מקו האמצע ונפרדים אליו כלפי מעלה ומטה.
+  const ctaUp = useTransform(p, [0.88, 1], [0, -168]);
+  const ctaDown = useTransform(p, [0.88, 1], [0, 58]);
+  const ctaLine = useTransform(p, [0.9, 1], [0, 1]);
+  const ctaTitle = useTransform(p, [0.94, 1], [0, 1]);
   useMotionValueEvent(p, "change", (v) => setCtaLive(v > 0.9));
 
   function finish() {
@@ -181,7 +185,7 @@ function Welcome() {
         <motion.div
           aria-hidden
           style={{ opacity: ctaOpacity }}
-          className="pointer-events-none absolute inset-x-0 bottom-0 z-[9] h-[46%] bg-gradient-to-t from-[#04060b] via-[#04060b]/55 to-transparent"
+          className="pointer-events-none absolute inset-0 z-[9] bg-[radial-gradient(95%_60%_at_50%_50%,rgba(2,4,8,0.72),rgba(2,4,8,0.35))]"
         />
 
         {/* Chrome + copy */}
@@ -220,53 +224,88 @@ function Welcome() {
           </motion.div>
         </div>
 
-        {/* Role choice — the destination of the whole walk */}
+        {/*
+         * שני הכפתורים מדברים באותה שפה של הכיתובים לפניהם — טקסט לבן ממורכז
+         * בלי כרטיס זכוכית. הם נולדים בדיוק על קו האמצע ונפרדים ממנו: אחד
+         * עולה למחצית העליונה, השני יורד לתחתונה, וקו הזהב באמצע הוא הגבול
+         * היחיד שמבדיל ביניהם.
+         */}
         <motion.div
-          style={{ opacity: ctaOpacity, y: ctaY }}
-          className={`absolute inset-x-0 bottom-0 z-20 px-6 pb-10 ${ctaLive ? "" : "pointer-events-none"}`}
+          style={{ opacity: ctaOpacity }}
+          className={`absolute inset-0 z-20 ${ctaLive ? "" : "pointer-events-none"}`}
         >
-          <div className="mx-auto w-full max-w-sm space-y-3">
-            <p className="pb-1 text-center text-[11px] font-semibold uppercase tracking-[0.3em] text-gold/80">
-              {t("welcomeEnterTitle")}
-            </p>
-            <button
-              type="button"
+          <motion.div
+            aria-hidden
+            style={{ scaleX: ctaLine }}
+            className="absolute left-1/2 top-1/2 h-px w-40 -translate-x-1/2 bg-gradient-to-r from-transparent via-gold/70 to-transparent"
+          />
+          <motion.p
+            aria-hidden
+            style={{ opacity: ctaTitle }}
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[7px] whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.42em] text-gold/70"
+          >
+            {t("welcomeEnterTitle")}
+          </motion.p>
+
+          <motion.div
+            style={{ y: ctaUp }}
+            className="absolute inset-x-0 top-1/2 flex flex-col items-center"
+          >
+            <RoleChoice
+              icon={UserRound}
+              title={t("clientCTA")}
+              sub={t("clientCTASub")}
               onClick={() => choose("client")}
-              className="liquid-glass glass-hero block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
-            >
-              <div className="flex items-center gap-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
-                  <UserRound className="size-5" strokeWidth={1.8} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold leading-tight text-foreground">
-                    {t("clientCTA")}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{t("clientCTASub")}</p>
-                </div>
-              </div>
-            </button>
-            <button
-              type="button"
+            />
+          </motion.div>
+
+          <motion.div
+            style={{ y: ctaDown }}
+            className="absolute inset-x-0 top-1/2 flex flex-col items-center"
+          >
+            <RoleChoice
+              icon={Scale}
+              title={t("lawyerCTA")}
+              sub={t("lawyerCTASub")}
               onClick={() => choose("lawyer")}
-              className="liquid-glass-selected glass-hero block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
-            >
-              <div className="flex items-center gap-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
-                  <Scale className="size-5" strokeWidth={2} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold leading-tight text-foreground">
-                    {t("lawyerCTA")}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{t("lawyerCTASub")}</p>
-                </div>
-              </div>
-            </button>
-          </div>
+            />
+          </motion.div>
         </motion.div>
       </div>
     </div>
+  );
+}
+
+/**
+ * הבחירה מנוסחת כמו כיתוב ולא כמו כרטיס: אותה טיפוגרפיה של הביטים, עם
+ * אייקון עדין בזהב שמסמן שזו נקודת לחיצה.
+ */
+function RoleChoice({
+  icon: Icon,
+  title,
+  sub,
+  onClick,
+}: {
+  icon: typeof UserRound;
+  title: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.97 }}
+      className="flex flex-col items-center px-6 py-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent"
+    >
+      <Icon className="mb-2 size-6 text-gold" strokeWidth={1.6} />
+      <span className="text-2xl font-black leading-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.6)]">
+        {title}
+      </span>
+      <span className="mt-1.5 max-w-[16rem] text-[13px] leading-relaxed text-white/70 drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)]">
+        {sub}
+      </span>
+    </motion.button>
   );
 }
 
