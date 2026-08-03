@@ -276,6 +276,39 @@ function Welcome() {
   );
 }
 
+/**
+ * הבחירה מנוסחת כמו כיתוב ולא כמו כרטיס: אותה טיפוגרפיה של הביטים, עם
+ * אייקון עדין בזהב שמסמן שזו נקודת לחיצה.
+ */
+function RoleChoice({
+  icon: Icon,
+  title,
+  sub,
+  onClick,
+}: {
+  icon: typeof UserRound;
+  title: string;
+  sub: string;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      whileTap={{ scale: 0.97 }}
+      className="flex flex-col items-center px-6 py-3 text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-4 focus-visible:ring-offset-transparent"
+    >
+      <Icon className="mb-2 size-6 text-gold" strokeWidth={1.6} />
+      <span className="text-2xl font-black leading-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.6)]">
+        {title}
+      </span>
+      <span className="mt-1.5 max-w-[16rem] text-[13px] leading-relaxed text-white/70 drop-shadow-[0_2px_14px_rgba(0,0,0,0.6)]">
+        {sub}
+      </span>
+    </motion.button>
+  );
+}
+
 /** One scroll-driven copy beat: fades in, holds, fades out with a slight rise. */
 function Beat({
   p,
