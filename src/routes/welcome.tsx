@@ -118,7 +118,7 @@ function Welcome() {
   }} />;
 
   return (
-    <div ref={scrollRef} className="relative w-full bg-[#04060b]" style={{ height: "460vh" }}>
+    <div ref={scrollRef} className="relative w-full bg-[#04060b]" style={{ height: "400vh" }}>
       <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ perspective: "1100px" }}>
         {/* The room behind the doors */}
         <motion.img
