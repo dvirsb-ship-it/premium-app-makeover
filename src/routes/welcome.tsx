@@ -231,32 +231,35 @@ function Welcome() {
         <motion.div
           aria-hidden
           style={{ opacity: doorFade }}
-          className="absolute inset-0 z-[4] will-change-[opacity]"
+          className="absolute inset-0 z-[4] [transform-style:preserve-3d] will-change-[opacity]"
         >
           <motion.div
-            style={{ rotateY: leftRotate, x: doorShift, transformOrigin: "left center" }}
+            style={{ rotateY: leftRotate, x: doorShift, z: doorZ, transformOrigin: "left center" }}
             className="absolute bottom-0 left-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
           >
-            <img
-              src={doorRight}
-              alt=""
-              className="h-full w-full scale-x-[-1] object-fill"
-            />
+            <img src={doorLeaf} alt="" className="h-full w-full scale-x-[-1] object-fill" />
             {/* צל אצל הציר ואור עדין בקצה הפנימי — נותן לכנף עובי */}
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.6),transparent_42%,rgba(240,214,146,0.12))]" />
+            {/* קצה פנימי מוזהב — קו העובי של הכנף */}
+            <div className="pointer-events-none absolute inset-y-0 right-0 w-[3px] bg-[linear-gradient(180deg,rgba(240,214,146,0.55),rgba(120,90,40,0.35))]" />
           </motion.div>
 
           <motion.div
-            style={{ rotateY: rightRotate, x: doorShiftR, transformOrigin: "right center" }}
+            style={{ rotateY: rightRotate, x: doorShiftR, z: doorZ, transformOrigin: "right center" }}
             className="absolute bottom-0 right-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
           >
-            <img src={doorRight} alt="" className="h-full w-full object-fill" />
-            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+            <img src={doorLeaf} alt="" className="h-full w-full object-fill" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.6),transparent_42%,rgba(240,214,146,0.12))]" />
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-[3px] bg-[linear-gradient(180deg,rgba(240,214,146,0.55),rgba(120,90,40,0.35))]" />
           </motion.div>
 
           {/* warm light spilling through the widening seam */}
-          <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
+          <motion.div
+            style={{ width: seamWidth, opacity: seamGlow }}
+            className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.3),transparent)] blur-2xl will-change-[width,opacity]"
+          />
         </motion.div>
+
 
 
         {/*
