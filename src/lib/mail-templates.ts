@@ -74,7 +74,7 @@ function shell(bodyHtml: string, unsubscribeUrl: string): string {
 <tr><td align="center">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#ffffff;border-radius:16px;overflow:hidden;">
 <tr><td align="center" style="padding:32px 24px 0;">
-<img src="${LOGO_URL}" width="64" height="64" alt="JustAsk" style="display:block;border-radius:15px;">
+<img src="${LOGO_URL}" width="64" height="64" alt="JustAsk" style="display:block;">
 <div style="margin-top:10px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:19px;font-weight:800;letter-spacing:0.2px;color:${INK};">Just<span style="color:${GOLD_INK};">Ask</span></div>
 </td></tr>
 <tr><td dir="rtl" style="padding:24px 24px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;color:${INK};text-align:right;">
