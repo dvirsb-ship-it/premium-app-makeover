@@ -281,12 +281,16 @@ function Beat({
   const t = useT();
   const [a, b, c, d] = beat.range;
   const opacity = useTransform(p, [a, b, c, d], [0, 1, 1, 0]);
-  const y = useTransform(p, [a, d], [34, -34]);
+  /*
+   * הטקסט זז רק בכניסה וביציאה — בין b ל-c הוא נעול על 0, כך שכל שלושת
+   * הביטים עוצרים בדיוק באותה נקודה במסך ואין נדידה איטית בזמן ההחזקה.
+   */
+  const y = useTransform(p, [a, b, c, d], [30, 0, 0, -30]);
 
   return (
     <motion.div
       style={{ opacity, y }}
-      className="absolute mx-auto flex max-w-xs flex-col items-center text-center will-change-transform"
+      className="absolute inset-x-0 top-[30%] mx-auto flex max-w-xs flex-col items-center text-center will-change-transform"
     >
       <h1 className="text-2xl font-black leading-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.6)]">
         {t(beat.title)}
