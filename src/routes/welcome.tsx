@@ -86,7 +86,6 @@ function Welcome() {
   const ctaUp = useTransform(p, [0.88, 1], [0, -168]);
   const ctaDown = useTransform(p, [0.88, 1], [0, 58]);
   const ctaLine = useTransform(p, [0.9, 1], [0, 1]);
-  const ctaTitle = useTransform(p, [0.94, 1], [0, 1]);
   useMotionValueEvent(p, "change", (v) => setCtaLive(v > 0.9));
 
   function finish() {
@@ -205,7 +204,8 @@ function Welcome() {
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col px-6 pb-10 pt-10">
 
           <div className="pointer-events-auto flex items-center justify-between">
-            <BrandMark size={44} />
+            {/* זכוכית ולא זהב — על דלתות העץ הזהב המלא נקרא כמדבקה */}
+            <BrandMark size={44} variant="glass" />
             <button
               type="button"
               onClick={finish}
@@ -252,13 +252,12 @@ function Welcome() {
             style={{ scaleX: ctaLine }}
             className="absolute left-1/2 top-1/2 h-px w-40 -translate-x-1/2 bg-gradient-to-r from-transparent via-gold/70 to-transparent"
           />
-          <motion.p
-            aria-hidden
-            style={{ opacity: ctaTitle }}
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[7px] whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.42em] text-gold/70"
-          >
-            {t("welcomeEnterTitle")}
-          </motion.p>
+          {/*
+           * הכותרת "מי אתם?" הוסרה: היא ישבה בדיוק על top-1/2, באותו מקום
+           * שבו נפגשים שני כרטיסי הבחירה, והתנגשה בהם. קו הזהב נשאר —
+           * בלי הטקסט הוא מפריד נקי בין שתי האפשרויות, והן ממילא אומרות
+           * בעצמן מי הן.
+           */}
 
           <motion.div
             style={{ y: ctaUp }}
