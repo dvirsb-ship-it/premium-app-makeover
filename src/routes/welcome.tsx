@@ -83,7 +83,11 @@ function Welcome() {
   const hintFade = useTransform(p, [0, 0.05], [1, 0]);
 
   const ctaOpacity = useTransform(p, [0.86, 0.98], [0, 1]);
-  const ctaY = useTransform(p, [0.86, 0.98], [40, 0]);
+  // שניהם יוצאים מקו האמצע ונפרדים אליו כלפי מעלה ומטה.
+  const ctaUp = useTransform(p, [0.88, 1], [0, -104]);
+  const ctaDown = useTransform(p, [0.88, 1], [0, 40]);
+  const ctaLine = useTransform(p, [0.9, 1], [0, 1]);
+  const ctaTitle = useTransform(p, [0.94, 1], [0, 1]);
   useMotionValueEvent(p, "change", (v) => setCtaLive(v > 0.9));
 
   function finish() {
