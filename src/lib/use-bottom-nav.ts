@@ -1,5 +1,5 @@
 import { useLocation } from "@tanstack/react-router";
-import { routeShowsNav } from "./nav-routes";
+import { showsBottomNav } from "./nav-routes";
 import { useAppStore } from "./store";
 
 /**
@@ -11,20 +11,12 @@ import { useAppStore } from "./store";
  *
  * גם הריפוד וגם התפריט נגזרים מהפונקציה הזו, ולכן הם לא יכולים
  * להיפרד זה מזה.
+ *
+ * הכלל עצמו יושב ב-nav-routes כפונקציה טהורה — הלוגיקה הזו כבר נשברה
+ * פעמיים במציאות, וקל יותר לבדוק תנאי מאשר hook.
  */
 export function useShowsBottomNav(): boolean {
   const { pathname } = useLocation();
   const { role, user } = useAppStore();
-  /*
-   * מחובר = צריך ניווט. התפקיד קובע רק אילו לשוניות מוצגות, לא אם קיים
-   * תפריט בכלל.
-   *
-   * התנאי הקודם היה role !== null בלבד, וזה נשבר במציאות: משתמש שהתחבר
-   * ושהתפקיד שלו לא הוחזר מהשרת — כשל רשת, או מסמך בלי שדה role — נשאר
-   * בתוך האפליקציה בלי שום דרך לנווט. בדיוק המצב שבו הוא הכי צריך אותה.
-   *
-   * גם role לבדו נשאר תקף, כי הוא נטען מהמטמון המקומי מיד ומונע הבהוב
-   * עד ש-Firebase מסיים לאמת את המשתמש.
-   */
-  return (!!user || role !== null) && routeShowsNav(pathname);
+  return showsBottomNav({ pathname, role, signedIn: !!user });
 }

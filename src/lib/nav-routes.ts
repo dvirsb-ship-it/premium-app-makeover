@@ -34,3 +34,25 @@ export function routeShowsNav(pathname: string): boolean {
     (p) => pathname === p || pathname.startsWith(`${p}/`),
   );
 }
+
+/**
+ * ההחלטה המלאה — מסלול, תפקיד ומצב התחברות יחד.
+ *
+ * טהורה בכוונה: זו הלוגיקה שנשברה כבר פעמיים במציאות, ובדיקה של hook
+ * דורשת רינדור. כאן אפשר לנסח כל מצב כתנאי.
+ */
+export function showsBottomNav(state: {
+  pathname: string;
+  /** null = טרם נבחר תפקיד, או שהשליפה מהשרת נכשלה. */
+  role: "client" | "lawyer" | null;
+  signedIn: boolean;
+}): boolean {
+  /*
+   * מסך בחירת התפקיד יושב על "/" ולא על מסלול משלו, ולכן אינו יכול
+   * להיכנס ל-FOCUSED_ROUTES: אותו נתיב משמש גם את מסך הבית של הלקוח,
+   * ששם התפריט חייב להופיע. ההבחנה היא בתפקיד — כל עוד לא נבחר, המסך
+   * היחיד שמוצג שם הוא הבחירה עצמה, ואין לאן לנווט ממנה.
+   */
+  if (state.pathname === "/" && state.role === null) return false;
+  return (state.signedIn || state.role !== null) && routeShowsNav(state.pathname);
+}
