@@ -228,17 +228,25 @@
   </div>
 
   <!-- מספרים -->
+  <!--
+    הערך הסופי כתוב ב-HTML, לא אפס.
+
+    הספירה־העולה מתחילה מאפס ורצה בגלילה — אבל מי שלא גולל, מי שה-JS
+    אצלו לא רץ, ומנוע חיפוש שמצלם את הדף, כולם ראו "0 חודשים ללא תשלום".
+    זה היפוך של ההבטחה, לא רק מספר חסר. עכשיו ברירת המחדל היא האמת,
+    והאנימציה רק מציגה אותה יפה.
+  -->
   <section class="stats">
     <div class="reveal">
-      <span class="stat-num gold-text" data-count="100" data-suffix="%">0%</span>
+      <span class="stat-num gold-text" data-count="100" data-suffix="%">100%</span>
       <p class="stat-label">מהפניות עברו בדיקה משפטית</p>
     </div>
     <div class="reveal" style="transition-delay:.12s">
-      <span class="stat-num gold-text" data-count="21">0</span>
+      <span class="stat-num gold-text" data-count="21">21</span>
       <p class="stat-label">תחומי משפט — מקבלים רק את שלך</p>
     </div>
     <div class="reveal" style="transition-delay:.24s">
-      <span class="stat-num gold-text" data-count="6">0</span>
+      <span class="stat-num gold-text" data-count="6">6</span>
       <p class="stat-label">חודשים ללא תשלום</p>
     </div>
   </section>
@@ -292,7 +300,12 @@
   <section class="final reveal">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="oklch(0.76 0.13 85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
     <h2>אימות רישיון, ואתה בפנים</h2>
-    <p class="sub">רישיון, תעודת בוגר, ובדיקה מול פנקס הלשכה. חצי שנה ללא תשלום.</p>
+    <!--
+      מה שכתוב כאן חייב להיות מה שקורה בפועל. קודם נכתב "בדיקה מול פנקס
+      הלשכה" — והפנקס אינו נגיש לבדיקה תוכניתית (המאגר הפתוח מכיל שם
+      וכתובת בלבד). זו הייתה הבטחה שאיננו מקיימים.
+    -->
+    <p class="sub">רישיון, תעודת בוגר, וסרטון זיהוי קצר. כל בקשה נבדקת אישית. חצי שנה ללא תשלום.</p>
     <a class="cta" id="cta-final" href="https://app.justask.co.il/auth" style="margin-top:28px">הצטרפות כעורך דין</a>
     <p class="cta-note">מספר עורכי הדין בכל תחום מוגבל בשלב זה</p>
   </section>
