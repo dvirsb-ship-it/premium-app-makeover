@@ -141,6 +141,16 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         if (u) {
           // התחברות שהצליחה מוחקת שגיאה קודמת — אחרת היא נשארת על המסך
           setAuthRedirectFailed(false);
+          /*
+           * מי שמחובר עבר את הפתיחה בהגדרה — הדגל נחתם כאן ולא במסך
+           * הפתיחה, כדי שמי שנטש באמצע ההתחברות יראה אותה שוב. זה גם
+           * מרפא משתמשים ותיקים שנרשמו לפני שהדגל היה קיים.
+           */
+          try {
+            localStorage.setItem("justask-welcomed", "1");
+          } catch {
+            /* ignore */
+          }
           // סנכרון פרופיל + תפקיד מהשרת
           void ensureUserDoc(u.uid, {
             email: u.email ?? undefined,

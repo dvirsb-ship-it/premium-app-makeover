@@ -34,7 +34,6 @@ export const Route = createFileRoute("/welcome")({
   component: Welcome,
 });
 
-const WELCOMED_KEY = "justask-welcomed";
 
 /**
  * שלושת הטקסטים של ה-welcome הישן נשמרו במלואם — מה שהתחלף הוא רק
@@ -119,12 +118,13 @@ function Welcome() {
   const ctaLine = useTransform(p, [0.87, 1], [0, 1], { ease: settle });
   useMotionValueEvent(p, "change", (v) => setCtaLive(v > 0.9));
 
+  /*
+   * הבחירה לא חותמת "סיימתי" — רק מנווטת. הדגל נכתב כשההתחברות באמת
+   * מצליחה (store), כי מי שבחר תפקיד ונטש במסך של גוגל לא באמת עבר
+   * את הפתיחה: בביקור הבא מגיע לו לראות את הדלתות שוב, לא להישלח
+   * ישר לגוגל בלי הקשר. זה בדיוק מה שקרה לדביר בבדיקה.
+   */
   function finish() {
-    try {
-      localStorage.setItem(WELCOMED_KEY, "1");
-    } catch {
-      /* ignore */
-    }
     navigate({ to: "/auth" });
   }
 
