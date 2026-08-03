@@ -7,7 +7,7 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ChevronDown, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
@@ -41,11 +41,19 @@ const WELCOMED_KEY = "justask-welcomed";
  * גלילה נפתחות דלתות בית המשפט אל האולם שבפנים. זה אותו תהליך שהלקוח
  * עובר בפועל, ולכן הגלילה היא הסיפור ולא קישוט מעליו.
  */
+/*
+ * הטווחים מכוונים לתחנות ה-snap: הגלילה עוצרת ב-p = 0.25 / 0.5 / 0.75 / 1,
+ * וכל ביט מגיע לשיא בדיוק בתחנה שלו. הכניסה של הבא חופפת ליציאה של
+ * הקודם (0.35–0.40 וכו') — אחד יורד בזמן שהשני עולה, בתוך אותה תנועה.
+ */
 const beats: { title: StringKey; body: StringKey; range: [number, number, number, number] }[] = [
-  { title: "welcomeSlide1Title", body: "welcomeSlide1Body", range: [0.02, 0.1, 0.2, 0.28] },
-  { title: "welcomeSlide2Title", body: "welcomeSlide2Body", range: [0.3, 0.38, 0.48, 0.56] },
-  { title: "welcomeSlide3Title", body: "welcomeSlide3Body", range: [0.58, 0.66, 0.74, 0.8] },
+  { title: "welcomeSlide1Title", body: "welcomeSlide1Body", range: [0.1, 0.21, 0.29, 0.4] },
+  { title: "welcomeSlide2Title", body: "welcomeSlide2Body", range: [0.35, 0.46, 0.54, 0.65] },
+  { title: "welcomeSlide3Title", body: "welcomeSlide3Body", range: [0.6, 0.71, 0.79, 0.87] },
 ];
+
+/* תחנות העצירה — כפולות של 75vh על מסלול גלילה של 300vh */
+const SNAP_STOPS = [0, 75, 150, 225, 300];
 
 function Welcome() {
   const navigate = useNavigate();
@@ -54,6 +62,15 @@ function Welcome() {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [leaving, setLeaving] = useState(false);
   const [ctaLive, setCtaLive] = useState(false);
+
+  /*
+   * snap חי רק כשהמסך הזה על המסך — הוא יושב על <html> כי זה הגולל
+   * האמיתי, וחייב לרדת ביציאה כדי לא להדביק את שאר האפליקציה לתחנות.
+   */
+  useEffect(() => {
+    document.documentElement.classList.add("welcome-snap");
+    return () => document.documentElement.classList.remove("welcome-snap");
+  }, []);
 
   const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start start", "end end"] });
   /*
@@ -127,6 +144,20 @@ function Welcome() {
       className="relative w-full bg-[#04060b] transition-opacity duration-500"
       style={{ height: "400vh", opacity: leaving ? 0 : 1 }}
     >
+      {/*
+       * עוגני העצירה. scroll-snap-stop: always הוא הלב: גם הטלה חזקה
+       * נעצרת בתחנה הבאה — משפט אחד לכל תנועת גלילה, והמשתמש קורא
+       * במקום לכוון. ה-spring שכבר מחליק את ה-progress הופך כל עצירה
+       * לאנימציה באורך קבוע.
+       */}
+      {SNAP_STOPS.map((vh) => (
+        <div
+          key={vh}
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 h-screen [scroll-snap-align:start] [scroll-snap-stop:always]"
+          style={{ top: `${vh}vh` }}
+        />
+      ))}
       <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ perspective: "1100px" }}>
         {/* The room behind the doors */}
         <motion.img
