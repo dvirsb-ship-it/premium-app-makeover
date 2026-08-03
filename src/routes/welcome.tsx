@@ -13,7 +13,6 @@ import { ChevronDown, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
 import courtroom from "../assets/welcome/courtroom-deep.jpg";
-import doorLeft from "../assets/welcome/door-left.jpg";
 import doorRight from "../assets/welcome/door-right.jpg";
 import portalFrame from "../assets/welcome/portal-frame.png";
 import { useT } from "../lib/i18n";
@@ -151,27 +150,41 @@ function Welcome() {
           className="absolute left-1/2 top-1/2 z-[3] h-[112%] w-auto min-w-full -translate-x-1/2 -translate-y-1/2 object-cover will-change-transform"
         />
 
-        {/* The two door leaves, hinged at the outer edges */}
+        {/*
+         * שתי הכנפיים הן אותה כנף בדיוק, אחת מהן משוקפת — כך הידיות נפגשות
+         * בקו האמצע והדלת נראית סימטרית. התמונה נמתחת למחצית המלאה
+         * (object-fill) ולא נחתכת, כדי שלא יופיעו חצאי ידיות וכיתוב קטוע.
+         */}
         <motion.div
           aria-hidden
           style={{ opacity: doorFade }}
           className="absolute inset-0 z-[4] will-change-[opacity]"
         >
-          <motion.img
-            src={doorLeft}
-            alt=""
+          <motion.div
             style={{ rotateY: leftRotate, x: doorShift, transformOrigin: "left center" }}
-            className="absolute bottom-0 left-0 top-0 h-full w-1/2 object-cover object-right will-change-transform"
-          />
-          <motion.img
-            src={doorRight}
-            alt=""
+            className="absolute bottom-0 left-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
+          >
+            <img
+              src={doorRight}
+              alt=""
+              className="h-full w-full scale-x-[-1] object-fill"
+            />
+            {/* צל אצל הציר ואור עדין בקצה הפנימי — נותן לכנף עובי */}
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+          </motion.div>
+
+          <motion.div
             style={{ rotateY: rightRotate, x: doorShiftR, transformOrigin: "right center" }}
-            className="absolute bottom-0 right-0 top-0 h-full w-1/2 object-cover object-left will-change-transform"
-          />
+            className="absolute bottom-0 right-0 top-0 w-1/2 overflow-hidden will-change-transform [backface-visibility:hidden]"
+          >
+            <img src={doorRight} alt="" className="h-full w-full object-fill" />
+            <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
+          </motion.div>
+
           {/* warm light spilling through the widening seam */}
           <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
         </motion.div>
+
 
         {/*
          * הקופי חייב להישאר קריא גם כשהוא יושב על עץ בהיר וגם כשהוא יושב על
