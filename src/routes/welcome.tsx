@@ -169,8 +169,24 @@ function Welcome() {
           <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
         </motion.div>
 
+        {/*
+         * הקופי חייב להישאר קריא גם כשהוא יושב על עץ בהיר וגם כשהוא יושב על
+         * קרן אור באולם. במקום להצמיד צל לכל שורה, יש כאן שכבת החשכה אחת
+         * מתחת לטקסט — היא נראית כמו עומק בסצנה, לא כמו רקע לכיתוב.
+         */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-[8] bg-[radial-gradient(85%_42%_at_50%_47%,rgba(2,4,8,0.78),transparent_72%)]"
+        />
+        <motion.div
+          aria-hidden
+          style={{ opacity: ctaOpacity }}
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-[9] h-[52%] bg-gradient-to-t from-[#04060b] via-[#04060b]/70 to-transparent"
+        />
+
         {/* Chrome + copy */}
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col px-6 pb-10 pt-10">
+
           <div className="pointer-events-auto flex items-center justify-between">
             <BrandMark size={44} />
             <button
