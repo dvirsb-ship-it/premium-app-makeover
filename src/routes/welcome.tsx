@@ -13,7 +13,6 @@ import { ChevronDown, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import handshake from "../../public/videos/handshake.mp4.asset.json";
 import courtroom from "../assets/welcome/courtroom-deep.jpg";
-import doorLeft from "../assets/welcome/door-left.jpg";
 import doorRight from "../assets/welcome/door-right.jpg";
 import portalFrame from "../assets/welcome/portal-frame.png";
 import { useT } from "../lib/i18n";
