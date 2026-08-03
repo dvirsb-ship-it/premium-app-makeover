@@ -9,10 +9,10 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { ChevronDown, Scale, UserRound } from "lucide-react";
+import { Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
-import doorRight from "../assets/welcome/door-right.webp";
+import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
 import { useT } from "../lib/i18n";
 import { haptic } from "../lib/haptics";
@@ -233,10 +233,6 @@ function Welcome() {
             />
             {/* צל אצל הציר ואור עדין בקצה הפנימי — נותן לכנף עובי */}
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(90deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
-            {/* חריטת הזהב — חצי הכיתוב היושב על הכנף השמאלית */}
-            <span className="pointer-events-none absolute right-0 top-[26%] pr-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
-              Just
-            </span>
           </motion.div>
 
           <motion.div
@@ -245,10 +241,8 @@ function Welcome() {
           >
             <img src={doorRight} alt="" className="h-full w-full object-fill" />
             <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(270deg,rgba(0,0,0,0.55),transparent_45%,rgba(240,214,146,0.10))]" />
-            <span className="pointer-events-none absolute left-0 top-[26%] pl-1 text-[clamp(1.6rem,7vw,3rem)] font-black leading-none tracking-tight text-gold [text-shadow:0_1px_0_rgba(0,0,0,0.55),0_0_18px_rgba(212,175,55,0.35)]">
-              Ask
-            </span>
           </motion.div>
+
 
           {/* warm light spilling through the widening seam */}
           <div className="pointer-events-none absolute inset-y-0 left-1/2 w-24 -translate-x-1/2 bg-[linear-gradient(90deg,transparent,rgba(240,214,146,0.22),transparent)] blur-xl" />
@@ -296,20 +290,21 @@ function Welcome() {
 
           <motion.div
             style={{ opacity: hintFade }}
-            className="flex flex-col items-center gap-2"
+            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
           >
-            <span className="rounded-full border border-gold/40 bg-black/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] text-gold backdrop-blur-md">
+            <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <motion.span
-              animate={{ y: [0, 9, 0], opacity: [0.55, 1, 0.55] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-              className="-space-y-3 flex flex-col items-center text-gold"
-            >
-              <ChevronDown className="size-6 opacity-50" strokeWidth={2.5} />
-              <ChevronDown className="size-7" strokeWidth={2.5} />
-            </motion.span>
+            {/* קו זהב דק שנוסע למטה — מסביר את כיוון הגלילה בלי חצים */}
+            <div className="relative h-24 w-px overflow-hidden bg-white/15">
+              <motion.div
+                animate={{ y: ["-100%", "260%"] }}
+                transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-gold to-transparent"
+              />
+            </div>
           </motion.div>
+
 
         </div>
 
