@@ -296,20 +296,21 @@ function Welcome() {
 
           <motion.div
             style={{ opacity: hintFade }}
-            className="flex flex-col items-center gap-2"
+            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
           >
-            <span className="rounded-full border border-gold/40 bg-black/35 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.3em] text-gold backdrop-blur-md">
+            <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <motion.span
-              animate={{ y: [0, 9, 0], opacity: [0.55, 1, 0.55] }}
-              transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
-              className="-space-y-3 flex flex-col items-center text-gold"
-            >
-              <ChevronDown className="size-6 opacity-50" strokeWidth={2.5} />
-              <ChevronDown className="size-7" strokeWidth={2.5} />
-            </motion.span>
+            {/* קו זהב דק שנוסע למטה — מסביר את כיוון הגלילה בלי חצים */}
+            <div className="relative h-24 w-px overflow-hidden bg-white/15">
+              <motion.div
+                animate={{ y: ["-100%", "260%"] }}
+                transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-gold to-transparent"
+              />
+            </div>
           </motion.div>
+
 
         </div>
 
