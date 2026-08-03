@@ -103,7 +103,20 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "בדקו בחינם אם יש לכם עילה משפטית — ורק אם יש, נחבר אתכם לעורך דין מאומת בתחום.",
       },
       { property: "og:type", content: "website" },
+      /*
+       * og:image — מה שקופץ כשמישהו שולח את הקישור בוואטסאפ.
+       *
+       * בלעדיו וואטסאפ נופל על apple-touch-icon, ולכן הוא הציג את
+       * אייקון האפליקציה הישן גם אחרי שהוחלף בכל שאר המקומות. כתובת
+       * מוחלטת בכוונה: קישור יחסי לא נפתר אצל מי שמושך את התצוגה
+       * המקדימה, כי הוא לא גולש באתר.
+       */
+      { property: "og:image", content: "https://app.justask.co.il/app-icon.png" },
+      { property: "og:image:width", content: "512" },
+      { property: "og:image:height", content: "512" },
+      { property: "og:image:alt", content: "JustAsk" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "https://app.justask.co.il/app-icon.png" },
     ],
     links: [
       {
