@@ -106,11 +106,82 @@ async function proxyFirebaseAuth(request: Request): Promise<Response | null> {
   return new Response(upstream.body, { status: upstream.status, headers });
 }
 
+/*
+ * ---------- קליטת לידים של עורכי דין מדף הנחיתה ----------
+ *
+ * דף הנחיתה סטטי (Firebase Hosting) והטופס שולח לכאן — דומיין אחר,
+ * ולכן CORS מפורש. הרשימה סגורה: רק הדומיינים שלנו, לא כוכבית.
+ */
+const LEAD_ORIGINS = new Set([
+  "https://justask.co.il",
+  "https://www.justask.co.il",
+  "https://justask-6bfb9.web.app",
+  "https://app.justask.co.il",
+]);
+
+function leadCors(origin: string | null): Record<string, string> {
+  return origin && LEAD_ORIGINS.has(origin)
+    ? {
+        "Access-Control-Allow-Origin": origin,
+        "Access-Control-Allow-Methods": "POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      }
+    : {};
+}
+
+async function handleLawyerLead(request: Request): Promise<Response | null> {
+  const url = new URL(request.url);
+  if (url.pathname !== "/api/lawyer-lead") return null;
+  const cors = leadCors(request.headers.get("origin"));
+
+  if (request.method === "OPTIONS") return new Response(null, { status: 204, headers: cors });
+  if (request.method !== "POST") return new Response(null, { status: 405, headers: cors });
+
+  const { lawyerLeadProblem, normalizeLead } = await import("./lib/lawyer-lead");
+  const { adminCreate, sendMailTo, logServerError } = await import("./lib/ai/server-admin");
+
+  try {
+    // טופס אנושי שוקל מאות בייטים; מגה-בייט הוא תוקף
+    const raw = await request.text();
+    if (raw.length > 10_000) return new Response(null, { status: 413, headers: cors });
+    const data = JSON.parse(raw) as Record<string, unknown>;
+
+    const problem = lawyerLeadProblem(data);
+    if (problem === "bot") {
+      // לבוט עונים "הצלחה" — שלא ילמד מה נתפס
+      return Response.json({ ok: true }, { headers: cors });
+    }
+    if (problem) return Response.json({ ok: false, problem }, { status: 400, headers: cors });
+
+    const lead = normalizeLead(data);
+    await adminCreate("lawyerLeads", { ...lead, at: Date.now(), source: "landing" });
+
+    /*
+     * ליד הוא אירוע שדורש פעולה אנושית מהירה — עורך דין שמילא טופס
+     * ולא שמע כלום יומיים כבר התקרר. המייל אל תיבת העסק; כשל בו
+     * לא מפיל את הליד, שכבר נשמר.
+     */
+    await sendMailTo("contact@justask.co.il", {
+      title: "ליד חדש: עורך דין נרשם מדף הנחיתה",
+      body: `${lead.fullName} · ${lead.specialty} · רישיון ${lead.barNumber} · ${lead.phone} · ${lead.email}`,
+      link: "/admin/verifications",
+      cta: "לפאנל הניהול",
+    });
+
+    return Response.json({ ok: true }, { headers: cors });
+  } catch (err) {
+    await logServerError("lawyerLead", err).catch(() => undefined);
+    return Response.json({ ok: false }, { status: 400, headers: cors });
+  }
+}
+
 const appHandler: ServerEntry = {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
       const proxied = await proxyFirebaseAuth(request);
       if (proxied) return proxied;
+      const lead = await handleLawyerLead(request);
+      if (lead) return lead;
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);

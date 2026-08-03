@@ -136,6 +136,27 @@ function encode(v: Primitive): FsValue {
 }
 
 /** כתיבת שדות על מסמך כלשהו בהרשאות שרת (עוקף את חוקי המסד). */
+/** יצירת מסמך חדש באוסף (מזהה אוטומטי). זורקת בכשל — שהקורא יחליט. */
+export async function adminCreate(
+  collectionId: string,
+  fields: Record<string, Primitive>,
+): Promise<void> {
+  const body = {
+    fields: Object.fromEntries(Object.entries(fields).map(([k, v]) => [k, encode(v)])),
+  };
+  const res = await fetch(`${DOCS}/${collectionId}`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    throw new Error(`firestore create failed: ${res.status} ${(await res.text()).slice(0, 120)}`);
+  }
+}
+
 export async function adminPatch(
   path: string,
   fields: Record<string, Primitive>,
@@ -363,20 +384,17 @@ export async function emailByUid(uid: string): Promise<string | null> {
 export type MailOutcome = "sent" | "no-key" | "no-address" | "failed";
 
 /**
- * שליחת מייל דרך Resend.
+ * שליחת מייל לכתובת ידועה דרך Resend.
  *
  * REST ולא ה-SDK, מאותה סיבה שכל הקובץ הזה הוא REST. לעולם לא זורקת.
  */
-export async function sendMail(
-  uid: string,
+export async function sendMailTo(
+  to: string,
   msg: { title: string; body: string; link?: string; cta?: string },
 ): Promise<MailOutcome> {
   const key = process.env.RESEND_API_KEY;
   if (!key) return "no-key";
   try {
-    const to = await emailByUid(uid);
-    if (!to) return "no-address";
-
     const { buildNotificationMail, MAIL_FROM, unsubscribeUrl } = await import("../mail-templates");
     const mail = buildNotificationMail(msg);
 
@@ -405,6 +423,16 @@ export async function sendMail(
     await logServerError("sendMail", err);
     return "failed";
   }
+}
+
+/** שליחת מייל למשתמש לפי uid — הכתובת נשלפת מ-Firebase Auth בלבד. */
+export async function sendMail(
+  uid: string,
+  msg: { title: string; body: string; link?: string; cta?: string },
+): Promise<MailOutcome> {
+  const to = await emailByUid(uid);
+  if (!to) return "no-address";
+  return sendMailTo(to, msg);
 }
 
 /**
