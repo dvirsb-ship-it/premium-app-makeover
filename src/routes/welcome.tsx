@@ -89,12 +89,23 @@ function Welcome() {
    */
   const p = useSpring(scrollYProgress, { stiffness: 58, damping: 21, mass: 0.4 });
 
-  // Doors swing outward in real 3D; the frame pushes past the camera.
-  const leftRotate = useTransform(p, [0.1, 0.86], [0, -84]);
-  const rightRotate = useTransform(p, [0.1, 0.86], [0, 84]);
-  const doorShift = useTransform(p, [0.1, 0.86], [0, -14]);
-  const doorShiftR = useTransform(p, [0.1, 0.86], [0, 14]);
+  /*
+   * הדלתות היו מרגישות סטטיות כי הסיבוב היה ליניארי: מהירות אחידה
+   * לאורך כל הגלילה נקראת כמו סליידר, לא כמו כנף כבדה. עכשיו יש שלוש
+   * שכבות תנועה — פתיחה מואצת (הכנף "נשברת" מהמנעול ואז נפתחת),
+   * דחיפה ב-z שמביאה את הכנפיים אל המצלמה, וסדק שנפתח ומאיר.
+   * הן גם מתחילות מפוסקות קלות, כך שהמסך הראשון כבר חי.
+   */
+  const swing = cubicBezier(0.4, 0, 0.2, 1);
+  const leftRotate = useTransform(p, [0, 0.12, 0.86], [-3.5, -6, -88], { ease: swing });
+  const rightRotate = useTransform(p, [0, 0.12, 0.86], [3.5, 6, 88], { ease: swing });
+  const doorShift = useTransform(p, [0.1, 0.86], [0, -18], { ease: swing });
+  const doorShiftR = useTransform(p, [0.1, 0.86], [0, 18], { ease: swing });
+  const doorZ = useTransform(p, [0, 0.86], [0, 190], { ease: swing });
   const doorFade = useTransform(p, [0.8, 0.94], [1, 0]);
+  /* הסדק: צר וכמעט כבוי בהתחלה, רחב ולוהט ברגע שהכנפיים נפתחות */
+  const seamWidth = useTransform(p, [0, 0.55, 0.86], ["4rem", "16rem", "34rem"]);
+  const seamGlow = useTransform(p, [0, 0.2, 0.7, 0.92], [0.35, 0.7, 1, 0]);
 
   const roomScale = useTransform(p, [0, 1], [1.04, 1.42]);
   const roomOpacity = useTransform(p, [0, 0.35, 0.7], [0.35, 0.75, 1]);
