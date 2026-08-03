@@ -30,6 +30,7 @@ import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { CaseOffer, Lawyer } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { GoldBurst } from "../components/GoldBurst";
 
 export const Route = createFileRoute("/case/$caseId")({
   /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
@@ -42,6 +43,7 @@ function CaseDetail() {
   useRequireAuth();  const { caseId } = Route.useParams();
   const navigate = useNavigate();
   const { getCase, chooseLawyer } = useAppStore();
+  const [celebrating, setCelebrating] = useState(false);
   const { dir } = useSettings();
   const t = useT();
   const statusMeta = useStatusMeta();
@@ -167,6 +169,7 @@ function CaseDetail() {
 
   return (
     <AppShell bare>
+      {celebrating && <GoldBurst onDone={() => setCelebrating(false)} />}
       <Page className="min-h-screen">
         <TopBar title={t("caseDetailsTitle")} subtitle={item.category} />
 
@@ -411,7 +414,15 @@ function CaseDetail() {
                           offer={item.offers?.[l.id]}
                           responseLabel={responseLabels[l.id]}
                           rating={ratings[l.id]}
-                          onChoose={() => chooseLawyer(item.id, l.id)}
+                          onChoose={() => {
+                            /*
+                             * הרגע היחיד שבו שני צדדים באמת נפגשים —
+                             * ועד עכשיו עבר בשקט. זהב-לבן, לא צבעוני:
+                             * הרגש הוא הקלה, לא מסיבה.
+                             */
+                            chooseLawyer(item.id, l.id);
+                            setCelebrating(true);
+                          }}
                         />
                       </Rise>
                     ))}

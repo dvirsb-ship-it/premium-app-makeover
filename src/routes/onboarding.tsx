@@ -9,6 +9,7 @@ import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { SealMoment } from "../components/SealMoment";
 
 export const Route = createFileRoute("/onboarding")({
   /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
@@ -30,11 +31,22 @@ function Onboarding() {
   const [submitting, setSubmitting] = useState(false);
   const t = useT();
 
+  const [sealing, setSealing] = useState(false);
+
+  /*
+   * לחיצת היד מנגנת כאן — אחרי האישור — ולא במסך הפתיחה.
+   *
+   * זה הרגע שבו ההסכמה באמת נכרתה: תפקיד נבחר, התחברות הושלמה, והתנאים
+   * אושרו זה עתה. במסך הפתיחה היא חגגה הסכם שעוד לא קרה, ולפני
+   * ההתחברות — מסלול ה-redirect שכבר נשבר פעם — לא נוגעים.
+   */
   function handleContinue() {
     if (!agreed || submitting) return;
     setSubmitting(true);
-    window.setTimeout(() => navigate({ to: "/" }), 450);
+    setSealing(true);
   }
+
+  if (sealing) return <SealMoment onDone={() => navigate({ to: "/" })} />;
 
 
   return (

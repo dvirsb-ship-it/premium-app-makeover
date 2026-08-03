@@ -1,6 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
-  AnimatePresence,
   motion,
   useMotionValueEvent,
   useScroll,
@@ -8,10 +7,9 @@ import {
   useTransform,
   type MotionValue,
 } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ChevronDown, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
-import handshake from "../../public/videos/handshake.mp4.asset.json";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
 import doorRight from "../assets/welcome/door-right.webp";
 import portalFrame from "../assets/welcome/portal-frame.webp";
@@ -54,8 +52,7 @@ function Welcome() {
   const t = useT();
   const { setRole } = useAppStore();
   const scrollRef = useRef<HTMLDivElement | null>(null);
-  const [sealing, setSealing] = useState(false);
-  const [fadingOut, setFadingOut] = useState(false);
+  const [leaving, setLeaving] = useState(false);
   const [ctaLive, setCtaLive] = useState(false);
 
   const { scrollYProgress } = useScroll({ target: scrollRef, offset: ["start start", "end end"] });
@@ -97,30 +94,39 @@ function Welcome() {
     navigate({ to: "/auth" });
   }
 
+  /*
+   * הבחירה ממשיכה ישר להתחברות — בלי סרטון באמצע. לחיצת היד זזה לסוף
+   * אישור התקנון (onboarding), הרגע שבו ההסכמה באמת נכרתה; כאן היא
+   * חגגה הסכם שעוד לא קרה. נשארת רק דהיית מעבר קצרה — נימוס, לא טקס.
+   */
   function choose(role: Role) {
     haptic("success");
     setRole(role);
-    setSealing(true);
+    setLeaving(true);
+    window.setTimeout(finish, 450);
   }
 
-  // Safety net: leave even if the handshake clip never fires `ended`.
-  useEffect(() => {
-    if (!sealing) return;
-    const id = window.setTimeout(() => {
-      setFadingOut(true);
-      window.setTimeout(finish, 700);
-    }, 9000);
-    return () => window.clearTimeout(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sealing]);
-
-  if (sealing) return <SealMoment fadingOut={fadingOut} onDone={() => {
-    setFadingOut(true);
-    window.setTimeout(finish, 700);
-  }} />;
+  /*
+   * "דלג" מדלג אל הבחירה — לא מעבר לה.
+   *
+   * קודם הוא ניווט ישר ל-/auth, ומי שהתחבר בלי לבחור תפקיד קיבל
+   * "לקוח" בשקט (role ?? "client" במסך ההתחברות). עורך דין שדילג היה
+   * מוצא את עצמו בצ׳אט תיאור מקרה. אי אפשר לדלג על השאלה "מי אתם" —
+   * אפשר רק לדלג על הדרך אליה: קפיצת גלילה לסוף, וה-spring שכבר מחליק
+   * את ה-progress הופך אותה לפתיחת דלתות מהירה במקום חיתוך.
+   */
+  function skipToChoice() {
+    const el = scrollRef.current;
+    if (!el) return;
+    window.scrollTo({ top: el.offsetTop + el.scrollHeight - window.innerHeight, behavior: "auto" });
+  }
 
   return (
-    <div ref={scrollRef} className="relative w-full bg-[#04060b]" style={{ height: "400vh" }}>
+    <div
+      ref={scrollRef}
+      className="relative w-full bg-[#04060b] transition-opacity duration-500"
+      style={{ height: "400vh", opacity: leaving ? 0 : 1 }}
+    >
       <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ perspective: "1100px" }}>
         {/* The room behind the doors */}
         <motion.img
@@ -206,13 +212,15 @@ function Welcome() {
           <div className="pointer-events-auto flex items-center justify-between">
             {/* זכוכית ולא זהב — על דלתות העץ הזהב המלא נקרא כמדבקה */}
             <BrandMark size={44} variant="glass" />
-            <button
-              type="button"
-              onClick={finish}
-              className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
-            >
-              {t("welcomeSkip")}
-            </button>
+            {!ctaLive && (
+              <button
+                type="button"
+                onClick={skipToChoice}
+                className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
+              >
+                {t("welcomeSkip")}
+              </button>
+            )}
           </div>
 
           <div className="relative flex flex-1 items-center justify-center">
@@ -354,36 +362,3 @@ function Beat({
 }
 
 /** The handshake clip, kept exactly where it was: after the choice, before auth. */
-function SealMoment({ fadingOut, onDone }: { fadingOut: boolean; onDone: () => void }) {
-  const t = useT();
-  return (
-    <AnimatePresence>
-      <motion.div
-        key="seal"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: fadingOut ? 0 : 1 }}
-        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed inset-0 z-50 grid place-items-center bg-[#04060b]"
-      >
-        <video
-          src={handshake.url}
-          autoPlay
-          muted
-          playsInline
-          onEnded={onDone}
-          className="absolute inset-0 h-full w-full object-cover"
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(120%_80%_at_50%_0%,rgba(212,175,55,0.22),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(60%_60%_at_50%_55%,transparent_0%,rgba(0,0,0,0.55)_100%)]" />
-        <motion.p
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          className="relative z-10 whitespace-nowrap text-sm font-bold uppercase tracking-[0.32em] text-gold drop-shadow-[0_2px_18px_rgba(0,0,0,0.6)]"
-        >
-          {t("handshakeWelcome")}
-        </motion.p>
-      </motion.div>
-    </AnimatePresence>
-  );
-}
