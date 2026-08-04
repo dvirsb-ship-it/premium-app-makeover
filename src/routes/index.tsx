@@ -20,6 +20,7 @@ import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
+import { MAX_OPEN_CASES } from "../lib/limits";
 import { translate, useT, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
@@ -135,6 +136,18 @@ function ClientHome() {
   const openCount = cases.filter(
     (c) => c.status !== "closed" && c.status !== "rejected",
   ).length;
+  /*
+   * אותה ספירה בדיוק כמו בשרת (countOpenCases): רק סטטוסים שמתחרים על
+   * תשומת לב, ובלי תיקים שנתקעו בבדיקה — אחרת המסך היה חוסם על תיק
+   * שהשרת עצמו כבר מתעלם ממנו.
+   */
+  const competingCount = cases.filter(
+    (c) =>
+      (c.status === "matching" || c.status === "has_interest") ||
+      (c.status === "validating" &&
+        Date.now() - c.createdAt < 30 * 60 * 1000),
+  ).length;
+  const atCaseLimit = competingCount >= MAX_OPEN_CASES;
 
   /*
    * ההסבר מוצג ללקוח רק כשיש לו תיק פעיל — לפני זה אין לו על מה לקבל
@@ -287,20 +300,40 @@ function ClientHome() {
             </Rise>
           )}
 
-          <Rise className="mt-3">
-            <Pressable
-              onClick={() => navigate({ to: "/intake-tips" })}
-              className={cn(
-                "tap flex w-full items-center justify-center gap-2 rounded-full font-bold",
-                active
-                  ? "surface-sunken py-3.5 text-[15px] text-foreground ring-1 ring-inset ring-gold/35"
-                  : "btn-gold py-4 text-base",
-              )}
-            >
-              <Plus className={cn("size-[18px]", active && "text-gold-ink")} strokeWidth={2.5} />
-              {active ? t("homeNewCase") : t("homeFirstCase")}
-            </Pressable>
-          </Rise>
+          {/*
+            * התקרה נאמרת *לפני* שמישהו מספר את סיפורו, ולא אחרי.
+            *
+            * הגרסה הראשונה שלי חסמה רק בשרת, בסוף הראיון — כלומר אדם
+            * השקיע עשר דקות בלספר מה קרה לו ורק אז גילה שאי אפשר.
+            * האכיפה נשארת בשרת (שם היא אמיתית); כאן היא רק נאמרת בזמן.
+            */}
+          {atCaseLimit ? (
+            <Rise className="mt-3">
+              <div className="rounded-[22px] border border-gold/35 bg-gold/[0.07] p-4 text-center">
+                <p className="text-[13.5px] font-bold text-foreground">
+                  {t("tooManyOpenTitle").replace("{n}", String(MAX_OPEN_CASES))}
+                </p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                  {t("tooManyOpenBody").replace(/\{n\}/g, String(MAX_OPEN_CASES))}
+                </p>
+              </div>
+            </Rise>
+          ) : (
+            <Rise className="mt-3">
+              <Pressable
+                onClick={() => navigate({ to: "/intake-tips" })}
+                className={cn(
+                  "tap flex w-full items-center justify-center gap-2 rounded-full font-bold",
+                  active
+                    ? "surface-sunken py-3.5 text-[15px] text-foreground ring-1 ring-inset ring-gold/35"
+                    : "btn-gold py-4 text-base",
+                )}
+              >
+                <Plus className={cn("size-[18px]", active && "text-gold-ink")} strokeWidth={2.5} />
+                {active ? t("homeNewCase") : t("homeFirstCase")}
+              </Pressable>
+            </Rise>
+          )}
 
           {/*
             * כאן היו ארבע קוביות ניווט, ושלוש מהן היו כפילות: "התיקים שלי"
