@@ -129,14 +129,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         href: "https://fonts.gstatic.com",
         crossOrigin: "anonymous",
       },
+      /*
+       * Heebo לעברית ולטינית; Noto Sans לקירילית (רוסית) ו-Noto Sans
+       * Arabic לערבית. הדפדפן נופל לפונט הבא רק עבור גליפים ש-Heebo לא
+       * מכיל, ולכן שפה אחת לא משנה את מראה האחרות.
+       */
       {
         rel: "preload",
         as: "style",
-        href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Noto+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap",
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Noto+Sans:wght@400;500;600;700;800;900&family=Noto+Sans+Arabic:wght@400;500;600;700;800;900&display=swap",
       },
       /*
        * favicon.ico קיים כקובץ אמיתי ב-public בנוסף להצהרה כאן: סורקים,

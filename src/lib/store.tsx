@@ -14,6 +14,7 @@ import type { CaseOffer } from "./db";
 /** ההצעה כפי שהעו"ד ממלא אותה — חותמת הזמן נוספת בשכבת הנתונים. */
 type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { toast } from "sonner";
+import { LANGS, type Lang } from "./settings";
 import { translate } from "./i18n";
 import { fbAuth, isBrowser } from "./firebase";
 import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
@@ -85,10 +86,11 @@ const AppContext = createContext<AppState | null>(null);
 const ROLE_CACHE_KEY = "justask-role-v2";
 
 /** שפת הממשק מחוץ להקשר של React — ה-store אינו צרכן של ספק ההגדרות. */
-function uiLang(): "he" | "en" {
+function uiLang(): Lang {
   try {
     const raw = localStorage.getItem("justask-settings-v1");
-    return JSON.parse(raw ?? "{}").lang === "en" ? "en" : "he";
+    const l = JSON.parse(raw ?? "{}").lang;
+    return (LANGS as readonly string[]).includes(l) ? (l as Lang) : "he";
   } catch {
     return "he";
   }

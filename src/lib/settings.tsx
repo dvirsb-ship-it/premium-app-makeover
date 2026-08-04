@@ -9,7 +9,22 @@ import {
 } from "react";
 
 export type Theme = "light" | "dark";
-export type Lang = "he" | "en";
+
+/** שש שפות הממשק. עברית וערבית — מימין לשמאל. */
+export const LANGS = ["he", "en", "ru", "ar", "es", "fr"] as const;
+export type Lang = (typeof LANGS)[number];
+const RTL_LANGS: ReadonlySet<Lang> = new Set(["he", "ar"]);
+export const langDir = (l: Lang): "rtl" | "ltr" => (RTL_LANGS.has(l) ? "rtl" : "ltr");
+
+/** השם של כל שפה — בשפתה שלה, כי כך מזהים אותה גם כשהממשק זר. */
+export const LANG_NAMES: Record<Lang, string> = {
+  he: "עברית",
+  en: "English",
+  ru: "Русский",
+  ar: "العربية",
+  es: "Español",
+  fr: "Français",
+};
 
 interface SettingsState {
   theme: Theme;
@@ -43,7 +58,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       const parsed = raw ? JSON.parse(raw) : {};
-      if (parsed.lang === "he" || parsed.lang === "en") setLangState(parsed.lang);
+      if (LANGS.includes(parsed.lang)) setLangState(parsed.lang);
 
       if (parsed.themeSource === "user" && (parsed.theme === "light" || parsed.theme === "dark")) {
         setUsesSystemTheme(false);
@@ -72,7 +87,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
     root.setAttribute("lang", lang);
-    root.setAttribute("dir", lang === "he" ? "rtl" : "ltr");
+    root.setAttribute("dir", langDir(lang));
     root.style.colorScheme = theme;
     // Dynamic status-bar / browser chrome color per theme.
     const themeColor = theme === "dark" ? "#04060b" : "#F8FAFC";
@@ -115,7 +130,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     () => ({
       theme,
       lang,
-      dir: (lang === "he" ? "rtl" : "ltr") as "rtl" | "ltr",
+      dir: langDir(lang),
       usesSystemTheme,
       setTheme,
       toggleTheme,

@@ -43,6 +43,13 @@
           }
         ]
       }
+    ],
+    "redirects": [
+      {
+        "source": "/details{,/**}",
+        "destination": "/",
+        "type": 301
+      }
     ]
   }
 }

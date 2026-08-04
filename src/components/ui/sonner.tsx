@@ -4,9 +4,8 @@ import { useSettings } from "../../lib/settings";
 type ToasterProps = React.ComponentProps<typeof Sonner>;
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  const { lang, theme } = useSettings();
-  const dir = lang === "he" ? "rtl" : "ltr";
-  const position = lang === "he" ? "top-left" : "top-right";
+  const { dir, theme } = useSettings();
+  const position = dir === "rtl" ? "top-left" : "top-right";
 
   return (
     <Sonner

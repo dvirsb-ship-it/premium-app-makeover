@@ -18,7 +18,7 @@ import {
 import { AppShell } from "../components/AppShell";
 import { Page, Stagger, Rise } from "../components/motion";
 import { useAppStore } from "../lib/store";
-import { useSettings } from "../lib/settings";
+import { LANGS, LANG_NAMES, useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
@@ -125,47 +125,35 @@ function Profile() {
                 </button>
               </div>
 
-              {/* Language segmented control */}
-              <div className="flex items-center gap-3 p-4">
-                <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold text-sm font-black">
-                  {lang === "he" ? "עב" : "EN"}
-                </span>
-                <div className="min-w-0 flex-1 text-start">
-                  <p className="text-sm font-bold text-foreground">
-                    {t("language")}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {t("languageSub")}
-                  </p>
+              {/* בורר שפה — שש שפות, כל אחת בשמה שלה */}
+              <div className="p-4">
+                <div className="flex items-center gap-3">
+                  <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold text-sm font-black">
+                    {lang === "he" ? "עב" : lang.toUpperCase()}
+                  </span>
+                  <div className="min-w-0 flex-1 text-start">
+                    <p className="text-sm font-bold text-foreground">
+                      {t("language")}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {t("languageSub")}
+                    </p>
+                  </div>
                 </div>
-                <div className="relative flex shrink-0 rounded-xl bg-white/10 p-1">
-                  {(["he", "en"] as const).map((l) => (
+                <div className="mt-3 grid grid-cols-3 gap-1.5">
+                  {LANGS.map((l) => (
                     <button
                       key={l}
                       type="button"
                       onClick={() => setLang(l)}
-                      className="relative z-10 w-11 rounded-lg py-1.5 text-xs font-bold"
+                      aria-pressed={lang === l}
+                      className={`min-h-11 rounded-xl px-2 py-2 text-[12.5px] font-bold transition ${
+                        lang === l
+                          ? "chip-gold"
+                          : "bg-white/10 text-muted-foreground"
+                      }`}
                     >
-                      {lang === l && (
-                        <motion.span
-                          layoutId="lang-pill"
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 34,
-                          }}
-                          className="absolute inset-0 rounded-lg bg-white/20 shadow-sm"
-                        />
-                      )}
-                      <span
-                        className={`relative ${
-                          lang === l
-                            ? "text-foreground"
-                            : "text-muted-foreground"
-                        }`}
-                      >
-                        {l === "he" ? "עברית" : "EN"}
-                      </span>
+                      {LANG_NAMES[l]}
                     </button>
                   ))}
                 </div>

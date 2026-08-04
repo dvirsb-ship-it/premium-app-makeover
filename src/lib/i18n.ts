@@ -1072,8 +1072,27 @@ export const strings = {
 
 export type StringKey = keyof typeof strings;
 
+/*
+ * ארבע השפות הנוספות חיות בקבצים משלהן — קובץ לשפה — ולא בתוך הטבלה
+ * הזו: העברית והאנגלית הן מקור האמת שנערך ביד (וגם מה ש-Lovable נוגע
+ * בו), והתרגומים מיוצרים ומתוחזקים ככבודה נפרדת. חסר → נופלים לאנגלית,
+ * כדי שמפתח חדש שנוסף בעברית לא ישאיר חור ברוסית.
+ */
+import { ru } from "./i18n.ru";
+import { ar } from "./i18n.ar";
+import { es } from "./i18n.es";
+import { fr } from "./i18n.fr";
+
+const EXTRA: Record<Exclude<Lang, "he" | "en">, Partial<Record<StringKey, string>>> = {
+  ru,
+  ar,
+  es,
+  fr,
+};
+
 export function translate(key: StringKey, lang: Lang) {
-  return strings[key][lang];
+  if (lang === "he" || lang === "en") return strings[key][lang];
+  return EXTRA[lang][key] ?? strings[key].en;
 }
 
 

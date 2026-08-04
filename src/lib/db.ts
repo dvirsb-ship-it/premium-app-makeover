@@ -182,16 +182,22 @@ function toCase(id: string, d: CaseDoc): Case {
   };
 }
 
-function agoLabel(ms: number, lang: "he" | "en" = "he"): string {
+/* ניסוח "לפני X" בכל שפה — ברזולוציית דקות, לפיד */
+const AGO: Record<string, { m: (n: number) => string; h: (n: number) => string; d: (n: number) => string }> = {
+  he: { m: (n) => `לפני ${n} דק׳`, h: (n) => `לפני ${n} שעות`, d: (n) => `לפני ${n} ימים` },
+  en: { m: (n) => `${n}m ago`, h: (n) => `${n}h ago`, d: (n) => `${n}d ago` },
+  ru: { m: (n) => `${n} мин назад`, h: (n) => `${n} ч назад`, d: (n) => `${n} дн. назад` },
+  ar: { m: (n) => `قبل ${n} دقائق`, h: (n) => `قبل ${n} ساعات`, d: (n) => `قبل ${n} أيام` },
+  es: { m: (n) => `hace ${n} min`, h: (n) => `hace ${n} h`, d: (n) => `hace ${n} días` },
+  fr: { m: (n) => `il y a ${n} min`, h: (n) => `il y a ${n} h`, d: (n) => `il y a ${n} jours` },
+};
+
+function agoLabel(ms: number, lang: string = "he"): string {
   const mins = Math.max(1, Math.round((Date.now() - ms) / 60000));
-  if (lang === "en") {
-    if (mins < 60) return `${mins}m ago`;
-    if (mins < 60 * 24) return `${Math.round(mins / 60)}h ago`;
-    return `${Math.round(mins / (60 * 24))}d ago`;
-  }
-  if (mins < 60) return `לפני ${mins} דק׳`;
-  if (mins < 60 * 24) return `לפני ${Math.round(mins / 60)} שעות`;
-  return `לפני ${Math.round(mins / (60 * 24))} ימים`;
+  const p = AGO[lang] ?? AGO.he;
+  if (mins < 60) return p.m(mins);
+  if (mins < 60 * 24) return p.h(Math.round(mins / 60));
+  return p.d(Math.round(mins / (60 * 24)));
 }
 
 import { limitationMonthsLeft } from "./legal";

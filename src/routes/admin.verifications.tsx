@@ -353,7 +353,7 @@ function VerificationQueue() {
                     />
                     <Meta
                       label={t("stepSpecTitle")}
-                      value={formatSpecialties(rec, lang)}
+                      value={formatSpecialties(rec, lang === "he" ? "he" : "en")}
                     />
                   </dl>
 
