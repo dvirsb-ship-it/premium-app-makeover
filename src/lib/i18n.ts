@@ -1065,6 +1065,8 @@ export const strings = {
   ratingNone: { he: "עוד אין דירוגים", en: "No ratings yet" },
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
+  helpNeedsSignIn: { he: "צריך להתחבר כדי לשלוח פנייה — כך נדע למי לחזור.", en: "Sign in to send a message — that's how we know who to reply to." },
+
   limitationLeft: { he: "נותרו להתיישנות", en: "Left before limitation" },
   limitationMonths: { he: "חודשים", en: "months" },
   limitationSoon: { he: "מתקרב להתיישנות", en: "Limitation approaching" },

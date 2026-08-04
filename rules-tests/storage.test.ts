@@ -119,3 +119,39 @@ describe("סרטון האימות — קריאה", () => {
     await assertFails(getBytes(ref(storageAs("law2"), "verifications/law1/selfieVideo.mp4")));
   });
 });
+
+/*
+ * ההרחבה של 08/2026 — סקירת אבטחה: סוגי קבצים, וקריאת התמונות
+ * המצונזרות. שניהם היו פתוחים יותר משנדרש.
+ */
+
+describe("סוגי קבצים שמותר להעלות", () => {
+  it("HTML נדחה — קובץ כזה מוגש חזרה כדף ומהווה XSS מאוחסן", async () => {
+    await assertFails(
+      uploadBytes(ref(storageAs("law1"), "verifications/law1/barCard.html"), bytes(0.001), {
+        contentType: "text/html",
+      }),
+    );
+  });
+
+  it("PDF ותמונה עדיין מותרים — אלו המסמכים האמיתיים", async () => {
+    await assertSucceeds(
+      uploadBytes(ref(storageAs("law1"), "verifications/law1/diploma.pdf"), bytes(0.5), {
+        contentType: "application/pdf",
+      }),
+    );
+    await assertSucceeds(
+      uploadBytes(ref(storageAs("law1"), "verifications/law1/barCard.jpg"), bytes(0.5), {
+        contentType: "image/jpeg",
+      }),
+    );
+  });
+
+  it("קובץ תיק של הלקוח — HTML נדחה גם כאן", async () => {
+    await assertFails(
+      uploadBytes(ref(storageAs("client1"), "case-files/client1/doc.html"), bytes(0.001), {
+        contentType: "text/html",
+      }),
+    );
+  });
+});

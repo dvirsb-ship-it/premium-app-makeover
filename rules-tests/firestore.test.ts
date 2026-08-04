@@ -556,6 +556,131 @@ describe("funnelEvents", () => {
 
 /* ---------- ברירת המחדל: הכל חסום ---------- */
 
+/* ---------- פרצה 6: פרטי הקשר של הלקוח דולפים לפיד ---------- */
+
+describe("פרטי הקשר של הלקוח", () => {
+  it("לקוח אינו יכול לכתוב פרטי קשר על תיק שעדיין בפיד", async () => {
+    /*
+     * זו ההבטחה שבדף הנחיתה: "הפנייה נפתחת בפניך, בלי שם ובלי פרטי
+     * קשר". Firestore אינו יודע להסתיר שדה בודד — ברגע ש-clientContact
+     * יושב על תיק בסטטוס matching, כל עורך דין מאושר בפיד קורא את
+     * הטלפון. עד היום זה נמנע רק בסדר הפעולות של הקוד.
+     */
+    await assertFails(
+      updateDoc(doc(as("client1"), "cases/openCase"), {
+        clientContact: { name: "דנה", phone: "0500000000", email: "d@e.com" },
+      }),
+    );
+  });
+
+  it("פרטי קשר מותרים כשהתיק נעשה מחובר — באותה כתיבה", async () => {
+    await assertSucceeds(
+      updateDoc(doc(as("client1"), "cases/openCase"), {
+        chosenLawyerId: "lawyerOk",
+        status: "connected",
+        clientContact: { name: "דנה", phone: "0500000000", email: "d@e.com" },
+      }),
+    );
+  });
+
+  it("עו״ד בפיד אינו רואה תיק מחובר שאינו שלו", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "cases/connectedCase"), {
+        clientId: "client1",
+        chosenLawyerId: "lawyerOk",
+        status: "connected",
+        clientContact: { name: "דנה", phone: "0500000000", email: "d@e.com" },
+        interested: [],
+        interestedIds: [],
+      });
+    });
+    await assertFails(getDoc(doc(as("lawyerOther"), "cases/connectedCase")));
+    await assertSucceeds(getDoc(doc(as("lawyerOk"), "cases/connectedCase")));
+  });
+});
+
+/* ---------- פרצה 7: התראות כצינור פישינג ---------- */
+
+describe("התראות", () => {
+  const base = {
+    userId: "client1",
+    type: "lawyer_interest",
+    title: "עורך דין הביע עניין",
+    body: "יש התעניינות בתיק שלך",
+    read: false,
+  };
+
+  it("התראה תקינה נכתבת", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "notifications/n1"), { ...base, createdAt: Date.now() }),
+    );
+  });
+
+  it("סוג שאינו ברשימה נדחה — כדי ש״התיק אושר״ לא ייכתב מהדפדפן", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "notifications/n2"), {
+        ...base,
+        type: "case_validated",
+        createdAt: Date.now(),
+      }),
+    );
+  });
+
+  it("כותרת ארוכה מדי נדחית", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "notifications/n3"), {
+        ...base,
+        title: "א".repeat(200),
+        createdAt: Date.now(),
+      }),
+    );
+  });
+
+  it("חותמת זמן מזויפת נדחית", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "notifications/n4"), {
+        ...base,
+        createdAt: Date.now() + 86400000,
+      }),
+    );
+  });
+
+  it("read:true בכתיבה נדחה — התראה נולדת שלא־נקראה", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "notifications/n5"), {
+        ...base,
+        read: true,
+        createdAt: Date.now(),
+      }),
+    );
+  });
+});
+
+/* ---------- פרצה 8: פנייה לתמיכה בשם מישהו אחר ---------- */
+
+describe("פניות תמיכה", () => {
+  it("פנייה חייבת לשאת את מזהה פותחה", async () => {
+    await assertFails(
+      setDoc(doc(as("client1"), "supportTickets/t1"), {
+        userId: "someoneElse",
+        email: "a@b.com",
+        message: "שלום",
+        status: "open",
+        createdAt: Date.now(),
+      }),
+    );
+    await assertSucceeds(
+      setDoc(doc(as("client1"), "supportTickets/t2"), {
+        userId: "client1",
+        email: "a@b.com",
+        message: "שלום",
+        status: "open",
+        createdAt: Date.now(),
+      }),
+    );
+  });
+});
+
 describe("ברירת מחדל", () => {
   it("אוסף שלא הוגדר בחוקים חסום לגמרי", async () => {
     await assertFails(getDoc(doc(as("client1"), "somethingElse/x")));

@@ -6,11 +6,19 @@ service firebase.storage {
       return request.auth != null && request.auth.token.email in ['dvirsb@gmail.com', 'justask.adv@gmail.com'];
     }
 
-    // מסמכי אימות עו"ד (רישיון, תעודה) — בעל החשבון מעלה; האדמין רשאי לצפות
+    /*
+     * מסמכי אימות עו"ד (רישיון, תעודה) — בעל החשבון מעלה; האדמין צופה.
+     * סוג התוכן מוגבל בכוונה: קובץ HTML שמועלה לדלי מוגש חזרה כ-HTML
+     * מדומיין ה-Storage, וזה XSS מאוחסן שמחכה למי שיפתח את הקישור.
+     */
     match /verifications/{uid}/{fileName=**} {
       allow write: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.size < 15 * 1024 * 1024;
+        && request.resource.size < 15 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/.*')
+          || request.resource.contentType == 'application/pdf'
+        );
       allow read: if request.auth != null
         && (request.auth.uid == uid || isAdmin());
     }
@@ -27,14 +35,28 @@ service firebase.storage {
 
     // מסמכי תיק שהלקוח מעלה — רק בעל החשבון
     match /case-files/{uid}/{fileName=**} {
-      allow read, write: if request.auth != null
+      allow write: if request.auth != null
         && request.auth.uid == uid
-        && request.resource.size < 15 * 1024 * 1024;
+        && request.resource.size < 15 * 1024 * 1024
+        && (
+          request.resource.contentType.matches('image/.*')
+          || request.resource.contentType == 'application/pdf'
+        );
       allow read: if request.auth != null && request.auth.uid == uid;
     }
 
     function caseData(caseId) {
       return firestore.get(/databases/(default)/documents/cases/$(caseId)).data;
+    }
+
+    /*
+     * עו"ד שאושר בתור האימות. מקביל ל-isApprovedLawyer בחוקי Firestore:
+     * "מחובר" אינו מספיק — התמונות המצונזרות הן עדיין תיעוד של אירוע
+     * שקרה לאדם אמיתי.
+     */
+    function isApprovedLawyer() {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/verifications/$(request.auth.uid)).data.status == 'approved';
     }
 
     function validImage() {
@@ -53,11 +75,22 @@ service firebase.storage {
       );
     }
 
-    // הגרסה המצונזרת (פרטים מזהים הושחרו) — הלקוח מעלה; כל משתמש מחובר צופה
+    /*
+     * הגרסה המצונזרת (פרטים מזהים הושחרו) — הלקוח מעלה.
+     *
+     * הקריאה הייתה פתוחה לכל משתמש מחובר, כלומר גם ללקוח אקראי שיודע
+     * לנחש מזהה תיק. צנזור אינו אנונימיזציה: זו עדיין תמונת פציעה או
+     * זירת תאונה. הקריאה מוגבלת למי שהתיק נוגע לו.
+     */
     match /case-uploads/{caseId}/cens/{img} {
       allow write: if request.auth != null && validImage()
         && caseData(caseId).clientId == request.auth.uid;
-      allow read: if request.auth != null;
+      allow read: if request.auth != null && (
+        caseData(caseId).clientId == request.auth.uid
+        || caseData(caseId).chosenLawyerId == request.auth.uid
+        || isAdmin()
+        || isApprovedLawyer()
+      );
     }
 
     // ברירת מחדל — הכל חסום

@@ -102,9 +102,18 @@ function HelpSettings() {
                 onClick={() => {
                   const text = msg.trim();
                   if (!text) return;
+                  /*
+                   * בלי uid הפנייה נדחית בחוקי המסד (פנייה חייבת לשאת את
+                   * מזהה פותחה), והמשתמש היה רואה "נשלח" על הודעה שלא
+                   * נשלחה. עדיף להגיד שצריך להתחבר.
+                   */
+                  if (!user?.uid) {
+                    toast.error(t("helpNeedsSignIn"));
+                    return;
+                  }
                   void submitSupportTicket({
-                    userId: user?.uid ?? "guest",
-                    email: user?.email ?? "",
+                    userId: user.uid,
+                    email: user.email ?? "",
                     message: text,
                   })
                     .then(() => {

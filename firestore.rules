@@ -66,6 +66,21 @@ service cloud.firestore {
             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
             || request.resource.data.status in ['connected', 'rejected']
           )
+          /*
+           * פרטי הקשר של הלקוח מותרים רק על תיק מחובר.
+           *
+           * ההבטחה בדף הנחיתה — "הפנייה נפתחת בפניך, בלי שם ובלי פרטי
+           * קשר" — נשמרה עד היום רק בסדר הפעולות של הקוד: chooseLawyerDb
+           * כותב את clientContact יחד עם status:'connected'. אבל hasOnly
+           * מתיר גם תת-קבוצה, כלומר כתיבת clientContact לבדה בזמן
+           * שהסטטוס עדיין 'matching' — ואז כל עורך דין מאושר בפיד קורא
+           * את הטלפון. Firestore אינו יודע להסתיר שדה בודד, ולכן
+           * ההבטחה חייבת להיאכף כאן ולא בקוד הלקוח.
+           */
+          && (
+            !request.resource.data.diff(resource.data).affectedKeys().hasAny(['clientContact'])
+            || request.resource.data.status == 'connected'
+          )
         )
         || (
           isApprovedLawyer()
@@ -159,12 +174,37 @@ service cloud.firestore {
       allow write: if signedIn() && request.auth.uid == uid;
     }
 
-    // התראות — כל משתמש קורא רק את שלו; יצירה ע"י משתמש מחובר (עו"ד→לקוח, לקוח→עו"ד)
+    /*
+     * התראות — כל משתמש קורא רק את שלו.
+     *
+     * היצירה נשארת בידי משתמשים (עו"ד→לקוח, לקוח→עו"ד) כי זו הדרך שבה
+     * הצדדים מעדכנים זה את זה, אבל בלי הגבלות היא צינור פישינג: כל
+     * חשבון מחובר יכול היה לשלוח לכל משתמש אחר כותרת וגוף חופשיים
+     * שנראים כמו הודעה רשמית מ-JustAsk. לכן: סוג מרשימה סגורה, אורך
+     * מוגבל, וחותמת זמן אמיתית.
+     */
     match /notifications/{id} {
       allow read: if signedIn() && resource.data.userId == request.auth.uid;
       allow create: if signedIn()
         && request.resource.data.keys().hasAll(['userId', 'type', 'title', 'body', 'read', 'createdAt'])
-        && request.resource.data.read == false;
+        && request.resource.data.read == false
+        && request.resource.data.userId is string
+        /*
+         * הרשימה היא בדיוק הסוגים שהדפדפן שולח (db.ts). התראות השרת
+         * נכתבות ב-Admin SDK ואינן עוברות כאן, ולכן אין צורך לכלול את
+         * הסוגים שלו — וטוב שלא: כך "case_validated" לא ניתן לזיוף
+         * מהדפדפן.
+         */
+        && request.resource.data.type in [
+             'lawyer_interest', 'chosen', 'case_reverted', 'case_milestone'
+           ]
+        && request.resource.data.title is string
+        && request.resource.data.title.size() <= 90
+        && request.resource.data.body is string
+        && request.resource.data.body.size() <= 400
+        && request.resource.data.createdAt is int
+        && request.resource.data.createdAt > request.time.toMillis() - 120000
+        && request.resource.data.createdAt < request.time.toMillis() + 120000;
       allow update: if signedIn()
         && resource.data.userId == request.auth.uid
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
@@ -216,9 +256,12 @@ service cloud.firestore {
       allow delete: if false;
     }
 
-    // פניות תמיכה — כל מחובר פותח; רק האדמין קורא ומטפל
+    // פניות תמיכה — כל מחובר פותח *בשמו*; רק האדמין קורא ומטפל
     match /supportTickets/{id} {
-      allow create: if signedIn() && request.resource.data.status == 'open';
+      allow create: if signedIn()
+        && request.resource.data.status == 'open'
+        // בלי זה אפשר לפתוח פנייה בשם משתמש אחר ולזהם את תור התמיכה
+        && request.resource.data.userId == request.auth.uid;
       allow read: if isAdmin();
       allow update: if isSuperAdmin();
       allow delete: if false;
