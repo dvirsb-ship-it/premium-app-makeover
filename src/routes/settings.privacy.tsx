@@ -10,7 +10,7 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
-import { requestAccountDeletion } from "../lib/db";
+import { DELETION_GRACE_DAYS, requestAccountDeletion } from "../lib/db";
 
 export const Route = createFileRoute("/settings/privacy")({
   head: () => ({
@@ -59,7 +59,9 @@ function PrivacySettings() {
       reason: reason.trim(),
     })
       .then(async () => {
-        toast.success(t("deleteRequestSent"));
+        toast.success(
+          t("deleteScheduledBody").replace("{n}", String(DELETION_GRACE_DAYS)),
+        );
         await signOut();
         navigate({ to: "/" });
       })

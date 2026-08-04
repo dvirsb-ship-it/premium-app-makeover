@@ -285,12 +285,31 @@ service cloud.firestore {
     }
 
     // בקשות מחיקת חשבון — המשתמש פותח לעצמו; האדמין קורא ומסמן ביצוע
-    match /deletionRequests/{id} {
+    /*
+     * מחיקה מתוזמנת. מזהה המסמך הוא ה-uid, ולכן הבעלות נאכפת במסלול
+     * עצמו ולא רק בשדה — אי אפשר לתזמן מחיקה של מישהו אחר.
+     *
+     * המשתמש רשאי לתזמן ולבטל את שלו, ולקרוא אותו (כדי שהמסך יידע
+     * להציג "המחיקה נקבעה"). הביצוע עצמו הוא Admin SDK בלבד: סימון
+     * done מהדפדפן היה מבטל מחיקה בלי שהיא קרתה.
+     */
+    match /deletionRequests/{uid} {
+      allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow create: if signedIn()
-        && request.resource.data.userId == request.auth.uid
-        && request.resource.data.status == 'open';
-      allow read: if isAdmin();
-      allow update: if isSuperAdmin();
+        && request.auth.uid == uid
+        && request.resource.data.userId == uid
+        && request.resource.data.status == 'scheduled'
+        && request.resource.data.scheduledFor is int;
+      // ביטול בלבד — לא דחיית המועד ולא סימון שהמחיקה בוצעה
+      allow update: if isSuperAdmin()
+        || (
+          signedIn()
+          && request.auth.uid == uid
+          && resource.data.status == 'scheduled'
+          && request.resource.data.status == 'cancelled'
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'cancelledAt'])
+        );
       allow delete: if false;
     }
 

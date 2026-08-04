@@ -35,6 +35,7 @@ import {
   watchMyCases,
   watchNotifications,
   writeUserRole,
+  cancelScheduledDeletion,
   type AppNotification,
   type LawyerProfileDoc,
 } from "./db";
@@ -164,6 +165,15 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
            */
           try {
             localStorage.setItem("justask-welcomed", "1");
+            /*
+             * ההתחברות היא הביטול. מי שביקש למחוק וחזר להתחבר בתוך
+             * הצינון — רוצה את החשבון שלו; אין צורך לשאול אותו שוב.
+             */
+            void cancelScheduledDeletion(u.uid)
+              .then((was) => {
+                if (was) toast.success(translate("deleteCancelled", uiLang()));
+              })
+              .catch(() => {});
           } catch {
             /* ignore */
           }

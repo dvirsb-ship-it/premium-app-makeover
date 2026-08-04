@@ -786,15 +786,42 @@ export interface DeletionRequestDoc {
 }
 
 /** בקשת מחיקה: מנתקת מיד את התיקים הפתוחים ופותחת בקשה לטיפול תוך 14 יום. */
+/** ימי הצינון — משוכפל מהשרת בכוונה, כדי שהלקוח לא ייבא קוד שרת. */
+export const DELETION_GRACE_DAYS = 7;
+
+/**
+ * ביטול מחיקה מתוזמנת — נקרא בכל התחברות מוצלחת.
+ *
+ * ההתחברות *היא* הביטול: מי שחוזר ונכנס לחשבון מצהיר בכך שהוא רוצה
+ * אותו. אין צורך במסך נפרד שמבקש ממנו לאשר שוב מה שהוא עשה בפועל.
+ */
+export async function cancelScheduledDeletion(uid: string): Promise<boolean> {
+  try {
+    const ref = doc(fbDb(), "deletionRequests", uid);
+    const snap = await getDoc(ref);
+    if (!snap.exists() || snap.data().status !== "scheduled") return false;
+    await updateDoc(ref, { status: "cancelled", cancelledAt: Date.now() });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function requestAccountDeletion(input: {
   userId: string;
   email: string;
   reason: string;
 }): Promise<void> {
-  await addDoc(collection(fbDb(), "deletionRequests"), {
+  /*
+   * מזהה המסמך הוא ה-uid — כך שבקשה חוזרת מעדכנת ולא יוצרת שנייה,
+   * וההתחברות יודעת בדיוק איזה מסמך לבטל בלי שאילתה.
+   */
+  const scheduledFor = Date.now() + DELETION_GRACE_DAYS * 24 * 60 * 60 * 1000;
+  await setDoc(doc(fbDb(), "deletionRequests", input.userId), {
     ...input,
-    status: "open",
+    status: "scheduled",
     createdAt: Date.now(),
+    scheduledFor,
   });
   // הסרה מיידית מהפיד: תיקים פעילים של המשתמש נסגרים
   try {

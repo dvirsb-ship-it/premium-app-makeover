@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-05T00:20Z";
+const BUILD_STAMP = "2026-08-05T01:30Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -196,6 +196,23 @@ const appHandler: ServerEntry = {
           headers: { "content-type": "text/plain", "cache-control": "no-store" },
         });
       }
+      /*
+       * מחיקות שהגיע זמנן. נקרא ע"י Cloud Scheduler פעם ביום.
+       *
+       * מוגן בסוד ולא בהתחברות: אין כאן משתמש. בלי הסוד — 404 ולא 401,
+       * כדי שהנתיב לא יאשר את קיומו למי שמנחש.
+       */
+      if (new URL(request.url).pathname === "/__cron/deletions") {
+        const secret = process.env.CRON_SECRET;
+        const given = request.headers.get("x-cron-key");
+        if (!secret || given !== secret) {
+          return new Response("Not found", { status: 404 });
+        }
+        const { runDueDeletions } = await import("./lib/ai/server-admin");
+        const result = await runDueDeletions();
+        return Response.json(result, { headers: { "cache-control": "no-store" } });
+      }
+
       const proxied = await proxyFirebaseAuth(request);
       if (proxied) return proxied;
       const lead = await handleLawyerLead(request);

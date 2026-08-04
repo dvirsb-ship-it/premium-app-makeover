@@ -692,3 +692,59 @@ describe("ברירת מחדל", () => {
     await assertFails(setDoc(doc(as("client1"), "somethingElse/x"), { a: 1 }));
   });
 });
+
+/*
+ * מחיקה מתוזמנת. זו הבטחה שנשענת על החוקים: אם אפשר לסמן "done"
+ * מהדפדפן, מחיקה מבוטלת בלי שקרתה — והמשתמש כבר התבשר שהיא תקרה.
+ */
+describe("מחיקת חשבון מתוזמנת", () => {
+  const req = (uid: string) => ({
+    userId: uid,
+    email: "a@b.com",
+    reason: "",
+    status: "scheduled",
+    createdAt: Date.now(),
+    scheduledFor: Date.now() + 7 * 86400_000,
+  });
+
+  it("משתמש מתזמן מחיקה של עצמו", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("client"), "deletionRequests/client"), req("client")),
+    );
+  });
+
+  it("אי אפשר לתזמן מחיקה של מישהו אחר", async () => {
+    await assertFails(
+      setDoc(doc(as("client"), "deletionRequests/victim"), req("victim")),
+    );
+  });
+
+  it("התחברות מבטלת — ביטול מותר", async () => {
+    await setDoc(doc(as("client"), "deletionRequests/client"), req("client"));
+    await assertSucceeds(
+      updateDoc(doc(as("client"), "deletionRequests/client"), {
+        status: "cancelled",
+        cancelledAt: Date.now(),
+      }),
+    );
+  });
+
+  it("סימון 'בוצע' מהדפדפן נדחה — אחרת מוחקים בלי למחוק", async () => {
+    await setDoc(doc(as("client"), "deletionRequests/client"), req("client"));
+    await assertFails(
+      updateDoc(doc(as("client"), "deletionRequests/client"), {
+        status: "done",
+        purgedAt: Date.now(),
+      }),
+    );
+  });
+
+  it("דחיית המועד נדחית — אחרת אפשר לדחות את המחיקה לנצח", async () => {
+    await setDoc(doc(as("client"), "deletionRequests/client"), req("client"));
+    await assertFails(
+      updateDoc(doc(as("client"), "deletionRequests/client"), {
+        scheduledFor: Date.now() + 999 * 86400_000,
+      }),
+    );
+  });
+});

@@ -526,6 +526,55 @@ async function adminQueryIds(
 }
 
 /**
+ * שליפת מסמכים שזמנם הגיע — לפי שדה תאריך מספרי קטן-או-שווה לעכשיו.
+ * משמש את המחיקה המתוזמנת; מחזיר גם את גוף המסמך ולא רק מזהים.
+ */
+async function adminQueryDue(
+  collectionId: string,
+  field: string,
+  atMost: number,
+): Promise<Record<string, unknown>[]> {
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId }],
+        where: {
+          fieldFilter: {
+            field: { fieldPath: field },
+            op: "LESS_THAN_OR_EQUAL",
+            value: { integerValue: String(Math.floor(atMost)) },
+          },
+        },
+        limit: 200,
+      },
+    }),
+  });
+  if (!res.ok) return [];
+  const rows = (await res.json()) as {
+    document?: { name?: string; fields?: Record<string, Record<string, unknown>> };
+  }[];
+  return rows
+    .filter((r) => r.document?.name)
+    .map((r) => {
+      const out: Record<string, unknown> = {
+        id: r.document!.name!.split("/").pop(),
+      };
+      for (const [k, v] of Object.entries(r.document!.fields ?? {})) {
+        out[k] =
+          v.stringValue ??
+          (v.integerValue !== undefined ? Number(v.integerValue) : undefined) ??
+          v.booleanValue;
+      }
+      return out;
+    });
+}
+
+/**
  * מחיקת קובץ מ-Storage. לעולם לא זורקת, אבל אומרת את האמת: true רק אם
  * הקובץ נמחק (או שכבר לא היה). מי שחותם "נמחק" — כמו מחיקת סרטון
  * האימות — חייב לדעת אם זה באמת קרה.
@@ -627,6 +676,54 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
   await del(`users/${uid}`);
 
   return { cases: caseIds.length, paths, storage, dryRun };
+}
+
+/* ---------- מחיקה מתוזמנת ---------- */
+
+/**
+ * ימי הצינון שבין הבקשה לביצוע.
+ *
+ * מחיקה היא בלתי הפיכה, ולחיצה בטעות בשלוש לפנות בוקר אחרי יום קשה
+ * היא תרחיש אמיתי אצל קהל שנמצא בדיוק במצב כזה. שבעה ימים שבהם
+ * התחברות מבטלת — ואחריהם זה קורה מעצמו, בלי אדם בלולאה.
+ */
+export const DELETION_GRACE_DAYS = 7;
+
+/**
+ * מבצע כל מחיקה שהגיע זמנה.
+ *
+ * זו הנקודה שבה ההבטחה "אפשר למחוק הכל" הופכת ממשית: קודם היא הייתה
+ * בקשה בתור שאדם מבצע ידנית, וכל תור כזה נדחה בשבוע עמוס ונשכח בחודש
+ * עמוס. מה שאנחנו מחזיקים כאן — תיאור פגיעה, תמונות, תזכיר משפטי —
+ * הוא מהרגיש שיש, ולכן החזקה מיותרת שלו היא סיכון בלי שום תמורה.
+ *
+ * בטוח להרצה חוזרת: כל בקשה מסומנת done לפני שהיא נספרת, ומחיקה
+ * שנכשלה נשארת פתוחה לריצה הבאה במקום להיעלם בשקט.
+ */
+export async function runDueDeletions(
+  now = Date.now(),
+): Promise<{ processed: number; failed: number }> {
+  const due = await adminQueryDue("deletionRequests", "scheduledFor", now);
+  let processed = 0;
+  let failed = 0;
+  for (const req of due) {
+    if (req.status !== "scheduled") continue;
+    try {
+      await purgeAccount(req.userId as string);
+      await adminPatch(`deletionRequests/${req.id}`, {
+        status: "done",
+        purgedAt: now,
+      });
+      processed += 1;
+    } catch {
+      /*
+       * נשארת פתוחה בכוונה — כשל שמסמן "done" הוא מחיקה שהמשתמש
+       * התבשר עליה ולא קרתה. עדיף שתנסה שוב מחר.
+       */
+      failed += 1;
+    }
+  }
+  return { processed, failed };
 }
 
 /* ---------- הגבלת קצב ---------- */
