@@ -218,7 +218,7 @@ function ClientHome() {
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
                   "liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
-                  interested > 0 && active.status !== "connected" && "glass-warm",
+                  active.status === "has_interest" && "glass-warm",
                   active.status === "connected" && "glass-lit",
                 )}
               >
@@ -250,7 +250,7 @@ function ClientHome() {
                   * זה נאמר בפס דק בלשון סטטוס, וזה נקרא כהערת שוליים.
                   * כאן זה זהב מלא, בגובה שאי אפשר לפספס, ובלשון פעולה.
                   */}
-                {interested > 0 && active.status !== "connected" && (
+                {active.status === "has_interest" && (
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
