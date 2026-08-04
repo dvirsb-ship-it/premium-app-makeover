@@ -9,12 +9,13 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Scale, UserRound } from "lucide-react";
+import { Globe, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
 import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
 import { useT } from "../lib/i18n";
+import { LANGS, LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
@@ -63,6 +64,7 @@ const SNAP_STOPS = [0, 100, 200, 300, 400];
 function Welcome() {
   const navigate = useNavigate();
   const t = useT();
+  const { lang, setLang } = useSettings();
   const { setRole } = useAppStore();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [leaving, setLeaving] = useState(false);
@@ -280,18 +282,44 @@ function Welcome() {
         {/* Chrome + copy */}
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col px-6 pb-10 pt-10">
 
-          <div className="pointer-events-auto flex items-center justify-between">
+          <div className="pointer-events-auto flex items-start justify-between">
             {/* זכוכית ולא זהב — על דלתות העץ הזהב המלא נקרא כמדבקה */}
             <BrandMark size={44} variant="glass" />
-            {!ctaLive && (
-              <button
-                type="button"
-                onClick={skipToChoice}
-                className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
-              >
-                {t("welcomeSkip")}
-              </button>
-            )}
+            <div className="flex flex-col items-end gap-2">
+              {!ctaLive && (
+                <button
+                  type="button"
+                  onClick={skipToChoice}
+                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
+                >
+                  {t("welcomeSkip")}
+                </button>
+              )}
+              {/*
+               * בורר השפה חי כאן — המסך הראשון — כי מי שאינו קורא עברית
+               * לא ימצא אותו בפרופיל שמאחורי ההתחברות. select נטיבי:
+               * גלגלת מערכת בנייד, בלי לגעת ב-scroll-snap של הדלתות.
+               */}
+              <div className="relative">
+                <Globe
+                  className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-white/70"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+                <select
+                  value={lang}
+                  onChange={(e) => setLang(e.target.value as Lang)}
+                  aria-label={t("language")}
+                  className="appearance-none rounded-full border border-white/25 bg-white/10 py-1.5 pe-3.5 ps-8 text-xs font-semibold text-white/90 backdrop-blur-md outline-none transition hover:bg-white/15"
+                >
+                  {LANGS.map((l) => (
+                    <option key={l} value={l} className="text-neutral-900">
+                      {LANG_NAMES[l]}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="relative flex flex-1 items-center justify-center">
