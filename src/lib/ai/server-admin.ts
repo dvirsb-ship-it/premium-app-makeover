@@ -678,6 +678,65 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
   return { cases: caseIds.length, paths, storage, dryRun };
 }
 
+/**
+ * כמה תיקים פתוחים מותר ללקוח בו-זמנית.
+ *
+ * התקרה היומית (15 ולידציות) הגנה על העלות שלנו, לא על תשומת הלב של
+ * עורכי הדין: אדם אחד יכול היה לפתוח 15 תיקים ביום ולהציף את הפיד.
+ * שלושה במקביל נדיבים מאוד לאדם אמיתי — לרוב יש עניין אחד — ומונעים
+ * הצפה לחלוטין.
+ *
+ * נספרים רק תיקים שמתחרים על תשומת לב: בבדיקה, בהמתנה לעורך דין, או
+ * עם התעניינות. תיק שכבר מחובר או נסגר אינו תופס מקום בפיד.
+ */
+export const MAX_OPEN_CASES = 3;
+
+const OPEN_STATUSES = ["validating", "matching", "has_interest"];
+
+export async function countOpenCases(clientId: string): Promise<number> {
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: {
+        from: [{ collectionId: "cases" }],
+        where: {
+          compositeFilter: {
+            op: "AND",
+            filters: [
+              {
+                fieldFilter: {
+                  field: { fieldPath: "clientId" },
+                  op: "EQUAL",
+                  value: { stringValue: clientId },
+                },
+              },
+              {
+                fieldFilter: {
+                  field: { fieldPath: "status" },
+                  op: "IN",
+                  value: {
+                    arrayValue: {
+                      values: OPEN_STATUSES.map((v) => ({ stringValue: v })),
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+        limit: 20,
+      },
+    }),
+  });
+  if (!res.ok) return 0; // כשל בספירה לא חוסם אדם אמיתי
+  const rows = (await res.json()) as { document?: unknown }[];
+  return rows.filter((r) => r.document).length;
+}
+
 /* ---------- מחיקה מתוזמנת ---------- */
 
 /**

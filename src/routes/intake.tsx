@@ -73,6 +73,15 @@ function Intake() {
   const [ready, setReady] = useState(false);
   const [notSuitable, setNotSuitable] = useState<IntakeNotSuitable | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  /*
+   * עצירה לפני הגשה בלי תיעוד.
+   *
+   * לא חסימה — יש מקרים אמיתיים בלי שום תיעוד, ואדם שנפגע ואין לו
+   * צילום לא צריך לגלות שהדלת נעולה. אבל רגע של עצירה עם עובדה אחת
+   * ("עורך הדין רואה אם צירפת") הוא ההבדל בין תיק דל לתיק שאפשר
+   * לעבוד איתו. אותו דפוס בדיוק כמו אישור סגירת תיק אצל עורך הדין.
+   */
+  const [confirmNoDocs, setConfirmNoDocs] = useState(false);
   // תמונות שממתינות לצירוף להודעה הבאה
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
   // כל התמונות שכבר נשלחו בשיחה — הן שיעלו ל-Storage כשייווצר התיק
@@ -339,6 +348,12 @@ function Intake() {
   }
 
   async function submit() {
+    const noDocs =
+      sentImages.current.length === 0 && !readyData.current?.has_documentation;
+    if (noDocs && !confirmNoDocs) {
+      setConfirmNoDocs(true);
+      return;
+    }
     if (submitting) return;
     const uid = user?.uid;
     if (!uid) {
@@ -598,6 +613,32 @@ function Intake() {
                 </motion.div>
               )}
 
+              {ready && !notSuitable && confirmNoDocs && (
+                <motion.div
+                  key="nodocs"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-3 rounded-2xl border border-gold/40 bg-gold/[0.08] p-4"
+                >
+                  <p className="text-[13.5px] font-bold text-foreground">
+                    {t("noDocsTitle")}
+                  </p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                    {t("noDocsBody")}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setConfirmNoDocs(false);
+                      fileInputRef.current?.click();
+                    }}
+                    className="btn-gold mt-3 w-full rounded-xl py-3 text-[14px] font-bold"
+                  >
+                    {t("noDocsAttach")}
+                  </button>
+                </motion.div>
+              )}
+
               {ready && !notSuitable && (
                 <motion.button
                   key="submit"
@@ -623,7 +664,9 @@ function Intake() {
                       ease: "easeInOut",
                     }}
                   />
-                  <span className="relative">{t("submitForMatch")}</span>
+                  <span className="relative">
+                    {confirmNoDocs ? t("noDocsSendAnyway") : t("submitForMatch")}
+                  </span>
                 </motion.button>
               )}
             </AnimatePresence>

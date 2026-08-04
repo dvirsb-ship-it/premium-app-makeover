@@ -319,6 +319,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const {
       requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
+      countOpenCases, MAX_OPEN_CASES,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -326,6 +327,16 @@ export const validateCaseFn = createServerFn({ method: "POST" })
 
     const raw = await adminGetCase(data.caseId);
     if (!raw) throw new Error("case not found");
+
+    /*
+     * תקרת תיקים פתוחים — נאכפת כאן ולא בדפדפן, כי זו ההגנה על תשומת
+     * הלב של עורכי הדין. הספירה מחריגה את התיק הנוכחי (הוא כבר קיים
+     * במצב validating), ולכן העובר הרביעי הוא זה שנעצר.
+     */
+    const open = await countOpenCases((raw as { clientId: string }).clientId);
+    if (open > MAX_OPEN_CASES) {
+      throw new Error("too many open cases");
+    }
     const c = raw as {
       clientId: string;
       status?: string;
