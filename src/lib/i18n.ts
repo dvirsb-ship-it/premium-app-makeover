@@ -1065,6 +1065,7 @@ export const strings = {
   ratingNone: { he: "עוד אין דירוגים", en: "No ratings yet" },
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
+  offerImpossiblePercent: { he: "אחוז מהפיצוי אינו יכול לעלות על 100% — בדקו את המספר שהוקלד.", en: "A share of the award cannot exceed 100% — check the number you entered." },
   helpNeedsSignIn: { he: "צריך להתחבר כדי לשלוח פנייה — כך נדע למי לחזור.", en: "Sign in to send a message — that's how we know who to reply to." },
 
   limitationLeft: { he: "נותרו להתיישנות", en: "Left before limitation" },

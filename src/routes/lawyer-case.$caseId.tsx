@@ -161,6 +161,31 @@ function LawyerCaseDetail() {
     maxPercent > PLTD_MAX_PERCENT &&
     categoryHasStatutoryCap(item?.category ?? "");
 
+  /*
+   * החלפת מודל מאפסת את המספרים.
+   *
+   * בלי זה "15" שנכתב כאחוזים נשאר "15" אחרי מעבר לסכום קבוע — כלומר
+   * הצעה של ₪15 לטיפול בתיק, בלי שום סימן על המסך שמשהו השתנה. אלה
+   * יחידות שונות לגמרי, ולכן הערך הישן אינו "ברירת מחדל נוחה" אלא
+   * מספר שגוי. אותו דבר בכיוון ההפוך: ₪8,000 שהופכים ל-8000%.
+   */
+  function switchModel(next: FeeModel) {
+    if (next === model) return;
+    setModel(next);
+    setAmount("");
+    setStaged(false);
+    setPostSuit("");
+    setJudgment("");
+    setRetainer("");
+  }
+
+  /*
+   * אחוז מעל 100 אינו "יקר" — הוא בלתי אפשרי: אי אפשר לקחת יותר מהפיצוי
+   * כולו. בניגוד לתקרת הפלת"ד, שהיא כלל משפטי שחל על חלק מהתיקים
+   * ולכן מקבל אזהרה, כאן זו טעות הקלדה (18 שהפך ל-180) והשליחה נחסמת.
+   */
+  const impossiblePercent = model === "contingency" && maxPercent > 100;
+
   /* בעניין פלילי שכר מותנה בתוצאות אסור בדין — האופציה לא מוצגת כלל */
   const noContingency = categoryForbidsContingency(item?.category ?? "");
   useEffect(() => {
@@ -580,7 +605,7 @@ function LawyerCaseDetail() {
                       <button
                         key={m}
                         type="button"
-                        onClick={() => setModel(m)}
+                        onClick={() => switchModel(m)}
                         className={`rounded-2xl border px-2 py-2.5 text-[12px] font-bold transition ${
                           model === m
                             ? "border-gold/60 bg-gold/15 text-gold"
@@ -731,6 +756,13 @@ function LawyerCaseDetail() {
                   </div>
                 </div>
 
+                {impossiblePercent && (
+                  <div className="flex items-start gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
+                    <Scale className="mt-0.5 size-4 shrink-0 text-destructive" />
+                    <p className="text-[11px] leading-relaxed text-foreground">{t("offerImpossiblePercent")}</p>
+                  </div>
+                )}
+
                 {/* התקרה בפלת"ד היא חובה שבדין — מזהירים, לא חוסמים */}
                 {capWarning && (
                   <div className="flex items-start gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
@@ -815,7 +847,7 @@ function LawyerCaseDetail() {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.98 }}
-                  disabled={!(Number(amount) > 0)}
+                  disabled={!(Number(amount) > 0) || impossiblePercent}
                   onClick={() => {
                     expressInterest(item.id, {
                       model,

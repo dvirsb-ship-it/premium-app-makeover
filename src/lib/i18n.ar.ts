@@ -727,6 +727,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   rateDone: "لقد قيّمت هذا الملف",
   ratingCount: "تقييمات",
   ratingNone: "لا توجد تقييمات بعد",
+  offerImpossiblePercent: "لا يمكن أن تتجاوز الحصة من التعويض 100% — تحقّق من الرقم المُدخَل.",
   helpNeedsSignIn: "سجّل الدخول لإرسال رسالة — لنعرف بمن نتواصل.",
   limitationLeft: "متبقٍّ حتى التقادم",
   limitationMonths: "أشهر",

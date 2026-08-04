@@ -727,6 +727,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   rateDone: "Vous avez noté ce dossier",
   ratingCount: "notes",
   ratingNone: "Pas encore de notes",
+  offerImpossiblePercent: "La part de l'indemnisation ne peut pas dépasser 100 % — vérifiez le nombre saisi.",
   helpNeedsSignIn: "Connectez-vous pour envoyer un message — nous saurons ainsi à qui répondre.",
   limitationLeft: "restants avant la prescription",
   limitationMonths: "mois",
