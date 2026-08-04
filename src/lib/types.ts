@@ -106,6 +106,10 @@ export interface FeedCase {
   expressed?: boolean;
   /** התאמה לעו"ד הצופה — לפי קרבה והתמחות. */
   match?: "high" | "medium";
+  /** מד ההתאמה 0..100 — כללים גלויים בלבד (ראו lib/match.ts). */
+  matchScore?: number;
+  /** מפתחות i18n של הסיבות — מוצגים לעורך הדין כפי שהם. */
+  matchReasons?: string[];
   /** השפה שבה הלקוח ניהל את הראיון. חסר = עברית. */
   clientLang?: string;
   /**

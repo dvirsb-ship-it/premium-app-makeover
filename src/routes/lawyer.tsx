@@ -403,14 +403,18 @@ function LawyerFeed() {
                       {t("urgent")}
                     </span>
                   )}
-                  {f.match === "high" && (
-                    <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
-                      {t("matchHigh")}
-                    </span>
-                  )}
-                  {f.match === "medium" && (
-                    <span className="rounded-full bg-foreground/10 px-2 py-0.5 text-[10px] font-bold text-foreground/80">
-                      {t("matchMedium")}
+                  {/* מד ההתאמה — מספר, לא שם תואר; הפירוט במסך התיק */}
+                  {typeof f.matchScore === "number" && (
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        f.matchScore >= 80
+                          ? "bg-success/15 text-success"
+                          : f.matchScore >= 50
+                            ? "bg-gold/15 text-gold"
+                            : "bg-foreground/10 text-foreground/70"
+                      }`}
+                    >
+                      {t("matchLabel")} {f.matchScore}%
                     </span>
                   )}
                   {/*

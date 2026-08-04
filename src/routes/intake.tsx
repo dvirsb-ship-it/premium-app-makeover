@@ -157,7 +157,13 @@ function Intake() {
     try {
       const raw = localStorage.getItem(DRAFT_KEY);
       if (!raw) return;
-      const saved = JSON.parse(raw) as { at?: number; messages?: ChatMessage[] };
+      const saved = JSON.parse(raw) as {
+        at?: number;
+        messages?: ChatMessage[];
+        step?: number;
+        ready?: IntakeReady | null;
+        notSuitable?: IntakeNotSuitable | null;
+      };
       const stale = !saved.at || Date.now() - saved.at > DRAFT_MAX_AGE_MS;
       if (stale || !Array.isArray(saved.messages)) {
         clearDraft();
@@ -166,6 +172,18 @@ function Intake() {
       // תמונות אינן נשמרות (blob מקומי שפג) — משחזרים טקסט בלבד
       if (saved.messages.length > openers.length) {
         setMessages(saved.messages.map((m) => ({ ...m, images: undefined })));
+        /*
+         * המצב המלא, לא רק התמליל. בלי זה מי שהגיע ל"מוכן להגשה", סגר
+         * את הדפדפן וחזר — ראה את כל השיחה אבל בלי כפתור ההגשה ועם
+         * סרגל התקדמות מאופס, ונאלץ להקליד עוד הודעה רק כדי להחזיר
+         * אותו. הסיכום שה-AI כבר כתב הוא חלק מהטיוטה.
+         */
+        if (typeof saved.step === "number") setStep(saved.step);
+        if (saved.ready) {
+          readyData.current = saved.ready;
+          setReady(true);
+        }
+        if (saved.notSuitable) setNotSuitable(saved.notSuitable);
       }
     } catch {
       clearDraft();
@@ -176,12 +194,21 @@ function Intake() {
   useEffect(() => {
     try {
       if (messages.length > openers.length) {
-        localStorage.setItem(DRAFT_KEY, JSON.stringify({ at: Date.now(), messages }));
+        localStorage.setItem(
+          DRAFT_KEY,
+          JSON.stringify({
+            at: Date.now(),
+            messages,
+            step,
+            ready: ready ? readyData.current : null,
+            notSuitable,
+          }),
+        );
       }
     } catch {
       /* ignore */
     }
-  }, [messages, openers.length]);
+  }, [messages, openers.length, step, ready, notSuitable]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({

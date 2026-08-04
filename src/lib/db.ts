@@ -495,6 +495,9 @@ export async function expressInterestDb(
       body: hasOffer
         ? `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}" וצירף הצעה`
         : `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}"`,
+      titleKey: "notifInterestTitle",
+      bodyKey: hasOffer ? "notifInterestBodyOffer" : "notifInterestBody",
+      params: { name: lawyer.profile.name, title: c.title || c.category },
       caseId,
     });
   }
@@ -569,6 +572,8 @@ export async function resolveAppeal(
         type: "case_reverted",
         title: "הפנייה שלך חזרה לבדיקה",
         body: "לאחר בדיקה נוספת נדרשים פרטים משלימים. אפשר לפתוח פנייה חדשה עם מידע נוסף — אנחנו כאן.",
+        titleKey: "notifRevertedTitle",
+        bodyKey: "notifRevertedBody",
         caseId: appeal.caseId,
       });
     }
@@ -579,6 +584,9 @@ export async function resolveAppeal(
     body: accepted
       ? `צדקת — התיק "${appeal.caseTitle}" הוסר מהפיד. תודה ששמרת על איכות המערכת.`
       : `בדקנו את "${appeal.caseTitle}" — הוולידציה נשארת בתוקף. תודה על הערנות.`,
+    titleKey: accepted ? "notifAppealAcceptedTitle" : "notifAppealDismissedTitle",
+    bodyKey: accepted ? "notifAppealAcceptedBody" : "notifAppealDismissedBody",
+    params: { title: appeal.caseTitle },
     caseId: appeal.caseId,
   });
 }
@@ -600,6 +608,9 @@ export async function chooseLawyerDb(
       type: "chosen",
       title: "לקוח בחר בך!",
       body: `נבחרת לטפל בפנייה "${c.title || c.category}" — פרטי הקשר זמינים בתיק`,
+      titleKey: "notifChosenTitle",
+      bodyKey: "notifChosenBody",
+      params: { title: c.title || c.category },
       caseId,
     });
   }
@@ -905,14 +916,27 @@ export async function readLawyerStats(uid: string): Promise<LawyerStats | null> 
   }
 }
 
-/** ניסוח זמן תגובה ממוצע בעברית קריאה. null כשאין עדיין נתונים. */
+/*
+ * ניסוח זמן תגובה ממוצע — בשפת הקורא. null כשאין עדיין נתונים.
+ * הניסוחים יושבים באותה טבלה כמו agoLabel: אלה שני פנים של אותו נתון.
+ */
+const RESP_UNIT: Record<string, { m: (n: number) => string; h: (n: number) => string; d: (n: number) => string }> = {
+  he: { m: (n) => `${n} דק׳`, h: (n) => `${n} שעות`, d: (n) => `${n} ימים` },
+  en: { m: (n) => `${n}m`, h: (n) => `${n}h`, d: (n) => `${n}d` },
+  ru: { m: (n) => `${n} мин`, h: (n) => `${n} ч`, d: (n) => `${n} дн.` },
+  ar: { m: (n) => `${n} دقائق`, h: (n) => `${n} ساعات`, d: (n) => `${n} أيام` },
+  es: { m: (n) => `${n} min`, h: (n) => `${n} h`, d: (n) => `${n} días` },
+  fr: { m: (n) => `${n} min`, h: (n) => `${n} h`, d: (n) => `${n} jours` },
+};
+
 export function avgResponseLabel(stats: LawyerStats | null): string | null {
   if (!stats || stats.responses < 1) return null;
+  const u = RESP_UNIT[docLang()] ?? RESP_UNIT.he;
   const mins = Math.round(stats.totalResponseMs / stats.responses / 60000);
-  if (mins < 60) return `${Math.max(1, mins)} דק׳`;
+  if (mins < 60) return u.m(Math.max(1, mins));
   const hours = Math.round(mins / 60);
-  if (hours < 24) return `${hours} שעות`;
-  return `${Math.round(hours / 24)} ימים`;
+  if (hours < 24) return u.h(hours);
+  return u.d(Math.round(hours / 24));
 }
 
 /** ממוצע הדירוגים של עו"ד. null כשאין עדיין דירוגים — ואז לא מציגים כוכבים. */
@@ -1030,10 +1054,14 @@ export async function markMilestone(
   // התראה ללקוח — זה כל הטעם: שהוא לא ישאל "מה קורה עם התיק שלי"
   const c = await readCaseRaw(caseId);
   if (c) {
+    const customNote = note?.trim();
     await notify(c.clientId, {
       type: "case_milestone",
       title: MILESTONE_TITLES[key],
-      body: note?.trim() || MILESTONE_BODIES[key],
+      body: customNote || MILESTONE_BODIES[key],
+      titleKey: `notifMsTitle_${key}`,
+      // הערה אישית של עורך הדין מוצגת כלשונה — מפתח רק לנוסח הקבוע
+      ...(customNote ? {} : { bodyKey: `notifMsBody_${key}` }),
       caseId,
     });
   }
@@ -1214,15 +1242,35 @@ export interface AppNotification {
   caseId?: string;
   read: boolean;
   createdAt: number;
+  /**
+   * מפתחות תרגום — הפעמון מתורגם לשפת הקורא בזמן קריאה. הכותרת
+   * והגוף בעברית נשארים כתובים לצידם: התראות ישנות, ומסוף אחורה.
+   */
+  titleKey?: string;
+  bodyKey?: string;
+  params?: Record<string, string>;
 }
 
 export async function notify(
   userId: string,
-  n: { type: string; title: string; body: string; caseId?: string },
+  n: {
+    type: string;
+    title: string;
+    body: string;
+    caseId?: string;
+    titleKey?: string;
+    bodyKey?: string;
+    params?: Record<string, string>;
+  },
 ): Promise<void> {
+  // Firestore דוחה undefined — האופציונליים נכנסים רק כשקיימים
+  const { titleKey, bodyKey, params, ...core } = n;
   await addDoc(collection(fbDb(), "notifications"), {
     userId,
-    ...n,
+    ...core,
+    ...(titleKey ? { messageKey: titleKey, titleKey } : {}),
+    ...(bodyKey ? { bodyKey } : {}),
+    ...(params && Object.keys(params).length ? { params } : {}),
     read: false,
     createdAt: Date.now(),
   });

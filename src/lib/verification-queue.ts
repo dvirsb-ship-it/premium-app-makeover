@@ -195,11 +195,15 @@ export async function updateVerification(
           type: "verification_approved",
           title: "האימות שלך אושר! 🎉",
           body: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.",
+          titleKey: "notifVerApprovedTitle",
+          bodyKey: "notifVerApprovedBody",
         }
       : {
           type: "verification_rejected",
           title: "האימות לא אושר",
           body: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים.",
+          titleKey: "notifVerRejectedTitle",
+          bodyKey: "notifVerRejectedBody",
         },
   );
 }

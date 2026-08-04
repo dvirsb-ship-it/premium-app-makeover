@@ -616,11 +616,16 @@ describe("התראות", () => {
     );
   });
 
-  it("סוג שאינו ברשימה נדחה — כדי ש״התיק אושר״ לא ייכתב מהדפדפן", async () => {
+  it("סוג של השרת נדחה — 'תיק חדש בתחום שלך' לא ניתן לזיוף מהדפדפן", async () => {
+    /*
+     * case_validated דווקא כן נכתב מהדפדפן (מסך הוולידציה רץ בטאב של
+     * הלקוח) — הדוגמה כאן חייבת להיות סוג שנשלח רק ב-Admin SDK, כמו
+     * ההפצה לעורכי הדין על תיק חדש.
+     */
     await assertFails(
       setDoc(doc(as("lawyerOk"), "notifications/n2"), {
         ...base,
-        type: "case_validated",
+        type: "new_case",
         createdAt: Date.now(),
       }),
     );

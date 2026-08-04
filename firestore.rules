@@ -190,14 +190,31 @@ service cloud.firestore {
         && request.resource.data.read == false
         && request.resource.data.userId is string
         /*
-         * הרשימה היא בדיוק הסוגים שהדפדפן שולח (db.ts). התראות השרת
-         * נכתבות ב-Admin SDK ואינן עוברות כאן, ולכן אין צורך לכלול את
-         * הסוגים שלו — וטוב שלא: כך "case_validated" לא ניתן לזיוף
-         * מהדפדפן.
+         * הרשימה היא בדיוק הסוגים שהדפדפן שולח. הגרסה הראשונה כללה רק
+         * ארבעה — ושכחה את מסך הוולידציה, הערעורים והאימות, שכולם
+         * נכתבים גם הם מהדפדפן (הלקוח או האדמין המחובר). התוצאה הייתה
+         * התראות שנדחות בשקט. הרשימה המלאה, לפי חיפוש בכל נקודות
+         * השליחה: db.ts, validating.tsx, verification-queue.ts.
          */
         && request.resource.data.type in [
-             'lawyer_interest', 'chosen', 'case_reverted', 'case_milestone'
+             'lawyer_interest', 'chosen', 'case_reverted', 'case_milestone',
+             'case_validated', 'case_rejected',
+             'appeal_accepted', 'appeal_dismissed',
+             'verification_approved', 'verification_rejected'
            ]
+        /*
+         * מפתח תרגום אופציונלי — הפעמון מתורגם בזמן קריאה לשפת הקורא.
+         * הכותרת והגוף בעברית ממשיכים להיכתב לצידו (תאימות אחורה).
+         */
+        && (
+          !('messageKey' in request.resource.data)
+          || (request.resource.data.messageKey is string
+              && request.resource.data.messageKey.size() <= 60)
+        )
+        && (
+          !('params' in request.resource.data)
+          || request.resource.data.params is map
+        )
         && request.resource.data.title is string
         && request.resource.data.title.size() <= 90
         && request.resource.data.body is string

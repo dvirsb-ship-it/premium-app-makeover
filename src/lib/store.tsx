@@ -20,6 +20,7 @@ import { fbAuth, isBrowser } from "./firebase";
 import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
 import { maskLawyerName } from "./privacy";
 import { isOnboarded } from "./post-auth-route";
+import { matchScore, matchTone } from "./match";
 import {
   categoryMatchesSpecialties,
   chooseLawyerDb,
@@ -316,40 +317,41 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       setFeed([]);
       return;
     }
-    const myCity = (myLawyerProfile?.city ?? "").trim();
     const mySpecs = myLawyerProfile?.specialties ?? [];
-    /*
-     * שפות השירות. פרופיל בלי שפות = עברית בלבד — ברירת המחדל של
-     * השוק, ולכן גם ההנחה הבטוחה לפרופילים שנוצרו לפני השדה.
-     */
-    const myLangs = myLawyerProfile?.languages?.length
-      ? myLawyerProfile.languages
-      : ["he"];
+    const matchProfile = {
+      specialties: mySpecs,
+      languages: myLawyerProfile?.languages,
+      city: myLawyerProfile?.city,
+    };
     return watchLawyerFeed(user.uid, (items) => {
       const inField =
         mySpecs.length === 0
           ? items
           : items.filter((f) => categoryMatchesSpecialties(f.category, mySpecs));
+      /*
+       * מד ההתאמה — כללים גלויים בלבד (lib/match.ts). פער שפה מסמן,
+       * לא חוסם: עורך דין עשוי להיעזר בקולגה או במתרגם, וחסימה הייתה
+       * משאירה לקוח דובר ערבית בלי אף עורך דין.
+       */
       const ranked = inField
         .map((f) => {
-          /*
-           * פער שפה מסמן, לא חוסם: עורך דין עשוי להיעזר בקולגה או
-           * במתרגם, וחסימה הייתה משאירה לקוח דובר ערבית בלי אף עורך
-           * דין. הוא יורד בדירוג ומסומן, כדי שההחלטה תהיה שלו.
-           */
-          const langMismatch = !myLangs.includes(f.clientLang || "he");
+          const m = matchScore(
+            { category: f.category, clientLang: f.clientLang, location: f.location },
+            matchProfile,
+          );
           return {
             ...f,
-            langMismatch,
-            match: (!langMismatch && !!myCity && f.location.trim() === myCity
-              ? "high"
-              : "medium") as "high" | "medium",
+            langMismatch: m.langMismatch,
+            matchScore: m.score,
+            matchReasons: m.reasons,
+            match: (matchTone(m.score) === "high" ? "high" : "medium") as
+              | "high"
+              | "medium",
           };
         })
         .sort((a, b) => {
-          // התאמת שפה קודמת לקרבה גיאוגרפית — בלעדיה אין שיחה בכלל
           if (a.langMismatch !== b.langMismatch) return a.langMismatch ? 1 : -1;
-          return a.match === b.match ? 0 : a.match === "high" ? -1 : 1;
+          return (b.matchScore ?? 0) - (a.matchScore ?? 0);
         });
       setFeed(ranked);
       setFeedError(false);

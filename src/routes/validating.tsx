@@ -75,12 +75,17 @@ function Validating() {
             type: "case_validated",
             title: "התיק שלך עבר את הבדיקה המשפטית ✓",
             body: `"${res.title}" אושר — פתחו את התיק לפרטים ולמצב החיפוש`,
+            titleKey: "notifValidatedTitle",
+            bodyKey: "notifValidatedBody",
+            params: { title: res.title },
             caseId,
           }
         : {
             type: "case_rejected",
             title: "הבדיקה המשפטית הושלמה",
+            // גוף ההסבר מגיע מה-AI בשפת הראיון — אין נוסח קבוע לתרגם
             body: res.recommendation || res.summary,
+            titleKey: "notifCaseRejectedTitle",
             caseId,
           },
       ).catch(() => {});

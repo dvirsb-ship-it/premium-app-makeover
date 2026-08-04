@@ -1065,6 +1065,39 @@ export const strings = {
   ratingNone: { he: "עוד אין דירוגים", en: "No ratings yet" },
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
+  // התראות הפעמון — מפתח+פרמטרים נכתבים על המסמך ומתורגמים בזמן קריאה
+  notifInterestTitle: { he: "עורך דין מעוניין בתיק שלך", en: "A lawyer is interested in your case" },
+  notifInterestBody: { he: "{name} הביע עניין בפנייה \"{title}\"", en: "{name} expressed interest in \"{title}\"" },
+  notifInterestBodyOffer: { he: "{name} הביע עניין בפנייה \"{title}\" וצירף הצעה", en: "{name} expressed interest in \"{title}\" and attached an offer" },
+  notifRevertedTitle: { he: "הפנייה שלך חזרה לבדיקה", en: "Your case went back for review" },
+  notifRevertedBody: { he: "לאחר בדיקה נוספת נדרשים פרטים משלימים. אפשר לפתוח פנייה חדשה עם מידע נוסף — אנחנו כאן.", en: "A further review found details missing. You can open a new case with more information — we're here." },
+  notifAppealAcceptedTitle: { he: "הערעור שלך התקבל", en: "Your appeal was accepted" },
+  notifAppealAcceptedBody: { he: "צדקת — התיק \"{title}\" הוסר מהפיד. תודה ששמרת על איכות המערכת.", en: "You were right — \"{title}\" was removed from the feed. Thanks for guarding the system's quality." },
+  notifAppealDismissedTitle: { he: "הערעור נבדק", en: "Your appeal was reviewed" },
+  notifAppealDismissedBody: { he: "בדקנו את \"{title}\" — הוולידציה נשארת בתוקף. תודה על הערנות.", en: "We reviewed \"{title}\" — the validation stands. Thanks for flagging." },
+  notifChosenTitle: { he: "לקוח בחר בך!", en: "A client chose you!" },
+  notifChosenBody: { he: "נבחרת לטפל בפנייה \"{title}\" — פרטי הקשר זמינים בתיק", en: "You were chosen for \"{title}\" — contact details are in the case" },
+  notifMsTitle_met: { he: "נפגשתם עם עורך הדין", en: "You met your lawyer" },
+  notifMsBody_met: { he: "עורך הדין סימן שהפגישה התקיימה.", en: "Your lawyer marked the meeting as held." },
+  notifMsTitle_demandSent: { he: "נשלח מכתב דרישה", en: "Demand letter sent" },
+  notifMsBody_demandSent: { he: "מכתב הדרישה נשלח לצד שכנגד.", en: "The demand letter went out to the other side." },
+  notifMsTitle_filed: { he: "הוגשה תביעה", en: "Suit filed" },
+  notifMsBody_filed: { he: "התביעה הוגשה לבית המשפט.", en: "The suit was filed in court." },
+  notifMsTitle_closed: { he: "התיק הסתיים", en: "Case closed" },
+  notifMsBody_closed: { he: "עורך הדין סימן שהטיפול בתיק הושלם.", en: "Your lawyer marked the case as complete." },
+  notifValidatedTitle: { he: "התיק שלך עבר את הבדיקה המשפטית ✓", en: "Your case passed the legal check ✓" },
+  notifValidatedBody: { he: "\"{title}\" אושר — פתחו את התיק לפרטים ולמצב החיפוש", en: "\"{title}\" was approved — open the case for details and search status" },
+  notifCaseRejectedTitle: { he: "הבדיקה המשפטית הושלמה", en: "The legal check is complete" },
+  notifVerApprovedTitle: { he: "האימות שלך אושר! 🎉", en: "You're verified! 🎉" },
+  notifVerApprovedBody: { he: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.", en: "Your profile is verified — you can now express interest in cases and appear to clients." },
+  notifVerRejectedTitle: { he: "האימות לא אושר", en: "Verification not approved" },
+  notifVerRejectedBody: { he: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים.", en: "Some details didn't pass review. You can resubmit with updated documents." },
+  matchLabel: { he: "התאמה", en: "Match" },
+  reasonSpecPrimary: { he: "התחום המרכזי שלך", en: "Your primary field" },
+  reasonSpecSecondary: { he: "תחום משיק לשלך", en: "Adjacent to your fields" },
+  reasonLangMatch: { he: "דוברים את שפת הלקוח", en: "You speak the client's language" },
+  reasonLangGap: { he: "שפת הלקוח לא ברשימתכם", en: "Client's language not in your list" },
+  reasonCityMatch: { he: "באותה עיר", en: "Same city" },
   stepLangTitle: { he: "שפות שירות", en: "Languages you work in" },
   stepLangDesc: { he: "באילו שפות תוכלו לנהל את התיק מול הלקוח? נשתמש בזה כדי להתאים לכם פניות שתוכלו באמת לקחת.", en: "Which languages can you run a case in? We use this to match you with clients you can actually take." },
   issueLanguages: { he: "בחרו לפחות שפה אחת שבה אתם נותנים שירות", en: "Choose at least one language you can work in" },
@@ -1111,6 +1144,24 @@ const EXTRA: Record<Exclude<Lang, "he" | "en">, Partial<Record<StringKey, string
 export function translate(key: StringKey, lang: Lang) {
   if (lang === "he" || lang === "en") return strings[key][lang];
   return EXTRA[lang][key] ?? strings[key].en;
+}
+
+/**
+ * תרגום התראה בזמן קריאה: המסמך נושא מפתח + פרמטרים, והטקסט נבנה
+ * בשפת הקורא. מפתח לא מוכר (התראה מגרסה עתידית?) נופל לנוסח העברי
+ * שכתוב על המסמך — לעולם לא מסך ריק.
+ */
+export function translateNotification(
+  n: { title: string; body: string; titleKey?: string; bodyKey?: string; params?: Record<string, string> },
+  lang: Lang,
+): { title: string; body: string } {
+  const fill = (tpl: string) =>
+    tpl.replace(/\{(\w+)\}/g, (m, k) => n.params?.[k] ?? m);
+  const has = (k?: string): k is StringKey => !!k && k in strings;
+  return {
+    title: has(n.titleKey) ? fill(translate(n.titleKey, lang)) : n.title,
+    body: has(n.bodyKey) ? fill(translate(n.bodyKey, lang)) : n.body,
+  };
 }
 
 

@@ -5,7 +5,8 @@ import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { EmptyState } from "../components/EmptyState";
 import { useAppStore } from "../lib/store";
-import { useT } from "../lib/i18n";
+import { useSettings } from "../lib/settings";
+import { useT, translateNotification } from "../lib/i18n";
 import { useTimeAgo } from "../lib/status";
 import { useRequireAuth } from "../lib/require-auth";
 import { cn } from "../lib/utils";
@@ -40,6 +41,7 @@ function Notifications() {
   const navigate = useNavigate();
   const { role, notifications, markRead } = useAppStore();
   const t = useT();
+  const { lang } = useSettings();
   const timeAgo = useTimeAgo();
 
   function open(n: AppNotification) {
@@ -94,14 +96,14 @@ function Notifications() {
                         n.read ? "text-foreground/80" : "text-foreground",
                       )}
                     >
-                      {n.title}
+                      {translateNotification(n, lang).title}
                     </span>
                     {!n.read && (
                       <span className="size-2 shrink-0 rounded-full bg-gold" aria-hidden />
                     )}
                   </span>
                   <span className="mt-0.5 block text-[13px] leading-snug text-muted-foreground">
-                    {n.body}
+                    {translateNotification(n, lang).body}
                   </span>
                   <span className="mt-1.5 block text-[11px] text-muted-foreground/70">
                     {timeAgo(n.createdAt)}

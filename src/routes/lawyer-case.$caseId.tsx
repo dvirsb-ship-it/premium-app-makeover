@@ -548,6 +548,39 @@ function LawyerCaseDetail() {
             </p>
           )}
 
+          {/*
+            * פירוט המד — כל סיבה היא משפט שאפשר להגיד בקול. זו ההוכחה
+            * החיה שהדירוג מבוסס כללים ולא תשלום: אין כאן שום דבר
+            * שלא כתוב על המסך.
+            */}
+          {typeof item.matchScore === "number" && (
+            <div className="mt-3 flex flex-wrap items-center gap-1.5">
+              <span
+                className={`rounded-full px-2.5 py-1 text-[11px] font-black ${
+                  item.matchScore >= 80
+                    ? "bg-success/15 text-success"
+                    : item.matchScore >= 50
+                      ? "bg-gold/15 text-gold"
+                      : "bg-foreground/10 text-foreground/70"
+                }`}
+              >
+                {t("matchLabel")} {item.matchScore}%
+              </span>
+              {(item.matchReasons ?? []).map((r) => (
+                <span
+                  key={r}
+                  className={`rounded-full px-2 py-0.5 text-[10.5px] font-semibold ${
+                    r === "reasonLangGap"
+                      ? "bg-warning-ink/12 text-warning-ink"
+                      : "bg-foreground/[0.06] text-muted-foreground"
+                  }`}
+                >
+                  {t(r as never)}
+                </span>
+              ))}
+            </div>
+          )}
+
           <h2 className="mt-4 text-xl font-black leading-snug text-foreground">
             {item.title}
           </h2>
