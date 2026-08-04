@@ -438,7 +438,16 @@ function Intake() {
                   />
                 );
               })}
-              <span className="ms-auto text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+              {/*
+                * dir=ltr הכרחי: "1 / 4" הוא זוג מספרים עם מפריד ניטרלי,
+                * ובפסקה RTL אלגוריתם הדו-כיווניות הופך את סדרם — על המסך
+                * זה נקרא "4 / 1", כלומר שלב 4 מתוך 1. דביר תפס את זה
+                * בצילום מהטלפון.
+                */}
+              <span
+                dir="ltr"
+                className="ms-auto text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
+              >
                 {ready ? "✓" : `${Math.min(progress + 1, totalSteps + 1)} / ${totalSteps + 1}`}
               </span>
             </div>

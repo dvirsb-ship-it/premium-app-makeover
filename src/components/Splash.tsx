@@ -168,6 +168,9 @@ export function Splash({
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.35 }}
+                      /* dir=ltr: משפט לטיני בדף RTL — בלעדיו הנקודה
+                         הסופית מוצגת בתחילת השורה (".WELCOME TO JUSTASK") */
+                      dir="ltr"
                       className="text-[11px] font-semibold uppercase tracking-[0.3em] text-gold"
                     >
                       Welcome to JustAsk.
