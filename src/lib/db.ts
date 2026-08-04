@@ -10,7 +10,9 @@ import {
   doc,
   getDoc,
   getDocs,
+  limit,
   onSnapshot,
+  orderBy,
   query,
   serverTimestamp,
   setDoc,
@@ -264,18 +266,35 @@ export function watchLawyerFeed(
    */
   onError?: (err: unknown) => void,
 ): () => void {
+  /*
+   * תיקים בני 30+ יום יוצאים מהפיד — פיד עם תיקים מתים שורף את אמון
+   * עורכי הדין.
+   *
+   * הסינון עבר לשרת, ולא בגלל התצוגה: הוא נראה זהה. עד היום המנוי הזה
+   * הוריד *כל* תיק פתוח במערכת לכל עורך דין, וזרק את הישנים בדפדפן.
+   * זה אומר שהעלות והתעבורה גדלות עם כל תיק שנוצר אי פעם, כפול מספר
+   * עורכי הדין המחוברים — בדיוק התרחיש של "יצופו פתאום מלא אנשים".
+   * החלון הוא כבר ההתנהגות הקיימת, ולכן התוצאה זהה בדיוק.
+   */
+  const FEED_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
+  const FEED_HARD_CAP = 1000;
   const q = query(
     collection(fbDb(), "cases"),
     where("status", "in", ["matching", "has_interest"]),
+    where("createdAt", ">", Date.now() - FEED_MAX_AGE_MS),
+    orderBy("createdAt", "desc"),
+    // רשת ביטחון מול עלות, לא מדיניות מוצר. אם היא נתפסת — מדווחים.
+    limit(FEED_HARD_CAP),
   );
-  // תיקים בני 30+ יום יוצאים מהפיד — פיד עם תיקים מתים שורף את אמון עורכי הדין
-  const FEED_MAX_AGE_MS = 30 * 24 * 60 * 60 * 1000;
   return onSnapshot(q, (snap) => {
-    const cutoff = Date.now() - FEED_MAX_AGE_MS;
-    const docs = snap.docs
-      .map((d) => ({ id: d.id, data: d.data() as CaseDoc }))
-      .filter((d) => d.data.createdAt > cutoff);
-    docs.sort((a, b) => b.data.createdAt - a.data.createdAt);
+    const docs = snap.docs.map((d) => ({ id: d.id, data: d.data() as CaseDoc }));
+    if (docs.length >= FEED_HARD_CAP) {
+      // שקט כאן היה אומר "זה כל מה שיש" על פיד חתוך
+      console.warn(
+        `[feed] תקרת ${FEED_HARD_CAP} תיקים נתפסה — יש תיקים שאינם מוצגים. ` +
+          "זה הרגע לעבור לסינון תחום בשרת.",
+      );
+    }
     cb(docs.map((d) => toFeedCase(d.id, d.data, myUid)));
   }, (err) => {
     cb([]);

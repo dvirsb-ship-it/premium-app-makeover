@@ -727,6 +727,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   rateDone: "Вы оценили это дело",
   ratingCount: "оценок",
   ratingNone: "Оценок пока нет",
+  helpNeedsSignIn: "Войдите, чтобы отправить обращение — так мы будем знать, кому ответить.",
   limitationLeft: "До истечения срока давности",
   limitationMonths: "месяцев",
   limitationSoon: "Срок давности истекает",

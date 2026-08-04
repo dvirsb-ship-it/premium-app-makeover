@@ -727,6 +727,7 @@ export const es: Partial<Record<StringKey, string>> = {
   rateDone: "Usted ya calificó este caso",
   ratingCount: "calificaciones",
   ratingNone: "Aún no hay calificaciones",
+  helpNeedsSignIn: "Inicie sesión para enviar un mensaje — así sabremos a quién responder.",
   limitationLeft: "Quedan hasta la prescripción",
   limitationMonths: "meses",
   limitationSoon: "La prescripción se acerca",
