@@ -712,3 +712,18 @@
 html.welcome-snap {
   scroll-snap-type: y mandatory;
 }
+
+/*
+ * גובה "מסך" של מסך הדלתות. 100vh בנייד כולל את הרצועה שמאחורי סרגל
+ * הכתובת — התוצאה היא במה גבוהה מהחלון הנראה, שנקראת כ"שני חלונות":
+ * רואים את קצה הבמה ומאחוריו את השכבה הבאה. dvh נמדד מול החלון בפועל
+ * ומתעדכן כשהסרגל מתקפל. הנפילה ל-vh נשארת לדפדפנים ישנים.
+ */
+.welcome-scroller { height: 500vh; }
+.welcome-stage { height: 100vh; }
+.welcome-anchor { height: 100vh; }
+@supports (height: 100dvh) {
+  .welcome-scroller { height: 500dvh; }
+  .welcome-stage { height: 100dvh; }
+  .welcome-anchor { height: 100dvh; }
+}

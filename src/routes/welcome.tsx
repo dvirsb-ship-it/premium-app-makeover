@@ -181,7 +181,7 @@ function Welcome() {
   return (
     <div
       ref={scrollRef}
-      className="relative w-full bg-[#04060b] transition-opacity duration-500"
+      className="welcome-scroller relative w-full bg-[#04060b] transition-opacity duration-500"
       style={{ height: "500vh", opacity: leaving ? 0 : 1 }}
     >
       {/*
@@ -194,11 +194,11 @@ function Welcome() {
         <div
           key={vh}
           aria-hidden
-          className="pointer-events-none absolute inset-x-0 h-screen [scroll-snap-align:start] [scroll-snap-stop:always]"
+          className="welcome-anchor pointer-events-none absolute inset-x-0 [scroll-snap-align:start] [scroll-snap-stop:always]"
           style={{ top: `${vh}vh` }}
         />
       ))}
-      <div className="sticky top-0 h-screen w-full overflow-hidden" style={{ perspective: "1100px" }}>
+      <div className="welcome-stage sticky top-0 w-full overflow-hidden" style={{ perspective: "1100px" }}>
         {/* The room behind the doors */}
         <motion.img
           src={courtroom}
@@ -282,10 +282,38 @@ function Welcome() {
         {/* Chrome + copy */}
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col px-6 pb-10 pt-10">
 
-          <div className="pointer-events-auto flex items-start justify-between">
+          <div className="pointer-events-auto relative flex items-center justify-between">
             {/* זכוכית ולא זהב — על דלתות העץ הזהב המלא נקרא כמדבקה */}
             <BrandMark size={44} variant="glass" />
-            <div className="flex flex-col items-end gap-2">
+            {/*
+             * בורר השפה — במרכז, בין הלוגו ל"דלג", וקבוע: absolute עם
+             * מרכוז, כדי שהיעלמות "דלג" (כשמגיעים לבחירה) לא תזיז אותו,
+             * ורוחב נעול כדי שגם החלפת שפה לא תזיז את הקצוות. הוא חי
+             * במסך הראשון כי מי שאינו קורא עברית לא ימצא אותו בפרופיל
+             * שמאחורי ההתחברות. select נטיבי: גלגלת מערכת בנייד, בלי
+             * לגעת ב-scroll-snap.
+             */}
+            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+              <Globe
+                className="pointer-events-none absolute start-3 top-1/2 size-3.5 -translate-y-1/2 text-white/70"
+                strokeWidth={2}
+                aria-hidden
+              />
+              <select
+                value={lang}
+                onChange={(e) => setLang(e.target.value as Lang)}
+                aria-label={t("language")}
+                className="w-32 appearance-none rounded-full border border-white/25 bg-white/10 py-1.5 pe-3 ps-9 text-center text-xs font-semibold text-white/90 backdrop-blur-md outline-none transition hover:bg-white/15"
+              >
+                {LANGS.map((l) => (
+                  <option key={l} value={l} className="text-neutral-900">
+                    {LANG_NAMES[l]}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* שומר מקום קבוע ל"דלג" — כשהוא נעלם, הלוגו לא זז */}
+            <div className="min-w-[52px] text-end">
               {!ctaLive && (
                 <button
                   type="button"
@@ -295,30 +323,6 @@ function Welcome() {
                   {t("welcomeSkip")}
                 </button>
               )}
-              {/*
-               * בורר השפה חי כאן — המסך הראשון — כי מי שאינו קורא עברית
-               * לא ימצא אותו בפרופיל שמאחורי ההתחברות. select נטיבי:
-               * גלגלת מערכת בנייד, בלי לגעת ב-scroll-snap של הדלתות.
-               */}
-              <div className="relative">
-                <Globe
-                  className="pointer-events-none absolute start-2.5 top-1/2 size-3.5 -translate-y-1/2 text-white/70"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-                <select
-                  value={lang}
-                  onChange={(e) => setLang(e.target.value as Lang)}
-                  aria-label={t("language")}
-                  className="appearance-none rounded-full border border-white/25 bg-white/10 py-1.5 pe-3.5 ps-8 text-xs font-semibold text-white/90 backdrop-blur-md outline-none transition hover:bg-white/15"
-                >
-                  {LANGS.map((l) => (
-                    <option key={l} value={l} className="text-neutral-900">
-                      {LANG_NAMES[l]}
-                    </option>
-                  ))}
-                </select>
-              </div>
             </div>
           </div>
 
