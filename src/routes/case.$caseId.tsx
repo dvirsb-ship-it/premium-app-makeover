@@ -127,6 +127,7 @@ function CaseDetail() {
   const [chosenProfile, setChosenProfile] = useState<LawyerContactDoc | null>(null);
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [retrying, setRetrying] = useState(false);
   /*
    * הקריאה הזו מרוצה מול הכתיבה של הבחירה עצמה, ומפסידה.
    *
@@ -335,6 +336,29 @@ function CaseDetail() {
               <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                 {t("staleCheckBody")}
               </p>
+              {/*
+                * שתי דרכים החוצה, ולנסות-שוב היא הראשונה.
+                *
+                * בדיקה שנתקעה היא כמעט תמיד כשל רגעי — והסיפור שהאדם
+                * כבר סיפר שמור בתיק. להציע רק "הסרה" פירושו לבקש ממנו
+                * לספר הכל מחדש בגלל תקלה שלנו.
+                */}
+              <button
+                type="button"
+                disabled={retrying}
+                onClick={() => {
+                  setRetrying(true);
+                  try {
+                    sessionStorage.setItem("justask-active-case", item.id);
+                  } catch {
+                    /* ignore */
+                  }
+                  navigate({ to: "/validating" });
+                }}
+                className="btn-gold mt-3 w-full rounded-2xl py-3 text-[14px] font-bold disabled:opacity-60"
+              >
+                {t("staleCheckRetry")}
+              </button>
               <button
                 type="button"
                 onClick={() => {
@@ -342,7 +366,7 @@ function CaseDetail() {
                     .then(() => navigate({ to: "/cases" }))
                     .catch(() => toast.error(t("authErrGeneric")));
                 }}
-                className="btn-gold mt-3 w-full rounded-2xl py-3 text-[14px] font-bold"
+                className="mt-2 w-full rounded-2xl py-2.5 text-[13px] font-semibold text-muted-foreground transition hover:text-foreground"
               >
                 {t("staleCheckRemove")}
               </button>
