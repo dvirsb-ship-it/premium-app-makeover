@@ -1103,6 +1103,11 @@ export const strings = {
   notifVerApprovedBody: { he: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.", en: "Your profile is verified — you can now express interest in cases and appear to clients." },
   notifVerRejectedTitle: { he: "האימות לא אושר", en: "Verification not approved" },
   notifVerRejectedBody: { he: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים.", en: "Some details didn't pass review. You can resubmit with updated documents." },
+  // מודל הניסיון — הקיר עולה לפני לקיחת לקוח, לא אחרי
+  trialOverTitle: { he: "{n} לקוחות הגיעו אליך דרך JustAsk", en: "{n} clients reached you through JustAsk" },
+  trialOverBody: { he: "התיקים שכבר בטיפולך ממשיכים כרגיל, תמיד. להמשך קבלת פניות חדשות — הצטרפות למנוי.", en: "The cases you already have carry on as normal, always. To keep receiving new enquiries — join the membership." },
+  trialOverCta: { he: "לפרטי המנוי", en: "See membership" },
+  trialLeftChip: { he: "נותרו {n} חיבורים בניסיון", en: "{n} trial connections left" },
   matchLabel: { he: "התאמה", en: "Match" },
   reasonSpecPrimary: { he: "התחום המרכזי שלך", en: "Your primary field" },
   reasonSpecSecondary: { he: "תחום משיק לשלך", en: "Adjacent to your fields" },

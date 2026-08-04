@@ -252,6 +252,34 @@ export async function recordLawyerRating(
   });
 }
 
+/**
+ * רישום חיבור — הבסיס למודל הניסיון.
+ *
+ * "חיבור" הוא הרגע שבו לקוח בחר בעורך דין. זו היחידה שנספרת, ולא
+ * הצעות: הגבלת הצעות הייתה פוגעת דווקא בלקוח, שכל הערך שלו הוא
+ * להשוות כמה שיותר הצעות. הצעה לא עולה לאף אחד כלום; חיבור הוא ערך
+ * שהתממש.
+ *
+ * נכתב בשרת בלבד, ורק דרך הנתיב הזה: מונה שקובע מתי מתחילים לשלם
+ * חייב להיות בלתי ניתן לאיפוס מהדפדפן. הכתיבה אידמפוטנטית לפי מזהה
+ * התיק — אותו חיבור לא נספר פעמיים גם אם הקריאה חוזרת.
+ */
+export async function recordConnection(uid: string, caseId: string): Promise<number> {
+  const path = `lawyerStats/${encodeURIComponent(uid)}`;
+  const cur = (await adminGetDoc(path)) ?? {};
+  const seen: string[] = Array.isArray(cur.connectionCaseIds)
+    ? (cur.connectionCaseIds as string[])
+    : [];
+  if (seen.includes(caseId)) return seen.length;
+  const next = [...seen, caseId];
+  await adminPatch(path, {
+    connectionCaseIds: next,
+    connections: next.length,
+    updatedAt: Date.now(),
+  });
+  return next.length;
+}
+
 /* ---------- התראות דחיפה (FCM HTTP v1) ---------- */
 
 /** קריאת מסמך משתמש בהרשאות שרת — לשליפת טוקני הדחיפה והעדפותיו. */

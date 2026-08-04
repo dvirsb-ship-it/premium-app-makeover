@@ -7,7 +7,7 @@ import { categoryIcon } from "../lib/category-icons";
 import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
 import { fbAuth } from "../lib/firebase";
 import { categoryMatchesSpecialties } from "../lib/db";
-import { readLawyerProfile } from "../lib/db";
+import { readLawyerProfile, readLawyerStats } from "../lib/db";
 import { NotificationBell } from "../components/NotificationBell";
 import {
   watchMyVerification,
@@ -19,6 +19,7 @@ import { cn } from "../lib/utils";
 import { useT, translate, type StringKey } from "../lib/i18n";
 import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useRequireAuth } from "../lib/require-auth";
+import { trialState } from "../lib/trial";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
 
@@ -58,6 +59,9 @@ function LawyerFeed() {
    * ועורך דין שנרשם ולא המשיך לאימות היה מקבל מסך ריק בלי שום הסבר.
    */
   const [verLoaded, setVerLoaded] = useState(false);
+  /* תקופת המייסדים נגזרת מתאריך האישור; המונה נכתב בשרת */
+  const [approvedAt, setApprovedAt] = useState<number | null>(null);
+  const [connections, setConnections] = useState<number>(0);
   /*
    * כשל בקריאת הסטטוס אינו "לא הגיש". בלי ההפרדה הזו כשל רשת רגעי היה
    * מציע לעורך דין *מאושר* להתחיל אימות מחדש — בדיוק ההיפך מהאמת.
@@ -108,12 +112,26 @@ function LawyerFeed() {
       user.uid,
       (rec) => {
         setVerStatus(rec?.status ?? null);
+        setApprovedAt(rec?.reviewedAt ?? null);
         setVerLoaded(true);
         setVerError(false);
       },
       () => setVerError(true),
     );
   }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    void readLawyerStats(user.uid)
+      .then((st) => setConnections(st?.connections ?? 0))
+      .catch(() => {});
+  }, [user]);
+
+  /*
+   * מצב הניסיון מוצג בפיד כשקיפות, לא כהפתעה: עורך דין צריך לדעת כמה
+   * חיבורים נשארו לו *לפני* שהוא משקיע זמן בקריאת תיקים.
+   */
+  const trial = trialState({ connections, approvedAt });
   /*
    * ההסבר על ההתראות — רק לעו"ד שאושר. לפני האישור אין לו תיקים לקבל
    * עליהם התראה, ובקשה בשלב הזה היא רעש שישרוף לנו את ההזדמנות.
@@ -314,6 +332,30 @@ function LawyerFeed() {
           * עורך דין חדש ראה באנר ירוק "אפשר לצפות בתיקים" ומיד מתחתיו
           * שגיאה אדומה. הבאנר למעלה כבר אומר את האמת; כאן פשוט שותקים.
           */}
+        {/*
+          * מונה הניסיון — שקיפות ולא הפתעה. עורך דין צריך לדעת כמה
+          * חיבורים נשארו לו לפני שהוא משקיע זמן בקריאת תיקים, ולא
+          * לגלות את זה כשהוא כבר רוצה להגיש הצעה. למייסדים ולמנויים
+          * אין מונה בכלל — אין להם מכסה.
+          */}
+        {verStatus === "approved" && Number.isFinite(trial.left) && (
+          <div className="mb-3 flex items-center gap-2 rounded-2xl border border-gold/30 bg-gold/[0.07] px-3.5 py-2.5">
+            <Sparkles className="size-4 shrink-0 text-gold" strokeWidth={2.2} />
+            <span className="text-[12.5px] font-bold text-foreground">
+              {trial.left > 0
+                ? t("trialLeftChip").replace("{n}", String(trial.left))
+                : t("trialOverTitle").replace("{n}", String(trial.used))}
+            </span>
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/lawyer-subscription" })}
+              className="ms-auto shrink-0 text-[12px] font-bold text-gold underline-offset-2 hover:underline"
+            >
+              {t("trialOverCta")}
+            </button>
+          </div>
+        )}
+
         {verStatus !== "approved" ? null : feedError ? (
           <div className="liquid-glass rounded-3xl border border-destructive/30 p-5 text-center">
             <p className="text-sm font-bold text-foreground">{t("feedErrorTitle")}</p>

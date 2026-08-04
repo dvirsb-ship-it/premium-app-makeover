@@ -602,6 +602,20 @@ export async function chooseLawyerDb(
     status: "connected",
     ...(clientContact ? { clientContact } : {}),
   });
+  /*
+   * רישום החיבור למונה הניסיון של עורך הדין — בשרת, ולא חוסם.
+   * כשל כאן לא אמור לפגוע בחיבור שכבר נוצר; המונה הוא נתון עסקי,
+   * לא תנאי לחיבור בין אדם לעורך הדין שבחר.
+   */
+  try {
+    const { recordConnectionFn } = await import("./ai/intake.functions");
+    const { fbAuth } = await import("./firebase");
+    const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+    await recordConnectionFn({ data: { caseId, idToken } });
+  } catch {
+    /* ignore */
+  }
+
   const c = await readCaseRaw(caseId);
   if (c) {
     await notify(lawyerId, {
@@ -897,6 +911,8 @@ export interface LawyerStats {
   /** דירוגי לקוחות שהצטברו — נכתבים בשרת בלבד (rateLawyerFn). */
   ratings: number;
   ratingSum: number;
+  /** חיבורים שהתממשו — הבסיס למודל הניסיון. נכתב בשרת בלבד. */
+  connections?: number;
 }
 
 /** מדד תגובתיות שהפלטפורמה מדדה בעצמה — נכתב בשרת בלבד. */
@@ -910,6 +926,7 @@ export async function readLawyerStats(uid: string): Promise<LawyerStats | null> 
       totalResponseMs: Number(d.totalResponseMs ?? 0),
       ratings: Number(d.ratings ?? 0),
       ratingSum: Number(d.ratingSum ?? 0),
+      connections: Number(d.connections ?? 0),
     };
   } catch {
     return null;

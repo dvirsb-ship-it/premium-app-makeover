@@ -708,6 +708,37 @@ export interface OpenCountsResult {
  * כותרות, אין תיאורים, אין ערים ואין תאריכים. מי שקורא את התשובה
  * הזו לא יכול ללמוד דבר על אף אדם.
  */
+/* ---------- מודל הניסיון: רישום חיבור ---------- */
+
+export interface RecordConnectionInput {
+  caseId: string;
+  idToken: string;
+}
+
+/**
+ * הלקוח בחר עורך דין — רושמים את החיבור אצלו.
+ *
+ * בשרת ולא בדפדפן, כי המונה הזה קובע מתי הניסיון נגמר. הקריאה נעשית
+ * ע"י הלקוח (הוא זה שבחר), והשרת מאמת שהוא באמת בעל התיק ושעורך הדין
+ * שנרשם הוא באמת זה שנבחר — כלומר עורך דין לא יכול לזייף חיבור לעצמו,
+ * ולקוח לא יכול "לשרוף" את המכסה של עורך דין אחר.
+ */
+export const recordConnectionFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as RecordConnectionInput)
+  .handler(async ({ data }): Promise<{ connections: number }> => {
+    const { requireUser, adminGetCase, recordConnection, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("recordConnection", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) return { connections: 0 };
+      const lawyerId = c.chosenLawyerId as string | undefined;
+      if (!lawyerId) return { connections: 0 };
+      const n = await recordConnection(lawyerId, data.caseId);
+      return { connections: n };
+    });
+  });
+
 export const openCaseCountsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as { idToken: string })
   .handler(async ({ data }): Promise<OpenCountsResult> => {

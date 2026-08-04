@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { BadgeCheck, Check, Flag, Languages, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { LANG_NAMES, type Lang } from "../lib/settings";
+import { FREE_CONNECTIONS, trialState } from "../lib/trial";
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
@@ -27,6 +28,7 @@ import {
   type CaseImage,
   type ExpensesTerm,
   type FeeModel,
+  readLawyerStats,
 } from "../lib/db";
 import { normalizePhone } from "../lib/auth-service";
 import {
@@ -71,12 +73,15 @@ function LawyerCaseDetail() {
   const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
   const [verLoaded, setVerLoaded] = useState(false);
   const [verError, setVerError] = useState(false);
+  /* מתי אושר האימות — ממנו נגזרת תקופת המייסדים (חצי שנה חינם) */
+  const [approvedAt, setApprovedAt] = useState<number | null>(null);
   useEffect(() => {
     if (!user) return;
     return watchMyVerification(
       user.uid,
       (rec) => {
         setVerStatus(rec?.status ?? null);
+        setApprovedAt(rec?.reviewedAt ?? null);
         setVerLoaded(true);
         setVerError(false);
       },
@@ -86,6 +91,25 @@ function LawyerCaseDetail() {
       },
     );
   }, [user]);
+
+  /*
+   * מכסת הניסיון — שלושת החיבורים הראשונים חינם.
+   *
+   * החסימה כאן היא על *הבעת עניין בתיק חדש*, ובכוונה לא על תיק קיים:
+   * מי שכבר מטפל בלקוח ימשיך לטפל בו במלואו לנצח. אף פעם לא מחזיקים
+   * תיק חי של אדם כבן ערובה עד שעורך דין ישלם.
+   */
+  const [connections, setConnections] = useState<number | null>(null);
+  useEffect(() => {
+    if (!user) return;
+    void readLawyerStats(user.uid)
+      .then((st) => setConnections(st?.connections ?? 0))
+      .catch(() => setConnections(0));
+  }, [user]);
+  const trial = trialState({
+    connections: connections ?? 0,
+    approvedAt,
+  });
 
   // תמונות התיק: עד החיבור — הגרסה המצונזרת בלבד; אחרי החיבור — המקור
   const [imgUrls, setImgUrls] = useState<string[]>([]);
@@ -509,7 +533,7 @@ function LawyerCaseDetail() {
     );
   }
 
-  const canExpress = verStatus === "approved";
+  const canExpress = verStatus === "approved" && trial.canExpressInterest;
 
   return (
     <AppShell bare>
@@ -1037,6 +1061,32 @@ function LawyerCaseDetail() {
                 >
                   {t("offerSend")}
                 </motion.button>
+              </motion.div>
+            ) : verStatus === "approved" && trial.exhausted ? (
+              /*
+               * הניסיון נגמר — והקיר עולה כאן, לפני לקיחת לקוח חדש,
+               * ולא ברגע שלקוח בחר. עורך דין לעולם אינו משלם אגרה על
+               * אדם ספציפי; הוא מצטרף כדי להמשיך לקבל פניות.
+               */
+              <motion.div
+                key="trial-over"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] p-4"
+              >
+                <p className="text-[14px] font-black text-[#0F172A]">
+                  {t("trialOverTitle").replace("{n}", String(FREE_CONNECTIONS))}
+                </p>
+                <p className="mt-1 text-[12.5px] leading-relaxed text-[#0F172A]/75">
+                  {t("trialOverBody")}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => navigate({ to: "/lawyer-subscription" })}
+                  className="mt-3 w-full rounded-xl bg-[#0F172A] py-3 text-[14px] font-bold text-white transition active:scale-[0.98]"
+                >
+                  {t("trialOverCta")}
+                </button>
               </motion.div>
             ) : !verLoaded ? (
               /* עוד לא יודעים — שלד, לא חסימה. חסימה שגויה עולה יותר מהמתנה. */
