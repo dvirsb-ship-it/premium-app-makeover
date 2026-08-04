@@ -13,8 +13,6 @@ import {
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 
-import { BrandMark } from "../components/BrandMark";
-import { HeroVideo } from "../components/HeroVideo";
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
@@ -25,7 +23,7 @@ import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
-import type { Case, Role } from "../lib/types";
+import type { Case } from "../lib/types";
 
 
 export const Route = createFileRoute("/")({
@@ -54,7 +52,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { role, setRole, user } = useAppStore();
+  const { role, user } = useAppStore();
   const t = useT();
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -71,19 +69,20 @@ function Index() {
     setGateChecked(true);
   }, [navigate]);
 
-  function choose(nextRole: Role) {
-    setRole(nextRole);
-    if (nextRole === "lawyer") {
-      navigate({ to: "/lawyer-onboarding" });
-      return;
-    }
-    // Client already authenticated — go to intake tips; otherwise auth first.
-    navigate({ to: role ? "/intake-tips" : "/auth" });
-  }
-
   // עורך דין שלוחץ "ראשי" קיבל עד כה את מסך הבחירה — יש לו בית משלו
   useEffect(() => {
     if (gateChecked && role === "lawyer") navigate({ to: "/lawyer", replace: true });
+  }, [gateChecked, role, navigate]);
+
+  /*
+   * הבוחר הישן שישב כאן הוסר: בחירת התפקיד גרה עכשיו בסוף מסך הדלתות,
+   * וקיומם של שני מסכי בחירה שונים יצר בדיוק את מה שדביר ראה בטלפון —
+   * "לפעמים העיצוב הישן". מי שמגיע לכאן בלי תפקיד מופנה לדלתות.
+   *
+   * לפני כל ה-early-returns — hooks חייבים לרוץ בכל רינדור.
+   */
+  useEffect(() => {
+    if (gateChecked && role === null) navigate({ to: "/welcome", replace: true });
   }, [gateChecked, role, navigate]);
 
   if (!gateChecked) return null;
@@ -91,93 +90,7 @@ function Index() {
   // המערכת כבר יודעת מי אתה — אין סיבה לשאול שוב בכל כניסה
   if (role === "client" && user) return <ClientHome />;
 
-  return (
-    <AppShell bare outerClassName="studio-stage !overflow-y-auto">
-      {/* Cinematic studio backdrop — two clips cross-fading behind the phone */}
-      <HeroVideo className="z-0" />
-
-      {/* Foreground content */}
-      <div className="relative z-10 flex min-h-screen flex-col px-6 pb-8 pt-10">
-        {/* Centered brand lockup in the studio spotlight */}
-        <div className="relative flex flex-1 flex-col items-center justify-center text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-            className="flex flex-col items-center"
-          >
-            <BrandMark size={84} />
-
-            <h1 className="mt-5 text-[2.75rem] font-black leading-none tracking-tight text-white drop-shadow-[0_4px_28px_rgba(0,0,0,0.55)]">
-              Just<span className="text-gradient-gold">Ask</span>
-            </h1>
-
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.45, duration: 0.6 }}
-              className="mt-3 max-w-[17rem] text-base font-light leading-snug text-white/85 drop-shadow-[0_2px_16px_rgba(0,0,0,0.45)]"
-            >
-              {t("heroTagline")}
-            </motion.p>
-          </motion.div>
-        </div>
-
-
-        {/* Role selection cards — liquid glass */}
-        <Stagger className="w-full max-w-sm space-y-4 self-center pb-4">
-          <Rise>
-            <Pressable
-              onClick={() => choose("client")}
-              className="liquid-glass glass-hero group block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-            >
-              <div className="relative flex items-center gap-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-border bg-foreground/5 text-foreground">
-                  <UserRound className="size-5" strokeWidth={1.8} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold leading-tight text-foreground">
-                    {t("clientCTA")}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {t("clientCTASub")}
-                  </p>
-                </div>
-              </div>
-            </Pressable>
-          </Rise>
-
-          <Rise>
-            <Pressable
-              onClick={() => choose("lawyer")}
-              className="liquid-glass-selected glass-hero group block w-full rounded-[22px] p-4 text-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-            >
-              <div className="relative flex items-center gap-4">
-                <span className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25">
-                  <Scale className="size-5" strokeWidth={2} />
-                </span>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-base font-bold leading-tight text-foreground">
-                    {t("lawyerCTA")}
-                  </h3>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    {t("lawyerCTASub")}
-                  </p>
-                </div>
-              </div>
-            </Pressable>
-          </Rise>
-
-          <Rise>
-            <p className="pt-3 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              {t("trustBadge")}
-            </p>
-          </Rise>
-        </Stagger>
-      </div>
-
-    </AppShell>
-  );
+  return null;
 }
 
 /**

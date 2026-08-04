@@ -125,6 +125,18 @@ function Welcome() {
    * ישר לגוגל בלי הקשר. זה בדיוק מה שקרה לדביר בבדיקה.
    */
   function finish() {
+    /*
+     * סימון session (לא localStorage): "עברתי את הפתיחה הרגע, בטאב הזה".
+     * שער ה-/auth בודק אותו — בלעדיו נוצרה לולאה: הדגל הקבוע נחתם רק
+     * בהתחברות מוצלחת, אז משתמש טרי שבחר תפקיד הגיע ל-auth בלי דגל
+     * והוחזר לדלתות. session נעלם בסגירת הדפדפן, ולכן מבקר ישיר טרי
+     * ב-/auth עדיין מקבל את הפתיחה.
+     */
+    try {
+      sessionStorage.setItem("justask-welcome-passed", "1");
+    } catch {
+      /* ignore */
+    }
     navigate({ to: "/auth" });
   }
 

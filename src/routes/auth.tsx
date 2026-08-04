@@ -122,11 +122,13 @@ function Auth() {
     if (hasPendingRedirect()) return;
     if (window.location.href.includes("oobCode=")) return;
     try {
-      if (!localStorage.getItem("justask-welcomed")) {
+      const passedEver = localStorage.getItem("justask-welcomed");
+      const passedNow = sessionStorage.getItem("justask-welcome-passed");
+      if (!passedEver && !passedNow) {
         navigate({ to: "/welcome", replace: true });
       }
     } catch {
-      /* localStorage חסום — עדיף מסך התחברות ממסך שבור */
+      /* אחסון חסום — עדיף מסך התחברות ממסך שבור */
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [authReady, user, authResolving]);
