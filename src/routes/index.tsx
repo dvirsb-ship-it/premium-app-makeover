@@ -20,7 +20,7 @@ import { NotificationBell } from "../components/NotificationBell";
 import { SubmittedModal } from "../components/SubmittedModal";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
-import { MAX_OPEN_CASES } from "../lib/limits";
+import { MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED } from "../lib/limits";
 import { translate, useT, type StringKey } from "../lib/i18n";
 import { useSettings } from "../lib/settings";
 import { useAppStore } from "../lib/store";
@@ -162,7 +162,7 @@ function ClientHome() {
         !!c.withdrawnAt &&
         Date.now() - c.withdrawnAt < 7 * 24 * 60 * 60 * 1000),
   ).length;
-  const atCaseLimit = competingCount >= MAX_OPEN_CASES;
+  const atCaseLimit = OPEN_CASE_LIMIT_ENABLED && competingCount >= MAX_OPEN_CASES;
 
   /*
    * ההסבר מוצג ללקוח רק כשיש לו תיק פעיל — לפני זה אין לו על מה לקבל
@@ -218,9 +218,13 @@ function ClientHome() {
         >
           <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
             <FolderOpen className="size-3.5 text-gold" strokeWidth={2} />
-            {t("homeChipOpen")
-              .replace("{n}", String(competingCount))
-              .replace("{m}", String(MAX_OPEN_CASES))}
+            {OPEN_CASE_LIMIT_ENABLED
+              ? t("homeChipOpen")
+                  .replace("{n}", String(competingCount))
+                  .replace("{m}", String(MAX_OPEN_CASES))
+              : competingCount === 1
+                ? t("homeChipOneCase")
+                : `${competingCount} ${t("homeChipCases")}`}
           </span>
           <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
             <ShieldCheck className="size-3.5 text-gold" strokeWidth={2} />

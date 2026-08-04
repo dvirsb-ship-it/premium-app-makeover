@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_OPEN_CASES as LIMIT, OPEN_CASE_LIMIT_ENABLED } from "./limits";
 
 /*
  * תקרת התיקים הפתוחים.
@@ -33,5 +34,23 @@ describe("תקרת תיקים פתוחים", () => {
 
   it("הסטטוסים שכן נספרים הם בדיוק אלה שמופיעים בפיד או בדרך אליו", () => {
     expect(OPEN).toEqual(["validating", "matching", "has_interest"]);
+  });
+});
+
+/*
+ * המתג עצמו.
+ *
+ * הבדיקה הזו אינה נכשלת כשהמכסה כבויה — היא מתעדת. מטרתה שמי שיפתח
+ * את הקובץ יראה במפורש שהשער סגור בכוונה ומתי מחזירים אותו, במקום
+ * לגלות בהשקה שאין מכסה. השער מנוהל ב-LAUNCH-CHECKLIST.md.
+ */
+describe("מתג המכסה", () => {
+  it("הערך עצמו נשאר 3 — הכיבוי אינו שינוי מדיניות", () => {
+    expect(LIMIT).toBe(3);
+  });
+
+  it("מתועד: המכסה כבויה בתקופת הבדיקות", () => {
+    // כשמדליקים לפני ההשקה — לשנות את הציפייה כאן ל-true.
+    expect(OPEN_CASE_LIMIT_ENABLED).toBe(false);
   });
 });

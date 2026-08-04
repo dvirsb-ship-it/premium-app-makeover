@@ -694,7 +694,7 @@ export async function adminDeleteCase(caseId: string): Promise<void> {
   await adminDelete(`cases/${encodeURIComponent(caseId)}`);
 }
 
-export { MAX_OPEN_CASES } from "../limits";
+export { MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED } from "../limits";
 import { MAX_OPEN_CASES } from "../limits";
 
 /*

@@ -325,7 +325,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const {
       requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
-      countOpenCases, MAX_OPEN_CASES, adminDeleteCase,
+      countOpenCases, MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED, adminDeleteCase,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -339,8 +339,10 @@ export const validateCaseFn = createServerFn({ method: "POST" })
      * הלב של עורכי הדין. הספירה מחריגה את התיק הנוכחי (הוא כבר קיים
      * במצב validating), ולכן העובר הרביעי הוא זה שנעצר.
      */
-    const open = await countOpenCases((raw as { clientId: string }).clientId);
-    if (open > MAX_OPEN_CASES) {
+    const open = OPEN_CASE_LIMIT_ENABLED
+      ? await countOpenCases((raw as { clientId: string }).clientId)
+      : 0;
+    if (OPEN_CASE_LIMIT_ENABLED && open > MAX_OPEN_CASES) {
       /*
        * מוחקים את התיק שזה עתה נוצר.
        *
