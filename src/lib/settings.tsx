@@ -16,6 +16,19 @@ export type Lang = (typeof LANGS)[number];
 const RTL_LANGS: ReadonlySet<Lang> = new Set(["he", "ar"]);
 export const langDir = (l: Lang): "rtl" | "ltr" => (RTL_LANGS.has(l) ? "rtl" : "ltr");
 
+/**
+ * קוד שלוש אותיות לכל שפה — לתגית קומפקטית שבה אין מקום לשם מלא.
+ * לטיני בכוונה, גם עבור עברית וערבית: התגית נקראת גם כשהממשק בשפה זרה.
+ */
+export const LANG_CODES: Record<Lang, string> = {
+  he: "heb",
+  en: "eng",
+  ru: "rus",
+  es: "esp",
+  fr: "fre",
+  ar: "arb",
+};
+
 /** השם של כל שפה — בשפתה שלה, כי כך מזהים אותה גם כשהממשק זר. */
 export const LANG_NAMES: Record<Lang, string> = {
   he: "עברית",

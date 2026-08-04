@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  AnimatePresence,
   cubicBezier,
   motion,
   useMotionValueEvent,
@@ -9,13 +10,13 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Globe, Scale, UserRound } from "lucide-react";
+import { Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
 import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
 import { useT } from "../lib/i18n";
-import { LANGS, LANG_NAMES, useSettings, type Lang } from "../lib/settings";
+import { LANGS, LANG_CODES, LANG_NAMES, useSettings } from "../lib/settings";
 import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
@@ -65,6 +66,27 @@ function Welcome() {
   const navigate = useNavigate();
   const t = useT();
   const { lang, setLang } = useSettings();
+  const [langOpen, setLangOpen] = useState(false);
+  const langRef = useRef<HTMLDivElement>(null);
+  /*
+   * תפריט שנפתח חייב להיסגר גם בלי לבחור: לחיצה בחוץ ו-Escape. בלי זה
+   * הוא נשאר פתוח מעל הדלתות והגלילה ממשיכה מתחתיו.
+   */
+  useEffect(() => {
+    if (!langOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setLangOpen(false);
+    };
+    const onDown = (e: PointerEvent) => {
+      if (!langRef.current?.contains(e.target as Node)) setLangOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    window.addEventListener("pointerdown", onDown);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("pointerdown", onDown);
+    };
+  }, [langOpen]);
   const { setRole } = useAppStore();
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [leaving, setLeaving] = useState(false);
@@ -282,47 +304,93 @@ function Welcome() {
         {/* Chrome + copy */}
         <div className="pointer-events-none absolute inset-0 z-10 flex flex-col px-6 pb-10 pt-10">
 
-          <div className="pointer-events-auto relative flex items-center justify-between">
+          {/*
+           * שתי הקוביות ממוקמות פיזית — לוגו מימין, שפה משמאל — ולא לפי
+           * כיוון הכתיבה. עם justify-between הן היו מתחלפות בצדדים ברגע
+           * שבוחרים אנגלית או רוסית, כלומר הקובייה "קופצת" בדיוק בלחיצה
+           * שאמורה רק להחליף שפה. כאן היא לא זזה באף שפה.
+           */}
+          <div className="pointer-events-auto relative h-11">
             {/* זכוכית ולא זהב — על דלתות העץ הזהב המלא נקרא כמדבקה */}
-            <BrandMark size={44} variant="glass" />
-            {/*
-             * בורר השפה — במרכז, בין הלוגו ל"דלג", וקבוע: absolute עם
-             * מרכוז, כדי שהיעלמות "דלג" (כשמגיעים לבחירה) לא תזיז אותו,
-             * ורוחב נעול כדי שגם החלפת שפה לא תזיז את הקצוות. הוא חי
-             * במסך הראשון כי מי שאינו קורא עברית לא ימצא אותו בפרופיל
-             * שמאחורי ההתחברות. select נטיבי: גלגלת מערכת בנייד, בלי
-             * לגעת ב-scroll-snap.
-             */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-              <Globe
-                className="pointer-events-none absolute start-3 top-1/2 size-3.5 -translate-y-1/2 text-white/70"
-                strokeWidth={2}
-                aria-hidden
-              />
-              <select
-                value={lang}
-                onChange={(e) => setLang(e.target.value as Lang)}
-                aria-label={t("language")}
-                className="w-32 appearance-none rounded-full border border-white/25 bg-white/10 py-1.5 pe-3 ps-9 text-center text-xs font-semibold text-white/90 backdrop-blur-md outline-none transition hover:bg-white/15"
-              >
-                {LANGS.map((l) => (
-                  <option key={l} value={l} className="text-neutral-900">
-                    {LANG_NAMES[l]}
-                  </option>
-                ))}
-              </select>
+            <div className="absolute right-0 top-0">
+              <BrandMark size={44} variant="glass" />
             </div>
-            {/* שומר מקום קבוע ל"דלג" — כשהוא נעלם, הלוגו לא זז */}
-            <div className="min-w-[52px] text-end">
+
+            {/*
+             * בורר השפה — קובייה תאומה ללוגו, בקצה הנגדי.
+             *
+             * רוחב קבוע (44) ו"דלג" שמרחף מתחתיה ב-absolute, כך שהיעלמות
+             * "דלג" בשלב בחירת התפקיד לא מזיזה את הקובייה במילימטר. הוא
+             * חי כאן, במסך הראשון, כי מי שאינו קורא עברית לא ימצא את
+             * הבורר בפרופיל שמאחורי ההתחברות.
+             */}
+            <div ref={langRef} className="absolute left-0 top-0" style={{ width: 44 }}>
+              <button
+                type="button"
+                onClick={() => setLangOpen((v) => !v)}
+                aria-haspopup="listbox"
+                aria-expanded={langOpen}
+                aria-label={t("language")}
+                className="relative grid size-11 place-items-center overflow-hidden rounded-[28%] border border-white/25 bg-white/10 shadow-[0_18px_40px_-14px_rgba(0,0,0,0.55)] backdrop-blur-md transition active:scale-95"
+              >
+                {/* ברק עליון — אותו פרט שנותן ללוגו את תחושת הזכוכית */}
+                <span
+                  aria-hidden
+                  className="absolute inset-x-0 top-0 h-1/2 bg-[linear-gradient(180deg,rgba(255,255,255,0.28),transparent)]"
+                />
+                <span className="relative text-[11px] font-black uppercase tracking-wide text-white drop-shadow-[0_2px_6px_rgba(0,0,0,0.45)]">
+                  {LANG_CODES[lang]}
+                </span>
+              </button>
+
+              {/* "דלג" מרחף מתחת לקובייה — לא משתתף בפריסה, ולכן לא מזיז אותה */}
               {!ctaLive && (
                 <button
                   type="button"
                   onClick={skipToChoice}
-                  className="rounded-full px-3 py-1.5 text-xs font-semibold text-white/70 transition hover:text-white"
+                  className="absolute left-1/2 top-full mt-2 -translate-x-1/2 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold text-white/70 transition hover:text-white"
                 >
                   {t("welcomeSkip")}
                 </button>
               )}
+
+              <AnimatePresence>
+                {langOpen && (
+                  <motion.ul
+                    role="listbox"
+                    aria-label={t("language")}
+                    initial={{ opacity: 0, y: -6, scale: 0.96 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -6, scale: 0.96 }}
+                    transition={{ duration: 0.18, ease: [0.16, 1, 0.3, 1] }}
+                    className="absolute left-0 top-full z-30 mt-2 w-40 overflow-hidden rounded-2xl border border-white/20 bg-black/70 shadow-[0_24px_60px_-18px_rgba(0,0,0,0.8)] backdrop-blur-xl"
+                  >
+                    {LANGS.map((l) => (
+                      <li key={l}>
+                        <button
+                          type="button"
+                          role="option"
+                          aria-selected={l === lang}
+                          onClick={() => {
+                            setLang(l);
+                            setLangOpen(false);
+                          }}
+                          className={`flex w-full items-center justify-between gap-3 px-3.5 py-2.5 text-start transition ${
+                            l === lang ? "bg-white/15" : "hover:bg-white/10"
+                          }`}
+                        >
+                          <span className="text-[13px] font-semibold text-white">
+                            {LANG_NAMES[l]}
+                          </span>
+                          <span className="text-[10.5px] font-black uppercase tracking-wide text-white/55">
+                            {LANG_CODES[l]}
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </motion.ul>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 
