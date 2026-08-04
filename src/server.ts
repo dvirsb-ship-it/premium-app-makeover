@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-05T10:50Z";
+const BUILD_STAMP = "2026-08-05T11:40Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -211,6 +211,22 @@ const appHandler: ServerEntry = {
         const { runDueDeletions } = await import("./lib/ai/server-admin");
         const result = await runDueDeletions();
         return Response.json(result, { headers: { "cache-control": "no-store" } });
+      }
+
+      /*
+       * תיקון חד-פעמי לתיקים שסווגו בקטגוריה שהמודל המציא, לפני
+       * שה-enum נאכף. בלעדיו הם נשארים בלתי נראים לעורכי הדין
+       * שסימנו בדיוק את התחום שלהם. מוגן באותו סוד כמו המחיקות.
+       */
+      if (new URL(request.url).pathname === "/__cron/fix-categories") {
+        const secret = process.env.CRON_SECRET;
+        if (!secret || request.headers.get("x-cron-key") !== secret) {
+          return new Response("Not found", { status: 404 });
+        }
+        const { fixInventedCategories } = await import("./lib/ai/server-admin");
+        return Response.json(await fixInventedCategories(), {
+          headers: { "cache-control": "no-store" },
+        });
       }
 
       const proxied = await proxyFirebaseAuth(request);

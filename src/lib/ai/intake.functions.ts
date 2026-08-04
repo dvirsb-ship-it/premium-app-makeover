@@ -4,7 +4,7 @@
  */
 import { createServerFn } from "@tanstack/react-start";
 import { INTAKE_MODEL, INTAKE_SYSTEM_PROMPT } from "./intake-prompt";
-import { VALIDATION_CATEGORIES } from "../specialties";
+import { VALIDATION_CATEGORIES, normalizeCategory } from "../specialties";
 
 /* ---------- מפתח ה-API (שרת בלבד) ---------- */
 
@@ -436,7 +436,16 @@ export const validateCaseFn = createServerFn({ method: "POST" })
           properties: {
             validated: { type: "boolean" },
             title: { type: "string" },
-            category: { type: "string" },
+            /*
+             * enum ולא string חופשי.
+             *
+             * הפרומפט ביקש "בדיוק אחת מהרשימה" ושום דבר לא אכף את זה,
+             * אז המודל המציא "נזיקין - נזקי גוף" ו"נזקי גוף ורשלנות".
+             * קטגוריה שאינה בטבלה נופלת ל"אזרחי כללי" — כלומר תיק נזיקין
+             * הפך בלתי נראה לעורכי דין שסימנו נזיקין, וזו בדיוק ההבטחה
+             * המרכזית של המוצר.
+             */
+            category: { type: "string", enum: [...VALIDATION_CATEGORIES] },
             summary: { type: "string" },
             legalBasis: { type: "string" },
             recommendation: { type: "string" },
@@ -450,10 +459,17 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const result = JSON.parse(verdict) as ValidateResult;
 
     // כתיבת התוצאה מהשרת — חוקי המסד חוסמים את הלקוח מלגעת בסטטוס בעצמו
+    /*
+     * חגורה ושלייקס: גם אם המודל יחזיר משהו מחוץ ל-enum (שינוי גרסה,
+     * נפילה למסלול טקסט חופשי), הקטגוריה שנשמרת חייבת להיות אחת משלנו —
+     * כי היא זו שקובעת מי רואה את התיק ומי מקבל עליו התראה.
+     */
+    const safeCategory = normalizeCategory(result.category);
+
     const validatedAt = Date.now();
     await adminUpdateCase(data.caseId, {
       title: result.title,
-      category: result.category,
+      category: safeCategory,
       summary: result.summary,
       legalBasis: result.legalBasis ?? "",
       recommendation: result.recommendation ?? "",
@@ -500,7 +516,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     let notified = 0;
     if (result.validated) {
       try {
-        const ids = await adminApprovedLawyerIds(result.category);
+        const ids = await adminApprovedLawyerIds(safeCategory);
         notified = ids.length;
         /*
          * כמה עורכי דין באמת קיבלו את התיק. בלי המספר הזה הלקוח מקבל
@@ -511,7 +527,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
           ids.map((id) =>
             adminNotify(id, {
               type: "new_case",
-              title: `תיק חדש בתחום ${result.category}`,
+              title: `תיק חדש בתחום ${safeCategory}`,
               body: `"${result.title}" ממתין לעורך דין — היו הראשונים להביע עניין`,
               caseId: data.caseId,
             }).catch(() => undefined),

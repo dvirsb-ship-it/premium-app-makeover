@@ -773,6 +773,48 @@ export async function countOpenCases(clientId: string): Promise<number> {
   }).length;
 }
 
+/**
+ * מתקן תיקים שסווגו בקטגוריה שהמודל המציא.
+ *
+ * הריצה חד-פעמית, אבל בטוחה לחזרה: תיק שכבר תקין אינו נגוע. מדווח מה
+ * שונה ולאן, כדי שנראה בעיניים שהמיפוי עשה את הדבר הנכון ולא ניחש.
+ */
+export async function fixInventedCategories(): Promise<{
+  scanned: number;
+  fixed: { id: string; from: string; to: string }[];
+}> {
+  const { normalizeCategory, CATEGORY_SPECS } = await import("../specialties");
+  const res = await fetch(`${DOCS}:runQuery`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${await accessToken()}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      structuredQuery: { from: [{ collectionId: "cases" }], limit: 500 },
+    }),
+  });
+  if (!res.ok) return { scanned: 0, fixed: [] };
+  const rows = (await res.json()) as {
+    document?: { name?: string; fields?: Record<string, { stringValue?: string }> };
+  }[];
+
+  const fixed: { id: string; from: string; to: string }[] = [];
+  let scanned = 0;
+  for (const r of rows) {
+    if (!r.document?.name) continue;
+    scanned += 1;
+    const id = r.document.name.split("/").pop()!;
+    const from = r.document.fields?.category?.stringValue ?? "";
+    if (!from || from in CATEGORY_SPECS) continue;
+    const to = normalizeCategory(from);
+    if (to === from) continue;
+    await adminPatch(`cases/${encodeURIComponent(id)}`, { category: to });
+    fixed.push({ id, from, to });
+  }
+  return { scanned, fixed };
+}
+
 /* ---------- מחיקה מתוזמנת ---------- */
 
 /**
