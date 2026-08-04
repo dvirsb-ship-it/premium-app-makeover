@@ -689,9 +689,22 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
  * נספרים רק תיקים שמתחרים על תשומת לב: בבדיקה, בהמתנה לעורך דין, או
  * עם התעניינות. תיק שכבר מחובר או נסגר אינו תופס מקום בפיד.
  */
-export const MAX_OPEN_CASES = 3;
+/** מחיקת תיק שנוצר ולא נבדק מעולם (נחסם על התקרה). */
+export async function adminDeleteCase(caseId: string): Promise<void> {
+  await adminDelete(`cases/${encodeURIComponent(caseId)}`);
+}
+
+export { MAX_OPEN_CASES } from "../limits";
+import { MAX_OPEN_CASES } from "../limits";
 
 const OPEN_STATUSES = ["validating", "matching", "has_interest"];
+
+/**
+ * תיק שנשאר ב"בבדיקה" יותר מזה מעולם לא הושלם — הוא לא מתחרה על תשומת
+ * לב של איש, ולכן אינו נספר. בלי זה תיק אחד שנתקע היה מקטין לצמיתות
+ * את המכסה של אדם אמיתי.
+ */
+const STALE_VALIDATING_MS = 30 * 60 * 1000;
 
 export async function countOpenCases(clientId: string): Promise<number> {
   const res = await fetch(`${DOCS}:runQuery`, {
@@ -733,8 +746,18 @@ export async function countOpenCases(clientId: string): Promise<number> {
     }),
   });
   if (!res.ok) return 0; // כשל בספירה לא חוסם אדם אמיתי
-  const rows = (await res.json()) as { document?: unknown }[];
-  return rows.filter((r) => r.document).length;
+  const rows = (await res.json()) as {
+    document?: { fields?: Record<string, Record<string, string>> };
+  }[];
+  const now = Date.now();
+  return rows.filter((r) => {
+    if (!r.document) return false;
+    const f = r.document.fields ?? {};
+    const status = f.status?.stringValue;
+    if (status !== "validating") return true;
+    const createdAt = Number(f.createdAt?.integerValue ?? 0);
+    return createdAt > 0 && now - createdAt < STALE_VALIDATING_MS;
+  }).length;
 }
 
 /* ---------- מחיקה מתוזמנת ---------- */

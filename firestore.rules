@@ -45,6 +45,16 @@ service cloud.firestore {
         && request.resource.data.interestedIds.size() == 0
         && !('offers' in request.resource.data);
 
+      /*
+       * הסרת תיק שנתקע בבדיקה — הבעלים בלבד, ורק כל עוד הוא בבדיקה
+       * ואיש לא הביע בו עניין. ברגע שעורך דין ראה אותו הוא כבר לא
+       * "לא קרה כלום", ומחיקה הייתה מוחקת גם את ההצעה שלו.
+       */
+      allow delete: if signedIn()
+        && resource.data.clientId == request.auth.uid
+        && resource.data.status == 'validating'
+        && resource.data.interestedIds.size() == 0;
+
       allow read: if signedIn() && (
         resource.data.clientId == request.auth.uid
         || resource.data.chosenLawyerId == request.auth.uid

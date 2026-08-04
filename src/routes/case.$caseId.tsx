@@ -22,6 +22,7 @@ import {
   readLawyerStats,
   type CaseImage,
   type LawyerContactDoc,
+  removeStuckCase,
 } from "../lib/db";
 import { BadgeCheck } from "lucide-react";
 import { normalizePhone } from "../lib/auth-service";
@@ -223,6 +224,10 @@ function CaseDetail() {
     );
   }
 
+  /* רבע שעה ב"בבדיקה" — הבדיקה אמורה לקחת פחות מדקה */
+  const staleValidating =
+    item.status === "validating" && Date.now() - item.createdAt > 15 * 60 * 1000;
+
   const meta = statusMeta(item.status);
   const chosen = item.interested.find((l) => l.id === item.chosenLawyerId);
 
@@ -247,7 +252,7 @@ function CaseDetail() {
             </p>
           </div>
 
-          {item.status === "validating" && (
+          {item.status === "validating" && !staleValidating && (
             <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
               <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-gold/12 text-gold">
                 <Scale className="size-4.5" strokeWidth={2.2} aria-hidden />
@@ -258,6 +263,31 @@ function CaseDetail() {
                   {t("deepCheckRunningSub")}
                 </p>
               </div>
+            </div>
+          )}
+
+          {/*
+            * בדיקה שלא הסתיימה בזמן סביר — לא מסתירים את זה מאחורי ספינר
+            * נצחי. הבדיקה לוקחת פחות מדקה; רבע שעה פירושו שהיא לא רצה,
+            * והמשתמש צריך דרך לצאת מזה בעצמו.
+            */}
+          {staleValidating && (
+            <div className="mt-3 rounded-3xl border border-warning-ink/35 bg-warning-ink/[0.08] px-4 py-3.5">
+              <p className="text-[13px] font-bold text-foreground">{t("staleCheckTitle")}</p>
+              <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                {t("staleCheckBody")}
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  void removeStuckCase(item.id)
+                    .then(() => navigate({ to: "/cases" }))
+                    .catch(() => toast.error(t("authErrGeneric")));
+                }}
+                className="btn-gold mt-3 w-full rounded-2xl py-3 text-[14px] font-bold"
+              >
+                {t("staleCheckRemove")}
+              </button>
             </div>
           )}
 

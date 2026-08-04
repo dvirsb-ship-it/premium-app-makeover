@@ -4,6 +4,7 @@
  * הצפנה באחסון + בידוד משתמשים נאכפים ע"י Firestore + Security Rules.
  */
 import {
+  deleteDoc,
   addDoc,
   arrayUnion,
   collection,
@@ -805,6 +806,17 @@ export async function cancelScheduledDeletion(uid: string): Promise<boolean> {
   } catch {
     return false;
   }
+}
+
+/**
+ * הסרת תיק שנתקע בבדיקה.
+ *
+ * תיק שלא הושלמה בדיקתו אין בו תוכן ואף עורך דין לא ראה אותו — ולכן
+ * הסרה היא האמת, ולא סימון "נדחה" שמשמעותו 'לא נמצאה עילה'. החוקים
+ * מתירים ללקוח למחוק רק תיק שלו שעדיין בבדיקה.
+ */
+export async function removeStuckCase(caseId: string): Promise<void> {
+  await deleteDoc(doc(fbDb(), "cases", caseId));
 }
 
 export async function requestAccountDeletion(input: {

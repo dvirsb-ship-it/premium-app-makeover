@@ -227,6 +227,12 @@ export interface ValidateResult {
   recommendation?: string;
   /** באישור: מה להכין לפגישה — נגזר ממה שהפונה עצמו ספר בראיון. */
   clientChecklist?: string[];
+  /**
+   * נחסם מסיבה שאינה משפטית (תקרת תיקים פתוחים). מוחזר ולא נזרק, כי
+   * שגיאה זרוקה מגיעה למסך כ"משהו השתבש" — ואדם שסיפר עכשיו את כל
+   * סיפורו ראוי לדעת בדיוק למה, ומה לעשות.
+   */
+  blocked?: "too_many_open";
 }
 
 /*
@@ -319,7 +325,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     const {
       requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
-      countOpenCases, MAX_OPEN_CASES,
+      countOpenCases, MAX_OPEN_CASES, adminDeleteCase,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
@@ -335,7 +341,23 @@ export const validateCaseFn = createServerFn({ method: "POST" })
      */
     const open = await countOpenCases((raw as { clientId: string }).clientId);
     if (open > MAX_OPEN_CASES) {
-      throw new Error("too many open cases");
+      /*
+       * מוחקים את התיק שזה עתה נוצר.
+       *
+       * בלי זה הוא נשאר תקוע ב"בבדיקה" עם שדות ריקים — ומכיוון שהוא
+       * עצמו נספר בתקרה, כל ניסיון חסום היה מקרב את המשתמש לחסימה
+       * מוחלטת. הוא מעולם לא נבדק ואין בו תוכן; מחיקה היא האמת, ולא
+       * סימון "נדחה" שמשמעותו 'לא נמצאה עילה'.
+       */
+      await adminDeleteCase(data.caseId).catch(() => {});
+      return {
+        validated: false,
+        blocked: "too_many_open",
+        title: "",
+        category: "",
+        summary: "",
+        legalBasis: "",
+      };
     }
     const c = raw as {
       clientId: string;

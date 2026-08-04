@@ -5,6 +5,7 @@ import { Check, Loader2, RefreshCw } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { BrandMark } from "../components/BrandMark";
 import { useAppStore } from "../lib/store";
+import { MAX_OPEN_CASES } from "../lib/limits";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import type { Case } from "../lib/types";
@@ -32,6 +33,7 @@ function Validating() {
   const t = useT();
   const [current, setCurrent] = useState(0);
   const [stuck, setStuck] = useState(false);
+  const [blocked, setBlocked] = useState(false);
   const [rejected, setRejected] = useState<string | null>(null);
   const [runToken, setRunToken] = useState(0);
   const [animDone, setAnimDone] = useState(false);
@@ -63,6 +65,18 @@ function Validating() {
       // השרת מאמת את הטוקן, קורא את התיק (כולל התמונות) וכותב את התוצאה בעצמו
       // הזמנת עורכי הדין נעשית בשרת בתוך הפונקציה — לא תלויה בטאב של הלקוח
       const res = await validateCaseFn({ data: { caseId, idToken } });
+
+      /*
+       * נחסם על תקרת התיקים הפתוחים — לא כשל ולא דחייה משפטית. אומרים
+       * זאת מפורשות ומחזירים לרשימת התיקים, במקום מסך "משהו השתבש".
+       */
+      if (res.blocked === "too_many_open") {
+        if (!cancelled) {
+          setBlocked(true);
+          haptic("warning");
+        }
+        return;
+      }
       // התראה ללקוח — כך התוצאה מחכה לו גם אם עזב את המסך באמצע
       /*
        * הגוף לא טוען "עורכי דין קיבלו התראה" — ללקוח בטאב אין דרך לדעת
@@ -163,7 +177,7 @@ function Validating() {
    * ובסיום נשלחת התראה. כך נשמר הרגע הנעים בלי דקה של המתנה מיותרת.
    */
   useEffect(() => {
-    if (!animDone || result || rejected || stuck) return;
+    if (!animDone || result || rejected || stuck || blocked) return;
     let caseId = "";
     try {
       caseId = sessionStorage.getItem("justask-active-case") ?? "";
@@ -181,7 +195,7 @@ function Validating() {
       navigate({ to: "/", search: { done: caseId } });
     }, 1200);
     return () => window.clearTimeout(tm);
-  }, [animDone, result, rejected, stuck, navigate]);
+  }, [animDone, result, rejected, stuck, blocked, navigate]);
 
   function retry() {
     finished.current = false;
@@ -286,7 +300,30 @@ function Validating() {
             </motion.div>
           )}
 
-          {stuck && !rejected && !finished.current && !result && (
+          {blocked && (
+            <motion.div
+              key="blocked"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-3xl border border-gold/35 bg-gold/[0.07] p-6 text-center"
+            >
+              <p className="text-[16px] font-black text-foreground">
+                {t("tooManyOpenTitle").replace("{n}", String(MAX_OPEN_CASES))}
+              </p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">
+                {t("tooManyOpenBody").replace(/\{n\}/g, String(MAX_OPEN_CASES))}
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/cases" })}
+                className="btn-gold mt-4 w-full rounded-2xl py-3.5 text-[15px] font-bold"
+              >
+                {t("valGoCases")}
+              </button>
+            </motion.div>
+          )}
+
+          {stuck && !rejected && !blocked && !finished.current && !result && (
             <motion.div
               key="stuck"
               initial={{ opacity: 0, y: 12 }}
