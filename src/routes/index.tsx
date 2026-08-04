@@ -5,9 +5,11 @@ import {
   ArrowLeft,
   ArrowRight,
   Check,
+  FolderOpen,
   LifeBuoy,
   Plus,
   Scale,
+  ShieldCheck,
   Sparkles,
   UserRound,
 } from "lucide-react";
@@ -129,6 +131,10 @@ function ClientHome() {
   const [active, ...rest] = cases;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
+  /* תיקים שעדיין דורשים משהו — לא כולל סגורים ונדחים */
+  const openCount = cases.filter(
+    (c) => c.status !== "closed" && c.status !== "rejected",
+  ).length;
 
   /*
    * ההסבר מוצג ללקוח רק כשיש לו תיק פעיל — לפני זה אין לו על מה לקבל
@@ -154,10 +160,18 @@ function ClientHome() {
       </AnimatePresence>
 
       <Page>
-        <header className="flex items-start justify-between gap-3 pb-7 pt-9">
+        {/*
+          * אותה שפה עיצובית כמו בצד עורך הדין: תווית-גג בזהב עם ריווח
+          * אותיות, כותרת גדולה מתחתיה, ושורת שבבי זכוכית עם אייקוני
+          * זהב. עד עכשיו לצד עורך הדין הייתה שפה ולצד הלקוח היו רק
+          * כרטיסים — וזה נקרא כשתי אפליקציות.
+          */}
+        <header className="flex items-start justify-between gap-3 pb-4 pt-9">
           <div className="min-w-0">
-            <p className="text-sm font-semibold text-muted-foreground">{t("homeHello")}</p>
-            <h1 className="mt-0.5 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
+            <p className="text-xs font-medium tracking-[0.22em] text-gold">
+              {t("homeHello")}
+            </p>
+            <h1 className="mt-1 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
               {firstName || t("meBadge")}
             </h1>
             {!active && (
@@ -166,6 +180,23 @@ function ClientHome() {
           </div>
           <NotificationBell />
         </header>
+
+        {/* השבבים נושאים עובדות, לא קישוט: כמה פתוח, ומה המחיר */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          className="mb-6 flex gap-2"
+        >
+          <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
+            <FolderOpen className="size-3.5 text-gold" strokeWidth={2} />
+            {openCount === 1 ? t("homeChipOneCase") : `${openCount} ${t("homeChipCases")}`}
+          </span>
+          <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
+            <ShieldCheck className="size-3.5 text-gold" strokeWidth={2} />
+            {t("homeChipFree")}
+          </span>
+        </motion.div>
 
         <Stagger className="pb-12">
           {active ? (
@@ -385,7 +416,10 @@ function ClientJourney({ active }: { active?: Case }) {
 
   return (
     <div className="liquid-glass glass-quiet rounded-[26px] p-5">
-      <p className="text-[13px] font-bold text-foreground">
+      <p className="text-[11px] font-medium tracking-[0.2em] text-gold">
+        {t("journeyEyebrow")}
+      </p>
+      <p className="mt-1 text-[15px] font-bold text-foreground">
         {t(active ? "journeyTitleActive" : "journeyTitleEmpty")}
       </p>
 
