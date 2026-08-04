@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-05T01:30Z";
+const BUILD_STAMP = "2026-08-05T02:10Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -215,6 +215,20 @@ const appHandler: ServerEntry = {
 
       const proxied = await proxyFirebaseAuth(request);
       if (proxied) return proxied;
+
+      /*
+       * המחיקות שהגיע זמנן — נבדק בזול ולא חוסם את התשובה. אין כאן
+       * await בכוונה: משתמש לא צריך לחכות לתחזוקה.
+       */
+      void (async () => {
+        try {
+          const { sweepDeletionsIfDue } = await import("./lib/ai/server-admin");
+          await sweepDeletionsIfDue();
+        } catch {
+          /* ignore */
+        }
+      })();
+
       const lead = await handleLawyerLead(request);
       if (lead) return lead;
       const handler = await getServerEntry();

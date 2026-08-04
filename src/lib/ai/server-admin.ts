@@ -726,6 +726,42 @@ export async function runDueDeletions(
   return { processed, failed };
 }
 
+/**
+ * סריקה אופורטוניסטית — המחיקות מתבצעות בלי שום תשתית חיצונית.
+ *
+ * נקודת הקצה /__cron/deletions קיימת ומוכנה ל-Cloud Scheduler, אבל
+ * "שכחנו להקים את הקרון" היא תקלה שקורית — והתוצאה שלה כאן היא
+ * מחיקות שמצטברות בשקט אחרי שהבטחנו למשתמשים שהן יקרו. לכן ברירת
+ * המחדל אינה תלויה באף הגדרה: כל בקשה לשרת בודקת בזול אם עבר יום,
+ * ואם כן — מריצה.
+ *
+ * שני מנעולים כדי שזה לא ירוץ פעמיים במקביל:
+ *   בזיכרון — מגביל את *הבדיקה* עצמה לפעם בשעה לכל מופע, כך שאיננו
+ *   קוראים מהמסד בכל בקשה.
+ *   במסד — התביעה נכתבת לפני הריצה, כך ששני מופעים שהתעוררו יחד
+ *   אינם מוחקים פעמיים.
+ */
+const SWEEP_DOC = "system/deletionSweep";
+const SWEEP_EVERY_MS = 24 * 60 * 60 * 1000;
+let lastLocalCheck = 0;
+
+export async function sweepDeletionsIfDue(now = Date.now()): Promise<boolean> {
+  if (now - lastLocalCheck < 60 * 60 * 1000) return false;
+  lastLocalCheck = now;
+  try {
+    const cur = await adminGetDoc(SWEEP_DOC);
+    const last = Number(cur?.lastRunAt ?? 0);
+    if (now - last < SWEEP_EVERY_MS) return false;
+    // תובעים לפני שמריצים — שני מופעים שהתעוררו יחד לא ירוצו שניהם
+    await adminPatch(SWEEP_DOC, { lastRunAt: now });
+    await runDueDeletions(now);
+    return true;
+  } catch {
+    /* סריקה שנכשלה תנסה שוב מחר; לעולם לא מפילה בקשה של משתמש */
+    return false;
+  }
+}
+
 /* ---------- הגבלת קצב ---------- */
 
 /**

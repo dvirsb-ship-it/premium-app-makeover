@@ -293,6 +293,15 @@ service cloud.firestore {
      * להציג "המחיקה נקבעה"). הביצוע עצמו הוא Admin SDK בלבד: סימון
      * done מהדפדפן היה מבטל מחיקה בלי שהיא קרתה.
      */
+    /*
+     * מצב תחזוקה פנימי (חותמת הסריקה האחרונה). Admin SDK בלבד —
+     * דחיפת החותמת קדימה מהדפדפן הייתה מקפיאה את המחיקות לנצח.
+     */
+    match /system/{doc} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     match /deletionRequests/{uid} {
       allow read: if isAdmin() || (signedIn() && request.auth.uid == uid);
       allow create: if signedIn()
