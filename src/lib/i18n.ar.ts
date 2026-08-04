@@ -366,6 +366,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   notifCenterTitle: "الإشعارات",
   notifCenterSub: "كل التحديثات عن ملفاتك",
   notifEmpty: "لا توجد إشعارات بعد",
+  notifEmptySub: "ستظهر هنا تحديثات ملفك — عند انتهاء المراجعة القانونية، وعندما يبدي محامٍ اهتمامًا، ومع تقدّم العمل.",
   notifAria: "فتح مركز الإشعارات",
   verifyUploadError: "لم يكتمل الإرسال. تحقّق من الاتصال وحاول مجددًا — إعادة الإرسال آمنة.",
   verPendingBanner: "ملفك قيد الفحص",

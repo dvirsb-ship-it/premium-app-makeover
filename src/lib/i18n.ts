@@ -494,6 +494,7 @@ export const strings = {
   notifCenterTitle: { he: "התראות", en: "Notifications" },
   notifCenterSub: { he: "כל העדכונים על התיקים שלך", en: "All updates about your cases" },
   notifEmpty: { he: "אין התראות עדיין", en: "No notifications yet" },
+  notifEmptySub: { he: "כאן יופיעו העדכונים על התיק שלכם — כשהבדיקה המשפטית מסתיימת, כשעורך דין מביע עניין, וכשהטיפול מתקדם.", en: "Updates on your case land here — when the legal check finishes, when a lawyer expresses interest, and as the work progresses." },
   notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
   verifyUploadError: { he: "ההגשה לא הושלמה. בדקו את החיבור ונסו שוב — אפשר לשלוח שוב בבטחה.", en: "Your submission didn't complete. Check your connection and try again — resubmitting is safe." },
   verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },

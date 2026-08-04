@@ -366,6 +366,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   notifCenterTitle: "Notifications",
   notifCenterSub: "Toutes les mises à jour de vos dossiers",
   notifEmpty: "Aucune notification pour l'instant",
+  notifEmptySub: "Les mises à jour de votre dossier apparaîtront ici : à la fin de la vérification juridique, quand un avocat manifeste son intérêt, et au fil de l'avancement.",
   notifAria: "Ouvrir le centre de notifications",
   verifyUploadError: "L'envoi n'a pas abouti. Vérifiez votre connexion et réessayez — vous pouvez renvoyer sans risque.",
   verPendingBanner: "Votre profil est en cours d'examen",

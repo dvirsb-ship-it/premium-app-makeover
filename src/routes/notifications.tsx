@@ -60,7 +60,15 @@ function Notifications() {
 
       {notifications.length === 0 ? (
         <div className="pt-10">
-          <EmptyState icon={Bell} title={t("notifEmpty")} />
+          {/*
+            * "אין התראות עדיין" לבד נקרא כמסך מת. מי שנוחת כאן ביום
+            * הראשון צריך לדעת מה עתיד להגיע לכאן — זה הופך ריק לציפייה.
+            */}
+          <EmptyState
+            icon={Bell}
+            title={t("notifEmpty")}
+            description={t("notifEmptySub")}
+          />
         </div>
       ) : (
         <div className="mt-5 space-y-3 pb-8">
