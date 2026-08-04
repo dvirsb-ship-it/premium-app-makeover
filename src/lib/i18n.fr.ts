@@ -727,6 +727,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   rateDone: "Vous avez noté ce dossier",
   ratingCount: "notes",
   ratingNone: "Pas encore de notes",
+  validatingCardHint: "La vérification juridique est en cours — généralement moins d'une minute ; nous vous préviendrons via la cloche",
   notifInterestTitle: "Un avocat s'intéresse à votre dossier",
   notifInterestBody: "{name} a manifesté son intérêt pour « {title} »",
   notifInterestBodyOffer: "{name} a manifesté son intérêt pour « {title} » et joint une offre",

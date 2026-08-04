@@ -727,6 +727,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   rateDone: "Вы оценили это дело",
   ratingCount: "оценок",
   ratingNone: "Оценок пока нет",
+  validatingCardHint: "Юридическая проверка идёт прямо сейчас — обычно меньше минуты; уведомим в колокольчике",
   notifInterestTitle: "Адвокат заинтересовался вашим делом",
   notifInterestBody: "{name} проявил(а) интерес к обращению «{title}»",
   notifInterestBodyOffer: "{name} проявил(а) интерес к обращению «{title}» и приложил(а) предложение",

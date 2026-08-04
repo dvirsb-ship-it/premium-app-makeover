@@ -240,7 +240,7 @@ function CaseDetail() {
               {meta.label}
             </span>
             <h2 className="mt-3 text-lg font-bold leading-snug text-foreground">
-              {item.title}
+              {item.title || t("homeCaseUntitled")}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {item.summary}

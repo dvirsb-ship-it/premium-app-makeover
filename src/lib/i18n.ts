@@ -1066,6 +1066,7 @@ export const strings = {
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
   // התראות הפעמון — מפתח+פרמטרים נכתבים על המסמך ומתורגמים בזמן קריאה
+  validatingCardHint: { he: "הבדיקה המשפטית רצה עכשיו — בדרך כלל פחות מדקה, ונעדכן בפעמון", en: "The legal check is running — usually under a minute; we'll ping the bell" },
   notifInterestTitle: { he: "עורך דין מעוניין בתיק שלך", en: "A lawyer is interested in your case" },
   notifInterestBody: { he: "{name} הביע עניין בפנייה \"{title}\"", en: "{name} expressed interest in \"{title}\"" },
   notifInterestBodyOffer: { he: "{name} הביע עניין בפנייה \"{title}\" וצירף הצעה", en: "{name} expressed interest in \"{title}\" and attached an offer" },

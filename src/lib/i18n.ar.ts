@@ -727,6 +727,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   rateDone: "لقد قيّمت هذا الملف",
   ratingCount: "تقييمات",
   ratingNone: "لا توجد تقييمات بعد",
+  validatingCardHint: "المراجعة القانونية جارية الآن — عادةً أقل من دقيقة، وسنعلمك عبر الجرس",
   notifInterestTitle: "محامٍ مهتم بملفك",
   notifInterestBody: "{name} أبدى اهتمامًا بالطلب \"{title}\"",
   notifInterestBodyOffer: "{name} أبدى اهتمامًا بالطلب \"{title}\" وأرفق عرضًا",
