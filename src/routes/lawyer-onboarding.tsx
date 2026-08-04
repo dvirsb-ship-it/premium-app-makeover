@@ -233,8 +233,23 @@ function LawyerOnboarding() {
   function goNext() {
     if (stepIdx < STEPS.length - 1) setStepIdx(stepIdx + 1);
   }
+  /*
+   * הטיימר של אנימציית האימות חי מחוץ לרינדור. בלי לבטל אותו, "חזרה"
+   * באמצע הריצה רק החליפה מסך — 2.6 שניות אחר כך ההעלאה רצה בכל זאת
+   * והמשתמש נחטף חזרה למסך התוצאה. ולחיצה כפולה על "שליחה" תזמנה
+   * שתי העלאות מלאות ושתי התראות לאדמין.
+   */
+  const verifyTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (verifyTimer.current) window.clearTimeout(verifyTimer.current);
+  }, []);
+
   function goBack() {
     if (verifyState === "running" || verifyState === "pass" || verifyState === "fail") {
+      if (verifyTimer.current) {
+        window.clearTimeout(verifyTimer.current);
+        verifyTimer.current = null;
+      }
       setVerifyState("idle");
       return;
     }
@@ -246,10 +261,12 @@ function LawyerOnboarding() {
   }
 
   function runVerification() {
+    if (verifyState === "running") return;
     setVerifyState("running");
     const found = collectIssues(form);
     // האנימציה רצה במקביל להעלאה האמיתית ל-Storage + Firestore.
-    window.setTimeout(() => {
+    verifyTimer.current = window.setTimeout(() => {
+      verifyTimer.current = null;
       if (found.length === 0) {
         void (async () => {
           try {
@@ -620,6 +637,8 @@ function VerifyFail({
   onRerun: () => void;
 }) {
   const t = useT();
+  const { dir } = useSettings();
+  const JumpIcon = dir === "rtl" ? ChevronLeft : ChevronRight;
   return (
     <div className="pt-4">
       <motion.div
@@ -660,7 +679,7 @@ function VerifyFail({
                   {t("issueFixIn")}
                 </span>
               </span>
-              <ChevronRight className="mt-1 size-4 text-muted-foreground" />
+              <JumpIcon className="mt-1 size-4 text-muted-foreground" />
             </button>
           </motion.li>
         ))}
@@ -989,7 +1008,7 @@ function ReviewStep({ form }: { form: FormState }) {
           titleKey="reviewIdentity"
           lines={[
             form.fullName || undefined,
-            form.idNumber ? `ת״ז ${form.idNumber}` : undefined,
+            form.idNumber ? `${t("fieldIdNumber")} · ${form.idNumber}` : undefined,
             form.email || undefined,
             form.phone || undefined,
             form.city || undefined,
@@ -1162,22 +1181,37 @@ function UploadTile({
   const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  /*
+   * קריאה שנכשלה חייבת להיכשל בקול.
+   *
+   * קודם, תוצאה שאינה מחרוזת נשמרה כ-dataUrl ריק — והאובייקט עדיין
+   * "אמיתי", אז האריח הציג וי ירוק עם שם הקובץ, הוולידציה עברה,
+   * וההעלאה בשקט דילגה עליו (`if (!f?.dataUrl) return`). התוצאה:
+   * עורך דין מקבל "האימות נשלח בהצלחה" ומוריד אישור, בעוד שהבקשה
+   * מגיעה לאדמין בלי הרישיון. ובלי onerror — בחירת קובץ מ-iCloud או
+   * מ-Drive בנייד פשוט לא עשתה כלום, בלי שום משוב.
+   */
   function pick(e: ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
     if (f.size > 10 * 1024 * 1024) {
-      toast.error(t("uploadHint"));
+      toast.error(t("uploadTooLarge"));
       return;
     }
     const reader = new FileReader();
     reader.onload = () => {
+      if (typeof reader.result !== "string" || !reader.result) {
+        toast.error(t("uploadFailed"));
+        return;
+      }
       onChange({
         name: f.name,
         type: f.type,
         size: f.size,
-        dataUrl: typeof reader.result === "string" ? reader.result : "",
+        dataUrl: reader.result,
       });
     };
+    reader.onerror = () => toast.error(t("uploadFailed"));
     reader.readAsDataURL(f);
   }
 

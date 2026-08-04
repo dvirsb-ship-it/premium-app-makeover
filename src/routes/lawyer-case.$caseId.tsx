@@ -59,12 +59,31 @@ function LawyerCaseDetail() {
   const item = getFeedCase(caseId);
   const urgentSeed = translate("urgent", "he");
 
-  // סטטוס האימות — הבעת עניין פתוחה רק לעו"ד מאושר (נאכף גם בחוקי השרת)
+  /*
+   * סטטוס האימות — הבעת עניין פתוחה רק לעו"ד מאושר (נאכף גם בחוקי השרת).
+   *
+   * "טרם נטען" אינו "לא מאושר". בלי ההפרדה הזו כל פתיחה של תיק הציגה
+   * לרגע לעורך דין *מאושר* את החסימה עם כפתור "השלימו אימות", ואם
+   * הקריאה נכשלה (רשת, הרשאות) הוא נשאר חסום לכל הסשן — כלומר לא יכול
+   * להביע עניין באף תיק. המסך התאום lawyer.tsx כבר פתר בדיוק את זה.
+   */
   const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
+  const [verLoaded, setVerLoaded] = useState(false);
+  const [verError, setVerError] = useState(false);
   useEffect(() => {
     if (!user) return;
-    /* כשל אינו "לא מאושר" — משאירים את הסטטוס הידוע ולא מורידים הרשאה בטעות */
-    return watchMyVerification(user.uid, (rec) => setVerStatus(rec?.status ?? null), () => {});
+    return watchMyVerification(
+      user.uid,
+      (rec) => {
+        setVerStatus(rec?.status ?? null);
+        setVerLoaded(true);
+        setVerError(false);
+      },
+      () => {
+        setVerError(true);
+        setVerLoaded(true);
+      },
+    );
   }, [user]);
 
   // תמונות התיק: עד החיבור — הגרסה המצונזרת בלבד; אחרי החיבור — המקור
@@ -73,8 +92,16 @@ function LawyerCaseDetail() {
 
   // תיק שכבר חובר אליי לא מופיע בפיד — נטען ישירות כדי להציג את פרטי הלקוח
   const [connected, setConnected] = useState<ConnectedCase | null>(null);
+  /*
+   * "עוד טוען" ו"לא קיים" הם שני מצבים שונים. תיק מחובר אינו בפיד,
+   * ולכן item ריק בכל פתיחה — עד עכשיו המסך הציג "הפנייה לא קיימת"
+   * למשך זמן הקריאה (הבהוב מובטח בכל כניסה מהתיקים הפעילים), ואם
+   * הקריאה נכשלה — לתמיד, בלי להבדיל בין תקלה למחיקה.
+   */
+  const [directLoad, setDirectLoad] = useState<"loading" | "done" | "failed">("loading");
   useEffect(() => {
     if (item || !user) return;
+    setDirectLoad("loading");
     void readCaseRaw(caseId)
       .then(async (raw) => {
         if (raw && raw.chosenLawyerId === user.uid) {
@@ -91,8 +118,9 @@ function LawyerCaseDetail() {
           setImgUrls(urls.filter(Boolean));
           setImgOriginals(true);
         }
+        setDirectLoad("done");
       })
-      .catch(() => {});
+      .catch(() => setDirectLoad("failed"));
   }, [item, user, caseId]);
 
   // פרטי הוולידציה המלאים — הבסיס המשפטי, תאריך, נזק ותיעוד
@@ -186,6 +214,20 @@ function LawyerCaseDetail() {
    */
   const impossiblePercent = model === "contingency" && maxPercent > 100;
 
+  /*
+   * מדורג שנשאר חצי-מלא הוא הצעה זולה יותר ממה שהוקלד.
+   *
+   * ברגע שמסמנים "מדורג", התווית של שדה הסכום הופכת ל"עד פשרה לפני
+   * הגשת תביעה" — כלומר 8 שנכתב שם אומר "8% רק בפשרה מוקדמת". אבל אם
+   * שתי המדרגות נשארות ריקות, מה שנשמר הוא אחוז אחיד של 8, ואצל הלקוח
+   * זה נקרא "8% מהפיצוי" עד פסק דין. עורך הדין מחויב להצעה נמוכה
+   * מזו שהתכוון לה, בלי שום סימן על המסך.
+   */
+  const stagedIncomplete =
+    model === "contingency" &&
+    staged &&
+    !(Number(postSuit) > 0 && Number(judgment) > 0);
+
   /* בעניין פלילי שכר מותנה בתוצאות אסור בדין — האופציה לא מוצגת כלל */
   const noContingency = categoryForbidsContingency(item?.category ?? "");
   useEffect(() => {
@@ -213,7 +255,21 @@ function LawyerCaseDetail() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [caseId, milestones.length]);
 
+  /*
+   * סימון אבן דרך הוא חד-כיווני: החוקים אוסרים עדכון ומחיקה, ואין
+   * פונקציית ביטול בשום מקום. עבור "closed" זה אומר שלחיצה אחת מוטעית
+   * סוגרת תיק חי — הוא יורד מהרשימה הפעילה, הלקוח מקבל "התיק הסתיים",
+   * וגם תיקון ידני במסד יבוטל כי reconcileClosedCase כותב שוב closed
+   * בכל פתיחה. לכן דווקא הסגירה מקבלת אישור.
+   */
+  const [confirmClose, setConfirmClose] = useState(false);
+
   function mark(key: MilestoneKey) {
+    if (key === "closed" && !confirmClose) {
+      setConfirmClose(true);
+      return;
+    }
+    setConfirmClose(false);
     void markMilestone(caseId, key, msNote)
       .then(() => {
         setMsNote("");
@@ -306,6 +362,11 @@ function LawyerCaseDetail() {
                 onChange={(e) => setMsNote(e.target.value)}
                 placeholder={t("msNotePh")}
               />
+              {confirmClose && (
+                <p className="mt-3 rounded-2xl border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-foreground">
+                  {t("msCloseWarning")}
+                </p>
+              )}
               <div className="mt-3 space-y-2">
                 {MILESTONE_ORDER.map((k) => {
                   const done = marked.has(k);
@@ -321,6 +382,23 @@ function LawyerCaseDetail() {
                         <span className="rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
                           {t("msMarked")}
                         </span>
+                      ) : k === "closed" && confirmClose ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() => setConfirmClose(false)}
+                            className="rounded-full bg-foreground/10 px-3 py-1 text-[11px] font-bold text-muted-foreground transition active:scale-95"
+                          >
+                            {t("cancel")}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => mark(k)}
+                            className="rounded-full bg-destructive/20 px-3 py-1 text-[11px] font-bold text-destructive transition active:scale-95"
+                          >
+                            {t("msCloseConfirm")}
+                          </button>
+                        </div>
                       ) : (
                         <button
                           type="button"
@@ -384,6 +462,31 @@ function LawyerCaseDetail() {
             </div>
           </div>
         </Page>
+      </AppShell>
+    );
+  }
+
+  if (!item && directLoad !== "done") {
+    /* עדיין לא יודעים אם התיק קיים — שלד או שגיאה, לא "לא קיים" */
+    return (
+      <AppShell>
+        <TopBar title={directLoad === "failed" ? t("loadFailedTitle") : ""} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
+          {directLoad === "failed" ? (
+            <>
+              <p className="text-muted-foreground">{t("loadFailedBody")}</p>
+              <button
+                type="button"
+                onClick={() => window.location.reload()}
+                className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
+              >
+                {t("retryBtn")}
+              </button>
+            </>
+          ) : (
+            <div className="liquid-glass h-40 w-full max-w-sm animate-pulse rounded-3xl" aria-hidden />
+          )}
+        </div>
       </AppShell>
     );
   }
@@ -756,6 +859,12 @@ function LawyerCaseDetail() {
                   </div>
                 </div>
 
+                {stagedIncomplete && (
+                  <p className="px-1 text-[11px] leading-relaxed text-warning-ink">
+                    {t("offerStagedIncomplete")}
+                  </p>
+                )}
+
                 {impossiblePercent && (
                   <div className="flex items-start gap-2 rounded-2xl border border-destructive/40 bg-destructive/10 p-3">
                     <Scale className="mt-0.5 size-4 shrink-0 text-destructive" />
@@ -847,7 +956,7 @@ function LawyerCaseDetail() {
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.98 }}
-                  disabled={!(Number(amount) > 0) || impossiblePercent}
+                  disabled={!(Number(amount) > 0) || impossiblePercent || stagedIncomplete}
                   onClick={() => {
                     expressInterest(item.id, {
                       model,
@@ -875,6 +984,15 @@ function LawyerCaseDetail() {
                   {t("offerSend")}
                 </motion.button>
               </motion.div>
+            ) : !verLoaded ? (
+              /* עוד לא יודעים — שלד, לא חסימה. חסימה שגויה עולה יותר מהמתנה. */
+              <motion.div
+                key="ver-loading"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="liquid-glass h-[58px] w-full rounded-2xl"
+                aria-hidden
+              />
             ) : canExpress ? (
               <motion.button
                 key="express"
@@ -901,7 +1019,11 @@ function LawyerCaseDetail() {
                   <p className="text-[13px] font-bold text-foreground">
                     {t("interestLockedTitle")}
                   </p>
-                  {verStatus === "pending" ? (
+                  {verError ? (
+                    <p className="mt-0.5 text-[12px] text-muted-foreground">
+                      {t("interestLockedUnknown")}
+                    </p>
+                  ) : verStatus === "pending" ? (
                     <p className="mt-0.5 text-[12px] text-muted-foreground">
                       {t("interestLockedPending")}
                     </p>

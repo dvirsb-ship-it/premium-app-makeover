@@ -204,6 +204,12 @@ function agoLabel(ms: number, lang: string = "he"): string {
 
 import { limitationMonthsLeft } from "./legal";
 
+/* שפת הממשק — נקראת בזמן בניית הפיד; ברירת מחדל עברית כמו כל האפליקציה */
+function docLang(): string {
+  if (typeof document === "undefined") return "he";
+  return document.documentElement.getAttribute("lang") || "he";
+}
+
 function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
   return {
     limitationMonthsLeft: limitationMonthsLeft(d.incidentDate, d.category),
@@ -212,7 +218,7 @@ function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
     category: d.category,
     summary: d.summary,
     location: d.location || "ישראל",
-    postedAgo: agoLabel(d.createdAt),
+    postedAgo: agoLabel(d.createdAt, docLang()),
     urgency: d.damageType === "body" ? "דחוף" : "רגיל",
     interestedCount: d.interestedIds?.length ?? 0,
     expressed: (d.interestedIds ?? []).includes(myUid),

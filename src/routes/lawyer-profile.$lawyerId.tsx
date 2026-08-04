@@ -121,10 +121,13 @@ function LawyerProfile() {
             {lawyer.firm && (
               <p className="truncate text-[13px] text-muted-foreground">{lawyer.firm}</p>
             )}
-            <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold">
-              <Award className="size-3.5" strokeWidth={2.2} />
-              {lawyer.years} {t("yearsExperience")}
-            </span>
+            {/* מי שהוסמך השנה מקבל years=0 — "0 שנות ניסיון" גרוע מכלום */}
+            {lawyer.years > 0 && (
+              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold">
+                <Award className="size-3.5" strokeWidth={2.2} />
+                {lawyer.years} {t("yearsExperience")}
+              </span>
+            )}
           </div>
         </div>
       </motion.div>

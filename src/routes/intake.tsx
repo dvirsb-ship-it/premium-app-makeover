@@ -256,11 +256,13 @@ function Intake() {
     const history = [...messages, userMsg];
     setMessages(history);
     setInput("");
-    // התמונות עברו להודעה — הן כבר לא ממתינות, אבל נשמרות להעלאה בעת יצירת התיק
-    if (attached.length) {
-      sentImages.current = [...sentImages.current, ...attached];
-      setPendingImages([]);
-    }
+    /*
+     * התמונות יוצאות מ"ממתינות" רק אחרי שהתור הצליח. כשהן זזו לפני
+     * הקריאה, כישלון רשת עשה שני נזקים: המכסה (3 תמונות) נשרפה על
+     * תמונות שנעלמו מהמסך, וביצירת התיק הן הועלו בכל זאת — תמונות
+     * שה-AI מעולם לא ראה והמשתמש בטוח שנזרקו.
+     */
+    if (attached.length) setPendingImages([]);
     setTyping(true);
     haptic("light");
 
@@ -291,6 +293,10 @@ function Intake() {
         setNotSuitable(res.notSuitable);
         track("intake_not_suitable");
       }
+      // רק עכשיו התמונות באמת "נשלחו" — התור עבר
+      if (attached.length) {
+        sentImages.current = [...sentImages.current, ...attached];
+      }
       setStep((s) => s + 1);
     } catch {
       setTyping(false);
@@ -298,8 +304,9 @@ function Intake() {
         ...prev,
         { id: `e-${Date.now()}`, from: "assistant", text: t("intakeError") },
       ]);
-      // מחזירים את ההודעה למגירה כדי שאפשר יהיה לשלוח שוב
+      // מחזירים את ההודעה למגירה כדי שאפשר יהיה לשלוח שוב — כולל התמונות
       setInput(text);
+      if (attached.length) setPendingImages((prev) => [...attached, ...prev]);
       setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
     }
   }

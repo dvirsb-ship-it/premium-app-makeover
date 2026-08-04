@@ -73,7 +73,14 @@ function LawyerFeed() {
   const [counts, setCounts] = useState<OpenCountsResult | null>(null);
   const [mySpecs, setMySpecs] = useState<string[]>([]);
   useEffect(() => {
-    if (!user || verStatus === "approved") return;
+    /*
+     * בלי תלות ב-verStatus — בכוונה. כשהוא היה בתנאי, סטטוס האימות
+     * (קריאת Firestore מהירה) הגיע לפני שהספירה מהשרת חזרה, ה-cleanup
+     * ביטל אותה באמצע, וההרצה מחדש יצאה מיד ב-return — כלומר אצל עורך
+     * דין מאושר FeedPulse לא הופיע אף פעם. הספירה זולה; מי שמחליט אם
+     * להציג אותה הוא ה-render, לא ה-fetch.
+     */
+    if (!user) return;
     let cancelled = false;
     void (async () => {
       try {
@@ -93,7 +100,7 @@ function LawyerFeed() {
     return () => {
       cancelled = true;
     };
-  }, [user, verStatus]);
+  }, [user]);
 
   useEffect(() => {
     if (!user) return;

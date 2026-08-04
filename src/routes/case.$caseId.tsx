@@ -42,7 +42,7 @@ function CaseDetail() {
 
   useRequireAuth();  const { caseId } = Route.useParams();
   const navigate = useNavigate();
-  const { getCase, chooseLawyer } = useAppStore();
+  const { getCase, chooseLawyer, casesLoaded, casesError } = useAppStore();
   const [celebrating, setCelebrating] = useState(false);
   const { dir } = useSettings();
   const t = useT();
@@ -123,9 +123,35 @@ function CaseDetail() {
   // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
   const [chosenProfile, setChosenProfile] = useState<LawyerContactDoc | null>(null);
+  /*
+   * הקריאה הזו מרוצה מול הכתיבה של הבחירה עצמה, ומפסידה.
+   *
+   * chooseLawyer מעדכן את המצב המקומי מיד (נכון — המסך חייב להגיב),
+   * אבל חוק הגישה לתת-האוסף דורש שהשרת *כבר* ידע מי נבחר. בניסיון
+   * יחיד הקריאה נדחית בהרשאות, ה-catch הריק בלע את זה, ו-chosenId לא
+   * משתנה שוב — כלומר אין ניסיון נוסף לעולם. התוצאה: בדיוק ברגע החשוב
+   * ביותר במסלול הלקוח רואה שם מוסתר, וכפתורי "הודעה" ו"התקשרות"
+   * עונים "פרטי הקשר אינם זמינים" עד רענון הדף.
+   */
   useEffect(() => {
     if (!chosenId) return;
-    void readCaseLawyerContact(caseId, chosenId).then(setChosenProfile).catch(() => {});
+    let cancelled = false;
+    let attempt = 0;
+    const read = () => {
+      readCaseLawyerContact(caseId, chosenId)
+        .then((p) => {
+          if (!cancelled) setChosenProfile(p);
+        })
+        .catch(() => {
+          if (cancelled || attempt >= 4) return;
+          attempt += 1;
+          window.setTimeout(read, attempt * 700);
+        });
+    };
+    read();
+    return () => {
+      cancelled = true;
+    };
   }, [caseId, chosenId]);
 
   function contactMessage() {
@@ -145,6 +171,39 @@ function CaseDetail() {
     } else {
       toast.info(t("contactUnavailable"));
     }
+  }
+
+  if (!item && !casesLoaded) {
+    /*
+     * התיקים עוד בדרך מהשרת. "התיק לא קיים" לפני שהמנוי הראשון חזר
+     * היה מוצג לכל מי שפתח קישור ישיר או התראה — למשך כל סבב הרשת.
+     */
+    return (
+      <AppShell>
+        <TopBar title="" />
+        <div className="flex flex-1 items-center justify-center py-24">
+          <div className="liquid-glass h-40 w-full max-w-sm animate-pulse rounded-3xl" aria-hidden />
+        </div>
+      </AppShell>
+    );
+  }
+
+  if (!item && casesError) {
+    return (
+      <AppShell>
+        <TopBar title={t("loadFailedTitle")} />
+        <div className="flex flex-1 flex-col items-center justify-center gap-4 py-24 text-center">
+          <p className="text-muted-foreground">{t("loadFailedBody")}</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="btn-gold rounded-2xl px-6 py-3 text-sm font-bold"
+          >
+            {t("retryBtn")}
+          </button>
+        </div>
+      </AppShell>
+    );
   }
 
   if (!item) {
@@ -256,7 +315,7 @@ function CaseDetail() {
                         </p>
                       )}
                       <p className="mt-0.5 text-[11px] text-muted-foreground/80">
-                        {new Date(m.at).toLocaleDateString("he-IL")}
+                        {new Date(m.at).toLocaleDateString(dir === "rtl" ? "he-IL" : "en-GB")}
                       </p>
                     </div>
                   </li>
@@ -545,8 +604,8 @@ function LawyerChoiceCard({
           {offer.retainer ? (
             <p className="mt-1.5 text-[12px] text-foreground">
               <span className="text-muted-foreground">{t("offerRetainerLabel")}: </span>
-              <span className="font-bold" dir="ltr">\u20aa{offer.retainer.toLocaleString("he-IL")}</span>
-              <span className="text-muted-foreground"> \u00b7 {t("offerRetainerHint")}</span>
+              <span className="font-bold" dir="ltr">₪{offer.retainer.toLocaleString("he-IL")}</span>
+              <span className="text-muted-foreground"> · {t("offerRetainerHint")}</span>
             </p>
           ) : null}
 

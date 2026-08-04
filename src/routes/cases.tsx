@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ChevronLeft, ChevronRight, FolderOpen, Plus, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { EmptyState } from "../components/EmptyState";
@@ -30,19 +30,18 @@ function Cases() {
 
   useRequireAuth();
   const navigate = useNavigate();
-  const { cases, casesError } = useAppStore();
+  const { cases, casesError, casesLoaded } = useAppStore();
   const { dir } = useSettings();
   const t = useT();
   const statusMeta = useStatusMeta();
   const timeAgo = useTimeAgo();
   const Chevron = dir === "rtl" ? ChevronLeft : ChevronRight;
-  const [loading, setLoading] = useState(true);
-
-  // Brief skeleton on mount so slow devices don't flash content.
-  useEffect(() => {
-    const tm = window.setTimeout(() => setLoading(false), 280);
-    return () => window.clearTimeout(tm);
-  }, []);
+  /*
+   * השלד נגמר כשהנתונים באמת הגיעו — לא אחרי 280ms שרירותיות. הטיימר
+   * הישן הציג למי שיש לו תיקים את מסך "עדיין לא שיתפת מקרה" בכל רשת
+   * שאיטית מרבע שנייה, ואז הקפיץ את הרשימה מעליו.
+   */
+  const loading = !casesLoaded;
 
   return (
     <AppShell>

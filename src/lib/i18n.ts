@@ -1065,6 +1065,15 @@ export const strings = {
   ratingNone: { he: "עוד אין דירוגים", en: "No ratings yet" },
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
+  loadFailedBody: { he: "התיק לא נטען — זו תקלת תקשורת, לא מחיקה. נסו שוב.", en: "The case didn't load — a connection issue, not a deletion. Try again." },
+  retryBtn: { he: "לנסות שוב", en: "Try again" },
+  uploadTooLarge: { he: "הקובץ גדול מדי — עד 10MB. נסו לצלם מחדש או לדחוס.", en: "That file is too large — 10MB max. Try re-shooting or compressing it." },
+  uploadFailed: { he: "לא הצלחנו לקרוא את הקובץ. נסו לבחור אותו שוב, או לשמור אותו למכשיר קודם.", en: "We couldn't read that file. Pick it again, or save it to the device first." },
+  cancel: { he: "ביטול", en: "Cancel" },
+  msCloseConfirm: { he: "כן, לסגור", en: "Yes, close it" },
+  msCloseWarning: { he: "סגירת התיק סופית — אי אפשר לפתוח אותו מחדש. התיק יורד מהתיקים הפעילים שלך, והלקוח יקבל הודעה שהטיפול הסתיים.", en: "Closing is final — the case cannot be reopened. It leaves your active cases and the client is told the work is done." },
+  interestLockedUnknown: { he: "לא הצלחנו לבדוק את סטטוס האימות שלך כרגע. רעננו את הדף — זו כנראה תקלת רשת ולא בעיה בחשבון.", en: "We couldn't check your verification status right now. Refresh the page — this is likely a network hiccup, not an account problem." },
+  offerStagedIncomplete: { he: "השלימו את שתי המדרגות — אחרת האחוז שהוקלד יוצג ללקוח כאחוז אחיד לכל אורך ההליך.", en: "Fill in both tiers — otherwise the rate you entered is shown to the client as a single flat rate for the whole case." },
   offerImpossiblePercent: { he: "אחוז מהפיצוי אינו יכול לעלות על 100% — בדקו את המספר שהוקלד.", en: "A share of the award cannot exceed 100% — check the number you entered." },
   helpNeedsSignIn: { he: "צריך להתחבר כדי לשלוח פנייה — כך נדע למי לחזור.", en: "Sign in to send a message — that's how we know who to reply to." },
 

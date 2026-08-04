@@ -83,8 +83,13 @@ function Auth() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState<LoadingProvider>(null);
   const [error, setError] = useState<string | null>(null);
-  const confirmationRef = useRef<ConfirmationResult | null>(null);
-  const phoneStep = confirmationRef.current !== null;
+  /*
+   * state ולא ref: הצבת ConfirmationResult חייבת לגרום לרינדור, אחרת
+   * מסך הזנת הקוד לא מופיע לעולם. רדום כל עוד GOOGLE_ONLY, אבל מתפוצץ
+   * ברגע שהדגל יירד.
+   */
+  const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
+  const phoneStep = confirmation !== null;
 
   const busy = loading !== null;
 
@@ -221,13 +226,12 @@ function Auth() {
           return;
         }
         setLoading(provider);
-        confirmationRef.current = await startPhoneSignIn(trimmed, "auth-recaptcha-anchor");
+        setConfirmation(await startPhoneSignIn(trimmed, "auth-recaptcha-anchor"));
         toast.success(t("authCodeSent"), { description: t("authCodeSentSub") });
         return;
       }
 
       if (provider === "code") {
-        const confirmation = confirmationRef.current;
         if (!confirmation || code.trim().length < 6) return;
         setLoading(provider);
         await confirmation.confirm(code.trim());

@@ -57,6 +57,8 @@ interface AppState {
   feedError: boolean;
   /** true כשטעינת תיקי הלקוח נכשלה — להבדיל מ״אין תיקים״. */
   casesError: boolean;
+  /** ה-snapshot הראשון הגיע (או נכשל). לפניו "אין תיקים" אינו נתון. */
+  casesLoaded: boolean;
   expressInterest: (feedId: string, offer?: OfferInput) => void;
   getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
@@ -114,6 +116,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [feedError, setFeedError] = useState(false);
   // "אין תיקים" מול "לא הצלחנו לטעון" — ללקוח זה ההבדל בין שקט לבהלה
   const [casesError, setCasesError] = useState(false);
+  const [casesLoaded, setCasesLoaded] = useState(false);
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
 
   // מטמון תפקיד מקומי — טעינה מיידית לפני שהשרת עונה
@@ -250,15 +253,26 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user || role !== "client") {
       setCases([]);
+      /*
+       * אין מנוי — ולכן גם אין מה לחכות לו. בלי זה מסכים שממתינים
+       * ל-casesLoaded נתקעים לנצח על שלד טעינה אצל עורך דין, או אצל
+       * לקוח שכתיבת התפקיד שלו נכשלה.
+       */
+      setCasesLoaded(!user || role !== null);
       return;
     }
+    setCasesLoaded(false);
     return watchMyCases(
       user.uid,
       (rows) => {
         setCases(rows);
         setCasesError(false);
+        setCasesLoaded(true);
       },
-      () => setCasesError(true),
+      () => {
+        setCasesError(true);
+        setCasesLoaded(true);
+      },
     );
   }, [user, role]);
 
@@ -489,6 +503,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       feed,
       feedError,
       casesError,
+      casesLoaded,
       expressInterest,
       getFeedCase,
       user,
@@ -502,7 +517,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, onboarded, markOnboarded, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, casesLoaded, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, onboarded, markOnboarded, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

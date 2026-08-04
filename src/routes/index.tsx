@@ -52,7 +52,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { role, user, onboarded } = useAppStore();
+  const { role, user, onboarded, authReady } = useAppStore();
   const t = useT();
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -92,8 +92,13 @@ function Index() {
    * לפני כל ה-early-returns — hooks חייבים לרוץ בכל רינדור.
    */
   useEffect(() => {
-    if (gateChecked && role === null) navigate({ to: "/welcome", replace: true });
-  }, [gateChecked, role, navigate]);
+    /*
+     * authReady הוא חלק מהתנאי: לפני שהאימות הוכרע, role=null פירושו
+     * "עוד לא יודעים" ולא "אין תפקיד". בלעדיו, משתמש חוזר שהקריאה
+     * מהשרת שלו התעכבה הוקפץ לבחירת תפקיד שכבר בחר.
+     */
+    if (authReady && gateChecked && role === null) navigate({ to: "/welcome", replace: true });
+  }, [authReady, gateChecked, role, navigate]);
 
   if (!gateChecked) return null;
 
