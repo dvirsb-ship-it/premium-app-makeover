@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate, useRouter } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { BadgeCheck, Check, Flag, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { BadgeCheck, Check, Flag, Languages, MapPin, MessageCircle, Phone, Scale, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { LANG_NAMES, type Lang } from "../lib/settings";
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
@@ -525,7 +526,27 @@ function LawyerCaseDetail() {
                 {t("urgent")}
               </span>
             )}
+            {/*
+              * שפת הלקוח — כאן היא תמיד מוצגת, גם עברית. בפיד היא רעש
+              * על כל כרטיס; במסך שממנו שולחים הצעה היא חלק מההחלטה אם
+              * לקחת את התיק, ולכן צריכה להיות מפורשת ולא מוסקת.
+              */}
+            <span
+              className={`flex items-center gap-1 rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                item.langMismatch
+                  ? "bg-warning-ink/12 text-warning-ink"
+                  : "bg-primary/10 text-primary"
+              }`}
+            >
+              <Languages className="size-3.5" strokeWidth={2.4} />
+              {LANG_NAMES[(item.clientLang || "he") as Lang] ?? item.clientLang}
+            </span>
           </div>
+          {item.langMismatch && (
+            <p className="mt-2 text-[11.5px] leading-relaxed text-warning-ink">
+              {t("feedLangMismatchNote")}
+            </p>
+          )}
 
           <h2 className="mt-4 text-xl font-black leading-snug text-foreground">
             {item.title}

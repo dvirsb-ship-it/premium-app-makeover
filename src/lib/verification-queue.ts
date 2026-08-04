@@ -21,6 +21,8 @@ export interface VerificationRecord {
   university: string;
   gradYear: string;
   specialties: string[];
+  /** שפות שבהן עורך הדין נותן שירות — נשמר גם כאן, כדי שהאדמין יראה. */
+  languages?: string[];
   otherSpecialty?: string;
   submittedAt: number;
   status: VerificationStatus;

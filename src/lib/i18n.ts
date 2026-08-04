@@ -1065,6 +1065,12 @@ export const strings = {
   ratingNone: { he: "עוד אין דירוגים", en: "No ratings yet" },
 
   /* ---------- התיישנות: מידע שכבר חושב ולא הוצג ---------- */
+  stepLangTitle: { he: "שפות שירות", en: "Languages you work in" },
+  stepLangDesc: { he: "באילו שפות תוכלו לנהל את התיק מול הלקוח? נשתמש בזה כדי להתאים לכם פניות שתוכלו באמת לקחת.", en: "Which languages can you run a case in? We use this to match you with clients you can actually take." },
+  issueLanguages: { he: "בחרו לפחות שפה אחת שבה אתם נותנים שירות", en: "Choose at least one language you can work in" },
+  feedLangMismatchNote: { he: "הלקוח ניהל את הפנייה בשפה שלא סימנתם כשפת שירות. שקלו זאת לפני שליחת הצעה — אפשר לעדכן שפות בפרופיל.", en: "This client used a language you didn't list as a service language. Consider that before making an offer — you can update your languages in your profile." },
+  feedLangLabel: { he: "שפת הלקוח", en: "Client's language" },
+  feedLangMismatch: { he: "לא בשפות שסימנתם", en: "Not in your languages" },
   loadFailedBody: { he: "התיק לא נטען — זו תקלת תקשורת, לא מחיקה. נסו שוב.", en: "The case didn't load — a connection issue, not a deletion. Try again." },
   retryBtn: { he: "לנסות שוב", en: "Try again" },
   uploadTooLarge: { he: "הקובץ גדול מדי — עד 10MB. נסו לצלם מחדש או לדחוס.", en: "That file is too large — 10MB max. Try re-shooting or compressing it." },

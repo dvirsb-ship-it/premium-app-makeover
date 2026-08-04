@@ -107,3 +107,33 @@ describe("categoryMatchesSpecialties", () => {
     expect(categoryMatchesSpecialties("תעבורה", ["estate"])).toBe(false);
   });
 });
+
+/*
+ * התאמת שפה (08/2026): לקוח שניהל את הראיון בערבית צריך להגיע קודם
+ * לעורכי דין שסימנו ערבית. הדירוג עצמו חי ב-store; כאן מקובע החוזה
+ * ההתנהגותי — סימון ולא חסימה, ועברית כברירת מחדל דו-צדדית.
+ */
+describe("התאמת שפה", () => {
+  const mismatch = (clientLang: string | undefined, lawyerLangs: string[] | undefined) => {
+    const langs = lawyerLangs?.length ? lawyerLangs : ["he"];
+    return !langs.includes(clientLang || "he");
+  };
+
+  it("עורך דין בלי שפות = עברית; תיק בלי שפה = עברית", () => {
+    expect(mismatch(undefined, undefined)).toBe(false);
+    expect(mismatch("he", [])).toBe(false);
+  });
+
+  it("לקוח דובר ערבית אצל עו\"ד שסימן ערבית — התאמה", () => {
+    expect(mismatch("ar", ["he", "ar"])).toBe(false);
+  });
+
+  it("לקוח דובר רוסית אצל עו\"ד עברית-בלבד — פער, לא חסימה", () => {
+    expect(mismatch("ru", ["he"])).toBe(true);
+  });
+
+  it("תיק ישן (בלי שפה) אצל עו\"ד שסימן רק ערבית — פער", () => {
+    // דווקא המקרה ההפוך: עו\"ד שלא סימן עברית לא יקבל תיקים בעברית כהתאמה
+    expect(mismatch(undefined, ["ar"])).toBe(true);
+  });
+});

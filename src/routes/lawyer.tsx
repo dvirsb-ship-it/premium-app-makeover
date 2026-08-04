@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, Check, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Calendar, Check, Clock, Languages, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { categoryIcon } from "../lib/category-icons";
 import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
@@ -17,7 +17,7 @@ import { useAppStore } from "../lib/store";
 import type { FeedCase } from "../lib/types";
 import { cn } from "../lib/utils";
 import { useT, translate, type StringKey } from "../lib/i18n";
-import { useSettings } from "../lib/settings";
+import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useRequireAuth } from "../lib/require-auth";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
@@ -424,6 +424,28 @@ function LawyerFeed() {
                         {t("limitationMonths")}
                       </span>
                     )}
+                  {/*
+                    * שפת הלקוח — מוצגת רק כשהיא אינה עברית, כי תג על כל
+                    * תיק הוא רעש. אם היא גם מחוץ לשפות שסימן, התג מסמן
+                    * את זה במפורש: זה ההבדל בין "כדאי לדעת" ל"שים לב".
+                    */}
+                  {f.clientLang && f.clientLang !== "he" && (
+                    <span
+                      className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                        f.langMismatch
+                          ? "bg-warning-ink/12 text-warning-ink"
+                          : "bg-primary/10 text-primary"
+                      }`}
+                      title={
+                        f.langMismatch
+                          ? t("feedLangMismatch")
+                          : `${t("feedLangLabel")}: ${LANG_NAMES[f.clientLang as Lang] ?? f.clientLang}`
+                      }
+                    >
+                      <Languages className="size-3" strokeWidth={2.4} />
+                      {LANG_NAMES[f.clientLang as Lang] ?? f.clientLang}
+                    </span>
+                  )}
                 </div>
                 <p className="mt-1 truncate text-[15px] font-semibold text-foreground">
                   {f.title}

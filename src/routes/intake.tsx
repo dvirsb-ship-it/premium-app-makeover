@@ -32,7 +32,7 @@ function Intake() {
 
   useRequireAuth();  const navigate = useNavigate();
   const t = useT();
-  const { dir } = useSettings();
+  const { dir, lang } = useSettings();
   const { user } = useAppStore();
 
   /*
@@ -328,6 +328,8 @@ function Intake() {
       const caseId = await createCase({
         clientId: uid,
         description,
+        // השפה שבה הראיון נערך בפועל — לא הצהרה, אלא מה שקרה
+        clientLang: lang,
         incidentDate: data?.incident_date,
         damageType: data?.damage_type,
         hasDocumentation: data?.has_documentation || sentImages.current.length > 0,

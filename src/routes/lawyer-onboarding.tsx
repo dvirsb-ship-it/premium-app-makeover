@@ -21,7 +21,7 @@ import {
 import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
-import { useSettings } from "../lib/settings";
+import { LANGS, LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
@@ -100,6 +100,8 @@ interface FormState {
   gradYear: string;
   diplomaFile: Uploaded | null;
   specialties: Set<SpecId>;
+  /** שפות שבהן הוא נותן שירות בפועל. */
+  languages: Set<Lang>;
 }
 
 type IssueField =
@@ -115,7 +117,8 @@ type IssueField =
   | "university"
   | "gradYear"
   | "diploma"
-  | "specialties";
+  | "specialties"
+  | "languages";
 
 interface Issue {
   field: IssueField;
@@ -171,6 +174,9 @@ function collectIssues(form: FormState): Issue[] {
 
   if (form.specialties.size === 0)
     issues.push({ field: "specialties", messageKey: "issueSpecialties", step: "specialties" });
+  /* בלי שפה אחת לפחות אי אפשר להתאים לו אף לקוח */
+  if (form.languages.size === 0)
+    issues.push({ field: "languages", messageKey: "issueLanguages", step: "specialties" });
 
   return issues;
 }
@@ -200,6 +206,7 @@ function LawyerOnboarding() {
     gradYear: "",
     diplomaFile: null,
     specialties: new Set<SpecId>(["injury"]),
+    languages: new Set<Lang>(["he"]),
   });
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
@@ -221,6 +228,15 @@ function LawyerOnboarding() {
       if (next.has(id)) next.delete(id);
       else next.add(id);
       return { ...prev, specialties: next };
+    });
+  }
+
+  function toggleLang(l: Lang) {
+    setForm((prev) => {
+      const next = new Set(prev.languages);
+      if (next.has(l)) next.delete(l);
+      else next.add(l);
+      return { ...prev, languages: next };
     });
   }
 
@@ -281,6 +297,7 @@ function LawyerOnboarding() {
                 university: form.university,
                 gradYear: form.gradYear,
                 specialties: [...form.specialties],
+                languages: [...form.languages],
               },
               { barCard: form.barCardFile, diploma: form.diplomaFile, selfieVideo: form.selfieVideo },
             );
@@ -308,6 +325,7 @@ function LawyerOnboarding() {
                 writeLawyerProfile(user.uid, {
                   name: form.fullName,
                   specialties: [...form.specialties],
+                  languages: [...form.languages],
                   barYear: form.barYear,
                   university: form.university,
                   city: form.city.trim(),
@@ -419,6 +437,8 @@ function LawyerOnboarding() {
                 <SpecialtiesStep
                   selected={form.specialties}
                   toggle={toggleSpec}
+                  langs={form.languages}
+                  toggleLang={toggleLang}
                 />
               )}
               {step === "review" && <ReviewStep form={form} />}
@@ -933,9 +953,13 @@ function EducationStep({
 function SpecialtiesStep({
   selected,
   toggle,
+  langs,
+  toggleLang,
 }: {
   selected: Set<SpecId>;
   toggle: (id: SpecId) => void;
+  langs: Set<Lang>;
+  toggleLang: (l: Lang) => void;
 }) {
   const t = useT();
   return (
@@ -988,6 +1012,42 @@ function SpecialtiesStep({
           </motion.div>
         ))}
       </div>
+      {/*
+        * שפות שירות — באותו מסך כמו התחומים, כי זו אותה שאלה: את מי
+        * אתה באמת יכול לקחת. לקוח שסיפר את הסיפור שלו בערבית ויחובר
+        * לעורך דין שאינו דובר ערבית מקבל חיבור שלא יכול לעבוד.
+        */}
+      <div className="mt-6">
+        <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+          {t("stepLangTitle")}
+        </p>
+        <p className="mb-3 text-[12.5px] leading-relaxed text-muted-foreground">
+          {t("stepLangDesc")}
+        </p>
+        <div className="flex flex-wrap gap-2">
+          {LANGS.map((l) => {
+            const isSel = langs.has(l);
+            return (
+              <button
+                key={l}
+                type="button"
+                onClick={() => toggleLang(l)}
+                aria-pressed={isSel}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-full px-3.5 py-2.5 text-[13px] font-semibold transition active:scale-95",
+                  isSel
+                    ? "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25"
+                    : "liquid-glass text-foreground",
+                )}
+              >
+                {isSel && <Check className="size-3.5" strokeWidth={3} />}
+                {LANG_NAMES[l]}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* מה אנחנו באמת מכסים — נאמר מראש ולא מתגלה אחרי חודש של פיד ריק */}
       <p className="mt-5 rounded-2xl border border-border/70 bg-muted/40 px-4 py-3 text-[12px] leading-relaxed text-muted-foreground">
         {t("specCoverageNote")}

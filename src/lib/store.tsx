@@ -318,19 +318,39 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     }
     const myCity = (myLawyerProfile?.city ?? "").trim();
     const mySpecs = myLawyerProfile?.specialties ?? [];
+    /*
+     * שפות השירות. פרופיל בלי שפות = עברית בלבד — ברירת המחדל של
+     * השוק, ולכן גם ההנחה הבטוחה לפרופילים שנוצרו לפני השדה.
+     */
+    const myLangs = myLawyerProfile?.languages?.length
+      ? myLawyerProfile.languages
+      : ["he"];
     return watchLawyerFeed(user.uid, (items) => {
       const inField =
         mySpecs.length === 0
           ? items
           : items.filter((f) => categoryMatchesSpecialties(f.category, mySpecs));
       const ranked = inField
-        .map((f) => ({
-          ...f,
-          match: (!!myCity && f.location.trim() === myCity
-            ? "high"
-            : "medium") as "high" | "medium",
-        }))
-        .sort((a, b) => (a.match === b.match ? 0 : a.match === "high" ? -1 : 1));
+        .map((f) => {
+          /*
+           * פער שפה מסמן, לא חוסם: עורך דין עשוי להיעזר בקולגה או
+           * במתרגם, וחסימה הייתה משאירה לקוח דובר ערבית בלי אף עורך
+           * דין. הוא יורד בדירוג ומסומן, כדי שההחלטה תהיה שלו.
+           */
+          const langMismatch = !myLangs.includes(f.clientLang || "he");
+          return {
+            ...f,
+            langMismatch,
+            match: (!langMismatch && !!myCity && f.location.trim() === myCity
+              ? "high"
+              : "medium") as "high" | "medium",
+          };
+        })
+        .sort((a, b) => {
+          // התאמת שפה קודמת לקרבה גיאוגרפית — בלעדיה אין שיחה בכלל
+          if (a.langMismatch !== b.langMismatch) return a.langMismatch ? 1 : -1;
+          return a.match === b.match ? 0 : a.match === "high" ? -1 : 1;
+        });
       setFeed(ranked);
       setFeedError(false);
     }, () => setFeedError(true));

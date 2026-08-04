@@ -17,7 +17,7 @@ import { TopBar } from "../components/TopBar";
 import { translate, useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { SPECIALTIES } from "../lib/specialties";
-import { useSettings } from "../lib/settings";
+import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { isAdminUser, isSuperAdmin } from "../lib/admin";
 import { fbAuth } from "../lib/firebase";
@@ -355,6 +355,14 @@ function VerificationQueue() {
                       label={t("stepSpecTitle")}
                       value={formatSpecialties(rec, lang === "he" ? "he" : "en")}
                     />
+                    {rec.languages && rec.languages.length > 0 && (
+                      <Meta
+                        label={t("stepLangTitle")}
+                        value={rec.languages
+                          .map((l) => LANG_NAMES[l as Lang] ?? l)
+                          .join(" · ")}
+                      />
+                    )}
                   </dl>
 
                   {(rec.files?.barCard || rec.files?.diploma || rec.files?.selfieVideo) && (

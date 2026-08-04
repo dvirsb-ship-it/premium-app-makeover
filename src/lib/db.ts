@@ -130,6 +130,8 @@ interface CaseDoc {
   status: CaseStatus | "rejected";
   createdAt: number; // epoch ms — תואם ל-Case.createdAt הקיים
   location?: string;
+  /** שפת הראיון של הלקוח. חסר = עברית (תיקים מלפני השדה). */
+  clientLang?: string;
   interested: Lawyer[]; // דה-נורמליזציה לתצוגה
   interestedIds: string[];
   chosenLawyerId?: string;
@@ -222,6 +224,7 @@ function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
     urgency: d.damageType === "body" ? "דחוף" : "רגיל",
     interestedCount: d.interestedIds?.length ?? 0,
     expressed: (d.interestedIds ?? []).includes(myUid),
+    clientLang: d.clientLang || "he",
   };
 }
 
@@ -369,12 +372,20 @@ export interface NewCaseInput {
   damageType?: "body" | "financial" | "both";
   hasDocumentation?: boolean;
   city?: string;
+  /** שפת הממשק שבה נערך הראיון. חסר = עברית (תיקים מלפני השדה). */
+  clientLang?: string;
 }
 
 /** יצירת תיק חדש במצב ולידציה. מחזיר את מזהה התיק. */
 export async function createCase(input: NewCaseInput): Promise<string> {
   const ref = await addDoc(collection(fbDb(), "cases"), {
     clientId: input.clientId,
+    /*
+     * השפה שבה הלקוח באמת סיפר את הסיפור — לא הצהרה שלו, אלא שפת
+     * הממשק שבה עבר את הראיון. זה מה שעורך הדין צריך לדעת לפני שהוא
+     * מתקשר: אין טעם לחבר דובר ערבית בלבד לעורך דין שאינו דובר ערבית.
+     */
+    clientLang: input.clientLang ?? "he",
     title: "",
     category: "",
     summary: "",
@@ -602,6 +613,11 @@ export interface LawyerProfileDoc {
   barYear?: string;
   university?: string;
   city?: string;
+  /**
+   * שפות שבהן עורך הדין נותן שירות. ריק/חסר = עברית בלבד — ברירת
+   * המחדל של השוק, ולכן גם ברירת המחדל הבטוחה לפרופילים ישנים.
+   */
+  languages?: string[];
   createdAt: number;
 }
 
