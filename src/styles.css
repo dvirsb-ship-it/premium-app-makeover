@@ -727,3 +727,12 @@ html.welcome-snap {
   .welcome-stage { height: 100dvh; }
   .welcome-anchor { height: 100dvh; }
 }
+
+/*
+ * פס האור שחוצה את רצועת "עורך דין רוצה לקחת את התיק שלך".
+ * איטי בכוונה — סימן חיים ברגע החשוב, לא קרנבל.
+ */
+@keyframes shine {
+  0%, 55% { left: -33%; }
+  85%, 100% { left: 120%; }
+}

@@ -198,15 +198,42 @@ function ClientHome() {
                   </p>
                 </div>
 
-                {/* רגע הערך — חותמת בשולי הכרטיס, לא מדבקה שצפה בתוכו */}
+                {/*
+                  * רגע ההגעה.
+                  *
+                  * זה מה שכל המסלול הוביל אליו: אדם שנפגע, סיפר סיפור לא
+                  * קל, חיכה — ועכשיו מישהו אמר "אני יכול לעזור לך". קודם
+                  * זה נאמר בפס דק בלשון סטטוס, וזה נקרא כהערת שוליים.
+                  * כאן זה זהב מלא, בגובה שאי אפשר לפספס, ובלשון פעולה.
+                  */}
                 {interested > 0 && active.status !== "connected" && (
-                  <div className="flex items-center gap-2.5 border-t border-gold/25 bg-gold/[0.08] px-5 py-3.5">
-                    <Sparkles className="size-4 shrink-0 text-gold-ink" strokeWidth={2} />
-                    <span className="text-[13px] font-bold text-foreground">
-                      {interested} {t("lawyersInterestedCount")}
-                    </span>
-                    <Arrow className="ms-auto size-4 shrink-0 text-gold-ink/70" />
-                  </div>
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="relative overflow-hidden bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] px-5 py-4"
+                  >
+                    {/* פס אור איטי — סימן חיים, לא קרנבל */}
+                    <span
+                      aria-hidden
+                      className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-18deg] bg-[linear-gradient(100deg,transparent,rgba(255,255,255,0.45),transparent)] motion-safe:animate-[shine_3.8s_ease-in-out_infinite]"
+                    />
+                    <div className="relative flex items-center gap-3">
+                      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0F172A]/10">
+                        <Sparkles className="size-4.5 text-[#0F172A]" strokeWidth={2.4} />
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-[15px] font-black leading-tight text-[#0F172A]">
+                          {interested === 1
+                            ? t("offerWaitingOne")
+                            : t("offerWaitingMany").replace("{n}", String(interested))}
+                        </span>
+                        <span className="mt-0.5 block text-[12.5px] font-semibold text-[#0F172A]/70">
+                          {interested === 1 ? t("offerWaitingCtaOne") : t("offerWaitingCtaMany")}
+                        </span>
+                      </span>
+                      <Arrow className="size-5 shrink-0 text-[#0F172A]/60" />
+                    </div>
+                  </motion.div>
                 )}
               </Pressable>
             </Rise>

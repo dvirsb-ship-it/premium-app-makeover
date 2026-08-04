@@ -155,6 +155,16 @@ export const strings = {
   noCases: { he: "אין עדיין תיקים", en: "No cases yet" },
   shareNewCase: { he: "שיתוף מקרה חדש", en: "Share a new case" },
   lawyersInterestedCount: { he: "עורכי דין הביעו עניין", en: "lawyers expressed interest" },
+  /*
+   * רגע ההגעה: מישהו אמר "אני יכול לעזור לך". עד עכשיו הוא נאמר בפס
+   * דק בתחתית הכרטיס, בלשון סטטוס ("1 עורכי דין הביעו עניין" — גם
+   * שגוי דקדוקית ביחיד). זה הרגע שכל המסע הוביר אליו, והוא צריך
+   * להיקרא כהזמנה לפעולה, לא כהערת שוליים.
+   */
+  offerWaitingOne: { he: "עורך דין רוצה לקחת את התיק שלך", en: "A lawyer wants to take your case" },
+  offerWaitingMany: { he: "{n} עורכי דין רוצים לקחת את התיק שלך", en: "{n} lawyers want to take your case" },
+  offerWaitingCtaOne: { he: "לצפייה בהצעה ולבחירה", en: "See the offer and choose" },
+  offerWaitingCtaMany: { he: "להשוואת ההצעות ולבחירה", en: "Compare the offers and choose" },
   connectedWithLawyer: { he: "נוצר חיבור עם עורך דין", en: "Connected with a lawyer" },
 
   // Case detail (client)

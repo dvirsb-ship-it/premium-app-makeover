@@ -140,11 +140,14 @@ function Cases() {
                         </span>
                       </div>
                     )}
+                    {/* אותו רגע כמו במסך הבית — זהב מלא, בלשון פעולה */}
                     {c.interested.length > 0 && c.status !== "connected" && (
-                      <div className="mt-4 flex items-center gap-2 rounded-2xl bg-gold/8 px-3 py-2">
-                        <Users className="size-4 text-gold" />
-                        <span className="text-xs font-semibold text-foreground">
-                          {c.interested.length} {t("lawyersInterestedCount")}
+                      <div className="mt-4 flex items-center gap-2.5 rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] px-3.5 py-2.5">
+                        <Users className="size-4 shrink-0 text-[#0F172A]" strokeWidth={2.4} />
+                        <span className="text-[13px] font-black text-[#0F172A]">
+                          {c.interested.length === 1
+                            ? t("offerWaitingOne")
+                            : t("offerWaitingMany").replace("{n}", String(c.interested.length))}
                         </span>
                       </div>
                     )}
