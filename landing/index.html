@@ -103,31 +103,30 @@
   @keyframes draw { to { stroke-dashoffset: 0; } }
   .sub { margin: 16px auto 0; max-width: 440px; color: var(--muted); font-size: 17px; }
 
-  /* ---------- הטופס — הגיבור ---------- */
+  /* ---------- הטופס — סגנון הדף הירוק-לבן, בזהב ----------
+     שטוח ונקי: בלי כרטיס זוהר ובלי מסגרת מוארת. שדות לבנים עם גבול
+     דק בגוון המותג, שורות של שניים, והכפתור הוא העוגן — בדיוק המבנה
+     שדביר אהב בדף הייחוס, רק שהירוק (#1D9E75 @20%) הפך לזהב. */
   .card {
-    position: relative; background: #fff; border-radius: 22px; padding: 24px; margin-top: 30px;
-    border: 1px solid rgba(212,175,55,.35);
-    box-shadow: 0 30px 70px -32px rgba(150, 110, 20, .35), 0 6px 18px -8px rgba(22,34,60,.08);
+    position: relative; max-width: 440px; margin: 26px auto 0; padding: 0;
+    background: transparent; border: 0; box-shadow: none;
   }
-  .card::before {
-    content: ""; position: absolute; inset: -1px; border-radius: 23px; padding: 1px; pointer-events: none;
-    background: linear-gradient(160deg, rgba(240,211,117,.9), rgba(212,175,55,.25) 40%, transparent 70%);
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor; mask-composite: exclude;
-  }
+  .form-row { display: flex; gap: 10px; }
+  .form-row .field { flex: 1; min-width: 0; }
+  @media (max-width: 480px) { .form-row { flex-direction: column; gap: 0; } }
   .field { margin-bottom: 12px; }
   input, select {
     width: 100%; font: inherit; font-size: 15.5px; color: var(--ink);
-    background: #fffdf8; border: 1.5px solid var(--line); border-radius: 13px;
-    padding: 13px 15px; transition: border-color .15s, box-shadow .15s, background .15s;
+    background: #fff; border: 1.5px solid rgba(212,175,55,.28); border-radius: 10px;
+    padding: 12px 15px; transition: border-color .15s, box-shadow .15s;
     appearance: none; -webkit-appearance: none;
   }
-  select { background: #fffdf8 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239d7a12' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left 15px center; }
+  select { background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%239d7a12' stroke-width='1.8' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat left 15px center; }
   select:invalid { color: #969ca8; }
   input::placeholder { color: #969ca8; }
   input:focus, select:focus {
-    outline: none; border-color: var(--gold); background: #fff;
-    box-shadow: 0 0 0 4px rgba(212,175,55,.22);
+    outline: none; border-color: var(--gold-deep);
+    box-shadow: 0 0 0 3px rgba(212,175,55,.16);
   }
   input.bad { border-color: var(--err); }
   .hp { position: absolute; left: -9999px; top: -9999px; height: 0; overflow: hidden; }
@@ -206,7 +205,30 @@
     background: linear-gradient(to top, #fff, transparent); pointer-events: none;
   }
 
-  /* ---------- מה מקבלים ---------- */
+  /* ---------- מה מקבלים — הרצועה הכהה ----------
+     "כל הצבע בדף משתנה": הסקשן פורץ את עמודת התוכן לרוחב המסך המלא
+     (margin שלילי של 50vw) וצובע את כל שדה הראייה בכחול-דיו. בדף
+     הייחוס זה .benefits-bg{background:var(--ink)} — אותו מהלך, בזהב:
+     כרטיסי זכוכית לבנה-5% על כהה, ואייקונים בזהב הבוהק שעל רקע כהה
+     מותר לו (המגבלה של AA על לבן לא חלה כאן). */
+  .band {
+    margin: 44px calc(50% - 50vw) 0; padding: 40px calc(50vw - 50%) 48px;
+    background:
+      radial-gradient(90% 60% at 50% 0%, rgba(212,175,55,.12), transparent 55%),
+      var(--ink);
+  }
+  .band .grid-title { color: var(--gold-hi); }
+  .band .benefit {
+    background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.09);
+  }
+  .band .benefit:hover {
+    background: rgba(212,175,55,.12); border-color: rgba(212,175,55,.35);
+    box-shadow: none;
+  }
+  .band .benefit h4 { color: #fdf6e8; }
+  .band .benefit p { color: rgba(253,246,232,.62); }
+  .band .ico { color: var(--gold); }
+
   .grid-title { text-align: center; font-size: 15px; font-weight: 800; letter-spacing: .14em; color: var(--gold-text); padding: 36px 0 18px; }
   /* אייקוני האפליקציה עצמם (lucide + הפלסטר המותאם), לא אמוג'י */
   .ico { width: 22px; height: 22px; color: var(--gold-text); display: block; }
@@ -261,15 +283,26 @@
     <p class="sub">הפונה מספר מה קרה, המערכת בודקת אם יש עניין משפטי וכותבת תזכיר. אתה מקבל את שניהם — בתחומים שלך בלבד.</p>
   </section>
 
+  <section class="stats">
+    <div class="reveal"><div class="stat-num">חינם</div><p class="stat-label">חצי שנה ראשונה</p></div>
+    <div class="reveal" style="transition-delay:.1s"><div class="stat-num">100%</div><p class="stat-label">מהפניות עברו בדיקה משפטית</p></div>
+    <div class="reveal" style="transition-delay:.2s"><div class="stat-num">21</div><p class="stat-label">תחומים — מקבלים רק את שלך</p></div>
+  </section>
+
   <!--
     הטופס הוא הדף. ההחלטה של דביר: אפס בירוקרטיה — בלי "הורד אפליקציה",
     בלי הרשמה. עורך דין ממלא חמישה שדות והכדור עובר אלינו.
   -->
   <section class="card">
     <form id="lead" novalidate>
-      <div class="field"><input name="fullName" placeholder="שם מלא" autocomplete="name" required /></div>
-      <div class="field"><input name="email" type="email" placeholder="מייל" autocomplete="email" required /></div>
-      <div class="field"><input name="phone" type="tel" placeholder="פלאפון" autocomplete="tel" required /></div>
+      <div class="form-row">
+        <div class="field"><input name="fullName" placeholder="שם מלא" autocomplete="name" required /></div>
+        <div class="field"><input name="email" type="email" placeholder="מייל" autocomplete="email" required /></div>
+      </div>
+      <div class="form-row">
+        <div class="field"><input name="phone" type="tel" placeholder="פלאפון" autocomplete="tel" required /></div>
+        <div class="field"><input name="barNumber" inputmode="numeric" placeholder="מספר רישיון" required /></div>
+      </div>
       <div class="field">
         <select name="specialty" required>
           <option value="" selected disabled>תחום התמחות</option>
@@ -297,7 +330,6 @@
           <option value="other">אחר</option>
         </select>
       </div>
-      <div class="field"><input name="barNumber" inputmode="numeric" placeholder="מספר רישיון בלשכת עורכי הדין" required /></div>
       <!-- שדה דבש: בני אדם לא רואים אותו, בוטים ממלאים -->
       <div class="hp" aria-hidden="true"><input name="website" tabindex="-1" autocomplete="off" /></div>
       <button class="cta" type="submit">רוצה להיות מהראשונים ←</button>
@@ -349,20 +381,17 @@
     </div>
   </div>
 
-  <section class="stats">
-    <div class="reveal"><div class="stat-num">חינם</div><p class="stat-label">חצי שנה ראשונה</p></div>
-    <div class="reveal" style="transition-delay:.1s"><div class="stat-num">100%</div><p class="stat-label">מהפניות עברו בדיקה משפטית</p></div>
-    <div class="reveal" style="transition-delay:.2s"><div class="stat-num">21</div><p class="stat-label">תחומים — מקבלים רק את שלך</p></div>
-  </section>
 
+  <section class="band">
   <h2 class="grid-title">מה מקבלים</h2>
-  <section class="benefits">
+  <div class="benefits">
     <div class="benefit reveal"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/><path d="M14 2v5a1 1 0 0 0 1 1h5"/><path d="M10 9H8"/><path d="M16 13H8"/><path d="M16 17H8"/></svg><h4>תזכיר מוכן</h4><p>תיאור, תאריכים, בסיס משפטי ומסמכים — במקום אחד, לפני שהרמת טלפון.</p></div>
     <div class="benefit reveal" style="transition-delay:.06s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg><h4>רק התחומים שלך</h4><p>פנייה מגיעה רק לעורכי דין בתחום הרלוונטי. בלי רעש.</p></div>
     <div class="benefit reveal" style="transition-delay:.12s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 5H3"/><path d="M12 19H3"/><path d="M14 3v4"/><path d="M16 17v4"/><path d="M21 12h-9"/><path d="M21 19h-5"/><path d="M21 5h-7"/><path d="M8 10v4"/><path d="M8 12H3"/></svg><h4>שליטה מלאה</h4><p>אתה בוחר לאילו פניות להציע. ללא התחייבות, ניתן לעזוב בכל עת.</p></div>
     <div class="benefit reveal" style="transition-delay:.18s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><h4>בלי אחוז מהתיק</h4><p>אחרי חצי השנה — מנוי קבוע ושקוף. לא עמלה על תוצאה.</p></div>
     <div class="benefit reveal" style="transition-delay:.24s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v18"/><path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/><path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/><path d="M7 21h10"/></svg><h4>הפונה בוחר</h4><p>אין מקום בתור תמורת תשלום. ההצעה שלך מדברת בשמך.</p></div>
     <div class="benefit reveal" style="transition-delay:.3s"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg><h4>פרטיות לפני הכל</h4><p>פרטי הפונה נחשפים רק לעורך הדין שנבחר — ורק אחרי הבחירה.</p></div>
+  </div>
   </section>
 
   <section class="steps">

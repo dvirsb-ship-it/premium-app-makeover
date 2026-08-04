@@ -9,6 +9,7 @@ import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
+import { useAppStore } from "../lib/store";
 import { SealMoment } from "../components/SealMoment";
 
 export const Route = createFileRoute("/onboarding")({
@@ -27,6 +28,7 @@ const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
 function Onboarding() {
 
   useRequireAuth();  const navigate = useNavigate();
+  const { markOnboarded } = useAppStore();
   const [agreed, setAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const t = useT();
@@ -43,6 +45,8 @@ function Onboarding() {
   function handleContinue() {
     if (!agreed || submitting) return;
     setSubmitting(true);
+    // האישור נחתם בשרת — בלעדיו הכניסה הבאה תחזור לכאן במקום הביתה
+    void markOnboarded();
     setSealing(true);
   }
 

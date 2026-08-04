@@ -18,6 +18,7 @@ import { translate } from "./i18n";
 import { fbAuth, isBrowser } from "./firebase";
 import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
 import { maskLawyerName } from "./privacy";
+import { isOnboarded } from "./post-auth-route";
 import {
   categoryMatchesSpecialties,
   chooseLawyerDb,
@@ -25,7 +26,8 @@ import {
   expressInterestDb,
   markNotificationRead,
   watchLawyerProfile,
-  readUserRole,
+  readUserGate,
+  markUserOnboarded,
   watchUserRole,
   watchLawyerFeed,
   watchMyCases,
@@ -65,6 +67,13 @@ interface AppState {
   clearAuthRedirectError: () => void;
   /** true בזמן קליטת החזרה מגוגל — מסך ההתחברות מציג "מתחברים" ולא כפתורים. */
   authResolving: boolean;
+  /**
+   * האם המשתמש כבר אישר את התנאים. null = עוד לא יודעים — וזה מצב
+   * משמעותי: ניתוב לפני שהתשובה הגיעה הוא בדיוק מה ששלח משתמש חדש הביתה.
+   */
+  onboarded: boolean | null;
+  /** נקרא בסיום מסך הפתיחה. נכתב לשרת, כדי שיחזיק גם במכשיר אחר. */
+  markOnboarded: () => Promise<void>;
   signOut: () => Promise<void>;
   /** התראות המשתמש — בזמן אמת, החדשות ראשונות. */
   notifications: AppNotification[];
@@ -96,6 +105,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
    */
   const [authResolving, setAuthResolving] = useState(false);
   const [role, setRoleState] = useState<Role | null>(null);
+  const [onboarded, setOnboarded] = useState<boolean | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
   const [feed, setFeed] = useState<FeedCase[]>([]);
   // פיד שנכשל נראה בדיוק כמו פיד ריק — לכן מבדילים ביניהם במפורש
@@ -157,14 +167,48 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
             phone: u.phoneNumber ?? undefined,
             name: u.displayName ?? undefined,
           });
+          /*
+           * התפקיד וסימון הפתיחה — שניהם, לפני כל ניתוב.
+           *
+           * התפקיד נכתב עד כה רק ע"י onSignedIn, שרצה בפופאפ בלבד; מי
+           * שהתחבר בהפניה מהטלפון נשאר עם תפקיד במטמון המקומי ובלי שורה
+           * במסד — ולכן חוקי הגישה דחו אותו. לכן: אם לשרת אין תפקיד ולנו
+           * יש, אנחנו כותבים אותו.
+           */
+          let cachedRole: Role | null = null;
           try {
-            const serverRole = await readUserRole(u.uid);
-            if (serverRole) {
-              setRoleState(serverRole);
-              try { localStorage.setItem(ROLE_CACHE_KEY, serverRole); } catch { /* ignore */ }
-            }
+            const c = localStorage.getItem(ROLE_CACHE_KEY);
+            if (c === "client" || c === "lawyer") cachedRole = c;
           } catch {
-            /* offline — נשארים עם המטמון */
+            /* ignore */
+          }
+          try {
+            const gate = await readUserGate(u.uid);
+            if (gate.role) {
+              setRoleState(gate.role);
+              try { localStorage.setItem(ROLE_CACHE_KEY, gate.role); } catch { /* ignore */ }
+            } else if (cachedRole) {
+              void writeUserRole(u.uid, cachedRole).catch(() => {
+                /* המנוי החי ינסה שוב; אין מה להבהיל את המשתמש כאן */
+              });
+            }
+            setOnboarded(
+              isOnboarded({
+                onboardedAt: gate.onboardedAt,
+                accountCreatedAt: u.metadata?.creationTime ?? null,
+              }),
+            );
+          } catch {
+            /*
+             * offline — נשארים עם מטמון התפקיד, אבל לא משאירים את
+             * onboarded על null: מסך ההתחברות מחכה לערך הזה כדי לנתב,
+             * ו"לחכות לרשת" פירושו משתמש תקוע מול מסך ריק. תאריך יצירת
+             * החשבון קיים גם בלי רשת ומספיק להחלטה בטוחה: ותיק — פנימה;
+             * חדש — למסך התנאים, שגרוע במקרה הרע בחזרה מיותרת עליו.
+             */
+            setOnboarded(
+              isOnboarded({ accountCreatedAt: u.metadata?.creationTime ?? null }),
+            );
           }
         }
         setAuthReady(true);
@@ -410,12 +454,25 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
   const clearAuthRedirectError = useCallback(() => setAuthRedirectFailed(false), []);
 
+  const markOnboarded = useCallback(async () => {
+    // המסך המקומי לא מחכה לשרת — הכתיבה נועדה למכשיר הבא, לא לרגע הזה
+    setOnboarded(true);
+    const u = fbAuth().currentUser;
+    if (u) {
+      await markUserOnboarded(u.uid).catch(() => markUserOnboarded(u.uid)).catch(() => {
+        /* אין מה לעצור בגלל זה — בפעם הבאה החריג של חשבונות ותיקים לא
+           יעזור, אבל המסמך ייכתב בניסיון הבא שהרשת תרשה */
+      });
+    }
+  }, []);
+
   const signOut = useCallback(async () => {
     try {
       await fbSignOut(fbAuth());
     } finally {
       setRoleState(null);
       try { localStorage.removeItem(ROLE_CACHE_KEY); } catch { /* ignore */ }
+      setOnboarded(null);
     }
   }, []);
 
@@ -437,11 +494,13 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       authRedirectFailed,
       clearAuthRedirectError,
       authResolving,
+      onboarded,
+      markOnboarded,
       signOut,
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, onboarded, markOnboarded, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

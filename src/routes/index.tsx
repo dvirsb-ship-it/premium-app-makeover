@@ -52,7 +52,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const navigate = useNavigate();
-  const { role, user } = useAppStore();
+  const { role, user, onboarded } = useAppStore();
   const t = useT();
   const [gateChecked, setGateChecked] = useState(false);
 
@@ -73,6 +73,16 @@ function Index() {
   useEffect(() => {
     if (gateChecked && role === "lawyer") navigate({ to: "/lawyer", replace: true });
   }, [gateChecked, role, navigate]);
+
+  /*
+   * מחובר שטרם אישר את התנאים לא רואה את הבית — גם אם הקליד "/" ידנית.
+   * בלי זה מסך ההתחייבות הוא המלצה בלבד: כתובת ישירה עוקפת אותו.
+   */
+  useEffect(() => {
+    if (gateChecked && user && onboarded === false && role !== "lawyer") {
+      navigate({ to: "/onboarding", replace: true });
+    }
+  }, [gateChecked, user, onboarded, role, navigate]);
 
   /*
    * הבוחר הישן שישב כאן הוסר: בחירת התפקיד גרה עכשיו בסוף מסך הדלתות,

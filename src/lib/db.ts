@@ -33,6 +33,8 @@ export interface UserDoc {
   email?: string;
   phone?: string;
   createdAt?: Timestamp;
+  /** נחתם בסיום מסך הפתיחה — התנאים אושרו. חסר = עוד לא עבר. */
+  onboardedAt?: Timestamp;
 }
 
 export async function ensureUserDoc(
@@ -54,6 +56,34 @@ export async function readUserRole(uid: string): Promise<Role | null> {
   const snap = await getDoc(doc(fbDb(), "users", uid));
   const role = snap.exists() ? (snap.data().role as Role | undefined) : undefined;
   return role === "client" || role === "lawyer" ? role : null;
+}
+
+/**
+ * התפקיד וסימון הפתיחה בקריאה אחת.
+ *
+ * שתי קריאות נפרדות לאותו מסמך בשנייה שאחרי ההתחברות הן בזבוז, ובעיקר
+ * שתי הזדמנויות להיכשל ברשת של רגע הכניסה — בדיוק הרגע שבו מוכרעת
+ * שאלת הניתוב.
+ */
+export async function readUserGate(
+  uid: string,
+): Promise<{ role: Role | null; onboardedAt: Timestamp | null }> {
+  const snap = await getDoc(doc(fbDb(), "users", uid));
+  const data = snap.exists() ? (snap.data() as UserDoc) : undefined;
+  const role = data?.role;
+  return {
+    role: role === "client" || role === "lawyer" ? role : null,
+    onboardedAt: data?.onboardedAt ?? null,
+  };
+}
+
+/** חותם שהמשתמש אישר את התנאים. נכתב פעם אחת, בסיום מסך הפתיחה. */
+export async function markUserOnboarded(uid: string): Promise<void> {
+  await setDoc(
+    doc(fbDb(), "users", uid),
+    { onboardedAt: serverTimestamp() },
+    { merge: true },
+  );
 }
 
 export async function writeUserRole(uid: string, role: Role | null): Promise<void> {

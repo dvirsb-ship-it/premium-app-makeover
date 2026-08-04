@@ -11,6 +11,7 @@ import { Page, Rise, Stagger } from "../components/motion";
 import { Spinner } from "../components/Spinner";
 import { useT } from "../lib/i18n";
 import { useAppStore } from "../lib/store";
+import { postAuthRoute } from "../lib/post-auth-route";
 import { cn } from "../lib/utils";
 import {
   completeEmailLinkIfPresent,
@@ -75,6 +76,7 @@ function Auth() {
     authRedirectFailed,
     clearAuthRedirectError,
     authResolving,
+    onboarded,
   } = useAppStore();
   const [method, setMethod] = useState<Method>(null);
   const [value, setValue] = useState("");
@@ -90,22 +92,23 @@ function Auth() {
   const phoneRe = /^[+\d][\d\s\-().]{6,}$/;
 
   /*
-   * מי שכבר מחובר לא צריך לראות מסך התחברות — ישר פנימה.
+   * הניתוב אחרי התחברות — מקום אחד, לשני המסלולים.
    *
    * זה גם המסלול של כל התחברות בנייד: ההפניה מגוגל טוענת את העמוד מחדש,
-   * ולכן startedSignIn מתאפס והתנאי הזה הוא שמנתב בפועל.
-   *
-   * היעד היה "/cases" — רשימת התיקים — ולכן כל לקוח נחת על רשימה במקום
-   * על מסך הבית שלו. הבית הוא "/": שם התיק הפעיל, מצב הפנייה ומה הלאה.
-   * לעורך דין "/lawyer" הוא הבית המקביל, ולכן הוא נשאר.
+   * ולכן startedSignIn מתאפס והאפקט הזה הוא שמנתב בפועל. בדיוק בגלל זה
+   * היעד לא יכול להיות קבוע "הביתה": משתמש חדש מהטלפון דילג כך על מסך
+   * ההתחייבות ("המידע שאשתף הוא אמיתי") ועל לחיצת היד שאחריו — הבאג
+   * שדביר תפס עם מייל טרי. ההחלטה יושבת ב-postAuthRoute, וההמתנה
+   * ל-onboarded (שהוא null עד שקראנו את מסמך המשתמש) היא מה שמונע
+   * ניחוש מוקדם ושגוי.
    */
   const startedSignIn = useRef(false);
   useEffect(() => {
-    if (authReady && user && !startedSignIn.current) {
-      navigate({ to: role === "lawyer" ? "/lawyer" : "/", replace: true });
+    if (authReady && user && onboarded !== null) {
+      navigate({ to: postAuthRoute({ role, onboarded }), replace: true });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authReady, user]);
+  }, [authReady, user, onboarded]);
 
   /*
    * מי שהגיע לכאן ישירות — כפתור "כניסה" בדף הנחיתה, קישור ששותף —
@@ -149,11 +152,11 @@ function Auth() {
   }, []);
 
   function onSignedIn() {
-    // התפקיד נבחר במסך הראשי; ברירת מחדל — לקוח
-    const finalRole = role ?? "client";
-    setRole(finalRole);
+    // התפקיד נבחר במסך הראשי; ברירת מחדל — לקוח.
+    // הניווט עצמו קורה באפקט למעלה, ברגע ש-onboarded ידוע — אותו מסלול
+    // בדיוק כמו חזרה מהפניה בנייד, כדי ששני העולמות לא יסטו שוב זה מזה.
+    setRole(role ?? "client");
     toast.success(t("authToastWelcome"));
-    navigate({ to: finalRole === "lawyer" ? "/lawyer-onboarding" : "/onboarding" });
   }
 
   function friendlyError(e: unknown): string {

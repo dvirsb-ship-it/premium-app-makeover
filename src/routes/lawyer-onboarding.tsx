@@ -181,7 +181,7 @@ function LawyerOnboarding() {
   useRequireAuth();
   const navigate = useNavigate();
   const { dir } = useSettings();
-  const { user } = useAppStore();
+  const { user, markOnboarded } = useAppStore();
   const t = useT();
   const rtl = dir === "rtl";
 
@@ -327,6 +327,9 @@ function LawyerOnboarding() {
   }
 
   function finishOnboarding() {
+    // האשף הזה הוא "מסך הפתיחה" של עורך דין — סיומו חותם את הדגל, אחרת
+    // הכניסה הבאה מהטלפון תנחת שוב על תחילת האשף במקום על הבית
+    void markOnboarded();
     toast.success(t("verifySuccess"));
     navigate({ to: "/lawyer" });
   }
