@@ -736,3 +736,34 @@ html.welcome-snap {
   0%, 55% { left: -33%; }
   85%, 100% { left: 120%; }
 }
+
+/*
+ * תווית-הגג החיה: גרדיאנט זהב שנע לאט על הטקסט. הרובד שדביר ביקש —
+ * "שיהיה קצת חי יותר" — בלי להוסיף אף אלמנט חדש למסך.
+ */
+.eyebrow-live {
+  background: linear-gradient(
+    100deg,
+    var(--gold-ink, #9d7a12) 20%,
+    #f0d375 50%,
+    var(--gold-ink, #9d7a12) 80%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: eyebrow-sweep 5.5s ease-in-out infinite;
+}
+.dark .eyebrow-live {
+  background-image: linear-gradient(100deg, #d4af37 20%, #f7e9bf 50%, #d4af37 80%);
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+@keyframes eyebrow-sweep {
+  0%, 100% { background-position: 100% 0; }
+  50% { background-position: 0% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow-live { animation: none; }
+}

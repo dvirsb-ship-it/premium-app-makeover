@@ -129,6 +129,16 @@ function ClientHome() {
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   const firstName = (user?.displayName ?? "").trim().split(" ")[0];
+  /* ברכה לפי שעת היום — הדבר הקטן שגורם למסך להרגיש חי ולא תבנית */
+  const hour = new Date().getHours();
+  const greetKey =
+    hour >= 5 && hour < 12
+      ? "greetMorning"
+      : hour >= 12 && hour < 17
+        ? "greetAfternoon"
+        : hour >= 17 && hour < 22
+          ? "greetEvening"
+          : "greetNight";
   const [active, ...rest] = cases;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
@@ -186,8 +196,8 @@ function ClientHome() {
           */}
         <header className="flex items-start justify-between gap-3 pb-4 pt-9">
           <div className="min-w-0">
-            <p className="text-xs font-medium tracking-[0.22em] text-gold">
-              {t("homeHello")}
+            <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
+              {t(greetKey)}
             </p>
             <h1 className="mt-1 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
               {firstName || t("meBadge")}
@@ -208,7 +218,9 @@ function ClientHome() {
         >
           <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
             <FolderOpen className="size-3.5 text-gold" strokeWidth={2} />
-            {openCount === 1 ? t("homeChipOneCase") : `${openCount} ${t("homeChipCases")}`}
+            {t("homeChipOpen")
+              .replace("{n}", String(competingCount))
+              .replace("{m}", String(MAX_OPEN_CASES))}
           </span>
           <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
             <ShieldCheck className="size-3.5 text-gold" strokeWidth={2} />

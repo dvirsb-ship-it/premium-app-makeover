@@ -582,10 +582,10 @@ function LawyerCaseDetail() {
               <span
                 className={`rounded-full px-2.5 py-1 text-[11px] font-black ${
                   item.matchScore >= 80
-                    ? "bg-success/15 text-success"
+                    ? "bg-success text-white shadow-sm"
                     : item.matchScore >= 50
-                      ? "bg-gold/15 text-gold"
-                      : "bg-foreground/10 text-foreground/70"
+                      ? "chip-gold"
+                      : "bg-slate-500 text-white"
                 }`}
               >
                 {t("matchLabel")} {item.matchScore}%

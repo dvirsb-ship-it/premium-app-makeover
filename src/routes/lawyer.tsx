@@ -153,7 +153,7 @@ function LawyerFeed() {
         className="flex items-center justify-between pt-6"
       >
         <div>
-          <p className="text-xs font-medium tracking-[0.22em] text-gold">
+          <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
             JUSTASK · PRO
           </p>
           <h1 className="mt-1 text-2xl font-bold text-foreground">
@@ -450,10 +450,10 @@ function LawyerFeed() {
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
                         f.matchScore >= 80
-                          ? "bg-success/15 text-success"
+                          ? "bg-success text-white shadow-sm"
                           : f.matchScore >= 50
-                            ? "bg-gold/15 text-gold"
-                            : "bg-foreground/10 text-foreground/70"
+                            ? "chip-gold"
+                            : "bg-slate-500 text-white"
                       }`}
                     >
                       {t("matchLabel")} {f.matchScore}%
