@@ -1,13 +1,13 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { Award, Briefcase, GraduationCap, Scale } from "lucide-react";
+import { Award, BadgeCheck, Briefcase, GraduationCap, Scale, Star } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { avgResponseLabel, readLawyerStats } from "../lib/db";
+import { avgRating, avgResponseLabel, readLawyerStats } from "../lib/db";
 import { SPECIALTIES, type SpecId } from "../lib/specialties";
 import { SPEC_ICON } from "../lib/category-icons";
 
@@ -54,9 +54,15 @@ function LawyerProfile() {
    * נטענים בזמן אמת, אז הרינדור הראשון כמעט תמיד בלי עורך דין.
    */
   const [responseLabel, setResponseLabel] = useState<string | null>(null);
+  const [rating, setRating] = useState<{ avg: number; count: number } | null>(null);
   useEffect(() => {
     void readLawyerStats(lawyerId)
-      .then((st) => setResponseLabel(avgResponseLabel(st)))
+      .then((st) => {
+        setResponseLabel(avgResponseLabel(st));
+        const avg = avgRating(st);
+        // דירוג מוצג רק כשיש עליו על מה להסתמך — אחרת הוא רעש
+        if (avg !== null && st) setRating({ avg, count: st.ratings });
+      })
       .catch(() => {});
   }, [lawyerId]);
 
@@ -91,22 +97,42 @@ function LawyerProfile() {
       ? [{ n: `${lawyer.years}`, label: t("yearsExperience"), icon: Award }]
       : []),
     ...(responseLabel ? [{ n: responseLabel, label: t("responseTimeLabel"), icon: Briefcase }] : []),
+    ...(rating
+      ? [{ n: rating.avg.toFixed(1), label: `${rating.count} ${t("ratingCount")}`, icon: Star }]
+      : []),
   ];
 
   return (
     <AppShell>
       <TopBar title={t("lawyerProfileTitle")} onBack={() => navigate({ to: "/cases" })} />
 
+      {/*
+        * הכותרת על משטח כהה — וזה כל ההבדל.
+        *
+        * קודם כל המסך ישב על אותה רמת ערך: לבן על אפור בהיר עם זהב
+        * חיוור, ולכן שום דבר לא "עמד" — הוא נקרא כמסך הגדרות, לא
+        * ככרטיס של איש מקצוע שמפקידים בידיו תיק. הכהה נותן לזהב
+        * מקום להבהיק בו, ומייצר את ההיררכיה שחסרה.
+        *
+        * כאן גם עלה אות האמון שהיה חסר לגמרי במסך הזה: "זהות ורישיון
+        * אומתו". זה הדבר היחיד שהלקוח באמת צריך לדעת לפני שהוא בוחר,
+        * והוא היה קיים רק בכרטיס ההצעה.
+        */}
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="liquid-glass relative mt-5 overflow-hidden rounded-[28px] p-4"
+        className="relative mt-5 overflow-hidden rounded-[28px] bg-navy p-5 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.55)]"
       >
-        <div className="flex items-center gap-4">
+        {/* שטיפת זהב עדינה מלמעלה — עומק, לא קישוט */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_-10%,rgba(212,175,55,0.22),transparent_60%)]"
+        />
+        <div className="relative flex items-center gap-4">
           {/* קודם הוצגה כאן תמונת סטוק עם alt של שם עורך הדין — כלומר תמונה
               של אדם אחר שהוצגה כמוהו. ראשי תיבות הם אמת. */}
-          <div className="grid size-24 shrink-0 place-items-center rounded-3xl bg-gold/12 text-2xl font-black text-gold-ink ring-1 ring-gold/30">
+          <div className="grid size-[74px] shrink-0 place-items-center rounded-[22px] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[26px] font-black text-[#0F172A] shadow-[0_12px_28px_-10px_rgba(212,175,55,0.7)]">
             {lawyer.initials || lawyer.name.slice(0, 2)}
           </div>
           <div className="min-w-0 flex-1">
@@ -115,24 +141,24 @@ function LawyerProfile() {
                 {lawyer.city}
               </p>
             )}
-            <h1 className="mt-1 truncate text-[22px] font-bold text-foreground">
+            <h1 className="mt-1 truncate text-[23px] font-black leading-tight text-white">
               {lawyer.name.replace(/^עו״ד\s*/, "")}
             </h1>
             {lawyer.firm && (
-              <p className="truncate text-[13px] text-muted-foreground">{lawyer.firm}</p>
-            )}
-            {/* מי שהוסמך השנה מקבל years=0 — "0 שנות ניסיון" גרוע מכלום */}
-            {lawyer.years > 0 && (
-              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-semibold text-gold">
-                <Award className="size-3.5" strokeWidth={2.2} />
-                {lawyer.years} {t("yearsExperience")}
-              </span>
+              <p className="truncate text-[13px] text-white/60">{lawyer.firm}</p>
             )}
           </div>
         </div>
+        {/* אות האמון — מה שהלקוח באמת צריך לדעת לפני שהוא בוחר */}
+        <div className="relative mt-4 flex items-center gap-2 rounded-2xl border border-success/30 bg-success/15 px-3 py-2.5">
+          <BadgeCheck className="size-4 shrink-0 text-success" strokeWidth={2.4} />
+          <span className="text-[12.5px] font-bold text-white">
+            {t("verifiedLawyerChip")}
+          </span>
+        </div>
       </motion.div>
 
-      <div className="mt-3 grid grid-cols-3 gap-2.5">
+      <div className={`mt-3 grid gap-2.5 ${stats.length === 1 ? "grid-cols-1" : stats.length === 2 ? "grid-cols-2" : "grid-cols-3"}`}>
         {stats.map((s, i) => {
           const Icon = s.icon;
           return (
@@ -216,7 +242,7 @@ function LawyerProfile() {
         <button
           type="button"
           onClick={() => navigate({ to: "/cases" })}
-          className="liquid-glass flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-semibold text-foreground"
+          className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-[15px] font-bold"
         >
           {t("toMyCases")}
         </button>
