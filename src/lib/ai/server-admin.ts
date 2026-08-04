@@ -697,7 +697,16 @@ export async function adminDeleteCase(caseId: string): Promise<void> {
 export { MAX_OPEN_CASES } from "../limits";
 import { MAX_OPEN_CASES } from "../limits";
 
-const OPEN_STATUSES = ["validating", "matching", "has_interest"];
+/*
+ * פנייה שנמשכה ממשיכה להיספר שבוע.
+ *
+ * בלי זה המשיכה משחררת מקום מיד, והמכסה מאבדת כל משמעות: פותחים 3,
+ * מושכים 3, פותחים עוד 3 — בדיוק לולאת ההצפה שהמכסה נועדה למנוע.
+ * לאדם אמיתי זה בלתי מורגש: הוא משך פנייה אחת ונשארו לו שתיים.
+ */
+const WITHDRAWN_HOLD_MS = 7 * 24 * 60 * 60 * 1000;
+
+const OPEN_STATUSES = ["validating", "matching", "has_interest", "withdrawn"];
 
 /**
  * תיק שנשאר ב"בבדיקה" יותר מזה מעולם לא הושלם — הוא לא מתחרה על תשומת
@@ -754,6 +763,10 @@ export async function countOpenCases(clientId: string): Promise<number> {
     if (!r.document) return false;
     const f = r.document.fields ?? {};
     const status = f.status?.stringValue;
+    if (status === "withdrawn") {
+      const at = Number(f.withdrawnAt?.integerValue ?? 0);
+      return at > 0 && now - at < WITHDRAWN_HOLD_MS;
+    }
     if (status !== "validating") return true;
     const createdAt = Number(f.createdAt?.integerValue ?? 0);
     return createdAt > 0 && now - createdAt < STALE_VALIDATING_MS;

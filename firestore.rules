@@ -118,6 +118,21 @@ service cloud.firestore {
           && resource.data.status == 'connected'
           && request.resource.data.status == 'closed'
         )
+        /*
+         * הפונה מושך את פנייתו — משלו בלבד, ורק כל עוד היא פתוחה.
+         *
+         * מ-connected אי אפשר: שם כבר נכרת קשר עם עורך דין, וסיומו
+         * הוא ביניהם ולא בלחיצה חד-צדדית. מ-closed/rejected אין מה
+         * למשוך. הרשימה הסגורה של סטטוסי המקור היא הלב כאן.
+         */
+        || (
+          resource.data.clientId == request.auth.uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['status', 'withdrawnAt'])
+          && resource.data.status in ['matching', 'has_interest']
+          && request.resource.data.status == 'withdrawn'
+          && request.resource.data.withdrawnAt is int
+        )
         // אדמין-העל מכריע בערעורים — שינוי סטטוס בלבד
         || (
           isSuperAdmin()
@@ -208,6 +223,7 @@ service cloud.firestore {
          */
         && request.resource.data.type in [
              'lawyer_interest', 'chosen', 'case_reverted', 'case_milestone',
+             'case_withdrawn',
              'case_validated', 'case_rejected',
              'appeal_accepted', 'appeal_dismissed',
              'verification_approved', 'verification_rejected'

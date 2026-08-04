@@ -133,6 +133,8 @@ interface CaseDoc {
   location?: string;
   /** שפת הראיון של הלקוח. חסר = עברית (תיקים מלפני השדה). */
   clientLang?: string;
+  /** מתי הפונה משך את הפנייה. */
+  withdrawnAt?: number;
   interested: Lawyer[]; // דה-נורמליזציה לתצוגה
   interestedIds: string[];
   chosenLawyerId?: string;
@@ -184,6 +186,7 @@ function toCase(id: string, d: CaseDoc): Case {
     chosenLawyerId: d.chosenLawyerId,
     offers: d.offers,
     notifiedLawyers: d.notifiedLawyers,
+    withdrawnAt: d.withdrawnAt,
   };
 }
 
@@ -240,7 +243,8 @@ function casePriority(c: Case): number {
   if (c.status === "has_interest") return 0; // דורש ממך בחירה
   if (c.status === "connected") return 1; // פעיל
   if (c.status === "closed") return 3; // הושלם
-  if (c.status === "rejected") return 4; // הוכרע — לתחתית
+  if (c.status === "withdrawn") return 4; // נמשך ביוזמת הפונה
+  if (c.status === "rejected") return 5; // הוכרע — לתחתית
   return 2; // בבדיקה / ממתין
 }
 
@@ -815,6 +819,40 @@ export async function cancelScheduledDeletion(uid: string): Promise<boolean> {
  * הסרה היא האמת, ולא סימון "נדחה" שמשמעותו 'לא נמצאה עילה'. החוקים
  * מתירים ללקוח למחוק רק תיק שלו שעדיין בבדיקה.
  */
+/**
+ * משיכת פנייה ע"י הפונה.
+ *
+ * לא מחיקה: התיק נשאר עם ההצעות ועם ההיסטוריה, ורק יורד מהפיד. עורך
+ * דין שקרא תזכיר וכתב הצעה מדורגת השקיע עבודה אמיתית — היעלמות בשקט
+ * אינה דרך להתייחס למי שגייסנו אישית, ולכן כל מי שהביע עניין מקבל
+ * הודעה.
+ *
+ * מותרת רק מ-matching ומ-has_interest. תיק מחובר אינו נמשך: בשלב הזה
+ * יש יחסי עו"ד-לקוח, וסיומם הוא ביניהם.
+ */
+export async function withdrawCase(caseId: string): Promise<void> {
+  const c = await readCaseRaw(caseId);
+  await updateDoc(doc(fbDb(), "cases", caseId), {
+    status: "withdrawn",
+    withdrawnAt: Date.now(),
+  });
+  // ההתראה אינה חוסמת — המשיכה עצמה כבר נרשמה
+  const title = (c?.title as string) || (c?.category as string) || "";
+  await Promise.all(
+    (((c?.interestedIds as string[]) ?? [])).map((lid) =>
+      notify(lid, {
+        type: "case_withdrawn",
+        title: "הפונה משך את הפנייה",
+        body: `"${title}" כבר אינו פתוח. תודה על הזמן שהשקעת.`,
+        titleKey: "notifWithdrawnTitle",
+        bodyKey: "notifWithdrawnBody",
+        params: { title },
+        caseId,
+      }).catch(() => undefined),
+    ),
+  );
+}
+
 export async function removeStuckCase(caseId: string): Promise<void> {
   await deleteDoc(doc(fbDb(), "cases", caseId));
 }

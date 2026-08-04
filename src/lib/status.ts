@@ -10,6 +10,7 @@ const LABELS: Record<CaseStatus, StatusLabel> = {
   has_interest: { he: "יש התעניינות", en: "Interest received", ru: "Есть заинтересованность", ar: "هناك اهتمام", es: "Hay interés", fr: "Intérêt reçu", tone: "navy" },
   connected: { he: "נוצר חיבור", en: "Connected", ru: "Связь установлена", ar: "تم التواصل", es: "Conectado", fr: "Mis en relation", tone: "success" },
   closed: { he: "התיק הסתיים", en: "Case closed", ru: "Дело закрыто", ar: "أُغلق الملف", es: "Caso cerrado", fr: "Dossier clôturé", tone: "muted" },
+  withdrawn: { he: "הפנייה נמשכה", en: "Case withdrawn", ru: "Обращение отозвано", ar: "سُحب الطلب", es: "Caso retirado", fr: "Dossier retiré", tone: "muted" },
   rejected: { he: "לא נמצאה עילה", en: "No cause found", ru: "Оснований не найдено", ar: "لم يُعثر على أساس قانوني", es: "No se encontró fundamento", fr: "Aucun fondement retenu", tone: "muted" },
 };
 

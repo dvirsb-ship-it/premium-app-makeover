@@ -143,9 +143,14 @@ function ClientHome() {
    */
   const competingCount = cases.filter(
     (c) =>
-      (c.status === "matching" || c.status === "has_interest") ||
+      c.status === "matching" ||
+      c.status === "has_interest" ||
       (c.status === "validating" &&
-        Date.now() - c.createdAt < 30 * 60 * 1000),
+        Date.now() - c.createdAt < 30 * 60 * 1000) ||
+      /* נמשכה — נספרת שבוע, כדי שמשיכה לא תשמש לעקיפת המכסה */
+      (c.status === "withdrawn" &&
+        !!c.withdrawnAt &&
+        Date.now() - c.withdrawnAt < 7 * 24 * 60 * 60 * 1000),
   ).length;
   const atCaseLimit = competingCount >= MAX_OPEN_CASES;
 

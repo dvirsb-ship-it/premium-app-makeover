@@ -23,6 +23,7 @@ import {
   type CaseImage,
   type LawyerContactDoc,
   removeStuckCase,
+  withdrawCase,
 } from "../lib/db";
 import { BadgeCheck } from "lucide-react";
 import { normalizePhone } from "../lib/auth-service";
@@ -124,6 +125,8 @@ function CaseDetail() {
   // פרטי הקשר של עורך הדין הנבחר — נחשפים רק אחרי הבחירה (תת-אוסף מוגן)
   const chosenId = item?.chosenLawyerId;
   const [chosenProfile, setChosenProfile] = useState<LawyerContactDoc | null>(null);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
   /*
    * הקריאה הזו מרוצה מול הכתיבה של הבחירה עצמה, ומפסידה.
    *
@@ -271,6 +274,61 @@ function CaseDetail() {
             * נצחי. הבדיקה לוקחת פחות מדקה; רבע שעה פירושו שהיא לא רצה,
             * והמשתמש צריך דרך לצאת מזה בעצמו.
             */}
+          {/*
+            * משיכת הפנייה — רק כשהיא באמת פתוחה. אישור דו-שלבי כמו
+            * בסגירת תיק אצל עורך הדין: פעולה שמודיעים עליה לאנשים
+            * אחרים לא נעשית בלחיצה אחת.
+            */}
+          {(item.status === "matching" || item.status === "has_interest") && (
+            <div className="mt-3">
+              {confirmWithdraw ? (
+                <div className="rounded-3xl border border-warning-ink/35 bg-warning-ink/[0.08] p-4">
+                  <p className="text-[13px] font-bold text-foreground">
+                    {t("withdrawConfirmTitle")}
+                  </p>
+                  <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
+                    {item.interested.length > 0
+                      ? t("withdrawConfirmBodyInterested")
+                      : t("withdrawConfirmBody")}
+                  </p>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setConfirmWithdraw(false)}
+                      className="liquid-glass flex-1 rounded-2xl py-3 text-[13.5px] font-semibold text-foreground"
+                    >
+                      {t("cancel")}
+                    </button>
+                    <button
+                      type="button"
+                      disabled={withdrawing}
+                      onClick={() => {
+                        setWithdrawing(true);
+                        void withdrawCase(item.id)
+                          .then(() => navigate({ to: "/cases" }))
+                          .catch(() => {
+                            setWithdrawing(false);
+                            toast.error(t("authErrGeneric"));
+                          });
+                      }}
+                      className="flex-1 rounded-2xl bg-destructive/90 py-3 text-[13.5px] font-bold text-destructive-foreground disabled:opacity-60"
+                    >
+                      {t("withdrawConfirmBtn")}
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmWithdraw(true)}
+                  className="w-full rounded-2xl py-3 text-[13px] font-semibold text-muted-foreground transition hover:text-foreground"
+                >
+                  {t("withdrawCta")}
+                </button>
+              )}
+            </div>
+          )}
+
           {staleValidating && (
             <div className="mt-3 rounded-3xl border border-warning-ink/35 bg-warning-ink/[0.08] px-4 py-3.5">
               <p className="text-[13px] font-bold text-foreground">{t("staleCheckTitle")}</p>

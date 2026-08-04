@@ -748,3 +748,54 @@ describe("מחיקת חשבון מתוזמנת", () => {
     );
   });
 });
+
+/*
+ * משיכת פנייה. הכלל שאסור שיישחק: תיק מחובר אינו נמשך בלחיצה חד-צדדית,
+ * כי בשלב הזה יש כבר יחסי עו"ד-לקוח.
+ */
+describe("משיכת פנייה ע\"י הפונה", () => {
+  const mk = (status: string, extra: Record<string, unknown> = {}) => ({
+    clientId: "client",
+    title: "t",
+    category: "נזיקין ותאונות",
+    summary: "s",
+    description: "d",
+    status,
+    createdAt: Date.now(),
+    interested: [],
+    interestedIds: [],
+    ...extra,
+  });
+  const withdraw = { status: "withdrawn", withdrawnAt: Date.now() };
+  const seed = async (id: string, status: string, extra = {}) =>
+    env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), `cases/${id}`), mk(status, extra));
+    });
+
+  it("מושך פנייה שממתינה לעורכי דין", async () => {
+    await seed("c1", "matching");
+    await assertSucceeds(updateDoc(doc(as("client"), "cases/c1"), withdraw));
+  });
+
+  it("מושך פנייה שיש בה התעניינות", async () => {
+    await seed("c2", "has_interest");
+    await assertSucceeds(updateDoc(doc(as("client"), "cases/c2"), withdraw));
+  });
+
+  it("אי אפשר למשוך תיק מחובר — יש כבר עו\"ד שעובד עליו", async () => {
+    await seed("c3", "connected", { chosenLawyerId: "lawyerOk" });
+    await assertFails(updateDoc(doc(as("client"), "cases/c3"), withdraw));
+  });
+
+  it("אי אפשר למשוך תיק של מישהו אחר", async () => {
+    await seed("c4", "matching", { clientId: "someoneElse" });
+    await assertFails(updateDoc(doc(as("client"), "cases/c4"), withdraw));
+  });
+
+  it("המשיכה אינה משמשת כדי לשנות שדות אחרים", async () => {
+    await seed("c5", "has_interest");
+    await assertFails(
+      updateDoc(doc(as("client"), "cases/c5"), { ...withdraw, category: "פלילי" }),
+    );
+  });
+});

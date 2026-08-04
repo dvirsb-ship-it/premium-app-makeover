@@ -7,6 +7,11 @@ export type CaseStatus =
   | "connected"
   /* התיק הושלם — עורך הדין סימן את אבן הדרך האחרונה */
   | "closed"
+  /*
+   * הפונה משך את הפנייה. נבדל מ-closed בכוונה: "הטיפול הסתיים" הוא
+   * שקר על תיק שנמשך, ועורך דין שהשקיע זמן בהצעה ראוי לדעת מה באמת קרה.
+   */
+  | "withdrawn"
   | "rejected";
 
 export interface Lawyer {
@@ -52,6 +57,8 @@ export interface Case {
   offers?: Record<string, CaseOffer>;
   /** כמה עורכי דין מאומתים בתחום קיבלו את התיק. undefined = תיק ישן. */
   notifiedLawyers?: number;
+  /** מתי הפונה משך את הפנייה — קובע כמה זמן היא נספרת במכסה. */
+  withdrawnAt?: number;
 }
 
 /** מודל שכר הטרחה. בנזקי גוף בישראל אחוזים מהפיצוי הם הנפוץ ביותר. */
