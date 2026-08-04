@@ -140,9 +140,29 @@ export async function consumeRedirectSignIn(): Promise<RedirectOutcome> {
   return pending ? { status: "failed" } : { status: "none" };
 }
 
-/** Apple — ידרוש הגדרת ספק בקונסולה (חשבון Apple Developer). */
-export async function signInApple(): Promise<UserCredential> {
+/**
+ * התחברות עם Apple. דורשת הגדרת ספק בקונסולה (חשבון Apple Developer).
+ *
+ * אותו מסלול הפניה כמו גוגל, ולא במקרה: זו בדיוק החתימה שתשמש בעיקר
+ * באייפון — כלומר בדיוק המקום שבו הפופאפ נשבר. ב-PWA שמותקנת למסך
+ * הבית iOS פותח את חלון ההזדהות בספארי והאפליקציה נשארת מאחור;
+ * המשתמש רואה אפליקציה שנעלמה. הלקח הזה כבר שולם על גוגל (31/07/2026)
+ * ואין סיבה לשלם אותו שוב.
+ */
+export async function signInApple(): Promise<UserCredential | null> {
   const provider = new OAuthProvider("apple.com");
+  // Apple אינה מחזירה שם ומייל אלא אם ביקשו אותם במפורש, ורק בפעם הראשונה
+  provider.addScope("email");
+  provider.addScope("name");
+  if (prefersRedirect()) {
+    try {
+      localStorage.setItem(REDIRECT_FLAG, String(Date.now()));
+    } catch {
+      /* מצב פרטי — נוותר על האבחון, לא על ההתחברות */
+    }
+    await signInWithRedirect(fbAuth(), provider);
+    return null;
+  }
   return signInWithPopup(fbAuth(), provider);
 }
 

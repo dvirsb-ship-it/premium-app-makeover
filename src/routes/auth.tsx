@@ -162,6 +162,8 @@ function Auth() {
   function friendlyError(e: unknown): string {
     const codeStr = (e as { code?: string })?.code ?? "";
     if (codeStr.includes("popup-closed") || codeStr.includes("cancelled")) return "";
+    // הספק עדיין לא הוגדר בקונסולה — זה המצב שבו "בקרוב" הוא האמת
+    if (codeStr.includes("operation-not-allowed")) return t("authAppleSoon");
     if (codeStr.includes("invalid-verification-code")) return t("authErrCode");
     if (codeStr.includes("invalid-phone-number")) return t("authErrPhone");
     if (codeStr.includes("invalid-email")) return t("authErrEmail");
@@ -184,12 +186,17 @@ function Auth() {
 
       if (provider === "apple") {
         setLoading(provider);
-        try {
-          await signInApple();
-          onSignedIn();
-        } catch {
-          toast.info(t("authAppleSoon"));
-        }
+        /*
+         * כמו בגוגל: במסלול ההפניה הדפדפן עוזב את העמוד ומחזיר null,
+         * ואסור לקרוא ל-onSignedIn — אין עדיין משתמש.
+         *
+         * הבליעה הישנה של *כל* שגיאה ל"אפל בקרוב" הייתה נוחה כשהספק
+         * לא היה מוגדר, אבל ברגע שהוא מוגדר היא הופכת כל תקלה אמיתית
+         * להודעה מרגיעה ושקרית. רק השגיאה שאומרת "הספק אינו מוגדר"
+         * מקבלת את ההודעה הזו.
+         */
+        const cred = await signInApple();
+        if (cred) onSignedIn();
         return;
       }
 
