@@ -27,6 +27,16 @@ function format(model: FeeModel, amount: number) {
     : `₪${amount.toLocaleString("he-IL")}`;
 }
 
+/**
+ * הציר משווה את המדרגה הראשונה (עד פשרה) — היא המשותפת לכל ההצעות.
+ * הצעה מדורגת מסומנת בטווח כדי שהלקוח יידע שהמספר אינו כל הסיפור.
+ */
+function rangeSuffix(offer: CaseOffer): string {
+  if (offer.model !== "contingency") return "";
+  const top = Math.max(offer.postSuitPercent ?? 0, offer.judgmentPercent ?? 0);
+  return top > offer.amount ? `–${top}%` : "";
+}
+
 export function OfferComparison({
   interested,
   offers,
@@ -99,6 +109,7 @@ export function OfferComparison({
                       </span>
                       <span className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-bold text-foreground">
                         {format(model, offer.amount)}
+                        {rangeSuffix(offer)}
                       </span>
                     </div>
                   );
@@ -181,6 +192,8 @@ function WhatItMeans({
           const fee =
             offer.model === "contingency" ? (example * offer.amount) / 100 : offer.amount;
           const left = example - fee;
+          const stagedNote =
+            offer.model === "contingency" && rangeSuffix(offer) !== "";
           return (
             <div
               key={lawyer.id}
@@ -200,6 +213,9 @@ function WhatItMeans({
                     {shekel(Math.max(0, left))}
                   </span>
                 </p>
+                {stagedNote && (
+                  <p className="text-[10.5px] text-muted-foreground">{t("meansStagedNote")}</p>
+                )}
               </div>
               {/*
                 * ההוצאות אינן חלק מהחשבון — הן משתנה שאיננו יודעים. מציינים

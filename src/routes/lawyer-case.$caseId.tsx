@@ -12,6 +12,7 @@ import { useRequireAuth } from "../lib/require-auth";
 import {
   caseImageUrl,
   categoryHasStatutoryCap,
+  categoryForbidsContingency,
   markMilestone,
   reconcileClosedCase,
   readCaseMemo,
@@ -127,6 +128,18 @@ function LawyerCaseDetail() {
   const [offerOpen, setOfferOpen] = useState(false);
   const [model, setModel] = useState<FeeModel>("contingency");
   const [amount, setAmount] = useState("");
+  /*
+   * אחוז מדורג — השפה של הסכמי שכר טרחה בנזקי גוף: מדרגה לפשרה מוקדמת,
+   * מדרגה משהוגשה תביעה, מדרגה לפסק דין. לא כופים: עורך דין שעובד עם
+   * אחוז אחיד פשוט לא פותח את זה.
+   */
+  const [staged, setStaged] = useState(false);
+  const [postSuit, setPostSuit] = useState("");
+  const [judgment, setJudgment] = useState("");
+  /* מקדמה שמתקזזת — מקובלת בשעתי ובגלובלי */
+  const [retainer, setRetainer] = useState("");
+  /* "+ מע"מ" היא ברירת המחדל כי כך השוק מדבר */
+  const [vat, setVat] = useState<"plus" | "included">("plus");
   const [noWin, setNoWin] = useState(true);
   const [expenses, setExpenses] = useState<ExpensesTerm>("advanced");
   const [expensesEstimate, setExpensesEstimate] = useState("");
@@ -138,10 +151,21 @@ function LawyerCaseDetail() {
    * ותאונות" כוללת גם תיקים שאינם תאונת דרכים, ולכן זו אזהרה ולא חסימה —
    * עורך הדין הוא שיודע אם התיק שלו כפוף לתקרה.
    */
+  const maxPercent = Math.max(
+    Number(amount) || 0,
+    staged ? Number(postSuit) || 0 : 0,
+    staged ? Number(judgment) || 0 : 0,
+  );
   const capWarning =
     model === "contingency" &&
-    Number(amount) > PLTD_MAX_PERCENT &&
+    maxPercent > PLTD_MAX_PERCENT &&
     categoryHasStatutoryCap(item?.category ?? "");
+
+  /* בעניין פלילי שכר מותנה בתוצאות אסור בדין — האופציה לא מוצגת כלל */
+  const noContingency = categoryForbidsContingency(item?.category ?? "");
+  useEffect(() => {
+    if (noContingency && model === "contingency") setModel("fixed");
+  }, [noContingency, model]);
 
   /*
    * אבני דרך — הלקוח מקבל התראה על כל סימון, וזה גם הנתון שעליו יתבסס
@@ -549,8 +573,10 @@ function LawyerCaseDetail() {
                   <span className="mb-1.5 block text-[11px] font-semibold text-foreground/80">
                     {t("offerModelLabel")}
                   </span>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {(["contingency", "hourly", "fixed"] as FeeModel[]).map((m) => (
+                  <div className={`grid gap-1.5 ${noContingency ? "grid-cols-2" : "grid-cols-3"}`}>
+                    {((noContingency
+                      ? ["hourly", "fixed"]
+                      : ["contingency", "hourly", "fixed"]) as FeeModel[]).map((m) => (
                       <button
                         key={m}
                         type="button"
@@ -565,11 +591,24 @@ function LawyerCaseDetail() {
                       </button>
                     ))}
                   </div>
+                  {noContingency && (
+                    <p className="mt-1.5 px-1 text-[10.5px] leading-relaxed text-muted-foreground">
+                      {t("offerNoContingencyCriminal")}
+                    </p>
+                  )}
                 </div>
 
                 <label className="block">
                   <span className="mb-1 block text-[11px] font-semibold text-foreground/80">
-                    {t(model === "contingency" ? "offerPercentLabel" : model === "hourly" ? "offerHourlyLabel" : "offerFixedLabel")}
+                    {t(
+                      model === "contingency"
+                        ? staged
+                          ? "offerStagePreSuit"
+                          : "offerPercentLabel"
+                        : model === "hourly"
+                          ? "offerHourlyLabel"
+                          : "offerFixedLabel",
+                    )}
                   </span>
                   <div className="relative">
                     <input
@@ -586,6 +625,111 @@ function LawyerCaseDetail() {
                     </span>
                   </div>
                 </label>
+
+                {/* אחוז מדורג לפי שלב — כך הסכמי שכר טרחה כתובים באמת */}
+                {model === "contingency" && (
+                  <div>
+                    <button
+                      type="button"
+                      onClick={() => setStaged((v) => !v)}
+                      className="flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-foreground/[0.04] p-3 text-start"
+                    >
+                      <span
+                        className={`grid size-5 shrink-0 place-items-center rounded-md border transition ${
+                          staged ? "border-gold bg-gold text-background" : "border-white/25"
+                        }`}
+                      >
+                        {staged && <Check className="size-3.5" strokeWidth={3} />}
+                      </span>
+                      <span className="text-[12px] font-semibold text-foreground">
+                        {t("offerStagedToggle")}
+                      </span>
+                    </button>
+                    {staged && (
+                      <div className="mt-2 grid grid-cols-2 gap-1.5">
+                        <label className="block">
+                          <span className="mb-1 block text-[10.5px] font-semibold text-foreground/70">
+                            {t("offerStagePostSuit")}
+                          </span>
+                          <div className="relative">
+                            <input
+                              className={offerInputCls}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              value={postSuit}
+                              onChange={(e) => setPostSuit(e.target.value)}
+                              placeholder="15"
+                            />
+                            <span className="pointer-events-none absolute inset-y-0 end-4 grid place-items-center text-[13px] font-bold text-muted-foreground">%</span>
+                          </div>
+                        </label>
+                        <label className="block">
+                          <span className="mb-1 block text-[10.5px] font-semibold text-foreground/70">
+                            {t("offerStageJudgment")}
+                          </span>
+                          <div className="relative">
+                            <input
+                              className={offerInputCls}
+                              type="number"
+                              inputMode="decimal"
+                              min={0}
+                              value={judgment}
+                              onChange={(e) => setJudgment(e.target.value)}
+                              placeholder="18"
+                            />
+                            <span className="pointer-events-none absolute inset-y-0 end-4 grid place-items-center text-[13px] font-bold text-muted-foreground">%</span>
+                          </div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* מקדמה — רק היכן שהיא חלק מהשפה: שעתי וגלובלי */}
+                {model !== "contingency" && (
+                  <label className="block">
+                    <span className="mb-1 block text-[11px] font-semibold text-foreground/80">
+                      {t("offerRetainerLabel")}
+                    </span>
+                    <div className="relative">
+                      <input
+                        className={offerInputCls}
+                        type="number"
+                        inputMode="decimal"
+                        min={0}
+                        value={retainer}
+                        onChange={(e) => setRetainer(e.target.value)}
+                        placeholder="2000"
+                      />
+                      <span className="pointer-events-none absolute inset-y-0 end-4 grid place-items-center text-[13px] font-bold text-muted-foreground">{"\u20aa"}</span>
+                    </div>
+                    <p className="mt-1 px-1 text-[10.5px] text-muted-foreground">{t("offerRetainerHint")}</p>
+                  </label>
+                )}
+
+                {/* השוק אומר "+ מע\u05f4מ" בעל-פה — ההצעה אומרת זאת בכתב */}
+                <div>
+                  <span className="mb-1.5 block text-[11px] font-semibold text-foreground/80">
+                    {t("offerVatLabel")}
+                  </span>
+                  <div className="grid grid-cols-2 gap-1.5">
+                    {(["plus", "included"] as const).map((v) => (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setVat(v)}
+                        className={`rounded-2xl border px-2 py-2.5 text-[11px] font-bold leading-tight transition ${
+                          vat === v
+                            ? "border-gold/60 bg-gold/15 text-gold"
+                            : "border-white/10 bg-foreground/[0.04] text-muted-foreground"
+                        }`}
+                      >
+                        {t(v === "plus" ? "offerVatPlus" : "offerVatIncluded")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
                 {/* התקרה בפלת"ד היא חובה שבדין — מזהירים, לא חוסמים */}
                 {capWarning && (
@@ -681,6 +825,16 @@ function LawyerCaseDetail() {
                       expensesEstimate: expenses === "included" ? "" : expensesEstimate.trim(),
                       duration: duration.trim(),
                       note: note.trim(),
+                      vat,
+                      ...(model === "contingency" && staged && Number(postSuit) > 0
+                        ? { postSuitPercent: Number(postSuit) }
+                        : {}),
+                      ...(model === "contingency" && staged && Number(judgment) > 0
+                        ? { judgmentPercent: Number(judgment) }
+                        : {}),
+                      ...(model !== "contingency" && Number(retainer) > 0
+                        ? { retainer: Number(retainer) }
+                        : {}),
                     });
                     window.setTimeout(() => router.history.back(), 900);
                   }}

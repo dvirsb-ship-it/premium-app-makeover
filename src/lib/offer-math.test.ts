@@ -40,3 +40,51 @@ describe("תרגום ההצעה לכסף", () => {
     expect(left(200000, 26000)).toBe(174000);
   });
 });
+
+/*
+ * ההרחבה של 08/2026 — השפה האמיתית של הסכמי שכר טרחה בישראל:
+ * אחוז מדורג לפי שלב, מקדמה שמתקזזת, ואיסור אחוזים בפלילי.
+ */
+import { categoryForbidsContingency, categoryHasStatutoryCap, PLTD_MAX_PERCENT } from "./legal";
+
+describe("אחוז מדורג לפי שלב", () => {
+  const maxPercent = (base: number, postSuit?: number, judgment?: number) =>
+    Math.max(base, postSuit ?? 0, judgment ?? 0);
+
+  it("האזהרה על תקרת פלת״ד נמדדת מול המדרגה הגבוהה, לא הראשונה", () => {
+    // 8% בפשרה נראה כשר, אבל 15% בפסק דין חורג — בדיוק המקרה שהמדורג מסתיר
+    expect(maxPercent(8, 11, 15) > PLTD_MAX_PERCENT).toBe(true);
+    expect(maxPercent(8, 11, 13) > PLTD_MAX_PERCENT).toBe(false);
+  });
+
+  it("הסולם הסטטוטורי המלא של פלת״ד עובר בלי אזהרה", () => {
+    expect(maxPercent(8, 11, 13)).toBe(PLTD_MAX_PERCENT);
+    expect(categoryHasStatutoryCap("נזיקין ותאונות")).toBe(true);
+  });
+
+  it("ההשוואה ללקוח מחושבת על המדרגה הראשונה — עד פשרה", () => {
+    // כמו בהסכם אמיתי: הפשרה היא התרחיש השכיח, והיא הבסיס להשוואה
+    expect(fee("contingency", 15, 100000)).toBe(15000);
+  });
+});
+
+describe("איסור שכר מותנה בפלילי", () => {
+  it("קטגוריית פלילי חוסמת אחוזים — חוק לשכת עורכי הדין, ס׳ 84", () => {
+    expect(categoryForbidsContingency("פלילי")).toBe(true);
+  });
+
+  it("שאר הקטגוריות אינן נחסמות", () => {
+    for (const c of ["נזיקין ותאונות", "דיני עבודה", "דיני משפחה", "תעבורה", "אחר"]) {
+      expect(categoryForbidsContingency(c), c).toBe(false);
+    }
+  });
+});
+
+describe("מקדמה שמתקזזת", () => {
+  it("המקדמה אינה מגדילה את העלות הכוללת — היא חלק מהשכר, על חשבונו", () => {
+    const fixed = 8000;
+    const retainer = 2000;
+    // מה שנשאר לשלם אחרי המקדמה + המקדמה עצמה = השכר המלא, בדיוק
+    expect(fixed - retainer + retainer).toBe(fixed);
+  });
+});

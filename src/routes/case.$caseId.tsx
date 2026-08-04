@@ -514,13 +514,41 @@ function LawyerChoiceCard({
             <span className="text-[12px] font-semibold text-muted-foreground">
               {t(
                 offer.model === "contingency"
-                  ? "offerOfAward"
+                  ? offer.postSuitPercent || offer.judgmentPercent
+                    ? "offerOfAwardPreSuit"
+                    : "offerOfAward"
                   : offer.model === "hourly"
                     ? "offerPerHour"
                     : "offerFixedTotal",
               )}
+              {offer.vat ? ` \u00b7 ${t(offer.vat === "plus" ? "offerVatPlus" : "offerVatIncluded")}` : ""}
             </span>
           </div>
+
+          {/* המדרגות — האחוז עולה עם שלב ההליך, כמו בהסכמי שכר טרחה אמיתיים */}
+          {offer.model === "contingency" && (offer.postSuitPercent || offer.judgmentPercent) && (
+            <div className="mt-1.5 flex flex-wrap gap-1.5">
+              {offer.postSuitPercent ? (
+                <span className="rounded-full bg-foreground/[0.06] px-2.5 py-1 text-[11px] font-semibold text-foreground">
+                  {t("offerStagePostSuit")}: <span dir="ltr">{offer.postSuitPercent}%</span>
+                </span>
+              ) : null}
+              {offer.judgmentPercent ? (
+                <span className="rounded-full bg-foreground/[0.06] px-2.5 py-1 text-[11px] font-semibold text-foreground">
+                  {t("offerStageJudgment")}: <span dir="ltr">{offer.judgmentPercent}%</span>
+                </span>
+              ) : null}
+            </div>
+          )}
+
+          {/* מקדמה שמתקזזת — חלק מהמחיר, לא הפתעה בפגישה הראשונה */}
+          {offer.retainer ? (
+            <p className="mt-1.5 text-[12px] text-foreground">
+              <span className="text-muted-foreground">{t("offerRetainerLabel")}: </span>
+              <span className="font-bold" dir="ltr">\u20aa{offer.retainer.toLocaleString("he-IL")}</span>
+              <span className="text-muted-foreground"> \u00b7 {t("offerRetainerHint")}</span>
+            </p>
+          ) : null}
 
           {responseLabel && (
             <p className="mt-1.5 text-[12px] text-foreground">

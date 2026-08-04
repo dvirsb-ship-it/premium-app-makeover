@@ -165,7 +165,7 @@ export interface CaseImage {
 }
 
 /* הכללים המשפטיים חיים ב-legal.ts (טהור, נבדק) — כאן רק ייצוא-מחדש */
-export { PLTD_MAX_PERCENT, categoryHasStatutoryCap } from "./legal";
+export { PLTD_MAX_PERCENT, categoryHasStatutoryCap, categoryForbidsContingency } from "./legal";
 
 function toCase(id: string, d: CaseDoc): Case {
   return {
@@ -411,6 +411,11 @@ export async function expressInterestDb(
     expensesEstimate: stripContactInfo(offer.expensesEstimate),
     duration: stripContactInfo(offer.duration),
     note: stripContactInfo(offer.note),
+    // Firestore דוחה undefined — האופציונליים נכנסים רק כשיש בהם ערך ממשי
+    ...(offer.vat ? { vat: offer.vat } : {}),
+    ...(offer.postSuitPercent ? { postSuitPercent: offer.postSuitPercent } : {}),
+    ...(offer.judgmentPercent ? { judgmentPercent: offer.judgmentPercent } : {}),
+    ...(offer.retainer ? { retainer: offer.retainer } : {}),
   };
   const hasOffer = !!clean && clean.amount > 0;
   await updateDoc(doc(fbDb(), "cases", caseId), {
