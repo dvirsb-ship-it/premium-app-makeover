@@ -37,3 +37,8 @@ dist-ssr
 firebase-debug.log
 firestore-debug.log
 .firebase/
+
+# תוצרי בנייה של אנדרואיד — נבנים מחדש; רק החבילה הסופית נשמרת
+android/app-release*
+android/app/build/
+android/.gradle/
