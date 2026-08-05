@@ -364,6 +364,22 @@ export async function sendPush(
               token: t,
               data: { title: msg.title, body: msg.body, link: msg.link ?? "/" },
               webpush: { headers: { Urgency: "high" } },
+              /*
+               * iOS אינו מציג התראה ממטען data בלבד — בלי notification
+               * ובלי alert היא מגיעה בשקט והמשתמש לעולם לא יידע. אותה
+               * הודעה בדיוק, בשתי המעטפות שכל פלטפורמה מבינה.
+               */
+              notification: { title: msg.title, body: msg.body },
+              apns: {
+                headers: { "apns-priority": "10" },
+                payload: {
+                  aps: {
+                    alert: { title: msg.title, body: msg.body },
+                    sound: "default",
+                    badge: 1,
+                  },
+                },
+              },
             },
           }),
         })

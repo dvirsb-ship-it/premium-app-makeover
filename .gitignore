@@ -42,3 +42,10 @@ firestore-debug.log
 android/app-release*
 android/app/build/
 android/.gradle/
+
+# iOS — נוצר מחדש ע"י `cap sync`; רק ההגדרות שלנו נשמרות
+ios/App/Pods/
+ios/App/build/
+ios/App/DerivedData/
+ios/App/App.xcworkspace/xcuserdata/
+ios/App/App.xcodeproj/xcuserdata/

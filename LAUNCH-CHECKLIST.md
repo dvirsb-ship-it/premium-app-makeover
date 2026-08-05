@@ -28,7 +28,16 @@
 - [ ] Cloud Scheduler ל-`/__cron/deletions` — אופציונלי, הסריקה כבר רצה
       מעצמה בכל בקשה
 - [ ] חשבונות החנויות: Apple 99$/שנה, Google 25$ חד-פעמי
-- [ ] מפתח החתימה של אנדרואיד — נוצר, מגובה, והסיסמה במנהל הסיסמאות
+- [x] מפתח החתימה של אנדרואיד — נוצר, מגובה ב-iCloud ובשולחן העבודה
+
+## 4. iOS — מה שחסום על חשבון Apple Developer
+
+- [ ] **מפתח APNs (.p8)** — להוריד מ-Apple Developer ולהעלות ל-Firebase
+      (Project Settings ← Cloud Messaging ← Apple app configuration).
+      **בלעדיו התראות לא יגיעו לאייפון בכלל** — הקוד מוכן ומחכה לו.
+- [ ] Bundle ID `il.co.justask.app` לרשום ב-Apple Developer
+- [ ] Sign in with Apple — להפעיל ב-Firebase ולהוריד את `GOOGLE_ONLY`
+- [ ] צוות חתימה ב-Xcode (Signing & Capabilities)
 
 ---
 
