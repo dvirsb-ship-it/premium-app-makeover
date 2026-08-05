@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-05T12:30Z";
+const BUILD_STAMP = "2026-08-05T13:20Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -245,7 +245,7 @@ const appHandler: ServerEntry = {
               target: {
                 namespace: "android_app",
                 package_name: "il.co.justask.app",
-                sha256_cert_fingerprints: [""],
+                sha256_cert_fingerprints: ["3F:F5:95:52:D5:6E:9D:54:D2:33:55:B1:A0:A5:F9:0A:E5:9B:67:CD:F7:B0:70:EF:49:3A:D2:D5:BC:53:3B:AC"],
               },
             },
           ]),
