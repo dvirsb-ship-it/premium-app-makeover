@@ -763,6 +763,7 @@ export const es: Partial<Record<StringKey, string>> = {
   trialOverBody: "Los casos que ya lleva continúan con normalidad, siempre. Para seguir recibiendo nuevas consultas, únase a la membresía.",
   trialOverCta: "Ver la membresía",
   trialLeftChip: "Quedan {n} conexiones de prueba",
+  trialLeftChipOne: "Queda una conexión de prueba",
   deleteCancelled: "Eliminación cancelada — su cuenta está activa",
   deleteScheduledTitle: "Eliminación programada",
   deleteScheduledBody: "Su cuenta y todo su contenido se eliminarán automáticamente en {n} días. Si inicia sesión antes, la eliminación se cancela.",

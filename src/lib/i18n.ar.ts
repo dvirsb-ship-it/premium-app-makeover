@@ -763,6 +763,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   trialOverBody: "الملفات التي بين يديك تستمر كالمعتاد، دائمًا. لمتابعة استقبال طلبات جديدة — انضم إلى الاشتراك.",
   trialOverCta: "تفاصيل الاشتراك",
   trialLeftChip: "تبقّى {n} من الوصلات التجريبية",
+  trialLeftChipOne: "تبقّت وصلة تجريبية واحدة",
   deleteCancelled: "أُلغي الحذف — حسابك نشِط",
   deleteScheduledTitle: "تمت جدولة الحذف",
   deleteScheduledBody: "سيُحذف حسابك وكل محتواه تلقائيًا خلال {n} أيام. سجّل الدخول قبل ذلك ويُلغى الحذف.",

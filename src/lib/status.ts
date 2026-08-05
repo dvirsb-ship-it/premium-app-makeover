@@ -41,12 +41,33 @@ export const toneClasses: Record<string, string> = {
   muted: "bg-muted text-muted-foreground",
 };
 
-/* ניסוחי זמן יחסי — קצרים בכוונה, כמו בכל ממשק נייד */
+/*
+ * ניסוחי זמן יחסי — קצרים בכוונה, כמו בכל ממשק נייד.
+ *
+ * עברית וערבית אינן מסתפקות במספר + שם עצם ברבים. "לפני 1 שעות" הופיע
+ * כאן שעה שלמה בחיי כל תיק וכל התראה, בשלושת המסכים הנצפים ביותר,
+ * ונקרא כמו תרגום מכונה. לשתיהן יש צורת יחיד וצורת זוגי, ולערבית גם
+ * כלל היפוך מ-11 ומעלה (מספר + שם עצם ביחיד).
+ *
+ * שאר השפות משתמשות בקיצורים ("1h", "1 ч", "hace 1 h"), ושם המספר
+ * העירום תקין — לכן הן נשארות פשוטות. הדקדוק מקובע ב-status.test.ts.
+ */
 const TIME_PHRASES: Record<Lang, { now: string; hours: (h: number) => string; yesterday: string; days: (d: number) => string }> = {
-  he: { now: "הרגע", hours: (h) => `לפני ${h} שעות`, yesterday: "אתמול", days: (d) => `לפני ${d} ימים` },
+  he: {
+    now: "הרגע",
+    hours: (h) => (h === 1 ? "לפני שעה" : h === 2 ? "לפני שעתיים" : `לפני ${h} שעות`),
+    yesterday: "אתמול",
+    days: (d) => (d === 2 ? "לפני יומיים" : `לפני ${d} ימים`),
+  },
   en: { now: "just now", hours: (h) => `${h}h ago`, yesterday: "yesterday", days: (d) => `${d}d ago` },
   ru: { now: "только что", hours: (h) => `${h} ч назад`, yesterday: "вчера", days: (d) => `${d} дн. назад` },
-  ar: { now: "الآن", hours: (h) => `قبل ${h} ساعات`, yesterday: "أمس", days: (d) => `قبل ${d} أيام` },
+  ar: {
+    now: "الآن",
+    hours: (h) =>
+      h === 1 ? "قبل ساعة" : h === 2 ? "قبل ساعتين" : h <= 10 ? `قبل ${h} ساعات` : `قبل ${h} ساعة`,
+    yesterday: "أمس",
+    days: (d) => (d === 2 ? "قبل يومين" : d <= 10 ? `قبل ${d} أيام` : `قبل ${d} يومًا`),
+  },
   es: { now: "ahora mismo", hours: (h) => `hace ${h} h`, yesterday: "ayer", days: (d) => `hace ${d} días` },
   fr: { now: "à l’instant", hours: (h) => `il y a ${h} h`, yesterday: "hier", days: (d) => `il y a ${d} jours` },
 };

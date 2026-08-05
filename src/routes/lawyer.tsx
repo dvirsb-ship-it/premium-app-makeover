@@ -342,9 +342,11 @@ function LawyerFeed() {
           <div className="mb-3 flex items-center gap-2 rounded-2xl border border-gold/30 bg-gold/[0.07] px-3.5 py-2.5">
             <Sparkles className="size-4 shrink-0 text-gold" strokeWidth={2.2} />
             <span className="text-[12.5px] font-bold text-foreground">
-              {trial.left > 0
-                ? t("trialLeftChip").replace("{n}", String(trial.left))
-                : t("trialOverTitle").replace("{n}", String(trial.used))}
+              {trial.left === 1
+                ? t("trialLeftChipOne")
+                : trial.left > 0
+                  ? t("trialLeftChip").replace("{n}", String(trial.left))
+                  : t("trialOverTitle").replace("{n}", String(trial.used))}
             </span>
             <button
               type="button"

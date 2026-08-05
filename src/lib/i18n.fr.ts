@@ -763,6 +763,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   trialOverBody: "Les dossiers que vous avez déjà se poursuivent normalement, toujours. Pour continuer à recevoir de nouvelles demandes, adhérez à l'abonnement.",
   trialOverCta: "Voir l'abonnement",
   trialLeftChip: "Il reste {n} mises en relation d'essai",
+  trialLeftChipOne: "Il reste une mise en relation d'essai",
   deleteCancelled: "Suppression annulée — votre compte est actif",
   deleteScheduledTitle: "Suppression programmée",
   deleteScheduledBody: "Votre compte et tout son contenu seront supprimés automatiquement dans {n} jours. Reconnectez-vous avant et la suppression est annulée.",

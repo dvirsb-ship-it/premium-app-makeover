@@ -1109,6 +1109,8 @@ export const strings = {
   trialOverBody: { he: "התיקים שכבר בטיפולך ממשיכים כרגיל, תמיד. להמשך קבלת פניות חדשות — הצטרפות למנוי.", en: "The cases you already have carry on as normal, always. To keep receiving new enquiries — join the membership." },
   trialOverCta: { he: "לפרטי המנוי", en: "See membership" },
   trialLeftChip: { he: "נותרו {n} חיבורים בניסיון", en: "{n} trial connections left" },
+  /* החיבור האחרון — הרגע היחיד שבו המונה מגיע ל-1, ובו כל שש השפות שברו דקדוק */
+  trialLeftChipOne: { he: "נותר חיבור אחד בניסיון", en: "1 trial connection left" },
   deleteCancelled: { he: "המחיקה בוטלה — החשבון שלכם פעיל", en: "Deletion cancelled — your account is active" },
   deleteScheduledTitle: { he: "המחיקה נקבעה", en: "Deletion scheduled" },
   deleteScheduledBody: { he: "החשבון וכל התוכן יימחקו אוטומטית בעוד {n} ימים. אם תתחברו שוב לפני כן — המחיקה תבוטל.", en: "Your account and all its content will be deleted automatically in {n} days. Sign in again before then and the deletion is cancelled." },
