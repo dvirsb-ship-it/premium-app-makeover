@@ -40,7 +40,20 @@ const config: CapacitorConfig = {
      * ולא כמו אפליקציה מקורית, וזה בדיוק הרושם שאנחנו רוצים למנוע.
      */
     scrollEnabled: true,
-    limitsNavigationsToAppBoundDomains: true,
+    /*
+     * limitsNavigationsToAppBoundDomains נשאר **כבוי**, בכוונה.
+     *
+     * הדליקו אותו כאן פעם אחת כ"הקשחה", והתוצאה בסימולטור הייתה מסך
+     * ריק: הדגל מגביל ניווט לדומיינים המוצהרים ב-WKAppBoundDomains
+     * שב-Info.plist, ואין שם אף אחד — כלומר הרשימה ריקה והכל חסום.
+     *
+     * וגם אילו הצהרנו על הדומיין שלנו, ההתחברות באייפון היא
+     * signInWithRedirect (auth-service.ts) — ניווט מלא ל-accounts.
+     * google.com. הדגל הזה חוסם בדיוק את המסלול שכל משתמש חייב לעבור.
+     *
+     * מה שמגן עלינו בפועל הוא cleartext:false למעלה: שום דבר שאינו
+     * HTTPS לא ייטען.
+     */
   },
 
   plugins: {
