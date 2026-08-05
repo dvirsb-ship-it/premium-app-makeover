@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Apple, Mail, Phone, AlertCircle } from "lucide-react";
@@ -502,6 +502,29 @@ function Auth() {
               <p className="px-2 pt-2 text-center text-[11px] leading-relaxed text-foreground/70">
                 {t("authTerms")}
               </p>
+              {/*
+               * המשפט למעלה מבקש לאשר שני מסמכים, וקודם אי אפשר היה
+               * לפתוח אף אחד מהם מכאן — הם היו מאחורי התחברות, כלומר
+               * קריאים רק אחרי שכבר אישרת. הקישורים משתמשים בכותרות
+               * הקיימות, ולכן הם מתורגמים לשש השפות בלי מחרוזת חדשה.
+               */}
+              <div className="flex items-center justify-center gap-2 pt-1.5 text-[11px]">
+                <Link
+                  to="/settings/terms"
+                  className="font-semibold text-foreground/80 underline underline-offset-2"
+                >
+                  {t("termsTitle")}
+                </Link>
+                <span aria-hidden className="text-foreground/40">
+                  ·
+                </span>
+                <Link
+                  to="/settings/privacy"
+                  className="font-semibold text-foreground/80 underline underline-offset-2"
+                >
+                  {t("privacyTitle")}
+                </Link>
+              </div>
             </Rise>
           </Stagger>
         </main>

@@ -8,7 +8,6 @@ import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
-import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { DELETION_GRACE_DAYS, requestAccountDeletion } from "../lib/db";
 
@@ -42,7 +41,14 @@ const items: { icon: typeof Lock; title: StringKey; sub: StringKey }[] = [
 ];
 
 function PrivacySettings() {
-  useRequireAuth();
+  /*
+   * אין כאן useRequireAuth בכוונה. מדיניות הפרטיות היא מסמך שצריך
+   * להיות קריא **לפני** ההרשמה — מסך ההתחברות מבקש לאשר אותה, וקודם
+   * היה אפשר להגיע אליה רק אחרי שכבר נכנסת. גם החנויות דורשות שהמסמך
+   * יהיה נגיש בלי חשבון.
+   *
+   * מה שכן דורש משתמש הוא מחיקת החשבון, והיא מוסתרת למטה כשאין אחד.
+   */
   const t = useT();
   const navigate = useNavigate();
   const { user, signOut } = useAppStore();
@@ -104,6 +110,8 @@ function PrivacySettings() {
               })}
             </div>
           </Rise>
+          {/* מחיקת חשבון — רק למי שיש לו חשבון למחוק */}
+          {user && (
           <Rise>
             <AnimatePresence mode="wait">
               {confirming ? (
@@ -158,6 +166,7 @@ function PrivacySettings() {
               )}
             </AnimatePresence>
           </Rise>
+          )}
 
           <Rise>
             <p className="text-center text-xs text-muted-foreground">{t("privacyContact")}</p>

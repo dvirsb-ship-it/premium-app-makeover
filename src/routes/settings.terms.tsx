@@ -4,7 +4,6 @@ import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
-import { useRequireAuth } from "../lib/require-auth";
 
 export const Route = createFileRoute("/settings/terms")({
   head: () => ({
@@ -29,7 +28,11 @@ const sections: { title: StringKey; body: StringKey }[] = [
 ];
 
 function TermsSettings() {
-  useRequireAuth();
+  /*
+   * מסמך סטטי בלבד, בלי נתוני משתמש — ולכן בלי useRequireAuth. מסך
+   * ההתחברות מבקש לאשר את התנאים, וחייבת להיות דרך לקרוא אותם לפני
+   * שמאשרים ולא רק אחרי.
+   */
   const t = useT();
   return (
     <AppShell>
