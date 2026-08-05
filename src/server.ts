@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-05T11:40Z";
+const BUILD_STAMP = "2026-08-05T12:30Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -227,6 +227,35 @@ const appHandler: ServerEntry = {
         return Response.json(await fixInventedCategories(), {
           headers: { "cache-control": "no-store" },
         });
+      }
+
+      /*
+       * Digital Asset Links — מה שהופך את האפליקציה מ"דפדפן בתוך מסגרת"
+       * ל-TWA אמיתי. בלי הקובץ הזה אנדרואיד מציג שורת כתובת מעל
+       * האפליקציה, וזה נראה בדיוק כמו מה שגוגל דוחה עליו.
+       *
+       * מוגש מהשרת ולא כקובץ סטטי: תיקייה שמתחילה בנקודה נוטה
+       * להישמט בצנרת בנייה, וזה כשל שמתגלה רק אחרי ההתקנה.
+       */
+      if (new URL(request.url).pathname === "/.well-known/assetlinks.json") {
+        return new Response(
+          JSON.stringify([
+            {
+              relation: ["delegate_permission/common.handle_all_urls"],
+              target: {
+                namespace: "android_app",
+                package_name: "il.co.justask.app",
+                sha256_cert_fingerprints: [""],
+              },
+            },
+          ]),
+          {
+            headers: {
+              "content-type": "application/json",
+              "cache-control": "public, max-age=3600",
+            },
+          },
+        );
       }
 
       const proxied = await proxyFirebaseAuth(request);
