@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Check, FileCheck2, Lock, ScrollText, Sparkles } from "lucide-react";
+import { Check, Cpu, FileCheck2, Lock, ScrollText, Sparkles, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -18,11 +18,22 @@ export const Route = createFileRoute("/onboarding")({
   component: Onboarding,
 });
 
+/*
+ * הסדר אינו שרירותי: קודם מה שהפונה מתחייב לו, ואז מה שהוא מאשר
+ * שייעשה במידע שלו. term5 הוא הסכמה מדעת להעברת מידע אל מחוץ לגבולות
+ * המדינה — אחד הבסיסים המותרים בתקנות — ולכן הוא אומר במפורש לאן
+ * (האיחוד האירופי), לשם מה (הבדיקה בלבד), ומה לא נשלח.
+ *
+ * זה המקום שבו התפתינו להוסיף ויתור גורף, ולא הוספנו. ההנמקה יושבת
+ * ליד המחרוזות ב-i18n.ts.
+ */
 const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
   { icon: FileCheck2, key: "term1" },
   { icon: ScrollText, key: "term2" },
   { icon: Lock, key: "term3" },
   { icon: Sparkles, key: "term4" },
+  { icon: Cpu, key: "term5" },
+  { icon: UserRound, key: "term6" },
 ];
 
 function Onboarding() {

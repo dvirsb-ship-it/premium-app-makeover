@@ -86,6 +86,23 @@ export const strings = {
   term2: { he: "הבדיקה הראשונית אינה ייעוץ משפטי ואינה מהווה ייצוג.", en: "The initial review is not legal advice and does not constitute representation." },
   term3: { he: "פרטי הפנייה יישמרו ויוצגו לעורכי דין מאומתים בתחום המשפטי של המקרה — בלי שמי ובלי פרטי הקשר שלי.", en: "My request will be stored and shown to verified lawyers in its legal field — without my name or contact details." },
   term4: { he: "אני פונה מתוך כוונה אמיתית לקבל סיוע משפטי.", en: "I'm reaching out with a genuine intent to receive legal help." },
+  /*
+   * שני הסעיפים האלה אינם ויתור, ובכוונה.
+   *
+   * ויתור גורף ("כל מה שאשתף באחריותי") לא היה מעביר אחריות: חובות
+   * אבטחת המידע חלות על בעל המאגר ואינן ניתנות לוויתור, וסעיף גורף
+   * בחוזה אחיד מול צרכן הוא מועמד לתנאי מקפח — כלומר סעיף שנפסל ולא
+   * מגן על כלום. וחשוב מזה: לבקש מאדם שזה עתה נפגע לוותר על זכויות
+   * לפני שיספר מה קרה לו הוא בדיוק ההפך ממה שהמוצר הזה מוכר.
+   *
+   * מה שכן: term5 הוא הסכמה מדעת להעברת מידע אל מחוץ לגבולות המדינה —
+   * אחד הבסיסים המותרים בתקנות — ולכן הוא מנוסח מדויק, עם האזור ועם
+   * מה שלא נשלח. term6 סוגר פער אמיתי: מסמך רפואי או תמונת תאונה
+   * מכילים לעיתים פרטים של אנשים אחרים, וההסכמה של הפונה אינה מכסה
+   * אותם.
+   */
+  term5: { he: "תיאור המקרה והמסמכים שאצרף יעובדו ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך הבדיקה המשפטית בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The description and documents I attach will be processed by a Google AI service on servers in the European Union, for the legal check only. ID number, phone and email are stripped automatically beforehand." },
+  term6: { he: "אצרף מסמכים הנוגעים אליי. אם מסמך כולל פרטים של אדם אחר — אשחיר אותם או אצרף רק את החלק הרלוונטי.", en: "I'll attach documents that concern me. If a document includes another person's details, I'll redact them or attach only the relevant part." },
   agreeText: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I've read and agree to the above" },
   confirmContinue: { he: "אני מאשר/ת וממשיך/ה", en: "I agree and continue" },
 
@@ -448,6 +465,11 @@ export const strings = {
     en: "The service is free for clients — always, including sharing your case, the initial review and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer; JustAsk is not a party to that agreement and takes no share of the fee.\n\nLawyers: a fixed monthly subscription, covering access to every case in your chosen practice areas, the full legal memo written for each one, real-time alerts and the ability to submit a fee proposal. The subscription does not depend on how many clients you receive, and includes no commission or share of any fee. Payment does not affect placement: there is no priority in the feed and no sorting by price. Cancel any time. During the launch period the subscription is free, and the billing start date will be shown in the app in advance.",
   },
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
+  termsSection7Title: { he: "7. עיבוד המידע שלך", en: "7. Processing your information" },
+  termsSection7Body: {
+    he: "תיאור המקרה והמסמכים שתצרפו מעובדים ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך הבדיקה המשפטית בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני השליחה. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל. השימוש בשירות מהווה הסכמה לעיבוד ולהעברה כמתואר כאן. בצירוף מסמכים יש להימנע מהעלאת פרטיהם של אנשים אחרים שאינם נוגעים לעניין.",
+    en: "Your case description and attached documents are processed by a Google AI service, on servers in the European Union, for the legal check only — not to train the model and not for advertising. Direct identifiers (ID number, phone, email) are stripped automatically before anything is sent. Cases and files themselves are stored on Google servers in Israel. Using the service constitutes consent to the processing and transfer described here. When attaching documents, avoid uploading other people's details that are not relevant to the matter.",
+  },
   termsSection6Body: {
     he: "עד ליצירת חיבור רשמי בין לקוח לעורך דין, התקשורת מתקיימת דרך הפלטפורמה בלבד ופרטי הקשר המלאים אינם נחשפים. שיתוף פרטי קשר, שמות מלאים או פרטי משרד בתוכן חופשי במטרה לעקוף את הפלטפורמה מהווה הפרת תנאים ועלול להוביל להשעיית החשבון.",
     en: "Until an official client–lawyer connection is made, communication takes place exclusively through the platform and full contact details are not disclosed. Sharing contact details, full names or firm details in free-text content in order to bypass the platform constitutes a breach of these terms and may lead to account suspension.",

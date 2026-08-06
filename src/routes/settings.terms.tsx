@@ -25,6 +25,7 @@ const sections: { title: StringKey; body: StringKey }[] = [
   { title: "termsSection4Title", body: "termsSection4Body" },
   { title: "termsSection6Title", body: "termsSection6Body" },
   { title: "termsSection5Title", body: "termsSection5Body" },
+  { title: "termsSection7Title", body: "termsSection7Body" },
 ];
 
 function TermsSettings() {
