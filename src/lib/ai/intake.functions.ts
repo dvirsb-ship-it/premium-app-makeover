@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { INTAKE_MODEL, INTAKE_SYSTEM_PROMPT } from "./intake-prompt";
 import { VALIDATION_CATEGORIES, normalizeCategory } from "../specialties";
 import { redactForAi } from "./redact";
+import { AI_VERTEX_ENABLED, toVertexBody, vertexUrl } from "./vertex";
 
 /* ---------- מפתח ה-API (שרת בלבד) ---------- */
 
@@ -43,12 +44,59 @@ interface GeminiContent {
   parts: GeminiPart[];
 }
 
+/**
+ * שליחת הבקשה — Vertex באזור נעוץ, או ה-Developer API כשהוא כבוי.
+ *
+ * שני המסלולים מדברים את אותו פרוטוקול ומחזירים אותו מבנה תשובה, ולכן
+ * כל מה שסביבם — הסכימה, האכיפה של הקטגוריות, טיפול בתשובה ריקה —
+ * אינו יודע באיזה מהם השתמשנו ואינו צריך לדעת.
+ *
+ * **הנפילה חזרה אינה עצלנות אלא פיתוח מקומי:** אסימון חשבון השירות
+ * מגיע משרת המטא-דאטה של Cloud Run, שאינו קיים על מחשב. בלי הנפילה
+ * הזו הרצה מקומית הייתה נשברת בכל קריאה. בייצור השרת תמיד שם, ולכן
+ * נפילה שם פירושה תקלה אמיתית — והיא נרשמת ביומן ולא נבלעת.
+ */
+async function callModel(
+  body: Record<string, unknown>,
+  model: string,
+): Promise<Response> {
+  if (AI_VERTEX_ENABLED) {
+    try {
+      const { accessToken } = await import("./server-admin");
+      const token = await accessToken();
+      return await fetch(vertexUrl(model), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(toVertexBody(body)),
+      });
+    } catch (err) {
+      console.warn(
+        "[vertex] אין אסימון חשבון שירות — נופל ל-Developer API. " +
+          "בייצור זו תקלה, מקומית זה צפוי.",
+        err,
+      );
+    }
+  }
+
+  const key = await geminiKey();
+  return fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
+      body: JSON.stringify(body),
+    },
+  );
+}
+
 async function generate(
   contents: GeminiContent[],
   opts?: { system?: string; json?: boolean; schema?: object; temperature?: number; maxTokens?: number },
   model: string = INTAKE_MODEL,
 ): Promise<string> {
-  const key = await geminiKey();
   const body: Record<string, unknown> = {
     contents,
     generationConfig: {
@@ -66,14 +114,7 @@ async function generate(
   };
   if (opts?.system) body.system_instruction = { parts: [{ text: opts.system }] };
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
-      body: JSON.stringify(body),
-    },
-  );
+  const res = await callModel(body, model);
   if (!res.ok) {
     const errText = await res.text();
     throw new Error(`Gemini ${res.status}: ${errText.slice(0, 200)}`);
