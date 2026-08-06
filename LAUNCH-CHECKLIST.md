@@ -12,7 +12,7 @@
 | `OPEN_CASE_LIMIT_ENABLED` | `src/lib/limits.ts` | **false** | חסם את דביר מלבדוק ומלצלם מסכים לחנות | לפני ההשקה |
 | `GOOGLE_ONLY` | `src/routes/auth.tsx` | **true** | התחברות אפל דורשת חשבון Apple Developer | כשיהיה חשבון — **חובה להגשה ל-App Store** |
 | `AI_REDACTION_ENABLED` | `src/lib/ai/redact.ts` | **true** — הודלק 6/8/2026 | — | דלוק. אם תזכיר יוצא רדוד או שתיקים נפסלים בלי סיבה — חזרה ל-false |
-| `AI_VERTEX_ENABLED` | `src/lib/ai/vertex.ts` | **false** | דורש הפעלת Vertex AI API בקונסולה והרשאת `aiplatform.user` לחשבון השירות — בלעדיהן כל קריאה נכשלת ב-403 | אחרי שדביר מפעיל את ה-API, ואז תיק בדיקה אחד |
+| `AI_VERTEX_ENABLED` | `src/lib/ai/vertex.ts` | **true** — הודלק 6/8/2026 | — | דלוק. ה-API והתפקיד `aiplatform.user` הוגדרו ואומתו. אם חוזר 403 — חזרה ל-false |
 
 **המכסה עצמה לא נמחקה** — כל המנגנון (ספירה בשרת, מחיקת תיק חסום,
 התעלמות מתיקים תקועים, ההודעה במסך הבית) קיים ונבדק. רק השער פתוח.

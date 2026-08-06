@@ -20,16 +20,20 @@ export const VERTEX_PROJECT = "justask-6bfb9";
 export const VERTEX_LOCATION = "europe-west4";
 
 /**
- * ⚠️ כבוי — 6/8/2026.
+ * דלוק — 6/8/2026.
  *
- * דורש הפעלת Vertex AI API בקונסולה ומתן הרשאת `aiplatform.user` לחשבון
- * השירות של App Hosting. עד שזה נעשה, קריאה תיכשל ב-403 — ולכן המתג
- * נשאר כבוי והצינור ממשיך דרך ה-Developer API בדיוק כמו קודם.
+ * שני התנאים בוצעו ואומתו: ה-API הופעל (בקונסולה הוא נקרא היום
+ * **Agent Platform API**, לא Vertex AI — וזו הסיבה שהוא לא נמצא
+ * בחיפוש), וחשבון השירות `firebase-app-hosting-compute` קיבל את
+ * התפקיד `roles/aiplatform.user` (בקונסולה: **Agent Platform User**).
  *
- * **להדליק רק אחרי שדביר הפעיל את ה-API**, ואז לפתוח תיק בדיקה אחד.
- * רשום ב-LAUNCH-CHECKLIST.md.
+ * החיפוש נעשה לפי מזהה התפקיד ולא לפי שמו — שני שמות דומים הופיעו,
+ * והמזהה הוא היחיד שאינו משתמע לשתי פנים.
+ *
+ * אם קריאות מתחילות לחזור 403 — ההרשאה או ה-API כבו. חזרה ל-false
+ * מחזירה את הצינור ל-Developer API בלי שום שינוי אחר.
  */
-export const AI_VERTEX_ENABLED = false;
+export const AI_VERTEX_ENABLED = true;
 
 /**
  * שמות המודלים ב-Vertex.
