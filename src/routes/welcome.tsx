@@ -4,6 +4,7 @@ import {
   cubicBezier,
   motion,
   useMotionValueEvent,
+  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -21,6 +22,52 @@ import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
 import type { StringKey } from "../lib/i18n";
+
+/**
+ * רמז המחווה — אצבע שקופה שמחליקה למעלה.
+ *
+ * הטקסט "גללו להיכנס" והקו לבדם לא הספיקו: מבקר אמיתי, עורך דין, נתקע
+ * במסך הפתיחה ולא הצליח להיכנס. במסך שכולו תמונה מלאה בלי ממשק מוכר,
+ * "לגלול" אינו מובן מאליו — צריך להראות את התנועה, לא לתאר אותה.
+ *
+ * האצבע נעה למעלה, באותו כיוון שבו המשתמש צריך להחליק, ובאותו כיוון
+ * שבו הקו נוסע. שלושת הרמזים מצביעים לאותו מקום.
+ *
+ * מכבדת prefers-reduced-motion: שם היא נשארת דוממת ורק החץ הקטן מסמן
+ * את הכיוון — רמז ולא אנימציה.
+ */
+function ScrollGestureHint() {
+  const still = useReducedMotion();
+  return (
+    <motion.div
+      aria-hidden
+      animate={still ? undefined : { y: [6, -14, 6], opacity: [0.45, 0.95, 0.45] }}
+      transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
+      className="text-white/80 [filter:drop-shadow(0_2px_10px_rgba(0,0,0,0.7))]"
+    >
+      <svg width="30" height="40" viewBox="0 0 30 40" fill="none">
+        {/* חץ דק מעל האצבע — מוסר את הדו-משמעות של הכיוון */}
+        <path
+          d="M15 9V1M15 1L11 5M15 1l4 4"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          opacity="0.75"
+        />
+        {/* כף יד עם אצבע מורה — צללית פשוטה שנקראת בכל גודל */}
+        <path
+          d="M12.5 24.5V15a2 2 0 1 1 4 0v6.5m0 0v-1.2a1.8 1.8 0 0 1 3.6 0v1.9m0-1a1.8 1.8 0 0 1 3.6 0v2.4m0-1.4a1.7 1.7 0 0 1 3.4 0v6.1c0 4.6-3.2 7.7-7.6 7.7h-2.1c-3 0-4.7-1.3-6.2-3.6l-3.2-5a1.9 1.9 0 0 1 3-2.3l1.5 1.7"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="rgba(255,255,255,0.10)"
+        />
+      </svg>
+    </motion.div>
+  );
+}
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({
@@ -407,10 +454,18 @@ function Welcome() {
             <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            {/* קו זהב דק שנוסע למטה — מסביר את כיוון הגלילה בלי חצים */}
-            <div className="relative h-24 w-px overflow-hidden bg-white/15">
+            <ScrollGestureHint />
+            {/*
+             * הקו נוסע **למעלה**, לא למטה.
+             *
+             * קודם הוא נסע למטה, וזה בדיוק הכיוון ההפוך: כדי לפתוח את
+             * הדלתות מחליקים למעלה. עורך דין נזיקין נתקע כאן ב-6/8/2026
+             * ולא הצליח להיכנס — הוא קרא "למטה", החליק למטה, והמסך כבר
+             * היה בראש הדף, אז שום דבר לא זז.
+             */}
+            <div className="relative h-16 w-px overflow-hidden bg-white/15">
               <motion.div
-                animate={{ y: ["-100%", "260%"] }}
+                animate={{ y: ["260%", "-100%"] }}
                 transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
                 className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-gold to-transparent"
               />

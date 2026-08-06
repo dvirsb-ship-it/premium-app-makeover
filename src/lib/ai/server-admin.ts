@@ -336,6 +336,49 @@ export type PushOutcome =
   | "failed"; /* כל המכשירים נדחו או שהקריאה נפלה */
 
 /**
+ * מטען ההתראה — פונקציה טהורה כדי שהצורה שלו תהיה ניתנת לבדיקה.
+ *
+ * **אין כאן `notification` ברמה העליונה, וזו לא שכחה.**
+ *
+ * המטען נשלח לשלוש מעטפות שונות, וכל אחת מציגה אחרת:
+ * · PWA ו-TWA — `data` בלבד, וה-service worker מציג בעצמו. כך ההתראה
+ *   יוצאת בעברית עם dir=rtl וקישור, ולא בעיצוב ברירת המחדל.
+ * · iOS מקורי — `apns.payload.aps.alert`, כי מטען data בלבד מגיע בשקט
+ *   ל-iOS והמשתמש לעולם לא יידע.
+ *
+ * `notification` ברמה העליונה מיותר לשתיהן: ב-iOS ה-alert גובר עליו,
+ * וברשת הדפדפן מציג אותו **בנוסף** למה שה-service worker כבר הציג —
+ * כלומר שתי התראות זהות. דביר קיבל בדיוק את זה ב-6/8/2026, ותמונת מסך
+ * של מסך הנעילה הייתה הדרך היחידה לגלות: השרת החזיר 200, הבדיקות עברו,
+ * והלוגים נראו תקינים.
+ *
+ * אם ייווסף אי פעם Android מקורי (Capacitor במקום TWA) — הוא יצטרך
+ * בלוק `android.notification` משלו, ולא את זה בחזרה.
+ */
+export function buildPushMessage(
+  token: string,
+  msg: { title: string; body: string; link?: string },
+) {
+  return {
+    message: {
+      token,
+      data: { title: msg.title, body: msg.body, link: msg.link ?? "/" },
+      webpush: { headers: { Urgency: "high" } },
+      apns: {
+        headers: { "apns-priority": "10" },
+        payload: {
+          aps: {
+            alert: { title: msg.title, body: msg.body },
+            sound: "default",
+            badge: 1,
+          },
+        },
+      },
+    },
+  };
+}
+
+/**
  * שליחת התראה לכל המכשירים של משתמש.
  * לעולם לא זורקת — התראה שנכשלה לא אמורה להפיל את הפעולה שיצרה אותה.
  * ההתראה נשלחת כ-data בלבד, כדי שה-service worker יציג אותה בעברית (dir=rtl).
@@ -359,29 +402,7 @@ export async function sendPush(
         fetch(`https://fcm.googleapis.com/v1/projects/${PROJECT_ID}/messages:send`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-          body: JSON.stringify({
-            message: {
-              token: t,
-              data: { title: msg.title, body: msg.body, link: msg.link ?? "/" },
-              webpush: { headers: { Urgency: "high" } },
-              /*
-               * iOS אינו מציג התראה ממטען data בלבד — בלי notification
-               * ובלי alert היא מגיעה בשקט והמשתמש לעולם לא יידע. אותה
-               * הודעה בדיוק, בשתי המעטפות שכל פלטפורמה מבינה.
-               */
-              notification: { title: msg.title, body: msg.body },
-              apns: {
-                headers: { "apns-priority": "10" },
-                payload: {
-                  aps: {
-                    alert: { title: msg.title, body: msg.body },
-                    sound: "default",
-                    badge: 1,
-                  },
-                },
-              },
-            },
-          }),
+          body: JSON.stringify(buildPushMessage(t, msg)),
         })
           .then((r) => r.ok)
           .catch(() => false),
