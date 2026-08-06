@@ -450,6 +450,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   submittedToHome: "المتابعة إلى الصفحة الرئيسية",
   closeAria: "إغلاق",
   intakeRestart: "بدء محادثة جديدة",
+  intakeRestartConfirm: "متأكد؟ سيُحذف كل ما رويته",
   adminWaiting: "بانتظارك",
   adminWaitingSub: "توثيقات، اعتراضات، طلبات دعم، طلبات حذف وأعطال لم تُعالج بعد — كلها مجمَّعة هنا.",
   proLaunchFree: "في فترة الإطلاق — كل شيء مشمول، مجانًا",

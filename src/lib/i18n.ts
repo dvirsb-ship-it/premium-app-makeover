@@ -583,6 +583,8 @@ export const strings = {
   submittedToHome: { he: "המשך לדף הבית", en: "Continue to home" },
   closeAria: { he: "סגירה", en: "Close" },
   intakeRestart: { he: "התחלת שיחה חדשה", en: "Start a new conversation" },
+  /* לחיצה שנייה — ההגנה על שיחה שלמה שנמחקת בלחיצה אחת */
+  intakeRestartConfirm: { he: "בטוח? כל מה שסיפרת יימחק", en: "Sure? Everything you told us is erased" },
 
   adminWaiting: { he: "ממתין לך", en: "Waiting for you" },
   adminWaitingSub: { he: "אימותים, ערעורים, פניות תמיכה, בקשות מחיקה ותקלות שטרם טופלו — הכול מרוכז כאן.", en: "Verifications, appeals, support tickets, deletion requests and unhandled errors — all counted here." },

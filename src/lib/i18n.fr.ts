@@ -450,6 +450,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   submittedToHome: "Continuer vers l'accueil",
   closeAria: "Fermer",
   intakeRestart: "Démarrer une nouvelle conversation",
+  intakeRestartConfirm: "Sûr ? Tout ce que vous avez raconté sera effacé",
   adminWaiting: "En attente de vous",
   adminWaitingSub: "Vérifications, contestations, demandes d'assistance, demandes de suppression et incidents non traités — tout est centralisé ici.",
   proLaunchFree: "Pendant le lancement — tout est inclus, gratuitement",

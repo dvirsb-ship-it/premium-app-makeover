@@ -21,6 +21,7 @@ import { identify, initAnalytics, track } from "../lib/analytics";
 import { fbAuth } from "../lib/firebase";
 import { censorImage, prepareImage, type PendingImage } from "../lib/image-censor";
 import { Scale } from "lucide-react";
+import { cn } from "../lib/utils";
 
 export const Route = createFileRoute("/intake")({
   /* עמוד אישי מאחורי התחברות — אין סיבה שיהיה במנוע חיפוש */
@@ -82,6 +83,16 @@ function Intake() {
    * לעבוד איתו. אותו דפוס בדיוק כמו אישור סגירת תיק אצל עורך הדין.
    */
   const [confirmNoDocs, setConfirmNoDocs] = useState(false);
+  /*
+   * "התחלת שיחה חדשה" מוחק את כל מה שהפונה סיפר, והוא יושב ברוחב מלא
+   * ישירות מעל שדה הקלט — בדיוק איפה שאגודל נוח. דביר איבד כך שיחה
+   * שלמה ב-6/8/2026, באמצע ראיון.
+   *
+   * כאן זה חמור במיוחד: אדם שסיפר על פגיעה גופנית ומאבד את הסיפור
+   * צריך לספר אותו שוב מההתחלה. לחיצה שנייה, לא דיאלוג — הכפתור
+   * מתחמש ל-5 שניות ואז חוזר לעצמו.
+   */
+  const [restartArmed, setRestartArmed] = useState(false);
   // תמונות שממתינות לצירוף להודעה הבאה
   const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
   // כל התמונות שכבר נשלחו בשיחה — הן שיעלו ל-Storage כשייווצר התיק
@@ -676,6 +687,11 @@ function Intake() {
               <button
                 type="button"
                 onClick={() => {
+                  if (!restartArmed) {
+                    setRestartArmed(true);
+                    window.setTimeout(() => setRestartArmed(false), 5000);
+                    return;
+                  }
                   track("intake_restarted");
                   clearDraft();
                   sentImages.current = [];
@@ -684,10 +700,14 @@ function Intake() {
                   setStep(0);
                   setInput("");
                   firstMsgSent.current = false;
+                  setRestartArmed(false);
                 }}
-                className="mb-2 w-full py-1 text-center text-[12px] font-semibold text-muted-foreground"
+                className={cn(
+                  "mb-2 w-full py-1 text-center text-[12px] font-semibold transition",
+                  restartArmed ? "text-destructive" : "text-muted-foreground",
+                )}
               >
-                {t("intakeRestart")}
+                {restartArmed ? t("intakeRestartConfirm") : t("intakeRestart")}
               </button>
             )}
 
