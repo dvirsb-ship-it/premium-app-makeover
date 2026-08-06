@@ -457,7 +457,7 @@ export const strings = {
     he: "אנו רשאים לעדכן את התנאים מעת לעת. עדכון מהותי יוצג באפליקציה לפני כניסתו לתוקף.",
     en: "We may update these terms from time to time. Material changes will be shown in-app before taking effect.",
   },
-  termsLastUpdated: { he: "עודכן לאחרונה: יולי 2026", en: "Last updated: July 2026" },
+  termsLastUpdated: { he: "עודכן לאחרונה: אוגוסט 2026", en: "Last updated: August 2026" },
 
   // Settings — Help
   helpTitle: { he: "עזרה ותמיכה", en: "Help & support" },
@@ -966,8 +966,8 @@ export const strings = {
 
   privacyAi: { he: "ניתוח ע״י בינה מלאכותית", en: "Analysis by AI" },
   privacyAiSub: {
-    he: "הבדיקה המשפטית נעשית ע״י מנוע Gemini של גוגל. תיאור המקרה והתמונות שתעלו נשלחים אליו לצורך הבדיקה בלבד — לא לאימון המודל ולא לפרסום. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל; הניתוח עצמו מתבצע בשרתי גוגל, ולא בהכרח בישראל.",
-    en: "The legal check is performed by Google's Gemini. Your case description and any photos you upload are sent to it for that check only — not for model training and not for advertising. Cases and files are stored on Google servers in Israel; the analysis itself runs on Google servers, not necessarily in Israel.",
+    he: "הבדיקה המשפטית נעשית ע״י מנוע Gemini של גוגל. לפני השליחה מוסרים אוטומטית מזהים ישירים שכתבתם — מספר תעודת זהות, טלפון ודוא״ל — והם אינם יוצאים מהמערכת כלל. תיאור המקרה עצמו והתמונות כן נשלחים, לצורך הבדיקה בלבד ולא לפרסום. התיקים והקבצים נשמרים בשרתי גוגל בישראל; הניתוח עצמו מתבצע בשרתי גוגל, ולא בהכרח בישראל.",
+    en: "The legal check is performed by Google's Gemini. Direct identifiers you write — ID number, phone and email — are stripped automatically before anything is sent, and never leave our systems. The description of the case itself and any photos are sent, for that check only and never for advertising. Cases and files are stored on Google servers in Israel; the analysis itself runs on Google servers, not necessarily in Israel.",
   },
 
   registryGateTitle: {
