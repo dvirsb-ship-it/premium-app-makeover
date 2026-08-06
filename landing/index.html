@@ -105,11 +105,38 @@
 
   /* ---------- הארטיפקט: כך נראית פנייה ---------- */
   .artifact-label { margin-top: 64px; font-size: 11px; font-weight: 700; letter-spacing: .2em; color: var(--muted); }
+  /*
+    מסגרת המכשיר.
+    שקלנו לשים כאן צילום מסך אמיתי, וויתרנו: הצילומים הקיימים מציגים
+    "התאמה 100%" — תג שהוסר מהמוצר — ושלושה תיקי בדיקה כמעט זהים.
+    הכרטיס שבפנים הוא HTML, ולכן הוא נשאר חד בכל רזולוציה, מתורגם
+    לקוראי מסך, ומתעדכן עם המוצר במקום להתיישן איתו.
+  */
+  .phone {
+    max-width: 330px; margin: 22px auto 0; padding: 10px;
+    border-radius: 46px; background: linear-gradient(160deg, #2a2f3d, #11141c 55%, #2a2f3d);
+    box-shadow:
+      0 40px 80px -30px rgba(150,110,20,.42),
+      0 10px 30px -12px rgba(22,34,60,.30),
+      inset 0 0 0 1.5px rgba(212,175,55,.28);
+  }
+  .phone-screen {
+    position: relative; border-radius: 37px; overflow: hidden;
+    background: #0F172A; padding: 30px 12px 14px;
+  }
+  /* האי הדינמי — הפרט הקטן שגורם למסגרת להיקרא כטלפון ולא כמלבן */
+  .phone-island {
+    position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+    width: 74px; height: 20px; border-radius: 999px; background: #05070d;
+  }
+  .phone-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
+  .phone-brand { font-size: 9px; font-weight: 800; letter-spacing: .18em; color: var(--gold-mid); }
+  .phone-title { font-size: 15px; font-weight: 900; color: #F8FAFC; }
+
   .case {
-    max-width: 430px; margin: 16px auto 0; text-align: right;
+    text-align: right;
     background: #fff; border: 1px solid var(--line);
-    border-radius: 26px; padding: 16px;
-    box-shadow: 0 30px 60px -26px rgba(150, 110, 20, .30), 0 6px 18px -8px rgba(22,34,60,.06);
+    border-radius: 20px; padding: 14px;
   }
   .card-top { display: flex; gap: 12px; }
   .card-icon {
@@ -293,7 +320,14 @@
 
   <!-- כך זה נוחת אצלך -->
   <p class="artifact-label reveal">כך זה נוחת אצלך</p>
-  <div class="case reveal" aria-label="דוגמה לפנייה כפי שהיא מגיעה לעורך דין">
+  <div class="phone reveal" aria-label="דוגמה לפנייה כפי שהיא מגיעה לעורך דין במסך האפליקציה">
+   <div class="phone-screen">
+    <span class="phone-island" aria-hidden="true"></span>
+    <div class="phone-head">
+      <span class="phone-title">פניות חדשות</span>
+      <span class="phone-brand">JUSTASK · PRO</span>
+    </div>
+  <div class="case">
     <div class="card-top">
       <span class="card-icon" aria-hidden="true">
         <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" transform="rotate(-45)"><rect x="3" y="8" width="18" height="8" rx="4"/><path d="M7.5 8v8M16.5 8v8"/><circle cx="10.5" cy="11" r=".5"/><circle cx="13.5" cy="11" r=".5"/><circle cx="10.5" cy="13" r=".5"/><circle cx="13.5" cy="13" r=".5"/></svg>
@@ -302,7 +336,7 @@
         <div class="tags">
           <span class="tag-cat">נזיקין ותאונות</span>
           <span class="tag tag-urgent">דחוף</span>
-          <span class="tag tag-match">התאמה גבוהה</span>
+          <span class="tag tag-match">התחום המרכזי שלך</span>
         </div>
         <p class="card-title">החלקה על רצפה רטובה בסופרמרקט</p>
         <p class="card-city">📍 ירושלים</p>
@@ -312,6 +346,8 @@
       <p class="memo-label">📄 התזכיר המשפטי</p>
       <p>עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת זהירות מוגברת של תופס מקרקעין כלפי מבקר. ההתיישנות טרם חלפה. תיעוד רפואי קיים, וצילום מהמקום מחזק את יסוד ההפרה…</p>
     </div>
+  </div>
+   </div>
   </div>
 
   <!--
