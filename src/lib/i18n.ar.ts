@@ -800,6 +800,8 @@ export const ar: Partial<Record<StringKey, string>> = {
   reasonLangMatch: "تتحدث لغة العميل",
   reasonLangGap: "لغة العميل ليست في قائمتك",
   reasonCityMatch: "المدينة نفسها",
+  fitField: "يعمل في مجالك",
+  fitLanguage: "يتحدث لغتك",
   stepLangTitle: "لغات الخدمة",
   stepLangDesc: "بأي لغات يمكنك إدارة الملف مع العميل؟ نستخدم ذلك لنلائم لك طلبات يمكنك تولّيها فعلًا.",
   issueLanguages: "اختر لغة خدمة واحدة على الأقل",

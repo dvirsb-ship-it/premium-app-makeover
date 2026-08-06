@@ -22,6 +22,7 @@ import { useRequireAuth } from "../lib/require-auth";
 import { trialState } from "../lib/trial";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
+import { isWarningReason, strongestReason, type MatchReason } from "../lib/match";
 
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
@@ -447,20 +448,32 @@ function LawyerFeed() {
                       {t("urgent")}
                     </span>
                   )}
-                  {/* מד ההתאמה — מספר, לא שם תואר; הפירוט במסך התיק */}
-                  {typeof f.matchScore === "number" && (
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        f.matchScore >= 80
-                          ? "bg-success text-white shadow-sm"
-                          : f.matchScore >= 50
-                            ? "chip-gold"
-                            : "bg-slate-500 text-white"
-                      }`}
-                    >
-                      {t("matchLabel")} {f.matchScore}%
-                    </span>
-                  )}
+                  {/*
+                    * הסיבה, לא הציון.
+                    *
+                    * "התאמה 100%" אמר לעורך הדין מה לחשוב בלי לומר לו למה.
+                    * "התחום המרכזי שלך" הוא עובדה שהוא יכול לאמת בעצמו
+                    * ולחלוק עליה. הציון עדיין ממיין את הפיד — הוא פשוט
+                    * הפסיק להתחזות לשיפוט.
+                    */}
+                  {(() => {
+                    const r = strongestReason(
+                      (f.matchReasons ?? []) as MatchReason[],
+                    );
+                    if (!r) return null;
+                    return (
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[10px] font-bold",
+                          isWarningReason(r)
+                            ? "bg-warning-ink/12 text-warning-ink"
+                            : "chip-gold",
+                        )}
+                      >
+                        {t(r)}
+                      </span>
+                    );
+                  })()}
                   {/*
                     * חלון ההתיישנות — מוצג רק כשהוא נסגר (פחות משנה וחצי).
                     * תג שמופיע על כל תיק מפסיק להיות סימן ומתחיל להיות רעש.

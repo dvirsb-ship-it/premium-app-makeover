@@ -800,6 +800,8 @@ export const es: Partial<Record<StringKey, string>> = {
   reasonLangMatch: "Usted habla el idioma del cliente",
   reasonLangGap: "El idioma del cliente no está en su lista",
   reasonCityMatch: "La misma ciudad",
+  fitField: "Trabaja en tu área",
+  fitLanguage: "Habla tu idioma",
   stepLangTitle: "Idiomas de atención",
   stepLangDesc: "¿En qué idiomas puede llevar un caso con el cliente? Lo usamos para asignarle consultas que realmente pueda atender.",
   issueLanguages: "Elija al menos un idioma de atención",

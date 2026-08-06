@@ -576,20 +576,15 @@ function LawyerCaseDetail() {
             * פירוט המד — כל סיבה היא משפט שאפשר להגיד בקול. זו ההוכחה
             * החיה שהדירוג מבוסס כללים ולא תשלום: אין כאן שום דבר
             * שלא כתוב על המסך.
+            *
+            * האחוז עצמו ירד מכאן ומהכרטיס ב-6/8/2026. הוא הוסיף שכבה
+            * של שיפוט מעל עובדות שכבר עמדו בפני עצמן — "התאמה 100%"
+            * אומר לעורך הדין מה לחשוב, "התחום המרכזי שלך · באותה עיר"
+            * נותן לו את מה שצריך כדי לחשוב בעצמו. הציון נשאר בקוד
+            * וממיין את הפיד; הוא פשוט אינו נטען עוד כמסקנה.
             */}
-          {typeof item.matchScore === "number" && (
+          {(item.matchReasons ?? []).length > 0 && (
             <div className="mt-3 flex flex-wrap items-center gap-1.5">
-              <span
-                className={`rounded-full px-2.5 py-1 text-[11px] font-black ${
-                  item.matchScore >= 80
-                    ? "bg-success text-white shadow-sm"
-                    : item.matchScore >= 50
-                      ? "chip-gold"
-                      : "bg-slate-500 text-white"
-                }`}
-              >
-                {t("matchLabel")} {item.matchScore}%
-              </span>
               {(item.matchReasons ?? []).map((r) => (
                 <span
                   key={r}

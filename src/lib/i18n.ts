@@ -1148,6 +1148,9 @@ export const strings = {
   reasonLangMatch: { he: "דוברים את שפת הלקוח", en: "You speak the client's language" },
   reasonLangGap: { he: "שפת הלקוח לא ברשימתכם", en: "Client's language not in your list" },
   reasonCityMatch: { he: "באותה עיר", en: "Same city" },
+  /* עובדות התאמה שהלקוח רואה על עורך דין — בלי ציון */
+  fitField: { he: "עוסק בתחום שלך", en: "Works in your field" },
+  fitLanguage: { he: "מדבר את שפתך", en: "Speaks your language" },
   stepLangTitle: { he: "שפות שירות", en: "Languages you work in" },
   stepLangDesc: { he: "באילו שפות תוכלו לנהל את התיק מול הלקוח? נשתמש בזה כדי להתאים לכם פניות שתוכלו באמת לקחת.", en: "Which languages can you run a case in? We use this to match you with clients you can actually take." },
   issueLanguages: { he: "בחרו לפחות שפה אחת שבה אתם נותנים שירות", en: "Choose at least one language you can work in" },

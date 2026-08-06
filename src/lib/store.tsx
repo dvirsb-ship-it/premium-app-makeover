@@ -472,6 +472,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         specialties: myLawyerProfile?.specialties ?? [],
         city: myLawyerProfile?.city ?? "",
         university: myLawyerProfile?.university ?? "",
+        languages: myLawyerProfile?.languages ?? [],
       };
       // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
       void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {

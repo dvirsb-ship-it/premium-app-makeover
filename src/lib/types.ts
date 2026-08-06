@@ -32,6 +32,11 @@ export interface Lawyer {
   specialties?: string[];
   city?: string;
   university?: string;
+  /**
+   * שפות השירות. ריק/חסר = עברית בלבד — גם ברירת המחדל של השוק וגם
+   * הפירוש הבטוח לפרופילים שנשמרו לפני שהשדה הזה נוסף לצילום.
+   */
+  languages?: string[];
 }
 
 export interface ChatMessage {

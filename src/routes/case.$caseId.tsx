@@ -32,6 +32,7 @@ import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { CaseOffer, Lawyer } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { CATEGORY_SPECS } from "../lib/specialties";
 import { GoldBurst } from "../components/GoldBurst";
 
 export const Route = createFileRoute("/case/$caseId")({
@@ -585,6 +586,7 @@ function CaseDetail() {
                           offer={item.offers?.[l.id]}
                           responseLabel={responseLabels[l.id]}
                           rating={ratings[l.id]}
+                          caseCategory={item.category}
                           onChoose={() => {
                             /*
                              * הרגע היחיד שבו שני צדדים באמת נפגשים —
@@ -609,15 +611,65 @@ function CaseDetail() {
   );
 }
 
+/**
+ * שלוש עובדות התאמה, כל אחת נכונה או לא — בלי ממוצע ובלי אחוז.
+ *
+ * מוצגות רק כשהן חיוביות: תג "לא מדבר את שפתך" על כרטיס של אדם
+ * שהתנדב לעזור לך הוא עלבון, וגם מידע שאפשר להסיק מהיעדר התג.
+ * עורך דין בלי שפות מוגדרות נחשב דובר עברית — ברירת המחדל של השוק,
+ * ולכן גם הפירוש הבטוח לפרופילים ישנים שנשמרו לפני שהשדה נוסף.
+ */
+function FitFacts({
+  lawyer,
+  caseCategory,
+}: {
+  lawyer: Lawyer;
+  caseCategory?: string;
+}) {
+  const t = useT();
+  /* "שפתי" בצד הלקוח היא פשוט השפה שבה הוא מסתכל על המסך עכשיו */
+  const { lang: clientLang } = useSettings();
+  const facts: string[] = [];
+
+  const specs = caseCategory ? (CATEGORY_SPECS[caseCategory] ?? []) : [];
+  if (specs.length && lawyer.specialties?.some((s) => (specs as readonly string[]).includes(s))) {
+    facts.push(t("fitField"));
+  }
+
+  const langs = lawyer.languages?.length ? lawyer.languages : ["he"];
+  const lang = clientLang || "he";
+  /* עברית מול דובר עברית אינה עובדה — היא ברירת המחדל */
+  if (lang !== "he" && langs.includes(lang)) facts.push(t("fitLanguage"));
+
+  if (lawyer.city) facts.push(lawyer.city);
+
+  if (!facts.length) return null;
+  return (
+    <div className="mt-3 flex flex-wrap gap-1.5">
+      {facts.map((f) => (
+        <span
+          key={f}
+          className="rounded-full bg-foreground/[0.06] px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
+        >
+          {f}
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function LawyerChoiceCard({
   lawyer,
   offer,
   responseLabel,
   rating,
+  caseCategory,
   onChoose,
 }: {
   lawyer: Lawyer;
   offer?: CaseOffer;
+  /** קטגוריית התיק — כדי לומר "עוסק בתחום שלך" ולא לנחש */
+  caseCategory?: string;
   /** מדד תגובתיות שהפלטפורמה מדדה — לא הצהרה של עורך הדין */
   responseLabel?: string | null;
   /** ממוצע דירוגי לקוחות. null כשעדיין אין — ואז מוצג תג האימות במקום. */
@@ -666,6 +718,18 @@ function LawyerChoiceCard({
           </div>
         </div>
       </div>
+      {/*
+        * עובדות התאמה — בלי ציון, ובכוונה.
+        *
+        * הכרטיס הראה עד כה ותק ודירוג: כמה **טוב** עורך הדין. הוא לא
+        * אמר מילה על כמה הוא **מתאים לי** — האם הוא מדבר את שפתי, האם
+        * התחום שלי הוא שלו, והאם הוא בעיר שלי. אלה השאלות שאדם שואל
+        * כשהוא בוחר, והן היו חסרות לגמרי.
+        *
+        * שלוש עובדות שהלקוח יכול לאמת בעצמו — לא ציון מצטבר שאומר לו
+        * מי עדיף. מי שרוצה עורך דין מנוסה יותר מרחוק, זו זכותו.
+        */}
+      <FitFacts lawyer={lawyer} caseCategory={caseCategory} />
       <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
         {lawyer.blurb}
       </p>

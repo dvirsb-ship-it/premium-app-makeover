@@ -107,6 +107,42 @@ export function matchScore(
   return { score, reasons, langMismatch };
 }
 
+/*
+ * הסיבה שמוצגת על הכרטיס.
+ *
+ * הציון נשאר — הוא ממיין את הפיד — אבל הוא הפסיק להיות מה שעורך הדין
+ * קורא. "התאמה 100%" הוא שם תואר בלי נימוק: הוא אומר לאדם מה לחשוב
+ * במקום לתת לו את העובדה ולתת לו להחליט. הקובץ הזה נפתח במשפט "כל
+ * נקודה ניתנת להסבר במשפט אחד", וההסברים חושבו, תורגמו לשש שפות —
+ * ומעולם לא הוצגו.
+ *
+ * על הכרטיס יש מקום לאחת, ולכן החזקה ביותר. הרשימה המלאה במסך התיק.
+ * הסדר כאן הוא סדר המשקלים למעלה, ולא דעה נפרדת שתוכל להיסחף ממנו.
+ */
+const REASON_STRENGTH: Record<MatchReason, number> = {
+  reasonSpecPrimary: MATCH_WEIGHTS.specPrimary,
+  reasonLangMatch: MATCH_WEIGHTS.language,
+  reasonSpecSecondary: MATCH_WEIGHTS.specSecondary,
+  reasonCityMatch: MATCH_WEIGHTS.city,
+  /* אינה סיבת התאמה אלא אזהרה — נבחרת רק כשאין שום דבר חיובי */
+  reasonLangGap: -1,
+};
+
+/** הסיבה החיובית החזקה ביותר, או אזהרת השפה כשאין אחרת. null = אין מה לומר. */
+export function strongestReason(reasons: readonly MatchReason[]): MatchReason | null {
+  if (!reasons.length) return null;
+  const positives = reasons.filter((r) => REASON_STRENGTH[r] > 0);
+  if (!positives.length) return reasons.includes("reasonLangGap") ? "reasonLangGap" : null;
+  return positives.reduce((best, r) =>
+    REASON_STRENGTH[r] > REASON_STRENGTH[best] ? r : best,
+  );
+}
+
+/** האם הסיבה היא אזהרה ולא התאמה — קובע את הצבע בתצוגה. */
+export function isWarningReason(r: MatchReason): boolean {
+  return REASON_STRENGTH[r] < 0;
+}
+
 /** סף התצוגה: מאיזה ציון התג נצבע כ"גבוה". */
 export const MATCH_HIGH = 80;
 export const MATCH_MEDIUM = 50;
