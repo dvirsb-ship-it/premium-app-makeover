@@ -672,7 +672,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   archiveTitle: "Archives",
   archiveBadge: "Clôturé",
   privacyAi: "Analyse par intelligence artificielle",
-  privacyAiSub: "L'examen juridique est effectué par le moteur Gemini de Google. Les identifiants directs que vous écrivez — numéro d'identité, téléphone et e-mail — sont retirés automatiquement avant tout envoi et ne quittent jamais nos systèmes. La description du dossier et les photos sont bien envoyées, uniquement pour cet examen et jamais à des fins publicitaires. Les dossiers et fichiers sont conservés sur des serveurs Google en Israël ; l'analyse elle-même s'exécute sur des serveurs Google, pas nécessairement en Israël.",
+  privacyAiSub: "L'examen juridique est effectué par le moteur Gemini de Google. Les identifiants directs que vous écrivez — numéro d'identité, téléphone et e-mail — sont retirés automatiquement avant tout envoi et ne quittent jamais nos systèmes. La description du dossier et les photos sont bien envoyées, uniquement pour cet examen — pas pour entraîner le modèle et jamais à des fins publicitaires. Les dossiers et fichiers sont conservés sur des serveurs Google en Israël ; l'analyse elle-même s'exécute sur des serveurs Google, pas nécessairement en Israël.",
   registryGateTitle: "Avant la validation — vérification au registre du Barreau",
   registryGateOpen: "Ouvrir le registre des avocats ←",
   registryGateConfirm: "J'ai vérifié au registre du Barreau que le nom et le numéro de licence correspondent, et que la licence est en cours de validité.",

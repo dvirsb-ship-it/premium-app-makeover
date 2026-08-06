@@ -672,7 +672,7 @@ export const es: Partial<Record<StringKey, string>> = {
   archiveTitle: "Archivo",
   archiveBadge: "Finalizado",
   privacyAi: "Análisis por inteligencia artificial",
-  privacyAiSub: "La revisión legal la realiza el motor Gemini de Google. Los identificadores directos que escribas —número de identidad, teléfono y correo— se eliminan automáticamente antes del envío y nunca salen de nuestros sistemas. La descripción del caso y las fotos sí se envían, solo para esa revisión y nunca con fines publicitarios. Los casos y archivos se guardan en servidores de Google en Israel; el análisis se ejecuta en servidores de Google, no necesariamente en Israel.",
+  privacyAiSub: "La revisión legal la realiza el motor Gemini de Google. Los identificadores directos que escribas —número de identidad, teléfono y correo— se eliminan automáticamente antes del envío y nunca salen de nuestros sistemas. La descripción del caso y las fotos sí se envían, solo para esa revisión — no para entrenar el modelo y nunca con fines publicitarios. Los casos y archivos se guardan en servidores de Google en Israel; el análisis se ejecuta en servidores de Google, no necesariamente en Israel.",
   registryGateTitle: "Antes de aprobar — verificación en el registro del Colegio",
   registryGateOpen: "Abrir el registro de abogados ←",
   registryGateConfirm: "Verifiqué en el registro del Colegio que su nombre y número de licencia coinciden, y que la licencia está vigente.",
