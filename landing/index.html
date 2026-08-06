@@ -112,31 +112,78 @@
     הכרטיס שבפנים הוא HTML, ולכן הוא נשאר חד בכל רזולוציה, מתורגם
     לקוראי מסך, ומתעדכן עם המוצר במקום להתיישן איתו.
   */
+  /*
+   * המסגרת דקה בכוונה — 5px ולא 10.
+   *
+   * שני פרטים עושים את ההבדל בין "מסגרת טלפון" לבין מלבן עם פינות:
+   *
+   * 1. רדיוסים קונצנטריים. הרדיוס הפנימי חייב להיות החיצוני פחות עובי
+   *    המסגרת (43-5=38), אחרת העקומות לא מקבילות והעין קולטת את זה
+   *    כזיוף גם בלי לדעת למה. זו הטעות הנפוצה ביותר במוקאפים.
+   * 2. קו אור בקצה העליון — מתכת תופסת אור בשפה. בלעדיו המסגרת שטוחה.
+   */
   .phone {
-    max-width: 330px; margin: 22px auto 0; padding: 10px;
-    border-radius: 46px; background: linear-gradient(160deg, #2a2f3d, #11141c 55%, #2a2f3d);
+    position: relative;
+    max-width: 320px; margin: 22px auto 0; padding: 5px;
+    border-radius: 43px;
+    background: linear-gradient(168deg, #6b6f7a, #33373f 18%, #23262c 50%, #33373f 84%, #6b6f7a);
     box-shadow:
-      0 40px 80px -30px rgba(150,110,20,.42),
-      0 10px 30px -12px rgba(22,34,60,.30),
-      inset 0 0 0 1.5px rgba(212,175,55,.28);
+      0 30px 60px -28px rgba(22,34,60,.34),
+      0 6px 18px -10px rgba(22,34,60,.18),
+      inset 0 1px 0 rgba(255,255,255,.35);
   }
+  /* כפתורי הצד — הפרט שאף אחד לא שם לב אליו, וחסרונו מורגש */
+  .phone::before, .phone::after {
+    content: ""; position: absolute; width: 2px; border-radius: 2px;
+    background: linear-gradient(180deg, #55595f, #303339);
+  }
+  .phone::before { right: -2px; top: 108px; height: 54px; }   /* הפעלה */
+  .phone::after  { left: -2px;  top: 96px;  height: 30px; }   /* עוצמה */
+
+  /*
+   * המסך בהיר לכל אורכו. קודם הוא היה כהה מלמעלה ולבן בכרטיס — יפה,
+   * אבל שני עולמות במסך אחד. עכשיו הרקע חמים-בהיר והכרטיס לבן טהור,
+   * וההפרש הקטן ביניהם הוא מה שמרים אותו. זה גם מה שהמסך באמת נראה.
+   */
   .phone-screen {
-    position: relative; border-radius: 37px; overflow: hidden;
-    background: #0F172A; padding: 30px 12px 14px;
+    position: relative; border-radius: 38px; overflow: hidden;
+    background: #f5f2ea; padding: 30px 11px 16px;
+    /* שפת הזכוכית — צל פנימי דק במקום שבו המסך נפגש עם המסגרת */
+    box-shadow: inset 0 0 0 1px rgba(22,34,60,.07), inset 0 2px 6px -3px rgba(22,34,60,.18);
   }
+  /*
+   * שורת הסטטוס — שעה מימין, סוללה משמאל, כמו ב-iOS בעברית.
+   * היא לא נושאת מידע; היא מה שגורם למסך להיקרא כמסך ולא כאיור.
+   */
+  .phone-status {
+    position: absolute; top: 9px; inset-inline: 20px; height: 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 10px; font-weight: 700; color: rgba(22,34,60,.62);
+  }
+  .phone-status svg { display: block; }
   /* האי הדינמי — הפרט הקטן שגורם למסגרת להיקרא כטלפון ולא כמלבן */
   .phone-island {
-    position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
-    width: 74px; height: 20px; border-radius: 999px; background: #05070d;
+    position: absolute; top: 8px; left: 50%; transform: translateX(-50%);
+    width: 66px; height: 18px; border-radius: 999px; background: #14171d;
+  }
+  /* פס הבית — שלוש שורות שסוגרות את התחתית כמו מכשיר אמיתי */
+  .phone-bar {
+    display: block; width: 92px; height: 4px; border-radius: 99px;
+    margin: 12px auto 0; background: rgba(22,34,60,.22);
   }
   .phone-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 12px; }
-  .phone-brand { font-size: 9px; font-weight: 800; letter-spacing: .18em; color: var(--gold-mid); }
-  .phone-title { font-size: 15px; font-weight: 900; color: #F8FAFC; }
+  .phone-brand { font-size: 9px; font-weight: 800; letter-spacing: .18em; color: var(--gold-text); }
+  .phone-title { font-size: 15px; font-weight: 900; color: var(--ink); }
 
+  /*
+   * הכרטיס לבן על רקע חמים-בהיר. ההפרש ביניהם קטן, ולכן הצל הוא מה
+   * שמפריד — לא מסגרת כבדה. קו שיער בלבד, וצל רך שנופל למטה.
+   */
   .case {
     text-align: right;
-    background: #fff; border: 1px solid var(--line);
+    background: #fff; border: 1px solid rgba(22,34,60,.07);
     border-radius: 20px; padding: 14px;
+    box-shadow: 0 8px 20px -12px rgba(22,34,60,.16), 0 2px 5px -3px rgba(22,34,60,.10);
   }
   .card-top { display: flex; gap: 12px; }
   .card-icon {
@@ -323,6 +370,13 @@
   <div class="phone reveal" aria-label="דוגמה לפנייה כפי שהיא מגיעה לעורך דין במסך האפליקציה">
    <div class="phone-screen">
     <span class="phone-island" aria-hidden="true"></span>
+    <div class="phone-status" aria-hidden="true">
+      <span dir="ltr">9:41</span>
+      <span style="display:flex;align-items:center;gap:4px">
+        <svg width="15" height="10" viewBox="0 0 15 10" fill="currentColor"><rect x="0" y="6.5" width="2.4" height="3.5" rx=".7"/><rect x="4.2" y="4.5" width="2.4" height="5.5" rx=".7"/><rect x="8.4" y="2.3" width="2.4" height="7.7" rx=".7"/><rect x="12.6" y="0" width="2.4" height="10" rx=".7"/></svg>
+        <svg width="19" height="10" viewBox="0 0 19 10" fill="none"><rect x=".5" y=".5" width="15" height="9" rx="2.6" stroke="currentColor" stroke-opacity=".5"/><rect x="2" y="2" width="10.5" height="6" rx="1.5" fill="currentColor"/><path d="M17.2 3.6v2.8a2.2 2.2 0 0 0 0-2.8Z" fill="currentColor" fill-opacity=".5"/></svg>
+      </span>
+    </div>
     <div class="phone-head">
       <span class="phone-title">פניות חדשות</span>
       <span class="phone-brand">JUSTASK · PRO</span>
@@ -347,6 +401,7 @@
       <p>עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת זהירות מוגברת של תופס מקרקעין כלפי מבקר. ההתיישנות טרם חלפה. תיעוד רפואי קיים, וצילום מהמקום מחזק את יסוד ההפרה…</p>
     </div>
   </div>
+    <span class="phone-bar" aria-hidden="true"></span>
    </div>
   </div>
 
