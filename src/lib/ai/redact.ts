@@ -22,6 +22,18 @@ export const REDACTED_PHONE = "[טלפון הוסר]";
 export const REDACTED_EMAIL = "[דוא״ל הוסר]";
 
 /**
+ * ⚠️ הניקוי **כבוי** — 6/8/2026.
+ *
+ * הוא נוגע בצינור שמכריע אם לתיק יש עילה, והבדיקות יכולות לאמת שהפונקציה
+ * מנקה נכון — לא שהתזכיר עדיין יוצא באיכות זהה. זה מתאמת רק בפתיחת תיק
+ * אמיתי מול Gemini.
+ *
+ * **להדליק אחרי שדביר פותח תיק בדיקה ורואה שהוא נבדק ומאושר כרגיל.**
+ * רשום ב-LAUNCH-CHECKLIST.md.
+ */
+export const AI_REDACTION_ENABLED = false;
+
+/**
  * ספרת הביקורת של תעודת זהות ישראלית.
  *
  * בלעדיה כל רצף של תשע ספרות היה נמחק — מספר חשבונית, מספר תיק, סכום.
@@ -57,13 +69,24 @@ const PHONE = /(?:\+?972[-\s]?|\b0)(?:5\d|7\d|[23489])[-\s]?\d{3}[-\s]?\d{4}\b/g
 const MAYBE_ID = /\b\d{5,9}\b/g;
 
 /**
- * מסיר מזהים ישירים מטקסט שעומד להישלח ל-AI.
+ * הניקוי עצמו — טהור ותמיד פעיל, ועליו נשענות הבדיקות.
  * מחזיר את הטקסט כמות שהוא כשאין מה להסיר.
  */
-export function redactForAi(text: string): string {
+export function redactIdentifiers(text: string): string {
   if (!text) return text;
   return text
     .replace(EMAIL, REDACTED_EMAIL)
     .replace(PHONE, REDACTED_PHONE)
     .replace(MAYBE_ID, (m) => (isIsraeliId(m) ? REDACTED_ID : m));
+}
+
+/**
+ * מה שנקרא בפועל לפני שליחה ל-AI — כפוף למתג.
+ *
+ * ההפרדה מכוונת: הבדיקות בודקות את `redactIdentifiers` ולכן נשארות
+ * משמעותיות גם כשהמתג כבוי, ואין צורך לגעת בשתי נקודות היציאה
+ * ב-intake.functions כדי להדליק או לכבות.
+ */
+export function redactForAi(text: string): string {
+  return AI_REDACTION_ENABLED ? redactIdentifiers(text) : text;
 }
