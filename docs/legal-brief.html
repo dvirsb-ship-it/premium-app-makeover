@@ -1,0 +1,590 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>JustAsk — תדריך לעורך דין</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/*
+ * תדריך משפטי — גרסת הדפסה.
+ *
+ * הקוראת היא עורכת דין: היא קוראת מסמכים צפופים כל היום, וסולדת
+ * ממצגות מכירה. לכן הרישום כאן הוא של תזכיר משפטי — שוליים נדיבים,
+ * היררכיה טיפוגרפית חדה, קווי שיער במקום מסגרות — ולא של דף נחיתה.
+ * הזהב מופיע במשורה, כמעט תמיד כסימון ולא כקישוט.
+ *
+ * מספרי הסעיפים יושבים בשוליים ולא בתוך השורה, כדי שתוכל לצטט
+ * ("סעיף 5א") בלי לחפש.
+ */
+:root {
+  --ink: #16223c;
+  --ink-soft: #48536b;
+  --muted: #6b7488;
+  --gold: #b8912b;
+  --gold-deep: #8a6d1f;
+  --gold-wash: #fbf6e8;
+  --paper: #ffffff;
+  --warm: #fdfbf4;
+  --rule: rgba(22, 34, 60, .13);
+  --rule-soft: rgba(22, 34, 60, .07);
+  --good: #1f7a4d;
+  --bad: #b3261e;
+}
+
+@page {
+  size: A4;
+  margin: 17mm 16mm 16mm;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: "Heebo", system-ui, -apple-system, "Arial Hebrew", sans-serif;
+  color: var(--ink);
+  background: var(--paper);
+  font-size: 10.2pt;
+  line-height: 1.72;
+  font-weight: 400;
+}
+
+/* ---------- שער ---------- */
+
+.cover {
+  break-after: page;
+  padding-top: 14mm;
+}
+.mark {
+  display: flex; align-items: center; gap: 9px;
+  font-size: 15pt; font-weight: 900; letter-spacing: -.02em;
+}
+.mark-glyph {
+  width: 30px; height: 30px; display: grid; place-items: center;
+  border-radius: 9px; background: linear-gradient(150deg, #f0d375, var(--gold));
+  color: #2a2105; font-size: 15pt; line-height: 1;
+}
+.mark .lo { color: var(--gold-deep); }
+
+.cover h1 {
+  margin-top: 26mm;
+  font-size: 30pt; font-weight: 900; line-height: 1.1; letter-spacing: -.025em;
+}
+.cover .lede {
+  margin-top: 7mm; max-width: 118mm;
+  font-size: 12pt; font-weight: 300; line-height: 1.65; color: var(--ink-soft);
+}
+.cover-meta {
+  margin-top: 16mm; padding-top: 5mm; border-top: 1.5px solid var(--ink);
+  display: flex; gap: 12mm; font-size: 8.6pt;
+}
+.cover-meta dt { font-weight: 800; letter-spacing: .09em; color: var(--gold-deep); font-size: 7.6pt; }
+.cover-meta dd { margin-top: 2px; font-weight: 500; }
+
+.howto {
+  margin-top: 12mm; padding: 6mm 7mm;
+  background: var(--gold-wash); border-radius: 3mm;
+  border-right: 3px solid var(--gold);
+}
+.howto p { font-size: 10pt; }
+.howto strong { font-weight: 800; }
+
+/* ---------- מבנה סעיפים ---------- */
+
+section { break-inside: auto; }
+.sec { margin-top: 11mm; }
+.sec:first-of-type { margin-top: 0; }
+
+.sec-head {
+  display: flex; align-items: baseline; gap: 5mm;
+  padding-bottom: 2.5mm; margin-bottom: 5mm;
+  border-bottom: 1.5px solid var(--ink);
+  break-after: avoid;
+}
+.sec-num {
+  flex: 0 0 auto; min-width: 11mm;
+  font-size: 15pt; font-weight: 900; color: var(--gold);
+  font-variant-numeric: tabular-nums; line-height: 1;
+}
+.sec-title { font-size: 14pt; font-weight: 900; letter-spacing: -.02em; }
+.sec-note { margin-right: auto; font-size: 8.4pt; color: var(--muted); font-weight: 500; }
+
+h3 {
+  margin-top: 6mm; margin-bottom: 2mm;
+  font-size: 11pt; font-weight: 800;
+  break-after: avoid;
+}
+p + p { margin-top: 3mm; }
+p { max-width: 165mm; }
+strong { font-weight: 800; }
+.dim { color: var(--muted); }
+
+/* ---------- המסע: האלמנט המרכזי ---------- */
+
+.journey {
+  margin: 6mm 0 4mm;
+  padding: 7mm 6mm 6mm;
+  background: var(--warm); border: 1px solid var(--rule-soft); border-radius: 3mm;
+  break-inside: avoid;
+}
+.journey-label {
+  font-size: 7.6pt; font-weight: 800; letter-spacing: .17em;
+  color: var(--gold-deep); margin-bottom: 5mm;
+}
+.track { display: flex; align-items: flex-start; gap: 0; }
+.node { flex: 1; text-align: center; position: relative; padding: 0 1.5mm; }
+/* הקו המחבר — נמתח שמאלה, כי המסע נקרא מימין לשמאל */
+.node:not(:last-child)::after {
+  content: ""; position: absolute; top: 7mm; left: -50%; width: 100%;
+  border-top: 1.5px dashed rgba(184, 145, 43, .5);
+  z-index: 0;
+}
+.node-dot {
+  position: relative; z-index: 1;
+  width: 14mm; height: 14mm; margin: 0 auto;
+  display: grid; place-items: center;
+  border-radius: 50%; background: #fff;
+  border: 1.5px solid var(--gold);
+  font-size: 13pt; line-height: 1;
+}
+.node-dot.solid { background: linear-gradient(150deg, #f4dc94, var(--gold)); border-color: var(--gold-deep); }
+.node-n {
+  display: block; margin-top: 3mm;
+  font-size: 7pt; font-weight: 800; color: var(--gold-deep); letter-spacing: .1em;
+}
+.node-t { display: block; margin-top: 1mm; font-size: 9pt; font-weight: 800; line-height: 1.3; }
+.node-d { display: block; margin-top: 1mm; font-size: 7.8pt; color: var(--muted); line-height: 1.45; }
+
+/* ההסתעפות — מה שקורה לתיק שנדחה. זו נקודה מהותית ולכן היא מצוירת. */
+.branch {
+  margin-top: 5mm; padding-top: 4mm; border-top: 1px dashed var(--rule);
+  display: flex; align-items: center; gap: 3mm;
+  font-size: 8.6pt;
+}
+.branch-tag {
+  flex: 0 0 auto; padding: 1mm 3mm; border-radius: 99px;
+  background: rgba(179, 38, 30, .09); color: var(--bad);
+  font-size: 7.6pt; font-weight: 800;
+}
+
+/* ---------- טבלאות ---------- */
+
+table {
+  width: 100%; border-collapse: collapse; margin-top: 4mm;
+  font-size: 9.4pt; break-inside: avoid;
+}
+caption {
+  text-align: right; font-size: 8.4pt; font-weight: 800;
+  color: var(--gold-deep); letter-spacing: .08em; padding-bottom: 2mm;
+}
+th {
+  text-align: right; font-weight: 800; font-size: 8.2pt;
+  letter-spacing: .06em; color: var(--muted);
+  padding: 0 3mm 2mm; border-bottom: 1.5px solid var(--ink);
+}
+td { padding: 2.6mm 3mm; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; width: 38%; }
+td.center { text-align: center; width: 16mm; }
+
+.yes, .no { font-weight: 900; font-size: 11pt; line-height: 1; }
+.yes { color: var(--good); }
+.no  { color: var(--bad); }
+
+.zebra tr:nth-child(even) td { background: var(--warm); }
+
+/* ---------- רשימת סימונים ---------- */
+
+.checks { margin-top: 3mm; list-style: none; }
+.checks li {
+  position: relative; padding-right: 8mm; margin-top: 2.5mm;
+  break-inside: avoid;
+}
+.checks li::before {
+  content: "✓"; position: absolute; right: 0; top: -.5mm;
+  color: var(--good); font-weight: 900; font-size: 10.5pt;
+}
+
+/* ---------- קופסאות ---------- */
+
+.note {
+  margin-top: 4mm; padding: 4.5mm 5mm;
+  border-radius: 2.5mm; background: var(--warm);
+  border-right: 3px solid var(--gold); break-inside: avoid;
+}
+.note-t { font-size: 8pt; font-weight: 800; letter-spacing: .12em; color: var(--gold-deep); margin-bottom: 1.5mm; }
+
+.declined {
+  margin-top: 5mm; padding: 5mm;
+  border: 1.2px solid var(--rule); border-radius: 2.5mm; break-inside: avoid;
+}
+.declined ol { margin: 2.5mm 5mm 0 0; }
+.declined li { margin-top: 2mm; }
+
+/* ---------- השאלות — אליהן הכל מתנקז ---------- */
+
+.asks { break-before: page; }
+.ask {
+  margin-top: 5mm; padding: 5.5mm 6mm;
+  border: 1.5px solid var(--ink); border-radius: 3mm;
+  break-inside: avoid;
+}
+.ask.primary { background: var(--gold-wash); border-color: var(--gold-deep); }
+.ask-head { display: flex; align-items: baseline; gap: 4mm; }
+.ask-letter {
+  flex: 0 0 auto; width: 8mm; height: 8mm; display: grid; place-items: center;
+  border-radius: 50%; background: var(--ink); color: #fff;
+  font-size: 9pt; font-weight: 900; line-height: 1;
+}
+.ask.primary .ask-letter { background: var(--gold-deep); }
+.ask-title { font-size: 11.5pt; font-weight: 900; }
+.ask-body { margin-top: 3mm; }
+.ask ul { margin: 2.5mm 5mm 0 0; }
+.ask li { margin-top: 1.5mm; }
+
+.skip {
+  margin-top: 5mm; padding: 5mm;
+  border-radius: 3mm; background: #f4f6f9;
+  break-inside: avoid;
+}
+
+footer {
+  margin-top: 12mm; padding-top: 4mm;
+  border-top: 1px solid var(--rule);
+  font-size: 8pt; color: var(--muted);
+  display: flex; justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<!-- ============ שער ============ -->
+<div class="cover">
+  <div class="mark">
+    <span class="mark-glyph">⚖</span>
+    <span>Just<span class="lo">Ask</span></span>
+  </div>
+
+  <h1>תדריך לעורך&nbsp;דין</h1>
+  <p class="lede">
+    מה המוצר עושה בפועל, אילו החלטות כבר נלקחו כדי להישאר בתוך כללי הלשכה,
+    ומה באמת אינו ידוע ודורש חוות דעת.
+  </p>
+
+  <dl class="cover-meta">
+    <div><dt>מוגש על ידי</dt><dd>דביר, מייסד JustAsk</dd></div>
+    <div><dt>עודכן</dt><dd>אוגוסט 2026</dd></div>
+    <div><dt>מצב</dt><dd>טרם הושק · אין לקוחות</dd></div>
+  </dl>
+
+  <div class="howto">
+    <p>
+      <strong>איך להשתמש במסמך.</strong>
+      סעיפים 1–5 הם רקע שאפשר לקרוא מראש — הם מתארים מה כבר בנוי ומה כבר נבדק.
+      <strong>סעיף 6 הוא מה שאנחנו מבקשים ממך.</strong>
+      נשמח שלא יבוזבז זמן על אישור מה שכבר בדוק, ושהפגישה תתמקד בשלוש השאלות שבסופו.
+    </p>
+  </div>
+</div>
+
+<!-- ============ 1 · המסע ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">1</span>
+    <span class="sec-title">מה קורה מרגע שאדם נפגע</span>
+    <span class="sec-note">חמישה שלבים · כל אחד אוטומטי למעט האחרון</span>
+  </div>
+
+  <div class="journey">
+    <p class="journey-label">מסלול הפנייה</p>
+    <div class="track">
+      <div class="node">
+        <span class="node-dot">🧍</span>
+        <span class="node-n">שלב 1</span>
+        <span class="node-t">אדם נפגע</span>
+        <span class="node-d">נכנס בעצמו. אין פנייה יזומה אליו מאיתנו או מעורך דין.</span>
+      </div>
+      <div class="node">
+        <span class="node-dot">💬</span>
+        <span class="node-n">שלב 2</span>
+        <span class="node-t">מספר מה קרה</span>
+        <span class="node-d">שיחה מונחית בשפתו. מזהים ישירים מוסרים אוטומטית.</span>
+      </div>
+      <div class="node">
+        <span class="node-dot">⚙️</span>
+        <span class="node-n">שלב 3</span>
+        <span class="node-t">בדיקה משפטית</span>
+        <span class="node-d">מול הדין הישראלי. נכתב תזכיר: עילה, התיישנות, מסלול.</span>
+      </div>
+      <div class="node">
+        <span class="node-dot solid">✓</span>
+        <span class="node-n">שלב 4</span>
+        <span class="node-t">הכרעה</span>
+        <span class="node-d">יש עילה — התיק נפתח. אין — נדחה ואינו מוצג לאיש.</span>
+      </div>
+      <div class="node">
+        <span class="node-dot">⚖️</span>
+        <span class="node-n">שלב 5</span>
+        <span class="node-t">מגיע לעורך הדין</span>
+        <span class="node-d">רק למאומתים בתחום. בלי שם ובלי פרטי קשר.</span>
+      </div>
+    </div>
+
+    <div class="branch">
+      <span class="branch-tag">ואם נדחה</span>
+      <span>
+        התיק <strong>אינו מוצג לאף עורך דין</strong>, והפונה מקבל הסבר מה כן לעשות.
+        פנייה חסרת עילה אינה הופכת לליד.
+      </span>
+    </div>
+  </div>
+
+  <h3>ומה קורה אחר כך</h3>
+  <p>
+    עורכי הדין שראו את התיק מגישים <strong>הצעת שכר טרחה מובנית</strong>. הלקוח משווה ובוחר.
+    <strong>פרטי הקשר נחשפים רק אחרי הבחירה</strong> — ורק לעורך הדין שנבחר.
+  </p>
+  <p>
+    הבדיקה הראשונית מוצהרת במפורש כ<strong>"אינה ייעוץ משפטי"</strong> בשלושה מקומות:
+    במסך התיק, בתנאי השימוש, ובתיאור בחנות. איננו עוסקים בעריכת דין ואיננו צד להסכם
+    שכר הטרחה.
+  </p>
+</section>
+
+<!-- ============ 2 · תשלום ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">2</span>
+    <span class="sec-title">מודל התשלום</span>
+    <span class="sec-note">ולמה הוא נבנה כך</span>
+  </div>
+
+  <p><strong>מנוי חודשי קבוע מעורך הדין. זהו.</strong></p>
+
+  <table class="zebra">
+    <caption>מה שאין במודל — במכוון</caption>
+    <thead>
+      <tr><th>רכיב</th><th class="center">קיים</th><th>פירוט</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="k">עמלה לליד</td><td class="center"><span class="no">✗</span></td><td>אין תשלום לפי פנייה</td></tr>
+      <tr><td class="k">אחוז משכר טרחה</td><td class="center"><span class="no">✗</span></td><td>אין חלק בתוצאה, בשום שלב</td></tr>
+      <tr><td class="k">תלות במספר לקוחות</td><td class="center"><span class="no">✗</span></td><td>אותו מחיר על לקוח אחד או עשרה</td></tr>
+      <tr><td class="k">תשלום עבור מיקום בפיד</td><td class="center"><span class="no">✗</span></td><td>אין קידום בתשלום ואין מיון לפי מחיר</td></tr>
+      <tr><td class="k">מנוי חודשי קבוע</td><td class="center"><span class="yes">✓</span></td><td>על זכות השימוש בכלי, מנותק מתוצאת התיק</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p class="note-t">ההשוואה שאנחנו מציעים — ומה שחלש בה</p>
+    <p>
+      זהו אותו מבנה שבו פועלות <strong>פדאור, תקדין ומנת"י</strong>: סכום קבוע על זכות שימוש,
+      מנותק לחלוטין מתוצאת התיק.
+    </p>
+    <p>
+      <strong>ובכנות — יש הבדל.</strong> הן מוכרות גישה למאגר פסיקה, ואין לקוח בתמונה.
+      אצלנו יש הפניה של אדם ספציפי לעורך דין ספציפי. הפרשנות שלנו היא שהתשלום הוא על
+      <strong>הכלי</strong> ולא על <strong>הלקוח</strong>, ושהיעדר עמלה ואחוז הוא מה שמבדיל
+      בין זה לבין תיווך. <strong>זו הפרשנות שאנחנו מבקשים שתאושר או תיפסל.</strong>
+    </p>
+  </div>
+</section>
+
+<!-- ============ 3 · מה כבר נבנה ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">3</span>
+    <span class="sec-title">מה כבר נבנה כדי להישאר בתוך הכללים</span>
+  </div>
+
+  <ul class="checks">
+    <li><strong>אימות אנושי לכל עורך דין.</strong> תעודת לשכה, תעודת השכלה, וסרטון פנים שקושר את בעל החשבון לתעודה. נבדק בעיניים, לא אוטומטית.</li>
+    <li><strong>בדיקה מול פנקס הלשכה</strong> לפני אישור.</li>
+    <li><strong>הלקוח יוזם תמיד.</strong> עורך דין אינו פונה ללקוח; הוא מביע עניין בתיק שהלקוח בחר לפרסם — בלי שם ובלי פרטי קשר.</li>
+    <li><strong>הבחירה היא של הלקוח בלבד</strong>, והיא זו שחושפת את פרטי הקשר.</li>
+    <li><strong>תיק ללא עילה נדחה</strong> ואינו מוצג לאיש.</li>
+    <li><strong>אין דירוג של עורכי דין ללקוח.</strong> הלקוח רואה עובדות בלבד — תחום, שפה, עיר — ודירוגים שהצטברו מלקוחות קודמים.</li>
+  </ul>
+</section>
+
+<!-- ============ 4 · פרטיות ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">4</span>
+    <span class="sec-title">פרטיות — מה עובר לאן</span>
+    <span class="sec-note">תיק כאן מכיל תיאור פגיעה ותיעוד רפואי</span>
+  </div>
+
+  <table class="zebra">
+    <tbody>
+      <tr><td class="k">היכן נשמרים התיקים</td><td>שרתי גוגל <strong>בישראל</strong> (me-west1)</td></tr>
+      <tr><td class="k">מה נשלח לניתוח</td><td>תיאור המקרה ותמונות שצורפו, למנוע Gemini של גוגל</td></tr>
+      <tr><td class="k">היכן מתבצע הניתוח</td><td><strong>באיחוד האירופי</strong> (europe-west4), באזור נעוץ</td></tr>
+      <tr><td class="k">שימוש לאימון המודל</td><td><strong>לא.</strong> הפרויקט בשכבה בתשלום, שבה התנאים אוסרים זאת</td></tr>
+      <tr><td class="k">מה אינו נשלח כלל</td><td><strong>ת.ז., טלפון ודוא״ל</strong> — מוסרים אוטומטית לפני השליחה</td></tr>
+      <tr><td class="k">מסמכי אימות עורך דין</td><td><strong>לעולם אינם מגיעים ל-AI.</strong> בדיקה אנושית בלבד</td></tr>
+      <tr><td class="k">סרטון הפנים</td><td>נמחק מיד עם ההחלטה — באישור ובדחייה כאחד</td></tr>
+      <tr><td class="k">תמונות שמעלה הלקוח</td><td>אזורים מזהים ממוסכים לפני שעורך דין רואה אותן</td></tr>
+      <tr><td class="k">מחיקת חשבון</td><td>בתוך האפליקציה, מתבצעת אוטומטית אחרי 7 ימים</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p class="note-t">שקיפות מלאה — מאיזה מועד</p>
+    <p>
+      החיוב בפועל החל ב-<strong>27 ביולי 2026</strong>. לפני התאריך הזה הפרויקט היה בשכבה
+      החינמית, שבה גוגל רשאית להשתמש בתוכן לשיפור מוצריה. מדובר בתיקי פיתוח ובדיקה בלבד —
+      טרם היו לקוחות אמיתיים — אך זו התשובה המדויקת לשאלה "ממתי".
+    </p>
+  </div>
+</section>
+
+<!-- ============ 5 · על מה הלקוח חותם ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">5</span>
+    <span class="sec-title">על מה הלקוח חותם</span>
+    <span class="sec-note">שישה סעיפים, לפני הראיון</span>
+  </div>
+
+  <table class="zebra">
+    <thead>
+      <tr><th class="center">#</th><th>הסעיף</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="center">1</td><td>המידע שאשתף אמיתי ומדויק למיטב ידיעתי</td></tr>
+      <tr><td class="center">2</td><td>הבדיקה הראשונית אינה ייעוץ משפטי ואינה ייצוג</td></tr>
+      <tr><td class="center">3</td><td>הפנייה תוצג לעורכי דין מאומתים בתחום — בלי שמי ובלי פרטי הקשר</td></tr>
+      <tr><td class="center">4</td><td>אני פונה מתוך כוונה אמיתית לקבל סיוע משפטי</td></tr>
+      <tr><td class="center">5</td><td><strong>תיאור המקרה והמסמכים יעובדו ע״י שירות AI של גוגל בשרתים באיחוד האירופי, לבדיקה בלבד. ת.ז., טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד</strong></td></tr>
+      <tr><td class="center">6</td><td><strong>אצרף מסמכים הנוגעים אליי; פרטים של אדם אחר אשחיר או לא אצרף</strong></td></tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:4mm">
+    <strong>סעיף 5</strong> אינו הצהרה שיווקית: תקנות הגנת הפרטיות (העברת מידע אל מאגרים
+    שמחוץ לגבולות המדינה) מתירות העברה <strong>בהסכמת מי שהמידע עליו</strong>, ולכן הוא מנוסח
+    מפורשות — לאן, לשם מה, ומה לא נשלח.
+  </p>
+  <p>
+    <strong>סעיף 6</strong> סוגר פער שזיהינו בעצמנו: מסמך רפואי או תמונת תאונה מכילים לעיתים
+    פרטים של <strong>צד שלישי</strong> — רופא, עד, נהג אחר — וההסכמה של הפונה אינה מכסה אותם.
+  </p>
+
+  <div class="declined">
+    <!--
+      בלי תג הדגשה בתוך השורה: ה-<em> בלע את הרווח שלפניו ברינדור RTL
+      והכותרת יצאה "מה שבחרנולא לבקש".
+    -->
+    <h3 style="margin-top:0">מה שבחרנו לא לבקש — ולמה</h3>
+    <p class="dim" style="font-size:9.4pt">
+      שקלנו ויתור גורף בנוסח "כל מה שאשתף הוא באחריותי", והחלטנו נגד:
+    </p>
+    <ol>
+      <li>חובות אבטחת המידע חלות על <strong>בעל המאגר</strong> ואינן ניתנות לוויתור. אם מידע ידלוף, הסכמת המשתמש אינה הגנה.</li>
+      <li>סעיף גורף בחוזה אחיד מול צרכן הוא מועמד ל<strong>תנאי מקפח</strong> — כלומר סעיף שעלול להיפסל, ואז אינו מגן על דבר.</li>
+      <li>אדם שזה עתה נפגע, שמתבקש לוותר על זכויות לפני שיספר מה קרה לו — זו פגיעה באמון שהמוצר כולו נשען עליו.</li>
+    </ol>
+    <p style="margin-top:3mm">
+      <strong>נשמח לדעת אם את חולקת על ההחלטה הזו.</strong> אם לדעתך נדרש סעיף נוסף, נשמח
+      לנסח אותו בצמצום ובדיוק — ולא בגורף.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 6 · השאלות ============ -->
+<section class="sec asks">
+  <div class="sec-head">
+    <span class="sec-num">6</span>
+    <span class="sec-title">מה שאנחנו מבקשים ממך</span>
+    <span class="sec-note">שלוש שאלות · לפי סדר חשיבות</span>
+  </div>
+
+  <div class="ask primary">
+    <div class="ask-head">
+      <span class="ask-letter">א</span>
+      <span class="ask-title">האם המנוי החודשי נחשב תיווך?</span>
+    </div>
+    <div class="ask-body">
+      <p>
+        <strong>זו השאלה המרכזית. אם התשובה בעייתית — כל השאר אינו משנה.</strong>
+      </p>
+      <p>
+        מנוי חודשי קבוע, אפס עמלה, אפס אחוז, אפס תלות בתוצאה — מול חוק לשכת עורכי הדין
+        וכללי האתיקה.
+      </p>
+      <p class="dim">
+        מה שידוע לנו: ועדת האתיקה נדרשה בעבר ללידים <strong>בתמורה לעמלות</strong>.
+        אנחנו איננו גובים עמלה. האם ההבחנה הזו מחזיקה?
+      </p>
+    </div>
+  </div>
+
+  <div class="ask">
+    <div class="ask-head">
+      <span class="ask-letter">ב</span>
+      <span class="ask-title">האם התזכיר האוטומטי חוצה לייעוץ משפטי?</span>
+    </div>
+    <div class="ask-body">
+      <p>
+        המערכת כותבת תזכיר שמזהה עילה בשמה ומצטט חוקים — למשל
+        <span class="dim">"עוולת הרשלנות, סעיף 35 לפקודת הנזיקין"</span>.
+        הוא מוצג ללקוח <strong>ולעורכי הדין</strong>. אנו מצהירים שאין זה ייעוץ משפטי
+        בשלושה מקומות.
+      </p>
+      <ul>
+        <li>האם ההצהרה מספקת?</li>
+        <li>האם יש ניסוח שמקטין חשיפה בלי לרוקן את המוצר?</li>
+        <li><strong>הבהרה:</strong> המערכת אינה מצטטת פסיקה, במכוון. חוקים בלבד.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="ask">
+    <div class="ask-head">
+      <span class="ask-letter">ג</span>
+      <span class="ask-title">אחריות מקצועית</span>
+    </div>
+    <div class="ask-body">
+      <p>
+        אם עורך דין מסתמך על תזכיר שגוי — מה החשיפה שלנו, ומה צריך להיות בתנאי השימוש
+        <strong>מולו</strong>, להבדיל ממול הלקוח?
+      </p>
+    </div>
+  </div>
+
+  <div class="skip">
+    <h3 style="margin-top:0">מה שאין צורך לבדוק</h3>
+    <p>
+      <strong>מד ההתאמה אינו מדרג עורכי דין ללקוח.</strong> הוא מדרג <strong>תיקים לעורך
+      דין</strong>, ומוצג רק לו, בפיד שלו. הלקוח אינו רואה ציון על עורכי דין בשום מקום.
+      כתבנו זאת כאן כדי שלא ייבזבז על כך זמן.
+    </p>
+  </div>
+</section>
+
+<!-- ============ 7 · הקשר עסקי ============ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">7</span>
+    <span class="sec-title">הקשר עסקי</span>
+  </div>
+  <table class="zebra">
+    <tbody>
+      <tr><td class="k">מצב</td><td>טרם הושק. אין לקוחות אמיתיים ואין הכנסה.</td></tr>
+      <tr><td class="k">מבנה</td><td>דביר עובד לבד; אין ישות משפטית רשומה על המוצר נכון להיום.</td></tr>
+      <tr><td class="k">בדרך</td><td>הגשה לחנויות Apple ו-Google בשבועות הקרובים.</td></tr>
+      <tr><td class="k">תמחור</td><td>בתקופת ההשקה המנוי חינם, ומועד תחילת החיוב יוצג מראש.</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <span>JustAsk · תדריך לעורך דין · אוגוסט 2026</span>
+    <span>justask.adv@gmail.com</span>
+  </footer>
+</section>
+
+</body>
+</html>
