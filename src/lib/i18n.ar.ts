@@ -598,6 +598,8 @@ export const ar: Partial<Record<StringKey, string>> = {
   deletionPreviewSub: "هذا تشغيل تجريبي فقط. لم يُحذف أي شيء. راجع القائمة، وعندها فقط ضع علامة كمنفَّذ.",
   deletionPreviewItems: "عناصر",
   roleSaveFailed: "لم نتمكّن من حفظ اختيارك. تحقّق من الاتصال وحاول مجددًا.",
+  saveAction: "حفظ مجالات العمل",
+  savedToast: "تم تحديث مجالات العمل — وستتبعها قائمتك",
   docCheckTitle: "فحص المستندات",
   docCheckRun: "تشغيل",
   docCheckRunning: "جارٍ قراءة المستندات…",

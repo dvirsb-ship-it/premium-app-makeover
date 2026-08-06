@@ -75,6 +75,36 @@ describe("verifications", () => {
     );
   });
 
+  /*
+   * מסך עריכת התחומים (settings.specialties) נשען על ההיתר הזה: הוא
+   * מעדכן את התחומים בלי לגעת בסטטוס, כדי שעורך דין מאומת שמוסיף תחום
+   * לא יאבד את האימות ואת מקומו בפיד.
+   *
+   * מי שיהדק את הכלל ויחסום עדכון של עו"ד מאושר — ישבור את המסך הזה
+   * בשקט, כי בקוד זו הבטחה שאין לה ביטוי. כאן היא כתובה.
+   */
+  it("עו״ד מאומת מעדכן תחומים בלי לגעת בסטטוס — מותר", async () => {
+    await assertSucceeds(
+      updateDoc(doc(as("lawyerOk"), "verifications/lawyerOk"), {
+        specialties: ["injury", "realestate"],
+      }),
+    );
+  });
+
+  /*
+   * הבדיקה הזו נכתבה תחילה על עו"ד מאושר, ונכשלה — בצדק. `diff` משווה
+   * ערכים, ומי שכבר approved וכותב approved לא שינה דבר. המקרה שבאמת
+   * מסוכן הוא ממתין שמנסה להבריח אישור בתוך עדכון תחומים תמים.
+   */
+  it("ממתין שמבריח status:approved בתוך עדכון תחומים — נחסם", async () => {
+    await assertFails(
+      updateDoc(doc(as("lawyerPending"), "verifications/lawyerPending"), {
+        specialties: ["injury", "realestate"],
+        status: "approved",
+      }),
+    );
+  });
+
   it("בעל הבקשה כן יכול לתקן פרטים ולהגיש מחדש", async () => {
     await assertSucceeds(
       updateDoc(doc(as("lawyerPending"), "verifications/lawyerPending"), {

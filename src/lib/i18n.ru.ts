@@ -598,6 +598,8 @@ export const ru: Partial<Record<StringKey, string>> = {
   deletionPreviewSub: "Это только пробный прогон. Ничего не удалено. Просмотрите список и только потом отметьте как выполненное.",
   deletionPreviewItems: "элементов",
   roleSaveFailed: "Не удалось сохранить выбор. Проверьте соединение и попробуйте снова.",
+  saveAction: "Сохранить области практики",
+  savedToast: "Области практики обновлены — лента изменится соответственно",
   docCheckTitle: "Проверка документов",
   docCheckRun: "Запустить",
   docCheckRunning: "Читаем документы…",

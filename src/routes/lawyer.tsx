@@ -666,10 +666,17 @@ function FeedPulse({
         </p>
       )}
 
+      {/*
+        * מוביל למסך עריכת התחומים, לא לטופס האימות.
+        *
+        * עד 6/8/2026 הוא הוביל ל-/lawyer-onboarding — שמתחיל משלב אפס
+        * ומסיים בכתיבת status:"pending". כלומר עורך דין מאומת שלחץ כאן,
+        * בדיוק כפי שהשורה שמעל מבקשת ממנו, איבד את האימות ויצא מהפיד.
+        */}
       {elsewhere > 0 && (
         <button
           type="button"
-          onClick={() => navigate({ to: "/lawyer-onboarding" })}
+          onClick={() => navigate({ to: "/settings/specialties" })}
           className="mt-3 min-h-11 w-full rounded-2xl border border-gold/30 py-2.5 text-[12.5px] font-bold text-gold-ink transition active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"
         >
           {t("pulseEditSpecs")}

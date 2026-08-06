@@ -775,6 +775,9 @@ export const strings = {
   deletionPreviewSub: { he: "זו הרצה יבשה בלבד. שום דבר לא נמחק. עברו על הרשימה, ורק אז סמנו כבוצע.", en: "This is a dry run only. Nothing was deleted. Review the list, then mark as done." },
   deletionPreviewItems: { he: "פריטים", en: "items" },
   roleSaveFailed: { he: "לא הצלחנו לשמור את הבחירה. בדקו את החיבור ונסו שוב.", en: "We couldn't save your choice. Check your connection and try again." },
+  /* עריכת תחומי עיסוק — מסך נפרד שאינו נוגע באימות */
+  saveAction: { he: "שמירת התחומים", en: "Save practice areas" },
+  savedToast: { he: "התחומים עודכנו — הפיד שלך מתעדכן בהתאם", en: "Practice areas updated — your feed follows" },
   docCheckTitle: { he: "בדיקת המסמכים", en: "Document check" },
   docCheckRun: { he: "הרצה", en: "Run" },
   docCheckRunning: { he: "קורא את המסמכים…", en: "Reading the documents…" },

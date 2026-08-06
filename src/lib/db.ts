@@ -718,6 +718,37 @@ export async function writeLawyerProfile(
   );
 }
 
+/**
+ * עדכון תחומי העיסוק — בלי לגעת בסטטוס האימות.
+ *
+ * **שני מסמכים, בכוונה.** התחומים נקראים משני מקומות שונים: הפיד קורא
+ * מ-`lawyerProfiles`, ובורר ההתראות בשרת שואל את `verifications`. כתיבה
+ * לאחד בלבד הייתה מפצלת אותם — עורך דין שמקבל התראה על תיק שאינו מופיע
+ * לו בפיד, או ההפך. שתי הכתיבות כאן, במקום אחד, כדי שלא יהיה מסלול
+ * שמעדכן חצי.
+ *
+ * **ולמה זו פונקציה נפרדת ולא הגשה מחדש:** המסלול היחיד לעדכון תחומים
+ * היה טופס האימות המלא, שכותב `status: "pending"` — כלומר עורך דין
+ * מאומת שהוסיף תחום **איבד את האימות** ויצא מהפיד עד לאישור חוזר.
+ * והאפליקציה עצמה שולחת אותו לשם ("פניות בתחומים שלא סימנת").
+ *
+ * תחום עיסוק אינו טענת הסמכה ואינו דורש בדיקת מסמכים מחדש. חוקי הגישה
+ * כבר מאפשרים את העדכון הזה: מותר לעדכן את רשומת האימות כל עוד `status`
+ * אינו בין השדות שהשתנו.
+ */
+export async function updateLawyerSpecialties(
+  uid: string,
+  specialties: string[],
+  languages?: string[],
+): Promise<void> {
+  const fields: Record<string, unknown> = { specialties };
+  if (languages) fields.languages = languages;
+  await Promise.all([
+    setDoc(doc(fbDb(), "lawyerProfiles", uid), fields, { merge: true }),
+    setDoc(doc(fbDb(), "verifications", uid), fields, { merge: true }),
+  ]);
+}
+
 /*
  * מיפוי קטגוריה→התמחות חי ב-src/lib/specialties.ts, כי גם השרת צריך אותו
  * והוא אינו יכול לייבא קובץ שנוגע ב-firebase. הייצוא כאן נשמר כדי שקוראים

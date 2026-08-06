@@ -25,6 +25,7 @@ import { Route as CasesRouteImport } from './routes/cases'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsTermsRouteImport } from './routes/settings.terms'
+import { Route as SettingsSpecialtiesRouteImport } from './routes/settings.specialties'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
 import { Route as SettingsHelpRouteImport } from './routes/settings.help'
@@ -114,6 +115,11 @@ const SettingsTermsRoute = SettingsTermsRouteImport.update({
   path: '/settings/terms',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsSpecialtiesRoute = SettingsSpecialtiesRouteImport.update({
+  id: '/settings/specialties',
+  path: '/settings/specialties',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   id: '/settings/privacy',
   path: '/settings/privacy',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRoutesByTo {
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRoutesById {
@@ -232,6 +240,7 @@ export interface FileRoutesById {
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
+  '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
 }
 export interface FileRouteTypes {
@@ -260,6 +269,7 @@ export interface FileRouteTypes {
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
+    | '/settings/specialties'
     | '/settings/terms'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -286,6 +296,7 @@ export interface FileRouteTypes {
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
+    | '/settings/specialties'
     | '/settings/terms'
   id:
     | '__root__'
@@ -312,6 +323,7 @@ export interface FileRouteTypes {
     | '/settings/help'
     | '/settings/notifications'
     | '/settings/privacy'
+    | '/settings/specialties'
     | '/settings/terms'
   fileRoutesById: FileRoutesById
 }
@@ -339,6 +351,7 @@ export interface RootRouteChildren {
   SettingsHelpRoute: typeof SettingsHelpRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
+  SettingsSpecialtiesRoute: typeof SettingsSpecialtiesRoute
   SettingsTermsRoute: typeof SettingsTermsRoute
 }
 
@@ -456,6 +469,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsTermsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/specialties': {
+      id: '/settings/specialties'
+      path: '/settings/specialties'
+      fullPath: '/settings/specialties'
+      preLoaderRoute: typeof SettingsSpecialtiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/privacy': {
       id: '/settings/privacy'
       path: '/settings/privacy'
@@ -539,6 +559,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsHelpRoute: SettingsHelpRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
   SettingsPrivacyRoute: SettingsPrivacyRoute,
+  SettingsSpecialtiesRoute: SettingsSpecialtiesRoute,
   SettingsTermsRoute: SettingsTermsRoute,
 }
 export const routeTree = rootRouteImport

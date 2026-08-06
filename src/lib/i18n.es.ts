@@ -598,6 +598,8 @@ export const es: Partial<Record<StringKey, string>> = {
   deletionPreviewSub: "Esto es solo una simulación. No se eliminó nada. Revise la lista, y solo entonces marque como realizado.",
   deletionPreviewItems: "elementos",
   roleSaveFailed: "No pudimos guardar su elección. Revise su conexión e inténtelo de nuevo.",
+  saveAction: "Guardar áreas de práctica",
+  savedToast: "Áreas actualizadas: tu lista se ajusta en consecuencia",
   docCheckTitle: "Verificación de los documentos",
   docCheckRun: "Ejecutar",
   docCheckRunning: "Leyendo los documentos…",

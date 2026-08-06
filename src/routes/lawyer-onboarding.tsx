@@ -950,7 +950,7 @@ function EducationStep({
   );
 }
 
-function SpecialtiesStep({
+export function SpecialtiesStep({
   selected,
   toggle,
   langs,
