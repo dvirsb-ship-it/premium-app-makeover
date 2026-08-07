@@ -79,7 +79,7 @@ function LawyersLanding() {
   const cta = () => navigate({ to: "/auth" });
 
   return (
-    <div className="dark relative min-h-screen overflow-x-hidden bg-background text-center text-foreground">
+    <div className="dark relative min-h-screen overflow-x-clip bg-background text-center text-foreground">
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.16),transparent_60%)]"
