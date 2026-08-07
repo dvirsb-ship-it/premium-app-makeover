@@ -419,11 +419,31 @@ function Welcome() {
                   transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                   className="flex flex-col items-center gap-2 will-change-transform"
                 >
-                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
-                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
-                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  <motion.div
+                    animate={{ opacity: [1, 0.5, 0.33, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ opacity: [0.5, 1, 0.5, 0.33] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  </motion.div>
+                  <motion.div
+                    animate={{ opacity: [0.33, 0.5, 1, 0.5] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  </motion.div>
                   {/* שכפול סגור את הלופ: כשהעליון יוצא, הבא כבר נכנס מלמטה. */}
-                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  <motion.div
+                    animate={{ opacity: [0, 0.33, 0.5, 1] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  >
+                    <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  </motion.div>
                 </motion.div>
               </div>
             </div>
