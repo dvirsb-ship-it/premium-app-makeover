@@ -414,24 +414,14 @@ function Welcome() {
               </span>
               <motion.div
                 aria-hidden
-                animate={{ y: [18, -18, 18] }}
+                animate={{ y: [14, -14, 14] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-[2] mt-5 flex flex-col items-center gap-4"
+                className="relative z-[2] mt-5 flex flex-col items-center gap-1"
               >
-                <div className="welcome-hint-glass flex h-20 w-28 items-center justify-center rounded-[2.5rem]">
-                  <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7]" />
-                </div>
-                <div className="welcome-hint-glass flex h-20 w-28 items-center justify-center rounded-[2.5rem] opacity-60">
-                  <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7] opacity-70" />
-                </div>
+                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5]" />
+                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5] opacity-50" />
+                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5] opacity-[0.33]" />
               </motion.div>
-              <div className="welcome-hint-line relative z-[1] mt-5 h-20 w-px overflow-hidden">
-                <motion.div
-                  animate={{ y: ["260%", "-100%"] }}
-                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                  className="welcome-hint-line-glow absolute inset-x-0 h-16"
-                />
-              </div>
             </div>
           </motion.div>
 
