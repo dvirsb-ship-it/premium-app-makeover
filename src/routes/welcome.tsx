@@ -400,31 +400,38 @@ function Welcome() {
             ))}
           </div>
 
-          {/* חיווי גלילה חד-משמעי: שני חצים זהובים נעים מלמטה למעלה. */}
+          {/* חיווי גלילה חד-משמעי: חצים גדולים בתוך זכוכית שקופה, בתנועה כלפי מעלה. */}
           <motion.div
             style={{ opacity: hintFade }}
-            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
+            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-5"
           >
-            <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
+            <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-foreground/90 [text-shadow:0_2px_14px_oklch(0_0_0_/_0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <div className="relative h-44 w-20">
-              <div className="absolute left-1/2 top-0 h-full w-px overflow-hidden bg-white/15">
+            <div className="relative flex w-32 flex-col items-center">
+              <motion.div
+                aria-hidden
+                animate={{ y: [18, -18, 18] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                className="relative z-[2] -space-y-10"
+              >
+                <div className="welcome-hint-glass flex h-20 w-28 items-center justify-center rounded-[2.5rem]">
+                  <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7]" />
+                </div>
+                <div className="welcome-hint-glass flex h-20 w-28 items-center justify-center rounded-[2.5rem] opacity-60">
+                  <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7] opacity-70" />
+                </div>
+              </motion.div>
+              <div className="welcome-hint-line relative z-[1] mt-7 h-28 w-px overflow-hidden">
                 <motion.div
                   animate={{ y: ["260%", "-100%"] }}
                   transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                  className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
+                  className="welcome-hint-line-glow absolute inset-x-0 h-16"
                 />
               </div>
-              <motion.div
-                aria-hidden
-                animate={{ y: [18, -18, 18], opacity: [0.35, 1, 0.35] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-gold drop-shadow-[0_0_14px_rgba(212,175,55,0.65)]"
-              >
-                <ChevronUp className="size-8 stroke-[1.5]" />
-                <ChevronUp className="-mt-4 size-8 stroke-[1.5]" />
-              </motion.div>
+              <span className="mt-6 text-[10px] font-semibold uppercase tracking-[0.65em] text-foreground/45">
+                JustAsk
+              </span>
             </div>
           </motion.div>
 
