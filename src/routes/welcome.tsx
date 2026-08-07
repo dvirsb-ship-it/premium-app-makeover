@@ -420,26 +420,26 @@ function Welcome() {
                   className="flex flex-col items-center gap-2 will-change-transform"
                 >
                   <motion.div
-                    animate={{ opacity: [1, 0.5, 0.33, 0] }}
+                    animate={{ opacity: [1, 0] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                   >
                     <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
                   </motion.div>
                   <motion.div
-                    animate={{ opacity: [0.5, 1, 0.5, 0.33] }}
+                    animate={{ opacity: [0.5, 1] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                   >
                     <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
                   </motion.div>
                   <motion.div
-                    animate={{ opacity: [0.33, 0.5, 1, 0.5] }}
+                    animate={{ opacity: [0.33, 0.5] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                   >
                     <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
                   </motion.div>
-                  {/* שכפול סגור את הלופ: כשהעליון יוצא, הבא כבר נכנס מלמטה. */}
+                  {/* שכפול סוגר את הלופ: כשהעליון יוצא, הבא כבר נכנס מלמטה. */}
                   <motion.div
-                    animate={{ opacity: [0, 0.33, 0.5, 1] }}
+                    animate={{ opacity: [0, 0.33] }}
                     transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
                   >
                     <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
