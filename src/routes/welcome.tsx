@@ -400,20 +400,23 @@ function Welcome() {
             ))}
           </div>
 
-          {/* חיווי גלילה חד-משמעי: חצים גדולים בתוך זכוכית שקופה, בתנועה כלפי מעלה. */}
+          {/* חיווי גלילה חד-משמעי: JustAsk קודם, ואז חצים גדולים ונפרדים בתוך זכוכית שקופה. */}
           <motion.div
             style={{ opacity: hintFade }}
-            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-5"
+            className="pointer-events-none absolute inset-x-0 top-[58%] z-10 flex -translate-y-1/2 flex-col items-center gap-5"
           >
             <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-foreground/90 [text-shadow:0_2px_14px_oklch(0_0_0_/_0.8)]">
               {t("welcomeScrollHint")}
             </span>
             <div className="relative flex w-32 flex-col items-center">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.65em] text-foreground/45">
+                JustAsk
+              </span>
               <motion.div
                 aria-hidden
                 animate={{ y: [18, -18, 18] }}
                 transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-[2] -space-y-10"
+                className="relative z-[2] mt-5 flex flex-col items-center gap-4"
               >
                 <div className="welcome-hint-glass flex h-20 w-28 items-center justify-center rounded-[2.5rem]">
                   <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7]" />
@@ -422,16 +425,13 @@ function Welcome() {
                   <ChevronUp className="welcome-hint-arrow size-12 stroke-[1.7] opacity-70" />
                 </div>
               </motion.div>
-              <div className="welcome-hint-line relative z-[1] mt-7 h-28 w-px overflow-hidden">
+              <div className="welcome-hint-line relative z-[1] mt-5 h-20 w-px overflow-hidden">
                 <motion.div
                   animate={{ y: ["260%", "-100%"] }}
                   transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                   className="welcome-hint-line-glow absolute inset-x-0 h-16"
                 />
               </div>
-              <span className="mt-6 text-[10px] font-semibold uppercase tracking-[0.65em] text-foreground/45">
-                JustAsk
-              </span>
             </div>
           </motion.div>
 
