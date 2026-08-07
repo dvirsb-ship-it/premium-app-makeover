@@ -741,6 +741,28 @@ html.welcome-snap {
   pointer-events: none;
 }
 
+.welcome-hint-elevator {
+  /* Soft edge mask hides the loop reset and lets each arrow dissolve into the scene. */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(0 0 0 / 0.18) 12%,
+    black 27%,
+    black 73%,
+    oklch(0 0 0 / 0.18) 88%,
+    transparent 100%
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    transparent 0%,
+    oklch(0 0 0 / 0.18) 12%,
+    black 27%,
+    black 73%,
+    oklch(0 0 0 / 0.18) 88%,
+    transparent 100%
+  );
+}
+
 .welcome-hint-arrow {
   position: relative;
   z-index: 1;
