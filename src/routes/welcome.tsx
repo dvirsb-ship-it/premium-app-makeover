@@ -38,34 +38,54 @@ import type { StringKey } from "../lib/i18n";
  */
 function ScrollGestureHint() {
   const still = useReducedMotion();
+  /*
+   * המרחק חשוב יותר מהגודל.
+   *
+   * בגרסה הראשונה האצבע נעה 20px, וזה נקרא כריחוף — לא כהחלקה. מה
+   * שמלמד את התנועה הוא הנסיעה: 46px מלמטה למעלה, מהירה בעלייה
+   * ואיטית בחזרה, כמו יד אמיתית שמחליקה ומתארגנת מחדש.
+   *
+   * השובל מתחת ליד מופיע רק בזמן העלייה ונמוג בחזרה, ולכן הוא קורא
+   * ככיוון ולא כקישוט.
+   */
+  const rise = { duration: 2.4, repeat: Infinity, ease: "easeInOut" as const };
   return (
-    <motion.div
-      aria-hidden
-      animate={still ? undefined : { y: [6, -14, 6], opacity: [0.45, 0.95, 0.45] }}
-      transition={{ duration: 2.1, repeat: Infinity, ease: "easeInOut" }}
-      className="text-white/80 [filter:drop-shadow(0_2px_10px_rgba(0,0,0,0.7))]"
-    >
-      <svg width="30" height="40" viewBox="0 0 30 40" fill="none">
-        {/* חץ דק מעל האצבע — מוסר את הדו-משמעות של הכיוון */}
-        <path
-          d="M15 9V1M15 1L11 5M15 1l4 4"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          opacity="0.75"
+    <div aria-hidden className="relative grid place-items-center">
+      {/* שובל — הדרך שהיד עברה */}
+      {!still && (
+        <motion.span
+          className="absolute bottom-0 h-14 w-px bg-gradient-to-t from-transparent via-white/45 to-transparent"
+          animate={{ opacity: [0, 0.9, 0], scaleY: [0.3, 1, 0.3] }}
+          style={{ originY: 1 }}
+          transition={rise}
         />
-        {/* כף יד עם אצבע מורה — צללית פשוטה שנקראת בכל גודל */}
-        <path
-          d="M12.5 24.5V15a2 2 0 1 1 4 0v6.5m0 0v-1.2a1.8 1.8 0 0 1 3.6 0v1.9m0-1a1.8 1.8 0 0 1 3.6 0v2.4m0-1.4a1.7 1.7 0 0 1 3.4 0v6.1c0 4.6-3.2 7.7-7.6 7.7h-2.1c-3 0-4.7-1.3-6.2-3.6l-3.2-5a1.9 1.9 0 0 1 3-2.3l1.5 1.7"
-          stroke="currentColor"
-          strokeWidth="1.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="rgba(255,255,255,0.10)"
-        />
-      </svg>
-    </motion.div>
+      )}
+      <motion.div
+        animate={still ? undefined : { y: [16, -30, 16], opacity: [0.5, 1, 0.5] }}
+        transition={rise}
+        className="text-white [filter:drop-shadow(0_3px_12px_rgba(0,0,0,0.75))]"
+      >
+        <svg width="46" height="60" viewBox="0 0 30 40" fill="none">
+          {/* חץ מעל האצבע — מוסר את הדו-משמעות של הכיוון */}
+          <path
+            d="M15 9V1M15 1L10.5 5.5M15 1l4.5 4.5"
+            stroke="currentColor"
+            strokeWidth="1.9"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          {/* כף יד עם אצבע מורה — צללית פשוטה שנקראת בכל גודל */}
+          <path
+            d="M12.5 24.5V15a2 2 0 1 1 4 0v6.5m0 0v-1.2a1.8 1.8 0 0 1 3.6 0v1.9m0-1a1.8 1.8 0 0 1 3.6 0v2.4m0-1.4a1.7 1.7 0 0 1 3.4 0v6.1c0 4.6-3.2 7.7-7.6 7.7h-2.1c-3 0-4.7-1.3-6.2-3.6l-3.2-5a1.9 1.9 0 0 1 3-2.3l1.5 1.7"
+            stroke="currentColor"
+            strokeWidth="1.7"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            fill="rgba(255,255,255,0.14)"
+          />
+        </svg>
+      </motion.div>
+    </div>
   );
 }
 

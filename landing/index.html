@@ -113,32 +113,38 @@
     לקוראי מסך, ומתעדכן עם המוצר במקום להתיישן איתו.
   */
   /*
-   * המסגרת דקה בכוונה — 5px ולא 10.
+   * המסגרת דקה בכוונה — 3px.
    *
    * שני פרטים עושים את ההבדל בין "מסגרת טלפון" לבין מלבן עם פינות:
    *
    * 1. רדיוסים קונצנטריים. הרדיוס הפנימי חייב להיות החיצוני פחות עובי
-   *    המסגרת (43-5=38), אחרת העקומות לא מקבילות והעין קולטת את זה
+   *    המסגרת (41-3=38), אחרת העקומות לא מקבילות והעין קולטת את זה
    *    כזיוף גם בלי לדעת למה. זו הטעות הנפוצה ביותר במוקאפים.
+   *    **מי שמשנה את העובי חייב לשנות את שני הרדיוסים יחד.**
    * 2. קו אור בקצה העליון — מתכת תופסת אור בשפה. בלעדיו המסגרת שטוחה.
    */
   .phone {
     position: relative;
-    max-width: 320px; margin: 22px auto 0; padding: 5px;
-    border-radius: 43px;
-    background: linear-gradient(168deg, #6b6f7a, #33373f 18%, #23262c 50%, #33373f 84%, #6b6f7a);
+    max-width: 300px; margin: 22px auto 0; padding: 3px;
+    border-radius: 41px;
+    /*
+     * טיטניום ולא גרפיט. המסגרת הקודמת הייתה 5px וכהה, ונקראה שמנה —
+     * אבל רוב המשקל הגיע מהצבע ולא מהעובי. גוון בהיר על רקע בהיר נבלע
+     * לתוך הדף, ומה שנשאר הוא קו מתאר דק.
+     */
+    background: linear-gradient(168deg, #d8dae0, #9ba0aa 20%, #7e838d 50%, #9ba0aa 82%, #d8dae0);
     box-shadow:
-      0 30px 60px -28px rgba(22,34,60,.34),
-      0 6px 18px -10px rgba(22,34,60,.18),
-      inset 0 1px 0 rgba(255,255,255,.35);
+      0 24px 50px -26px rgba(22,34,60,.28),
+      0 4px 12px -8px rgba(22,34,60,.14),
+      inset 0 1px 0 rgba(255,255,255,.6);
   }
   /* כפתורי הצד — הפרט שאף אחד לא שם לב אליו, וחסרונו מורגש */
   .phone::before, .phone::after {
     content: ""; position: absolute; width: 2px; border-radius: 2px;
-    background: linear-gradient(180deg, #55595f, #303339);
+    background: linear-gradient(180deg, #b6bac2, #868b95);
   }
-  .phone::before { right: -2px; top: 108px; height: 54px; }   /* הפעלה */
-  .phone::after  { left: -2px;  top: 96px;  height: 30px; }   /* עוצמה */
+  .phone::before { right: -1.5px; top: 104px; height: 50px; }  /* הפעלה */
+  .phone::after  { left: -1.5px;  top: 92px;  height: 28px; }  /* עוצמה */
 
   /*
    * המסך בהיר לכל אורכו. קודם הוא היה כהה מלמעלה ולבן בכרטיס — יפה,
