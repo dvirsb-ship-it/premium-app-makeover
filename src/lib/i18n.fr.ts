@@ -200,7 +200,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   rootMetaDesc: "Avant de consulter un avocat, vérifiez gratuitement si vous avez un fondement. Une courte conversation, une analyse selon le droit israélien, et s'il y a un dossier, nous vous mettons en relation avec des avocats vérifiés du domaine.",
   rootOgDesc: "Vérifiez gratuitement si vous avez un fondement juridique — et seulement si c'est le cas, nous vous mettons en relation avec un avocat vérifié du domaine.",
   welcomeSkip: "Passer",
-  welcomeScrollHint: "Faites défiler pour entrer",
+  welcomeScrollHint: "Glissez vers le haut pour entrer",
   welcomeNext: "Suivant",
   welcomeStart: "Commençons",
   handshakeWelcome: "Une poignée de main pour commencer",
