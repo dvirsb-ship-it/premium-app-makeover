@@ -282,7 +282,7 @@ export const strings = {
 
   // Welcome onboarding
   welcomeSkip: { he: "דלג", en: "Skip" },
-  welcomeScrollHint: { he: "גללו להיכנס", en: "Scroll to enter" },
+  welcomeScrollHint: { he: "גללו מעלה כדי להיכנס", en: "Swipe up to enter" },
   welcomeNext: { he: "הבא", en: "Next" },
   welcomeStart: { he: "בואו נתחיל", en: "Let's start" },
   handshakeWelcome: { he: "לחיצת יד לתחילת הדרך", en: "Sealed with a handshake" },

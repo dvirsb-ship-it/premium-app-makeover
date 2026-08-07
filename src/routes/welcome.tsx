@@ -10,12 +10,11 @@ import {
   type MotionValue,
 } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Scale, UserRound } from "lucide-react";
+import { ChevronUp, Scale, UserRound } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
 import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
-import swipeFinger from "../assets/welcome/swipe-finger.png";
 import { useT } from "../lib/i18n";
 import { LANGS, LANG_CODES, LANG_NAMES, useSettings } from "../lib/settings";
 import { haptic } from "../lib/haptics";
@@ -401,15 +400,15 @@ function Welcome() {
             ))}
           </div>
 
-          {/* רמז הגלילה נשאר מינימלי: קו זהב במרכז ואצבע יחידה לצדו. */}
+          {/* חיווי גלילה חד-משמעי: שני חצים זהובים נעים מלמטה למעלה. */}
           <motion.div
             style={{ opacity: hintFade }}
             className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
           >
-            <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
+            <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <div className="relative h-44 w-24">
+            <div className="relative h-44 w-20">
               <div className="absolute left-1/2 top-0 h-full w-px overflow-hidden bg-white/15">
                 <motion.div
                   animate={{ y: ["260%", "-100%"] }}
@@ -417,18 +416,15 @@ function Welcome() {
                   className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
                 />
               </div>
-              {/* רק אצבע אחת, גדולה ושקופה, באלכסון לצד הקו — נעה מלמטה למעלה. */}
-              <motion.img
-                src={swipeFinger}
-                alt=""
+              <motion.div
                 aria-hidden
-                width={672}
-                height={992}
-                loading="lazy"
-                animate={{ y: [42, -42, 42], opacity: [0, 0.38, 0] }}
-                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute left-[calc(50%+12px)] top-1/2 h-44 w-auto -translate-y-1/2 rotate-[16deg] mix-blend-screen [filter:drop-shadow(0_0_22px_rgba(212,175,55,0.28))]"
-              />
+                animate={{ y: [18, -18, 18], opacity: [0.35, 1, 0.35] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center text-gold drop-shadow-[0_0_14px_rgba(212,175,55,0.65)]"
+              >
+                <ChevronUp className="size-8 stroke-[1.5]" />
+                <ChevronUp className="-mt-4 size-8 stroke-[1.5]" />
+              </motion.div>
             </div>
           </motion.div>
 
