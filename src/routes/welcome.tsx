@@ -401,16 +401,7 @@ function Welcome() {
             ))}
           </div>
 
-          {/*
-           * הרמז חזר לצורתו הפשוטה (7/8/2026): טקסט, ומתחתיו הפס במרכז —
-           * ממשיך את קו המפגש של הדלתות, והזהב נוסע בו כלפי מעלה. הפס
-           * הוא חלק מהקומפוזיציה של הדלתות, לא סימן עזר, ולכן מקומו
-           * במרכז בלבד.
-           *
-           * צלמית כף-יד נוסתה כאן פעמיים ונמחקה: קטנה היא לא הסבירה
-           * כלום, ובצד היא נראתה תלושה. אם יחזור רמז מחווה — רק כנכס
-           * מונפש אמיתי (לוטי/וידאו), לא כאיור SVG.
-           */}
+          {/* רמז הגלילה נשאר מינימלי: קו זהב במרכז ואצבע יחידה לצדו. */}
           <motion.div
             style={{ opacity: hintFade }}
             className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
@@ -418,25 +409,27 @@ function Welcome() {
             <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <div className="relative h-44 w-px overflow-hidden bg-white/15">
-              <motion.div
-                animate={{ y: ["260%", "-100%"] }}
+            <div className="relative h-44 w-24">
+              <div className="absolute left-1/2 top-0 h-full w-px overflow-hidden bg-white/15">
+                <motion.div
+                  animate={{ y: ["260%", "-100%"] }}
+                  transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                  className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
+                />
+              </div>
+              {/* רק אצבע אחת, בצד הקו, נעה מלמטה למעלה ומכוונת את המחווה. */}
+              <motion.img
+                src={swipeFinger}
+                alt=""
+                aria-hidden
+                width={672}
+                height={992}
+                loading="lazy"
+                animate={{ y: [28, -28, 28], opacity: [0, 0.72, 0] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
+                className="absolute left-[calc(50%+14px)] top-1/2 h-32 w-auto -translate-y-1/2 -rotate-3 mix-blend-screen [filter:drop-shadow(0_0_18px_rgba(212,175,55,0.35))]"
               />
             </div>
-            {/* אצבע שקופה שנוסעת מלמטה למעלה — מדגימה את כיוון הגלילה היחיד */}
-            <motion.img
-              src={swipeFinger}
-              alt=""
-              aria-hidden
-              width={672}
-              height={992}
-              loading="lazy"
-              animate={{ y: [26, -26, 26], opacity: [0, 0.5, 0] }}
-              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-              className="pointer-events-none -mt-6 h-24 w-auto opacity-50 mix-blend-screen [filter:drop-shadow(0_0_18px_rgba(212,175,55,0.35))]"
-            />
           </motion.div>
 
 
