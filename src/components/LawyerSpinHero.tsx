@@ -152,44 +152,16 @@ export function LawyerSpinHero({ onCta }: { onCta: () => void }) {
         {/* בלוקי התוכן — נחים על צד ההתחלה, מתחת לטלפון במובייל */}
         <div className="pointer-events-none absolute inset-0 z-10 flex items-end justify-center px-6 pb-16 md:items-center md:justify-start md:px-[8%] md:pb-0">
           <div className="relative w-full max-w-md text-center md:text-start">
-            {BLOCKS.map((b, i) => {
-              const zs = i * 0.25;
-              const ze = zs + 0.25;
-              const opacity = useTransform(
-                p,
-                [zs, zs + 0.05, ze - 0.06, ze],
-                [0, 1, 1, 0],
-              );
-              const y = useTransform(
-                p,
-                [zs, zs + 0.05, ze - 0.06, ze],
-                [44, 0, 0, -44],
-              );
-              return (
-                <motion.article
-                  key={b.title}
-                  style={{ opacity, y }}
-                  className={i === 0 ? "relative" : "absolute inset-x-0 top-0"}
-                >
-                  <h2 className="text-[2rem] font-black leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.9)] md:text-[3.2rem]">
-                    {t(b.title)}
-                  </h2>
-                  <p className="mx-auto mt-3 max-w-sm text-[14px] leading-relaxed text-white/70 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] md:mx-0 md:text-[17px]">
-                    {t(b.body)}
-                  </p>
-                  {i === BLOCKS.length - 1 && (
-                    <motion.button
-                      type="button"
-                      onClick={onCta}
-                      whileTap={{ scale: 0.97 }}
-                      className="btn-gold pointer-events-auto mt-7 min-h-12 rounded-2xl px-8 py-3.5 text-[15px] font-bold"
-                    >
-                      {t("lpHeroCta")}
-                    </motion.button>
-                  )}
-                </motion.article>
-              );
-            })}
+            {BLOCKS.map((b, i) => (
+              <CopyBlock
+                key={b.title}
+                progress={p}
+                index={i}
+                block={b}
+                onCta={i === BLOCKS.length - 1 ? onCta : undefined}
+              />
+            ))}
+
           </div>
         </div>
 
