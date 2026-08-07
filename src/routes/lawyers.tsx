@@ -113,10 +113,9 @@ function LawyersLanding() {
         <LawyerSpinHero onCta={cta} />
       </div>
 
-      <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pb-20">
-
-
+      <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pb-20 pt-16">
         {/* ---------- הארטיפקט ---------- */}
+
         <Reveal delay={0.1}>
           <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted-foreground">
             {t("lpArtifactLabel")}
