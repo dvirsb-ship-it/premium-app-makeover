@@ -85,7 +85,7 @@ export function LawyerSpinHero({ onCta }: { onCta: () => void }) {
 
         {/* הטלפון */}
         <div
-          className="relative z-0"
+          className="relative z-0 md:ms-[32%]"
           style={{ perspective: "2000px" }}
           aria-hidden
         >
@@ -173,7 +173,7 @@ export function LawyerSpinHero({ onCta }: { onCta: () => void }) {
           style={{ opacity: hintOpacity }}
           className="pointer-events-none absolute bottom-7 left-1/2 z-20 -translate-x-1/2 text-center"
         >
-          <p className="text-[10.5px] font-bold uppercase tracking-[0.28em] text-gold/80">
+          <p className="text-[12px] font-bold tracking-wide text-gold/80">
             {t("lpSpinHint")}
           </p>
           <div className="mt-1.5 flex flex-col items-center">
