@@ -427,7 +427,7 @@ function Welcome() {
               </motion.div>
               <div className="welcome-hint-line relative z-[1] mt-5 h-20 w-px overflow-hidden">
                 <motion.div
-                  animate={{ y: [260%, -100%] }}
+                  animate={{ y: ["260%", "-100%"] }}
                   transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                   className="welcome-hint-line-glow absolute inset-x-0 h-16"
                 />
