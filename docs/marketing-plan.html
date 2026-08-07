@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>JustAsk — תוכנית שיווק</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/*
+ * תוכנית שיווק — מסמך עבודה, לא מצגת.
+ *
+ * שונה משני המסמכים האחרים כי הוא נועד לשימוש אחר: התדריך המשפטי
+ * נקרא פעם אחת בפגישה, המצגת נסרקת בשלוש דקות — זה נפתח שוב ושוב
+ * ומסמנים בו. לכן שוליים רחבים לכתיבה ביד, מספרי שלב בשוליים,
+ * וכל סעיף עומד בפני עצמו.
+ *
+ * עמוד השדרה הוא הרצף: היצע לפני ביקוש. זו הטענה היחידה שאם
+ * מתעלמים ממנה כל השאר מתבזבז, ולכן היא מצוירת ולא מוסברת.
+ */
+:root {
+  --ink: #16223c;
+  --ink-soft: #46516a;
+  --muted: #6b7488;
+  --gold: #b8912b;
+  --gold-deep: #8a6d1f;
+  --gold-wash: #fbf6e8;
+  --paper: #fff;
+  --warm: #fdfbf4;
+  --rule: rgba(22,34,60,.13);
+  --rule-soft: rgba(22,34,60,.07);
+  --good: #1f7a4d;
+  --bad: #b3261e;
+  --p1: #1f7a4d;
+  --p2: #b8912b;
+  --p3: #2563a8;
+}
+
+@page { size: A4; margin: 16mm 15mm; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: "Heebo", system-ui, -apple-system, sans-serif;
+  color: var(--ink); background: var(--paper);
+  font-size: 10.2pt; line-height: 1.72;
+}
+
+/* ---------- שער ---------- */
+
+.cover { break-after: page; padding-top: 12mm; }
+.mark { display: flex; align-items: center; gap: 9px; font-size: 15pt; font-weight: 900; }
+.mark-glyph {
+  width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px;
+  background: linear-gradient(150deg, #f0d375, var(--gold)); color: #2a2105; font-size: 15pt; line-height: 1;
+}
+.mark .lo { color: var(--gold-deep); }
+.cover h1 { margin-top: 22mm; font-size: 30pt; font-weight: 900; line-height: 1.08; letter-spacing: -.025em; }
+.cover .lede { margin-top: 6mm; max-width: 122mm; font-size: 12pt; font-weight: 300; line-height: 1.62; color: var(--ink-soft); }
+
+.headline {
+  margin-top: 14mm; padding: 7mm; border-radius: 3mm;
+  background: var(--gold-wash); border-right: 3px solid var(--gold);
+}
+.headline p { font-size: 11.5pt; }
+.headline .big { display: block; margin-bottom: 2mm; font-size: 14pt; font-weight: 900; }
+
+/* ---------- סעיפים ---------- */
+
+.sec { margin-top: 11mm; }
+.sec-head {
+  display: flex; align-items: baseline; gap: 5mm;
+  padding-bottom: 2.5mm; margin-bottom: 5mm;
+  border-bottom: 1.5px solid var(--ink); break-after: avoid;
+}
+.sec-num { flex: 0 0 auto; min-width: 11mm; font-size: 15pt; font-weight: 900; color: var(--gold); line-height: 1; }
+.sec-title { font-size: 14pt; font-weight: 900; letter-spacing: -.02em; }
+.sec-note { margin-right: auto; font-size: 8.4pt; color: var(--muted); font-weight: 500; }
+
+h3 { margin-top: 6mm; margin-bottom: 2mm; font-size: 11pt; font-weight: 800; break-after: avoid; }
+p + p { margin-top: 3mm; }
+p { max-width: 168mm; }
+strong { font-weight: 800; }
+.dim { color: var(--muted); }
+
+/* ---------- ציר השלבים ---------- */
+
+.spine { margin: 6mm 0; display: flex; gap: 4mm; break-inside: avoid; }
+.ph {
+  flex: 1; padding: 5mm; border-radius: 3mm;
+  background: var(--warm); border: 1px solid var(--rule-soft);
+  border-top: 3px solid var(--c);
+}
+.ph.a { --c: var(--p1); }
+.ph.b { --c: var(--p2); }
+.ph.c { --c: var(--p3); }
+.ph-n { font-size: 7.4pt; font-weight: 800; letter-spacing: .16em; color: var(--c); }
+.ph-t { margin-top: 1.5mm; font-size: 11.5pt; font-weight: 900; line-height: 1.25; }
+.ph-w { margin-top: 2mm; font-size: 8.6pt; font-weight: 700; color: var(--muted); }
+.ph-d { margin-top: 2.5mm; font-size: 9pt; line-height: 1.55; color: var(--ink-soft); }
+
+/* ---------- טבלאות ---------- */
+
+table { width: 100%; border-collapse: collapse; margin-top: 4mm; font-size: 9.4pt; break-inside: avoid; }
+caption { text-align: right; font-size: 8.4pt; font-weight: 800; color: var(--gold-deep); letter-spacing: .08em; padding-bottom: 2mm; }
+th {
+  text-align: right; font-weight: 800; font-size: 8.2pt; letter-spacing: .06em;
+  color: var(--muted); padding: 0 3mm 2mm; border-bottom: 1.5px solid var(--ink);
+}
+td { padding: 2.6mm 3mm; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; width: 32%; }
+td.n { direction: ltr; text-align: right; font-weight: 700; white-space: nowrap; }
+.zebra tr:nth-child(even) td { background: var(--warm); }
+
+/* ---------- תסריטים ---------- */
+
+.script {
+  margin-top: 5mm; padding: 5mm 6mm;
+  border: 1.2px solid var(--rule); border-radius: 3mm; break-inside: avoid;
+}
+.script-head { display: flex; align-items: baseline; gap: 3mm; margin-bottom: 3mm; }
+.script-tag {
+  padding: .8mm 3mm; border-radius: 99px; background: var(--ink); color: #fff;
+  font-size: 7.6pt; font-weight: 800;
+}
+.script-t { font-size: 11pt; font-weight: 900; }
+.script-meta { margin-right: auto; font-size: 8pt; color: var(--muted); }
+.line { margin-top: 2mm; padding-right: 5mm; border-right: 2px solid var(--rule); }
+.line .who { font-size: 8pt; font-weight: 800; color: var(--gold-deep); }
+.line .say { font-size: 10.5pt; }
+.stage { margin-top: 2mm; font-size: 9pt; color: var(--muted); font-style: normal; }
+.stage::before { content: "▸ "; color: var(--gold); }
+.punch { margin-top: 3.5mm; font-size: 12pt; font-weight: 900; }
+
+/* ---------- קופסאות ---------- */
+
+.note {
+  margin-top: 4mm; padding: 4.5mm 5mm; border-radius: 2.5mm;
+  background: var(--warm); border-right: 3px solid var(--gold); break-inside: avoid;
+}
+.warn { background: #fdf2f1; border-right-color: var(--bad); }
+.note-t { font-size: 8pt; font-weight: 800; letter-spacing: .12em; color: var(--gold-deep); margin-bottom: 1.5mm; }
+.warn .note-t { color: var(--bad); }
+
+.checks { margin-top: 3mm; list-style: none; }
+.checks li { position: relative; padding-right: 8mm; margin-top: 2.5mm; break-inside: avoid; }
+.checks li::before { content: "✓"; position: absolute; right: 0; top: -.5mm; color: var(--good); font-weight: 900; font-size: 10.5pt; }
+
+footer {
+  margin-top: 12mm; padding-top: 4mm; border-top: 1px solid var(--rule);
+  font-size: 8pt; color: var(--muted); display: flex; justify-content: space-between;
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ שער ═══ -->
+<div class="cover">
+  <div class="mark"><span class="mark-glyph">⚖</span><span>Just<span class="lo">Ask</span></span></div>
+
+  <h1>תוכנית שיווק</h1>
+  <p class="lede">
+    איך מביאים את JustAsk לכמה שיותר אנשים — ובאיזה סדר, כדי שהכסף
+    הראשון שיוצא לא יישרף.
+  </p>
+
+  <div class="headline">
+    <p>
+      <span class="big">ההחלטה שקובעת את כל השאר</span>
+      <strong>עורכי דין קודם. לקוחות אחר כך.</strong>
+      אדם שיראה פרסומת, יוריד, יספר סיפור כואב — ויקבל "עדיין אין עורך דין
+      מאומת בתחום הזה" — לא יחזור, ולא יספר עלינו טוב. כל שקל שיוצא
+      ללקוחות לפני שיש כיסוי תחומים הוא שקל ששורף אדם אמיתי.
+    </p>
+  </div>
+
+  <div class="spine" style="margin-top:12mm">
+    <div class="ph a">
+      <div class="ph-n">שלב 1</div>
+      <div class="ph-t">בניית ההיצע</div>
+      <div class="ph-w">עכשיו · עד ~200 עורכי דין</div>
+      <div class="ph-d">קהל מרוכז וזול להשגה. אפס פרסום ללקוחות.</div>
+    </div>
+    <div class="ph b">
+      <div class="ph-n">שלב 2</div>
+      <div class="ph-t">השקה</div>
+      <div class="ph-w">כשיש כיסוי תחומים</div>
+      <div class="ph-d">חנויות, הודעה לרשימת ההמתנה, סיקור תקשורתי.</div>
+    </div>
+    <div class="ph c">
+      <div class="ph-n">שלב 3</div>
+      <div class="ph-t">ביקוש</div>
+      <div class="ph-w">אחרי שההיצע מוכיח את עצמו</div>
+      <div class="ph-d">טיקטוק, אינסטגרם, יוטיוב, דפי חדשות.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ 1 · המסרים ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">1</span>
+    <span class="sec-title">שני המסרים</span>
+    <span class="sec-note">קהלים שונים · פחדים שונים</span>
+  </div>
+
+  <h3>ללקוחות — זה לא על בינה מלאכותית</h3>
+  <p>
+    אף אחד לא מתעורר בבוקר ורוצה "בדיקה משפטית מבוססת AI". אנשים רוצים
+    לדעת אם מגיע להם משהו, <strong>ופוחדים שהשאלה עצמה תעלה כסף</strong>.
+    זה הפחד, וזו הפרסומת:
+  </p>
+  <div class="note">
+    <p class="note-t">המסר המרכזי</p>
+    <p style="font-size:13pt;font-weight:900">
+      «לא בדקת אם יש לך תיק — כי לשאול עולה כסף.»
+    </p>
+    <p style="margin-top:2mm;font-size:10pt">
+      תומכים: «שתי דקות. בחינם. ואז אתה יודע.» · «אם אין לך תיק, נגיד לך
+      את זה — וזה גם שווה משהו.»
+    </p>
+  </div>
+
+  <h3>לעורכי דין — לא נפח. רלוונטיות.</h3>
+  <p>
+    «לקוחות בלי סוף» היא בדיוק ההבטחה שכל חברת לידים נתנה להם, ורובם נכוו.
+    <strong>הבטחת נפח מעוררת חשד, לא רצון.</strong> מה שמבדל אותנו הוא ההפך
+    הגמור — פחות פניות, וכל אחת כבר נבדקה.
+  </p>
+  <div class="note">
+    <p class="note-t">המסר המרכזי</p>
+    <p style="font-size:13pt;font-weight:900">
+      «לא עוד לידים. פניות שכבר עברו בדיקה משפטית — בתחומים שלך בלבד.»
+    </p>
+    <p style="margin-top:2mm;font-size:10pt">
+      תומכים: «כל פנייה מגיעה עם תזכיר.» · «חצי שנה ראשונה ללא תשלום.» ·
+      «מנוי קבוע. אפס עמלה, אפס אחוז מהתיק.»
+    </p>
+  </div>
+</section>
+
+<!-- ═══ 2 · שלב 1 ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">2</span>
+    <span class="sec-title">שלב 1 — עורכי דין</span>
+    <span class="sec-note">המשחק הקל, והוא ראשון</span>
+  </div>
+
+  <p>
+    76,000 עורכי דין פעילים בישראל — קהל <strong>מרוכז, מזוהה, וזול
+    להגיע אליו</strong>. לא צריך טיקטוק ולא כאן 11 בשביל 200 עורכי דין.
+  </p>
+
+  <table class="zebra">
+    <thead><tr><th>ערוץ</th><th>תקציב חודשי</th><th>למה דווקא הוא</th></tr></thead>
+    <tbody>
+      <tr><td class="k">קבוצות פייסבוק של עורכי דין</td><td class="n">₪0</td><td>הם כבר שם ומדברים ביניהם. פוסט אישי, לא מודעה</td></tr>
+      <tr><td class="k">פנייה ישירה — לינקדאין / טלפון</td><td class="n">₪0</td><td>הכי איטי, הכי משכנע. 20 שיחות = פידבק אמיתי</td></tr>
+      <tr><td class="k">ממומן ממוקד לעורכי דין</td><td class="n">₪1,500–3,000</td><td>פילוח לפי תפקיד. קהל קטן = זול</td></tr>
+      <tr><td class="k">פרסום בערוצי הלשכה / כתבי עת</td><td class="n">לבדוק</td><td>אמינות מקצועית שממומן לא קונה</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note">
+    <p class="note-t">המדד היחיד שקובע מתי עוברים לשלב 2</p>
+    <p>
+      <strong>לא מספר הנרשמים — כיסוי התחומים.</strong> חמישה עורכי דין
+      בנזיקין ואפס במקרקעין פירושו שכל פונה בענייני מקרקעין יקבל מסך ריק.
+      היעד: <strong>לפחות 3 עורכי דין מאומתים בכל אחד מ-6 התחומים
+      הנפוצים</strong>, ואז לפתוח.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ 3 · שלב 2 ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">3</span>
+    <span class="sec-title">שלב 2 — השקה</span>
+    <span class="sec-note">יום אחד, סדר קבוע</span>
+  </div>
+  <ul class="checks">
+    <li><strong>הודעה לרשימת ההמתנה.</strong> כל מי שהשאיר פרטים מקבל מייל עם קישור. הפקודה ב-<code>LAUNCH-CHECKLIST</code> סעיף 5 — בטוחה להרצה חוזרת.</li>
+    <li><strong>האפליקציות בחנויות.</strong> App Store ו-Google Play. שים לב לשעון של 12 בודקים × 14 יום בגוגל.</li>
+    <li><strong>סיקור תקשורתי — לא מודעה.</strong> ראה סעיף 6.</li>
+    <li><strong>בדיקה לפני:</strong> תיק אחד מקצה לקצה בכל אחד מ-6 התחומים, כדי לוודא שיש מי שיקבל אותו.</li>
+  </ul>
+</section>
+
+<!-- ═══ 4 · שלב 3 ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">4</span>
+    <span class="sec-title">שלב 3 — לקוחות</span>
+    <span class="sec-note">רק אחרי שההיצע מכסה</span>
+  </div>
+
+  <table class="zebra">
+    <thead><tr><th>ערוץ</th><th>תקציב חודשי</th><th>תפקיד</th></tr></thead>
+    <tbody>
+      <tr><td class="k">טיקטוק / ריל — תגובות אמיתיות</td><td class="n">₪2,000–4,000</td><td>המנוע. אותנטיות היא מה שעובד שם</td></tr>
+      <tr><td class="k">פייסבוק / אינסטגרם ממומן</td><td class="n">₪3,000–5,000</td><td>הרחבה ומיקוד מחדש</td></tr>
+      <tr><td class="k">דף חדשות ממומן (230K)</td><td class="n">חד-פעמי</td><td>קפיצת מודעות. למדוד הורדות, לא לייקים</td></tr>
+      <tr><td class="k">יוטיוב</td><td class="n">מאוחר יותר</td><td>רק כשיש סרטון שכבר הוכיח את עצמו</td></tr>
+      <tr><td class="k">ניהול קמפיינים</td><td class="n">₪2,500–5,000</td><td>אם לא מנהלים לבד</td></tr>
+    </tbody>
+  </table>
+
+  <p class="dim" style="margin-top:3mm;font-size:9pt">
+    עוגני שוק 2026: CPM ~₪40–60 · CPC ~₪1–3 · מינימום סביר להתחלה ₪3,000–5,000 בחודש.
+  </p>
+
+  <div class="note">
+    <p class="note-t">המדד</p>
+    <p>
+      לא הורדות. <strong>תיקים שעברו בדיקה והגיעו לעורך דין.</strong>
+      הורדה שנגמרת ב"אין תיק" היא עדיין הצלחה למשתמש — אבל היא לא מייצרת
+      הכנסה, ואסור שהיא תיראה בדוח כמו כזו שכן.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ 5 · תסריטים ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">5</span>
+    <span class="sec-title">תסריטים</span>
+    <span class="sec-note">מוכנים להפקה</span>
+  </div>
+
+  <div class="script">
+    <div class="script-head">
+      <span class="script-tag">א</span>
+      <span class="script-t">לעורכי דין — "כמה מהן היו שלך?"</span>
+      <span class="script-meta">30 שניות · לינקדאין, פייסבוק</span>
+    </div>
+    <div class="stage">מסך: תיבת מייל מוצפת בפניות</div>
+    <div class="line"><span class="say">«כמה מהפניות שהגיעו אליך החודש היו באמת בתחום שלך?»</span></div>
+    <div class="stage">מונה יורד על המסך: 22 ← 14 ← 6 ← 2</div>
+    <div class="line"><span class="say">«אתה משלם על נפח. אתה צריך רלוונטיות.»</span></div>
+    <div class="stage">קאט לאפליקציה — כרטיס תיק נפתח, התזכיר המשפטי נגלל</div>
+    <div class="line"><span class="say">«כל פנייה כאן עברה בדיקה משפטית לפני שראית אותה. עם תזכיר. בתחומים שסימנת בלבד.»</span></div>
+    <p class="punch">«חצי שנה ראשונה — ללא תשלום.»</p>
+  </div>
+
+  <div class="script">
+    <div class="script-head">
+      <span class="script-tag">ב</span>
+      <span class="script-t">ללקוחות — הרחוב</span>
+      <span class="script-meta">20 שניות · טיקטוק, ריל</span>
+    </div>
+    <div class="line"><span class="who">שאלה</span><span class="say">«נפלת פעם במקום ציבורי?»</span></div>
+    <div class="line"><span class="who">תשובה</span><span class="say">«כן, בסופר. לפני שנה.»</span></div>
+    <div class="line"><span class="who">שאלה</span><span class="say">«ובדקת אם מגיע לך משהו?»</span></div>
+    <div class="stage">שתיקה. זה הרגע החשוב בסרטון — לא לקצר אותו</div>
+    <div class="line"><span class="who">תשובה</span><span class="say">«לא… לא ידעתי למי לפנות.»</span></div>
+    <div class="line"><span class="who">שאלה</span><span class="say">«ולמה לא?»</span></div>
+    <div class="line"><span class="who">תשובה</span><span class="say">«כי מי הולך לעורך דין בשביל לשאול שאלה.»</span></div>
+    <div class="stage">קאט לטלפון: שיחה קצרה, ואז המסך «עבר בדיקה משפטית ראשונית»</div>
+    <p class="punch">«שתי דקות. בחינם. ואז אתה יודע.»</p>
+  </div>
+
+  <div class="script">
+    <div class="script-head">
+      <span class="script-tag">ג</span>
+      <span class="script-t">ללקוחות — "מה שלא שאלת"</span>
+      <span class="script-meta">15 שניות · ריל, בלי אנשים</span>
+    </div>
+    <div class="stage">טקסט לבן על שחור, אחד אחרי השני, בקצב</div>
+    <div class="line"><span class="say">«פוטרת בלי שימוע.»</span></div>
+    <div class="line"><span class="say">«החלקת בסופר.»</span></div>
+    <div class="line"><span class="say">«הביטוח דחה לך תביעה.»</span></div>
+    <div class="line"><span class="say">«קנית דירה עם ליקוי שלא גילו לך.»</span></div>
+    <div class="stage">עצירה</div>
+    <div class="line"><span class="say">«אף פעם לא בדקת אם מגיע לך משהו. כי לשאול עולה כסף.»</span></div>
+    <p class="punch">«עכשיו זה לוקח שתי דקות.»</p>
+  </div>
+
+  <div class="script">
+    <div class="script-head">
+      <span class="script-tag">ד</span>
+      <span class="script-t">הזווית לתקשורת — לא פרסומת</span>
+      <span class="script-meta">לפנייה לעיתונאי</span>
+    </div>
+    <div class="line"><span class="say">«בישראל יש עורך דין אחד לכל 128 תושבים — הצפיפות הגבוהה בעולם. ובכל זאת רוב האנשים לא שואלים אם מגיע להם משהו, כי השאלה עצמה עולה כסף.»</span></div>
+    <p style="margin-top:3mm;font-size:9.5pt" class="dim">
+      זו טענה על נגישות לצדק, לא על אפליקציה. עיתונאי מסקר את הראשונה,
+      לא את השנייה.
+    </p>
+  </div>
+</section>
+
+<!-- ═══ 6 · צילום ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">6</span>
+    <span class="sec-title">צילום ברחוב — נוהל</span>
+    <span class="sec-note">הרעיון מצוין. ההגנה חובה.</span>
+  </div>
+
+  <div class="note warn">
+    <p class="note-t">שתי סיבות, ושתיהן אמיתיות</p>
+    <p>
+      <strong>משפטית:</strong> פרסום דמותו של אדם למטרה מסחרית בלי הסכמתו
+      הוא פגיעה בפרטיות. והאנשים בסרטון מספרים על עניינים משפטיים שלהם —
+      מידע רגיש.
+    </p>
+    <p>
+      <strong>מיתוגית, וזו החמורה:</strong> אנחנו ממתגים את עצמנו על
+      «אנחנו מגנים על הפרטיות שלך». סרטון של אנשים שלא ידעו שהם מצולמים
+      הוא בדיוק הסתירה שעיתונאי ייהנה למצוא — והוא ימחק בשנייה את כל
+      העבודה שהושקעה בארכיטקטורת הפרטיות.
+    </p>
+  </div>
+
+  <ul class="checks">
+    <li><strong>הסכמה מוקלטת במצלמה</strong> — «אתה מסכים שאעלה את זה לרשת?» עשר שניות, ונשמר בקובץ הגלם.</li>
+    <li><strong>לא לצלם מי שלא הסכים</strong> — גם לא ברקע, גם לא מטושטש.</li>
+    <li><strong>לא לפרסם פרט מזהה</strong> שהאדם מסר — שם מעסיק, שם רופא, מקום מדויק.</li>
+    <li><strong>למחוק לפי בקשה</strong>, בלי ויכוח, גם אחרי פרסום.</li>
+  </ul>
+</section>
+
+<!-- ═══ 7 · לפני הכל ═══ -->
+<section class="sec">
+  <div class="sec-head">
+    <span class="sec-num">7</span>
+    <span class="sec-title">מה חייב להיסגר לפני שקל ראשון</span>
+  </div>
+  <table class="zebra">
+    <tbody>
+      <tr><td class="k">חוות דעת עורכת הדין</td><td>עיתונאי ישאל «האם הלשכה אישרה». צריך תשובה לפני הפנייה, לא אחריה</td></tr>
+      <tr><td class="k">כיסוי תחומים</td><td>3 עורכי דין מאומתים × 6 תחומים נפוצים</td></tr>
+      <tr><td class="k">מחיקת תיקי הבדיקה</td><td>עורך דין ראשון שנכנס לא יכול לראות תיקים מומצאים</td></tr>
+      <tr><td class="k">חשבונות החנויות</td><td>Apple ו-Google — שעון ה-14 יום מתחיל רק עם הפתיחה</td></tr>
+    </tbody>
+  </table>
+
+  <footer>
+    <span>JustAsk · תוכנית שיווק · אוגוסט 2026</span>
+    <span>justask.adv@gmail.com</span>
+  </footer>
+</section>
+
+</body>
+</html>
