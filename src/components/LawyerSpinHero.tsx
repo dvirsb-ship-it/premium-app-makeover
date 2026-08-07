@@ -196,3 +196,51 @@ export function LawyerSpinHero({ onCta }: { onCta: () => void }) {
     </section>
   );
 }
+
+/**
+ * בלוק תוכן בודד. הופרד לרכיב כדי שה-useTransform יקרא פעם אחת לכל בלוק
+ * ולא בתוך לופ — סדר ה-hooks חייב להיות יציב בין רנדרים.
+ */
+function CopyBlock({
+  progress,
+  index,
+  block,
+  onCta,
+}: {
+  progress: MotionValue<number>;
+  index: number;
+  block: { title: StringKey; body: StringKey };
+  onCta?: () => void;
+}) {
+  const t = useT();
+  const zs = index * 0.25;
+  const ze = zs + 0.25;
+  const stops = [zs, zs + 0.05, ze - 0.06, ze];
+  const opacity = useTransform(progress, stops, [0, 1, 1, 0]);
+  const y = useTransform(progress, stops, [44, 0, 0, -44]);
+
+  return (
+    <motion.article
+      style={{ opacity, y }}
+      className={index === 0 ? "relative" : "absolute inset-x-0 top-0"}
+    >
+      <h2 className="text-[2rem] font-black leading-[1.08] tracking-tight text-white drop-shadow-[0_2px_18px_rgba(0,0,0,0.9)] md:text-[3.2rem]">
+        {t(block.title)}
+      </h2>
+      <p className="mx-auto mt-3 max-w-sm text-[14px] leading-relaxed text-white/70 drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)] md:mx-0 md:text-[17px]">
+        {t(block.body)}
+      </p>
+      {onCta && (
+        <motion.button
+          type="button"
+          onClick={onCta}
+          whileTap={{ scale: 0.97 }}
+          className="btn-gold pointer-events-auto mt-7 min-h-12 rounded-2xl px-8 py-3.5 text-[15px] font-bold"
+        >
+          {t("lpHeroCta")}
+        </motion.button>
+      )}
+    </motion.article>
+  );
+}
+
