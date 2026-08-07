@@ -4,7 +4,6 @@ import {
   cubicBezier,
   motion,
   useMotionValueEvent,
-  useReducedMotion,
   useScroll,
   useSpring,
   useTransform,
@@ -22,72 +21,6 @@ import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import type { Role } from "../lib/types";
 import type { StringKey } from "../lib/i18n";
-
-/**
- * רמז המחווה — אצבע שקופה שמחליקה למעלה.
- *
- * הטקסט "גללו להיכנס" והקו לבדם לא הספיקו: מבקר אמיתי, עורך דין, נתקע
- * במסך הפתיחה ולא הצליח להיכנס. במסך שכולו תמונה מלאה בלי ממשק מוכר,
- * "לגלול" אינו מובן מאליו — צריך להראות את התנועה, לא לתאר אותה.
- *
- * האצבע נעה למעלה, באותו כיוון שבו המשתמש צריך להחליק, ובאותו כיוון
- * שבו הקו נוסע. שלושת הרמזים מצביעים לאותו מקום.
- *
- * מכבדת prefers-reduced-motion: שם היא נשארת דוממת ורק החץ הקטן מסמן
- * את הכיוון — רמז ולא אנימציה.
- */
-function ScrollGestureHint() {
-  const still = useReducedMotion();
-  /*
-   * המרחק חשוב יותר מהגודל.
-   *
-   * בגרסה הראשונה האצבע נעה 20px, וזה נקרא כריחוף — לא כהחלקה. מה
-   * שמלמד את התנועה הוא הנסיעה: 46px מלמטה למעלה, מהירה בעלייה
-   * ואיטית בחזרה, כמו יד אמיתית שמחליקה ומתארגנת מחדש.
-   *
-   * השובל מתחת ליד מופיע רק בזמן העלייה ונמוג בחזרה, ולכן הוא קורא
-   * ככיוון ולא כקישוט.
-   */
-  const rise = { duration: 2.4, repeat: Infinity, ease: "easeInOut" as const };
-  return (
-    <div aria-hidden className="relative grid place-items-center">
-      {/* שובל — הדרך שהיד עברה */}
-      {!still && (
-        <motion.span
-          className="absolute bottom-0 h-14 w-px bg-gradient-to-t from-transparent via-white/45 to-transparent"
-          animate={{ opacity: [0, 0.9, 0], scaleY: [0.3, 1, 0.3] }}
-          style={{ originY: 1 }}
-          transition={rise}
-        />
-      )}
-      <motion.div
-        animate={still ? undefined : { y: [16, -30, 16], opacity: [0.5, 1, 0.5] }}
-        transition={rise}
-        className="text-white [filter:drop-shadow(0_3px_12px_rgba(0,0,0,0.75))]"
-      >
-        <svg width="46" height="60" viewBox="0 0 30 40" fill="none">
-          {/* חץ מעל האצבע — מוסר את הדו-משמעות של הכיוון */}
-          <path
-            d="M15 9V1M15 1L10.5 5.5M15 1l4.5 4.5"
-            stroke="currentColor"
-            strokeWidth="1.9"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          {/* כף יד עם אצבע מורה — צללית פשוטה שנקראת בכל גודל */}
-          <path
-            d="M12.5 24.5V15a2 2 0 1 1 4 0v6.5m0 0v-1.2a1.8 1.8 0 0 1 3.6 0v1.9m0-1a1.8 1.8 0 0 1 3.6 0v2.4m0-1.4a1.7 1.7 0 0 1 3.4 0v6.1c0 4.6-3.2 7.7-7.6 7.7h-2.1c-3 0-4.7-1.3-6.2-3.6l-3.2-5a1.9 1.9 0 0 1 3-2.3l1.5 1.7"
-            stroke="currentColor"
-            strokeWidth="1.7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            fill="rgba(255,255,255,0.14)"
-          />
-        </svg>
-      </motion.div>
-    </div>
-  );
-}
 
 export const Route = createFileRoute("/welcome")({
   head: () => ({
@@ -468,31 +401,23 @@ function Welcome() {
           </div>
 
           {/*
-           * הטקסט לבדו במרכז — האצבע עברה הצידה (7/8/2026).
+           * הרמז חזר לצורתו הפשוטה (7/8/2026): טקסט, ומתחתיו הפס במרכז —
+           * ממשיך את קו המפגש של הדלתות, והזהב נוסע בו כלפי מעלה. הפס
+           * הוא חלק מהקומפוזיציה של הדלתות, לא סימן עזר, ולכן מקומו
+           * במרכז בלבד.
            *
-           * פס הזהב שבין הדלתות עובר בדיוק במרכז המסך, והיד ישבה עליו
-           * וקטעה אותו. הרמז זז לצד ימין ולמטה: שם האגודל באמת נמצא,
-           * והתנועה מתחילה מתחתית המסך — בדיוק המחווה שמבקשים מהמשתמש.
+           * צלמית כף-יד נוסתה כאן פעמיים ונמחקה: קטנה היא לא הסבירה
+           * כלום, ובצד היא נראתה תלושה. אם יחזור רמז מחווה — רק כנכס
+           * מונפש אמיתי (לוטי/וידאו), לא כאיור SVG.
            */}
           <motion.div
             style={{ opacity: hintFade }}
-            className="pointer-events-none absolute inset-x-0 top-[38%] z-10 flex justify-center"
+            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
           >
             <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-          </motion.div>
-
-          <motion.div
-            style={{ opacity: hintFade }}
-            className="pointer-events-none absolute bottom-24 right-6 z-10 flex flex-col items-center gap-3"
-          >
-            <ScrollGestureHint />
-            {/*
-             * הקו נוסע למעלה — אותו כיוון כמו היד וכמו ההחלקה עצמה.
-             * עורך דין נתקע כאן ב-6/8/2026 כשהרמז הצביע למטה.
-             */}
-            <div className="relative h-20 w-px overflow-hidden bg-white/15">
+            <div className="relative h-24 w-px overflow-hidden bg-white/15">
               <motion.div
                 animate={{ y: ["260%", "-100%"] }}
                 transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
