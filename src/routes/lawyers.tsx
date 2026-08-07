@@ -77,7 +77,7 @@ function LawyersLanding() {
   const cta = () => navigate({ to: "/auth" });
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-background text-center text-foreground">
+    <div className="dark relative min-h-screen overflow-x-hidden bg-background text-center text-foreground">
       <div
         aria-hidden
         className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.16),transparent_60%)]"
@@ -87,8 +87,9 @@ function LawyersLanding() {
         className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(110%_70%_at_50%_120%,rgba(56,89,168,0.14),transparent_55%)]"
       />
 
-      <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pb-20">
-        <header className="flex items-center justify-between py-6">
+      {/* כותרת קבועה — נשארת מעל הסצנה הקולנועית */}
+      <header className="fixed inset-x-0 top-0 z-50 bg-gradient-to-b from-background/90 to-transparent">
+        <div className="mx-auto flex w-full max-w-3xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
             <BrandMark size={32} glow={false} />
             <span className="text-lg font-black tracking-tight">
@@ -102,56 +103,16 @@ function LawyersLanding() {
           >
             {t("lpNavCta")}
           </button>
-        </header>
+        </div>
+      </header>
 
-        {/* ---------- גיבור ---------- */}
-        <section className="pb-14 pt-10">
-          <motion.span
-            initial={{ opacity: 0, scale: 0.94 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-            className="inline-flex items-center gap-2 rounded-full border border-gold/30 bg-gold/[0.07] px-3.5 py-1.5 text-[12px] font-bold text-gold-ink"
-          >
-            <span className="size-1.5 rounded-full bg-gold" />
-            {t("lpBadge")}
-          </motion.span>
+      {/* ---------- הגיבור הקולנועי ---------- */}
+      <div className="relative z-10">
+        <LawyerSpinHero onCta={cta} />
+      </div>
 
-          <motion.h1
-            initial={{ opacity: 0, y: 22 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="mt-6 text-[2.9rem] font-black leading-[1.05] tracking-tight md:text-[4rem]"
-          >
-            {t("lpH1a")}
-            <br />
-            <span className="text-gradient-gold">{t("lpH1b")}</span>
-          </motion.h1>
+      <div className="relative z-10 mx-auto w-full max-w-3xl px-6 pb-20">
 
-          <motion.p
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="mx-auto mt-5 max-w-md text-[16px] leading-relaxed text-muted-foreground"
-          >
-            {t("lpSub")}
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <motion.button
-              type="button"
-              onClick={cta}
-              whileTap={{ scale: 0.97 }}
-              className="btn-gold mt-8 min-h-12 rounded-2xl px-8 py-3.5 text-[15px] font-bold"
-            >
-              {t("lpHeroCta")}
-            </motion.button>
-            <p className="mt-2.5 text-[12px] text-muted-foreground">{t("lpHeroNote")}</p>
-          </motion.div>
-        </section>
 
         {/* ---------- הארטיפקט ---------- */}
         <Reveal delay={0.1}>
