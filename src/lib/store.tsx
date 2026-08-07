@@ -16,7 +16,7 @@ type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { toast } from "sonner";
 import { LANGS, type Lang } from "./settings";
 import { translate } from "./i18n";
-import { fbAuth, isBrowser } from "./firebase";
+import { fbAuth, isBrowser, isFirebaseConfigured } from "./firebase";
 import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
 import { maskLawyerName } from "./privacy";
 import { isOnboarded } from "./post-auth-route";
@@ -134,6 +134,10 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   // מעקב אחרי סטטוס ההתחברות
   useEffect(() => {
     if (!isBrowser) return;
+    if (!isFirebaseConfigured()) {
+      setAuthReady(true);
+      return;
+    }
     /*
      * חזרה מהפניית התחברות — נקלטת **לפני** שמאזינים לשינוי המצב.
      *

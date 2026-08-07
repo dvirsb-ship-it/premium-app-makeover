@@ -38,6 +38,11 @@ function app(): FirebaseApp {
   return getApps()[0] ?? initializeApp(config);
 }
 
+/** Firebase אינו מאותחל בלי תצורה מלאה — מונע invalid-api-key בסביבות preview. */
+export function isFirebaseConfigured(): boolean {
+  return Object.values(config).every((value) => typeof value === "string" && value.trim().length > 0);
+}
+
 /** ה-app היחיד של הלקוח — לכל מי שצריך אתחול מחוץ לקובץ הזה (push). */
 export function fbApp(): FirebaseApp {
   return app();
