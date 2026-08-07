@@ -32,8 +32,8 @@
 
 ## 3. עוד דברים שקשורים להשקה
 
-- [ ] `minInstances: 1` ב-`apphosting.yaml` כשמתחילה תעבורה אמיתית
-      (מבטל את ההמתנה הראשונה, ~40₪ לחודש)
+- [x] `minInstances: 1` ב-`apphosting.yaml` — הועלה 7/8/2026 יחד עם
+      `memoryMiB: 1024`, לקראת תנועה משיווק (~40₪ לחודש)
 - [ ] Cloud Scheduler ל-`/__cron/deletions` — אופציונלי, הסריקה כבר רצה
       מעצמה בכל בקשה
 - [ ] חשבונות החנויות: Apple 99$/שנה, Google 25$ חד-פעמי
@@ -58,6 +58,24 @@
 - [ ] Bundle ID `il.co.justask.app` לרשום ב-Apple Developer
 - [ ] Sign in with Apple — להפעיל ב-Firebase ולהוריד את `GOOGLE_ONLY`
 - [ ] צוות חתימה ב-Xcode (Signing & Capabilities)
+
+
+## 5. ביום שהאפליקציה עולה
+
+- [ ] **להודיע לרשימת ההמתנה.** כל מי שהשאיר פרטים בדף הנחיתה מקבל מייל
+      עם קישור הורדה. **מייל ולא פוש** — למי שמילא טופס באתר אין
+      אפליקציה מותקנת ואין טוקן, ולכן אין ערוץ אחר שמגיע אליו.
+
+      ```bash
+      curl -X POST "https://app.justask.co.il/__cron/announce-launch?link=https://app.justask.co.il" \
+        -H "x-cron-key: $CRON_SECRET"
+      ```
+
+      מחזיר `{sent, skipped, failed}`. **בטוח להריץ שוב** — כל ליד מסומן
+      ב-`launchNotifiedAt` מיד אחרי שליחה מוצלחת, אז הרצה שנייה מדלגת על
+      מי שכבר קיבל. אם `failed` גדול מאפס, הרצה נוספת תנסה רק אותם.
+
+- [ ] לוודא לפני כן שהרשימה נראית נכון במסך האדמין (מונה + תחומים).
 
 ---
 

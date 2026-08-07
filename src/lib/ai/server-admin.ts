@@ -999,6 +999,86 @@ export async function adminNotify(
 }
 
 /**
+ * אותה התראה לרשימת נמענים — בבקשה אחת במקום אחת לכל נמען.
+ *
+ * הקוד הקודם עשה `Promise.all` על התוצאה של adminApprovedLawyerIds,
+ * שמחזירה **עד 500** עורכי דין. כלומר בקשה אחת של לקוח פתחה עד 500
+ * חיבורי HTTPS מקבילים ממכונה עם CPU אחד ו-512MB — **והלקוח המתין
+ * לכולם** לפני שקיבל תשובה.
+ *
+ * עם עורך דין אחד זה בלתי נראה. עם רשימת המתנה מלאה זה הופך כל תיק
+ * מאושר לפרץ, בדיוק בזמן שקמפיין שיווקי מביא תנועה. זה לא כשל שמתגלה
+ * בהדרגה — הוא מופיע ביום הראשון שיש בו גם עורכי דין וגם תנועה.
+ *
+ * `:batchWrite` ב-Firestore מקבל עד 500 כתיבות בקריאה אחת, כלומר בדיוק
+ * התקרה של השאילתה. החלוקה לקבוצות נשארת בכל זאת — התקרה של השאילתה
+ * עשויה לעלות יום אחד, ומגבלת ה-API לא.
+ */
+export const BATCH_MAX = 500;
+
+export interface NotifyWrite {
+  update: { name: string; fields: Record<string, FsValue> };
+}
+
+/**
+ * בניית הכתיבות והחלוקה לקבוצות — טהורה, כדי שתהיה ניתנת לבדיקה.
+ *
+ * שלושה דברים חייבים להתקיים כאן, ולכולם יש בדיקה:
+ * · אף קבוצה אינה חורגת מ-500 — זו מגבלת ה-API, וחריגה נכשלת בשלמותה.
+ * · אף נמען אינו נופל בין הקבוצות.
+ * · **המזהים ייחודיים.** ל-batchWrite אין "צור עם מזהה אוטומטי" וכל
+ *   כתיבה חייבת נתיב מלא. שני מזהים זהים באותה קבוצה אינם שגיאה —
+ *   הם דורסים זה את זה בשקט, ועורך דין אחד פשוט לא מקבל התראה.
+ */
+export function buildNotifyWrites(
+  userIds: readonly string[],
+  n: { type: string; title: string; body: string; caseId?: string },
+  now: number = Date.now(),
+): NotifyWrite[][] {
+  const chunks: NotifyWrite[][] = [];
+  for (let i = 0; i < userIds.length; i += BATCH_MAX) {
+    const chunk = userIds.slice(i, i + BATCH_MAX).map((userId, j) => {
+      const fields: Record<string, FsValue> = {
+        userId: { stringValue: userId },
+        type: { stringValue: n.type },
+        title: { stringValue: n.title },
+        body: { stringValue: n.body },
+        read: { booleanValue: false },
+        createdAt: { integerValue: String(now) },
+      };
+      if (n.caseId) fields.caseId = { stringValue: n.caseId };
+      /*
+       * המיקום ברשימה (i+j) נכנס למזהה ולא רק אקראיות: הוא מבטיח ייחודיות
+       * בתוך הקבוצה בוודאות ולא בהסתברות.
+       */
+      const id = `${now.toString(36)}${(i + j).toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+      return { update: { name: `${DOCS}/notifications/${id}`, fields } };
+    });
+    chunks.push(chunk);
+  }
+  return chunks;
+}
+
+export async function adminNotifyMany(
+  userIds: string[],
+  n: { type: string; title: string; body: string; caseId?: string },
+): Promise<void> {
+  if (!userIds.length) return;
+  const token = await accessToken();
+
+  for (const writes of buildNotifyWrites(userIds, n)) {
+    const res = await fetch(`${DOCS}:batchWrite`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ writes }),
+    });
+    if (!res.ok) {
+      throw new Error(`batchWrite failed: ${res.status} ${(await res.text()).slice(0, 160)}`);
+    }
+  }
+}
+
+/**
  * עורכי הדין *המאושרים* שהתיק בתחום שלהם.
  *
  * שתי טעויות היו כאן קודם. הראשונה: הפיצוץ רץ מול כל lawyerProfiles —
@@ -1161,4 +1241,64 @@ export async function downloadImageBase64(path: string): Promise<string | null> 
   } catch {
     return null;
   }
+}
+
+/* ---------- הודעת השקה לרשימת ההמתנה ---------- */
+
+/**
+ * מודיע לכל מי שהשאיר פרטים בדף הנחיתה שהאפליקציה באוויר.
+ *
+ * **מייל ולא פוש, ואין ברירה אחרת.** התראת פלאפון דורשת אפליקציה
+ * מותקנת והרשאה שניתנה — לאנשים האלה אין אף אחת מהשתיים; הם מילאו
+ * טופס באתר. מייל הוא הערוץ היחיד שבאמת מגיע אליהם.
+ *
+ * **מסומן פר-נמען ולא פר-הרצה.** `launchNotifiedAt` נכתב על כל ליד
+ * מיד אחרי ששליחתו הצליחה, ולכן הרצה שנפלה באמצע ממשיכה מהנקודה שבה
+ * עצרה במקום להתחיל מהתחלה. הרצה שנייה על רשימה שכבר טופלה אינה
+ * שולחת דבר — וזה הדבר היחיד שמונע מעורך דין לקבל את אותה הודעה
+ * פעמיים ולמחוק אותנו כספאם ביום שהכי חשוב לנו.
+ */
+export async function announceLaunch(
+  link: string,
+): Promise<{ sent: number; skipped: number; failed: number }> {
+  const res = await fetch(`${DOCS}/lawyerLeads?pageSize=500`, {
+    headers: { Authorization: `Bearer ${await accessToken()}` },
+  });
+  if (!res.ok) throw new Error(`leads read failed: ${res.status}`);
+  const data = (await res.json()) as {
+    documents?: { name: string; fields?: Record<string, FsValue> }[];
+  };
+
+  let sent = 0, skipped = 0, failed = 0;
+  for (const doc of data.documents ?? []) {
+    const f = doc.fields ?? {};
+    const email = (decode(f.email) as string | undefined) ?? "";
+    const name = (decode(f.fullName) as string | undefined) ?? "";
+    if (!email || decode(f.launchNotifiedAt) !== undefined) {
+      skipped++;
+      continue;
+    }
+    const outcome = await sendMailTo(email, {
+      title: "JustAsk באוויר — האפליקציה שלך מחכה",
+      body:
+        `${name ? name + ", " : ""}האפליקציה עלתה לאוויר. ` +
+        "הפניות שתראו כבר עברו בדיקה משפטית ראשונית, והן בתחומים שסימנתם בלבד. " +
+        "חצי השנה הראשונה ללא תשלום, כפי שהובטח.",
+      link,
+      cta: "כניסה לאפליקציה",
+    });
+    if (outcome === "sent") {
+      sent++;
+      /*
+       * הסימון נכתב רק אחרי שליחה מוצלחת. סימון מראש היה "מגן" מפני
+       * כפילות במחיר גרוע יותר: מי שהמייל אליו נכשל לא היה מקבל שוב
+       * לעולם.
+       */
+      const id = doc.name.split("/").pop() ?? "";
+      await adminPatch(`lawyerLeads/${id}`, { launchNotifiedAt: Date.now() }).catch(() => undefined);
+    } else {
+      failed++;
+    }
+  }
+  return { sent, skipped, failed };
 }

@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-07T08:32Z";
+const BUILD_STAMP = "2026-08-07T14:35Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
@@ -210,6 +210,29 @@ const appHandler: ServerEntry = {
         }
         const { runDueDeletions } = await import("./lib/ai/server-admin");
         const result = await runDueDeletions();
+        return Response.json(result, { headers: { "cache-control": "no-store" } });
+      }
+
+      /*
+       * הודעת ההשקה לרשימת ההמתנה — פעולה חד-פעמית, ידנית, ביום שהאפליקציה
+       * עולה. לא cron: אין תאריך ידוע מראש, ואין דבר גרוע יותר מהודעת
+       * "אנחנו באוויר" שיוצאת יום לפני.
+       *
+       * מוגנת באותו סוד כמו המחיקות, ובלעדיו 404 ולא 401 — נתיב שמחזיר
+       * "אסור" מאשר בכך את קיומו.
+       *
+       * הפעלה חוזרת בטוחה: כל ליד מסומן בנפרד מיד אחרי שליחה מוצלחת,
+       * ולכן הרצה שנייה מדלגת על כל מי שכבר קיבל.
+       */
+      if (new URL(request.url).pathname === "/__cron/announce-launch") {
+        const secret = process.env.CRON_SECRET;
+        const given = request.headers.get("x-cron-key");
+        if (!secret || given !== secret) {
+          return new Response("Not found", { status: 404 });
+        }
+        const { announceLaunch } = await import("./lib/ai/server-admin");
+        const link = new URL(request.url).searchParams.get("link") || "https://app.justask.co.il";
+        const result = await announceLaunch(link);
         return Response.json(result, { headers: { "cache-control": "no-store" } });
       }
 

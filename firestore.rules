@@ -254,6 +254,22 @@ service cloud.firestore {
       allow delete: if false;
     }
 
+    /*
+     * רשימת ההמתנה של עורכי הדין מדף הנחיתה.
+     *
+     * הכתיבה היא **בשרת בלבד** — /api/lawyer-lead רץ עם חשבון השירות
+     * ועוקף את החוקים. לכן אין כאן allow create: טופס ציבורי שכותב ישר
+     * ל-Firestore הוא דלת פתוחה לזבל, וההגנות (honeypot, מגבלת גודל,
+     * ולידציה) יושבות בשרת.
+     *
+     * הקריאה נפתחת לאדמין בלבד, כי עד עכשיו לא הייתה כלל — והראייה
+     * היחידה לליד שנכנס הייתה מייל שיכול ליפול בשקט.
+     */
+    match /lawyerLeads/{id} {
+      allow read: if isAdmin();
+      allow write: if false;
+    }
+
     // בקשות אימות עו"ד — העו"ד מגיש וקורא את שלו; האדמין קורא הכל ומחליט (סטטוס בלבד)
     match /verifications/{uid} {
       allow read: if signedIn() && (request.auth.uid == uid || isAdmin());

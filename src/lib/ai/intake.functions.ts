@@ -373,7 +373,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
     const {
-      requireUser, adminGetCase, adminNotify, adminApprovedLawyerIds, enforceDailyCap,
+      requireUser, adminGetCase, adminNotify, adminNotifyMany, adminApprovedLawyerIds, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
       countOpenCases, MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED, adminDeleteCase,
     } = await import("./server-admin");
@@ -577,16 +577,17 @@ export const validateCaseFn = createServerFn({ method: "POST" })
          * "נעדכן אותך" גם כשאין אף עורך דין בתחום — הבטחה שאין מי שיקיים.
          */
         await adminUpdateCase(data.caseId, { notifiedLawyers: notified });
-        await Promise.all(
-          ids.map((id) =>
-            adminNotify(id, {
-              type: "new_case",
-              title: `תיק חדש בתחום ${safeCategory}`,
-              body: `"${result.title}" ממתין לעורך דין — היו הראשונים להביע עניין`,
-              caseId: data.caseId,
-            }).catch(() => undefined),
-          ),
-        );
+        /*
+         * כתיבה מקובצת ולא Promise.all: הרשימה מגיעה עד 500 עורכי דין,
+         * והלקוח ממתין לסיום לפני שהוא מקבל תשובה. 500 חיבורים מקבילים
+         * ממכונה אחת הם פרץ; batchWrite הופך אותם לקריאה אחת.
+         */
+        await adminNotifyMany(ids, {
+          type: "new_case",
+          title: `תיק חדש בתחום ${safeCategory}`,
+          body: `"${result.title}" ממתין לעורך דין — היו הראשונים להביע עניין`,
+          caseId: data.caseId,
+        });
       } catch {
         /* ההזמנה נכשלה — הכשל נרשם ביומן ע"י withErrorLog אם היא זרקה */
       }

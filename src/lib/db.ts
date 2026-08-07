@@ -812,6 +812,44 @@ export async function submitSupportTicket(input: {
   });
 }
 
+/**
+ * רשימת ההמתנה של עורכי הדין מדף הנחיתה.
+ *
+ * עד עכשיו לא הייתה שום דרך לראות אותה מהאפליקציה: הכתיבה בשרת, ולא
+ * היה חוק קריאה. הראייה היחידה לליד שנכנס הייתה מייל ל-contact@ —
+ * וכשל שקט במייל פירושו עורך דין שנרשם ואיש לא ידע.
+ */
+export interface LawyerLeadDoc {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  specialty: string;
+  barNumber: string;
+  at: number;
+  source?: string;
+  /** מתי נשלחה לו הודעת ההשקה — כדי שלא יקבל אותה פעמיים */
+  launchNotifiedAt?: number;
+}
+
+export function watchLawyerLeads(
+  cb: (rows: LawyerLeadDoc[]) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  return onSnapshot(
+    collection(fbDb(), "lawyerLeads"),
+    (snap) => {
+      const rows = snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<LawyerLeadDoc, "id">),
+      }));
+      rows.sort((a, b) => (b.at ?? 0) - (a.at ?? 0));
+      cb(rows);
+    },
+    (err) => onError?.(err),
+  );
+}
+
 export function watchSupportTickets(
   cb: (rows: SupportTicketDoc[]) => void,
   /*

@@ -43,6 +43,8 @@ import {
   watchDeletionRequests,
   watchServerErrors,
   watchSupportTickets,
+  watchLawyerLeads,
+  type LawyerLeadDoc,
   type AdminCaseRow,
   type IntakeFunnel,
   type AppealDoc,
@@ -135,6 +137,8 @@ function VerificationQueue() {
   const [deletions, setDeletions] = useState<DeletionRequestDoc[]>([]);
   const [errors, setErrors] = useState<ServerErrorDoc[]>([]);
   const [intake, setIntake] = useState<IntakeFunnel | null>(null);
+  /* רשימת ההמתנה מדף הנחיתה — עד היום נראתה רק במייל שיכול ליפול בשקט */
+  const [leads, setLeads] = useState<LawyerLeadDoc[]>([]);
   useEffect(() => {
     if (!authReady || !isAdminUser(user)) return;
     const fail = () => setLoadFailed(true);
@@ -143,12 +147,14 @@ function VerificationQueue() {
     const un3 = watchDeletionRequests(setDeletions, fail);
     const un4 = watchServerErrors(setErrors, fail);
     const un5 = watchIntakeFunnel(setIntake, fail);
+    const un6 = watchLawyerLeads(setLeads, fail);
     return () => {
       un1();
       un2();
       un3();
       un4();
       un5();
+      un6();
     };
   }, [authReady, user]);
 
@@ -648,6 +654,68 @@ function VerificationQueue() {
               ))}
             </AnimatePresence>
           </ul>
+        )}
+
+        {/*
+          * רשימת ההמתנה מדף הנחיתה.
+          *
+          * עד 7/8/2026 לא הייתה שום דרך לראות אותה מהאפליקציה: הכתיבה
+          * בשרת ולא היה חוק קריאה, כך שהראייה היחידה לעורך דין שנרשם
+          * הייתה מייל ל-contact@. כשל שקט במייל = ליד שאיש לא ידע עליו.
+          *
+          * המונה הוא הנתון החשוב כאן — הוא מדד ההצלחה של אסטרטגיית
+          * רשימת ההמתנה, ולכן הוא גדול ולא מוסתר בתוך רשימה.
+          */}
+        <h2 className="mt-10 text-base font-bold text-foreground">
+          רשימת המתנה — עורכי דין
+        </h2>
+        {leads.length === 0 ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            עדיין לא נרשם אף עורך דין מדף הנחיתה.
+          </p>
+        ) : (
+          <>
+            <div className="liquid-glass mt-3 rounded-3xl px-4 py-4">
+              <p className="text-[32px] font-black leading-none text-gold" dir="ltr">
+                {leads.length}
+              </p>
+              <p className="mt-1 text-[12px] text-muted-foreground">
+                נרשמו עד כה · {new Set(leads.map((l) => l.specialty)).size} תחומים שונים
+              </p>
+            </div>
+            <ul className="mt-3 space-y-3" aria-label="רשימת המתנה">
+              {leads.map((l) => (
+                <li key={l.id} className="liquid-glass rounded-3xl px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="min-w-0 flex-1 text-[13.5px] font-bold text-foreground">
+                      {l.fullName}
+                    </p>
+                    {l.launchNotifiedAt ? (
+                      <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                        קיבל הודעת השקה
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    {l.specialty} · רישיון {l.barNumber} · {dateFmt(l.at)}
+                  </p>
+                  {/*
+                    * טלפון ומייל כקישורים חיים: המסך הזה נועד לפעולה —
+                    * להתקשר או לכתוב — ולא לקריאה בלבד. dir=ltr כי מספר
+                    * וכתובת מתהפכים בתוך פסקה בעברית.
+                    */}
+                  <p className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[12.5px]" dir="ltr">
+                    <a href={`tel:${l.phone}`} className="font-semibold text-gold-ink underline underline-offset-2">
+                      {l.phone}
+                    </a>
+                    <a href={`mailto:${l.email}`} className="font-semibold text-gold-ink underline underline-offset-2">
+                      {l.email}
+                    </a>
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
 
         {/* פניות תמיכה */}
