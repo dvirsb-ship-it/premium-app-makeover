@@ -15,6 +15,7 @@ import { BrandMark } from "../components/BrandMark";
 import courtroom from "../assets/welcome/courtroom-deep.webp";
 import doorRight from "../assets/welcome/door-modern.jpg";
 import portalFrame from "../assets/welcome/portal-frame.webp";
+import swipeFinger from "../assets/welcome/swipe-finger.png";
 import { useT } from "../lib/i18n";
 import { LANGS, LANG_CODES, LANG_NAMES, useSettings } from "../lib/settings";
 import { haptic } from "../lib/haptics";
