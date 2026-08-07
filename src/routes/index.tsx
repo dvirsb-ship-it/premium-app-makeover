@@ -468,43 +468,83 @@ function ClientJourney({ active }: { active?: Case }) {
     { key: "journeyStep3" },
   ];
 
+  /*
+   * הכרטיס כהה בכוונה — היחיד בעמוד (7/8/2026).
+   *
+   * זה המסך שאדם פותח כדי לענות על שאלה אחת: "מה קורה עם הפנייה שלי?"
+   * כשהכרטיס שעונה עליה נראה כמו כל שאר הזכוכית, הוא נבלע. דיו כהה על
+   * עמוד בהיר הופך אותו לעוגן — אותו מהלך כמו רצועת "מה כלול" בדף
+   * הנחיתה: רגע כהה אחד, ולכן הוא הרגע שזוכרים.
+   *
+   * הצבעים כאן מפורשים ולא טוקנים של ערכת נושא — הכרטיס כהה גם במצב
+   * בהיר, זו כל הפואנטה שלו.
+   */
   return (
-    <div className="liquid-glass glass-quiet rounded-[26px] p-5">
+    <div className="relative overflow-hidden rounded-[26px] bg-[#101a30] p-5 ring-1 ring-gold/25">
+      {/* הבהוב עדין של זהב בפינה — עומק, לא קישוט */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-16 -top-16 size-48 rounded-full bg-gold/10 blur-3xl"
+      />
       <p className="text-[11px] font-medium tracking-[0.2em] text-gold">
         {t("journeyEyebrow")}
       </p>
-      <p className="mt-1 text-[15px] font-bold text-foreground">
+      <p className="mt-1 text-[15px] font-bold text-white">
         {t(active ? "journeyTitleActive" : "journeyTitleEmpty")}
       </p>
 
-      <ol className="mt-4 space-y-4">
+      <ol className="mt-5 space-y-0">
         {steps.map((s, i) => {
           const done = step > i;
           const current = step === i;
+          const last = i === steps.length - 1;
           return (
-            <li key={s.key} className="flex items-start gap-3">
-              <span
-                className={cn(
-                  "mt-0.5 grid size-6 shrink-0 place-items-center rounded-full text-[10px] font-black",
-                  done && "bg-gold/20 text-gold-ink ring-1 ring-gold/30",
-                  current && "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-lg shadow-gold/25",
-                  !done && !current && "bg-foreground/8 text-muted-foreground ring-1 ring-foreground/10",
+            <li key={s.key} className="relative flex items-start gap-3 pb-5 last:pb-0">
+              {/*
+               * הקו המחבר יורד ממרכז העיגול אל הבא. הוא מוזהב רק כשהשלב
+               * שמעליו הושלם — כך הזהב מטפס עם ההתקדמות, והחלק שטרם
+               * הגיע נשאר חיוור. בלי קו ההתקדמות היא רשימה; איתו — מסע.
+               */}
+              {!last && (
+                <span
+                  aria-hidden
+                  className={cn(
+                    "absolute right-[13px] top-7 bottom-0 w-0.5 rounded-full",
+                    done
+                      ? "bg-gradient-to-b from-gold via-gold/70 to-gold/25"
+                      : "bg-white/10",
+                  )}
+                />
+              )}
+              <span className="relative mt-0.5 shrink-0" aria-hidden>
+                {/* ההילה המהבהבת — רק על השלב שקורה עכשיו */}
+                {current && (
+                  <span className="absolute inset-0 animate-ping rounded-full bg-gold/50" />
                 )}
-                aria-hidden
-              >
-                {done ? <Check className="size-3.5" strokeWidth={3} /> : i + 1}
+                <span
+                  className={cn(
+                    "relative grid size-7 place-items-center rounded-full text-[10.5px] font-black",
+                    done &&
+                      "bg-gold/15 text-gold ring-1 ring-gold/50 shadow-[0_0_14px_rgba(212,175,55,0.45)]",
+                    current &&
+                      "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-[0_0_18px_rgba(212,175,55,0.6)]",
+                    !done && !current && "bg-white/5 text-white/40 ring-1 ring-white/15",
+                  )}
+                >
+                  {done ? <Check className="size-4" strokeWidth={3} /> : i + 1}
+                </span>
               </span>
-              <div className="min-w-0 flex-1">
+              <div className="min-w-0 flex-1 pt-1">
                 <p
                   className={cn(
                     "text-[12.5px] leading-relaxed",
-                    current ? "font-semibold text-foreground" : "text-muted-foreground",
+                    current ? "font-semibold text-white" : done ? "text-white/80" : "text-white/45",
                   )}
                 >
                   {t(s.key)}
                 </p>
                 {s.note && (
-                  <p className="mt-1 text-[12px] font-bold text-gold-ink">{s.note}</p>
+                  <p className="mt-1 text-[12px] font-bold text-gold">{s.note}</p>
                 )}
               </div>
             </li>

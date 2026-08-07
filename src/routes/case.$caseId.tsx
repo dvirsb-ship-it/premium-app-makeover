@@ -760,6 +760,22 @@ function LawyerChoiceCard({
             </span>
           </div>
 
+          {/*
+            * \u05d4\u05de\u05e9\u05e4\u05d8 \u05d4\u05e4\u05e9\u05d5\u05d8 \u2014 \u05d4\u05de\u05e9\u05de\u05e2\u05d5\u05ea \u05dc\u05e4\u05e0\u05d9 \u05d4\u05de\u05db\u05e0\u05d9\u05e7\u05d4. "13%" \u05d0\u05d5\u05de\u05e8 \u05d0\u05d9\u05da \u05de\u05d7\u05e9\u05d1\u05d9\u05dd;
+            * "\u05de\u05e9\u05dc\u05de\u05d9\u05dd \u05e8\u05e7 \u05d0\u05dd \u05de\u05e7\u05d1\u05dc\u05d9\u05dd \u05e4\u05d9\u05e6\u05d5\u05d9" \u05d0\u05d5\u05de\u05e8 \u05de\u05d4 \u05de\u05e1\u05db\u05e0\u05d9\u05dd. \u05d4\u05d4\u05e1\u05d1\u05e8 \u05d4\u05d5\u05dc\u05da \u05dc\u05e4\u05d9
+            * \u05de\u05d5\u05d3\u05dc \u05d4\u05e9\u05db\u05e8 \u05d5\u05dc\u05d0 \u05dc\u05e4\u05d9 \u05ea\u05d7\u05d5\u05dd \u05d4\u05ea\u05d9\u05e7, \u05d5\u05dc\u05db\u05df \u05e9\u05dc\u05d5\u05e9\u05d4 \u05de\u05e9\u05e4\u05d8\u05d9\u05dd \u05de\u05db\u05e1\u05d9\u05dd \u05d0\u05ea \u05db\u05dc
+            * 21 \u05d4\u05ea\u05d7\u05d5\u05de\u05d9\u05dd \u05d1\u05d4\u05d2\u05d3\u05e8\u05d4.
+            */}
+          <p className="mt-2 text-[12px] leading-relaxed text-muted-foreground">
+            {t(
+              offer.model === "contingency"
+                ? "offerPlainContingency"
+                : offer.model === "hourly"
+                  ? "offerPlainHourly"
+                  : "offerPlainFixed",
+            )}
+          </p>
+
           {/* המדרגות — האחוז עולה עם שלב ההליך, כמו בהסכמי שכר טרחה אמיתיים */}
           {offer.model === "contingency" && (offer.postSuitPercent || offer.judgmentPercent) && (
             <div className="mt-1.5 flex flex-wrap gap-1.5">

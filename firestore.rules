@@ -222,7 +222,7 @@ service cloud.firestore {
          * השליחה: db.ts, validating.tsx, verification-queue.ts.
          */
         && request.resource.data.type in [
-             'lawyer_interest', 'chosen', 'case_reverted', 'case_milestone',
+             'lawyer_interest', 'chosen', 'not_chosen', 'case_reverted', 'case_milestone',
              'case_withdrawn',
              'case_validated', 'case_rejected',
              'appeal_accepted', 'appeal_dismissed',

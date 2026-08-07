@@ -467,23 +467,32 @@ function Welcome() {
             ))}
           </div>
 
+          {/*
+           * הטקסט לבדו במרכז — האצבע עברה הצידה (7/8/2026).
+           *
+           * פס הזהב שבין הדלתות עובר בדיוק במרכז המסך, והיד ישבה עליו
+           * וקטעה אותו. הרמז זז לצד ימין ולמטה: שם האגודל באמת נמצא,
+           * והתנועה מתחילה מתחתית המסך — בדיוק המחווה שמבקשים מהמשתמש.
+           */}
           <motion.div
             style={{ opacity: hintFade }}
-            className="pointer-events-none absolute inset-x-0 top-1/2 z-10 flex -translate-y-1/2 flex-col items-center gap-4"
+            className="pointer-events-none absolute inset-x-0 top-[38%] z-10 flex justify-center"
           >
             <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
+          </motion.div>
+
+          <motion.div
+            style={{ opacity: hintFade }}
+            className="pointer-events-none absolute bottom-24 right-6 z-10 flex flex-col items-center gap-3"
+          >
             <ScrollGestureHint />
             {/*
-             * הקו נוסע **למעלה**, לא למטה.
-             *
-             * קודם הוא נסע למטה, וזה בדיוק הכיוון ההפוך: כדי לפתוח את
-             * הדלתות מחליקים למעלה. עורך דין נזיקין נתקע כאן ב-6/8/2026
-             * ולא הצליח להיכנס — הוא קרא "למטה", החליק למטה, והמסך כבר
-             * היה בראש הדף, אז שום דבר לא זז.
+             * הקו נוסע למעלה — אותו כיוון כמו היד וכמו ההחלקה עצמה.
+             * עורך דין נתקע כאן ב-6/8/2026 כשהרמז הצביע למטה.
              */}
-            <div className="relative h-16 w-px overflow-hidden bg-white/15">
+            <div className="relative h-20 w-px overflow-hidden bg-white/15">
               <motion.div
                 animate={{ y: ["260%", "-100%"] }}
                 transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}

@@ -632,6 +632,35 @@ export async function chooseLawyerDb(
       params: { title: c.title || c.category },
       caseId,
     });
+
+    /*
+     * וגם למי שלא נבחר — כי שתיקה גרועה מ"לא".
+     *
+     * עורך דין שהביע עניין ושלח הצעה נשאר בלי שום אות: התיק פשוט קופא
+     * אצלו, והוא לומד את התשובה מהיעדרה. מי שמגלה לבד שהפסיד מפסיק
+     * להגיש הצעות — וההצעות הן כל המוצר.
+     *
+     * הנוסח עובדתי ולא מנחם-מזויף: נבחר אחר, זה לא אומר דבר על ההצעה,
+     * הפיד ממשיך. כשל כאן לא מפיל את הבחירה — החיבור של הלקוח כבר
+     * נוצר, וההודעות האלה הן נימוס, לא תנאי.
+     */
+    const interested = (c.interested as { id?: string }[] | undefined) ?? [];
+    const others = interested
+      .map((l) => l?.id)
+      .filter((id): id is string => !!id && id !== lawyerId);
+    await Promise.allSettled(
+      others.map((id) =>
+        notify(id, {
+          type: "not_chosen",
+          title: "הלקוח בחר הפעם עורך דין אחר",
+          body: `הפנייה "${c.title || c.category}" נסגרה. זה לא אומר דבר על ההצעה שלך — ברוב הפניות נבחר אחד מתוך כמה טובים. הפיד שלך ממשיך להתעדכן.`,
+          titleKey: "notifNotChosenTitle",
+          bodyKey: "notifNotChosenBody",
+          params: { title: c.title || c.category },
+          caseId,
+        }),
+      ),
+    );
   }
 }
 

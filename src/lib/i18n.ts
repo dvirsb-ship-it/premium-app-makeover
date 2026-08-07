@@ -677,6 +677,16 @@ export const strings = {
   offerVatPlus: { he: "בתוספת מע״מ", en: "Plus VAT" },
   offerVatIncluded: { he: "כולל מע״מ", en: "VAT included" },
   offerNoContingencyCriminal: { he: "בהליך פלילי אסור על עורך דין להתנות שכר טרחה בתוצאות המשפט (חוק לשכת עורכי הדין), ולכן בתיק זה מוצעים תעריף שעתי או סכום קבוע בלבד.", en: "In criminal proceedings, Israeli law forbids fees contingent on the outcome, so this case accepts hourly or fixed-fee offers only." },
+  /*
+   * המשפט הפשוט מתחת לכל הצעה — מה המודל הזה באמת אומר לכיס.
+   *
+   * "13% מהפיצוי" הוא מכניקה; "משלמים רק אם מקבלים פיצוי" הוא המשמעות.
+   * הלקוח שקורא את זה לא למד משפטים, ולעיתים קרא את ההצעה חמש דקות
+   * אחרי שנפגע. משפט אחד, בלי תנאים, בלי סוגריים.
+   */
+  offerPlainContingency: { he: "משלמים רק אם מקבלים פיצוי — אחוז ממנו. לא קיבלתם, לא שילמתם.", en: "You pay only if you receive compensation — a share of it. No award, no fee." },
+  offerPlainFixed: { he: "מחיר אחד סגור לכל הטיפול, ידוע מראש — לא משנה כמה זמן ייקח.", en: "One fixed price for the whole matter, known up front — however long it takes." },
+  offerPlainHourly: { he: "תשלום לפי שעות עבודה בפועל. שווה לבקש בפגישה הערכה של היקף השעות.", en: "You pay for actual hours worked. Ask for an hours estimate at the meeting." },
   meansStagedNote: { he: "לפי האחוז עד פשרה מוקדמת; בהמשך ההליך האחוז עולה.", en: "Based on the early-settlement rate; later stages carry a higher rate." },
   offerNoWinLabel: { he: "אין זכייה — אין שכר טרחה", en: "No win, no fee" },
   offerNoWinBadge: { he: "אין זכייה — אין שכר", en: "No win, no fee" },
@@ -1116,6 +1126,9 @@ export const strings = {
   notifAppealDismissedBody: { he: "בדקנו את \"{title}\" — הוולידציה נשארת בתוקף. תודה על הערנות.", en: "We reviewed \"{title}\" — the validation stands. Thanks for flagging." },
   notifChosenTitle: { he: "לקוח בחר בך!", en: "A client chose you!" },
   notifChosenBody: { he: "נבחרת לטפל בפנייה \"{title}\" — פרטי הקשר זמינים בתיק", en: "You were chosen for \"{title}\" — contact details are in the case" },
+  /* ההודעה הקשה — ולכן היא עובדתית, קצרה, ובלי עידוד מזויף */
+  notifNotChosenTitle: { he: "הלקוח בחר הפעם עורך דין אחר", en: "The client chose another lawyer this time" },
+  notifNotChosenBody: { he: "הפנייה \"{title}\" נסגרה. זה לא אומר דבר על ההצעה שלך — ברוב הפניות נבחר אחד מתוך כמה טובים. הפיד שלך ממשיך להתעדכן.", en: "\"{title}\" is closed. It says nothing about your offer — most cases pick one of several good lawyers. Your feed keeps updating." },
   notifMsTitle_met: { he: "נפגשתם עם עורך הדין", en: "You met your lawyer" },
   notifMsBody_met: { he: "עורך הדין סימן שהפגישה התקיימה.", en: "Your lawyer marked the meeting as held." },
   notifMsTitle_demandSent: { he: "נשלח מכתב דרישה", en: "Demand letter sent" },
