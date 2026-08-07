@@ -412,16 +412,20 @@ function Welcome() {
               <span className="text-[10px] font-semibold uppercase tracking-[0.65em] text-foreground/45">
                 JustAsk
               </span>
-              <motion.div
-                aria-hidden
-                animate={{ y: [14, -14, 14] }}
-                transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                className="relative z-[2] mt-5 flex flex-col items-center gap-1"
-              >
-                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5]" />
-                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5] opacity-50" />
-                <ChevronUp className="welcome-hint-arrow size-16 stroke-[1.5] opacity-[0.33]" />
-              </motion.div>
+              <div className="welcome-hint-elevator relative z-[2] mt-5 h-48 w-16 overflow-hidden">
+                <motion.div
+                  aria-hidden
+                  animate={{ y: [0, -64] }}
+                  transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+                  className="flex flex-col items-center gap-2 will-change-transform"
+                >
+                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                  {/* שכפול סגור את הלופ: כשהעליון יוצא, הבא כבר נכנס מלמטה. */}
+                  <ChevronUp className="welcome-hint-arrow size-14 shrink-0 stroke-[1.5]" />
+                </motion.div>
+              </div>
             </div>
           </motion.div>
 
