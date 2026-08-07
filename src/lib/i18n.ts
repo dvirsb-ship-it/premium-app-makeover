@@ -956,6 +956,16 @@ export const strings = {
   lpFinalNote: { he: "מספר עורכי הדין בכל תחום מוגבל בשלב זה", en: "The number of lawyers per field is limited at this stage" },
   lpFooter: { he: "JustAsk — מחברים בין אנשים שנפגעו לעורכי הדין שיכולים לעזור להם", en: "JustAsk — connecting injured people with the lawyers who can help" },
   lpFooterRights: { he: "כל הזכויות שמורות", en: "All rights reserved" },
+  lpSpinAria: { he: "סיפור הכניסה לעורכי דין", en: "The lawyer entry story" },
+  lpSpinHint: { he: "גללו", en: "Scroll" },
+  lpSpin1Title: { he: "לא ליד. תיק שנבדק.", en: "Not a lead. A checked matter." },
+  lpSpin1Body: { he: "הפונה מספר מה קרה, המערכת בודקת אם יש עניין משפטי — ואתה מקבל את שניהם.", en: "The person describes what happened, the system checks for a legal matter — and you get both." },
+  lpSpin2Title: { he: "התזכיר המשפטי המלא", en: "The full legal memo" },
+  lpSpin2Body: { he: "עילות, יסודותיהן, התיישנות וטענות נגד — לפני שאתה מקדיש דקה אחת לתיק.", en: "Causes of action, their elements, limitation and counterarguments — before you spend a minute on the matter." },
+  lpSpin3Title: { he: "ההצעה שלך, לפני הבחירה", en: "Your proposal, before the choice" },
+  lpSpin3Body: { he: "אתה מביע עניין ומצרף הצעת שכר טרחה. הפונה בוחר — ורק אז נחשפים פרטיו.", en: "You respond and attach a fee proposal. The person chooses — and only then are their details revealed." },
+  lpSpin4Title: { he: "אימות רישיון, ואתה בפנים", en: "Verify your licence, and you're in" },
+  lpSpin4Body: { he: "רישיון, תעודת בוגר, ובדיקה מול פנקס הלשכה. חצי שנה ראשונה ללא תשלום.", en: "Licence, degree, and a check against the Bar registry. The first six months are free." },
 
   meansTitle: { he: "מה זה אומר בכסף", en: "What this means in money" },
   meansSub: {
