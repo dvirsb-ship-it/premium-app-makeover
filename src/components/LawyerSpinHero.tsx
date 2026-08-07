@@ -5,7 +5,9 @@ import {
   useScroll,
   useSpring,
   useTransform,
+  type MotionValue,
 } from "motion/react";
+
 import { ChevronUp } from "lucide-react";
 import { BrandMark } from "./BrandMark";
 import { useT } from "../lib/i18n";
