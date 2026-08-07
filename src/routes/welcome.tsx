@@ -417,7 +417,7 @@ function Welcome() {
                   className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
                 />
               </div>
-              {/* רק אצבע אחת, בצד הקו, נעה מלמטה למעלה ומכוונת את המחווה. */}
+              {/* רק אצבע אחת, גדולה ושקופה, באלכסון לצד הקו — נעה מלמטה למעלה. */}
               <motion.img
                 src={swipeFinger}
                 alt=""
@@ -425,9 +425,9 @@ function Welcome() {
                 width={672}
                 height={992}
                 loading="lazy"
-                animate={{ y: [28, -28, 28], opacity: [0, 0.72, 0] }}
+                animate={{ y: [42, -42, 42], opacity: [0, 0.38, 0] }}
                 transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute left-[calc(50%+14px)] top-1/2 h-32 w-auto -translate-y-1/2 -rotate-3 mix-blend-screen [filter:drop-shadow(0_0_18px_rgba(212,175,55,0.35))]"
+                className="absolute left-[calc(50%+12px)] top-1/2 h-44 w-auto -translate-y-1/2 rotate-[16deg] mix-blend-screen [filter:drop-shadow(0_0_22px_rgba(212,175,55,0.28))]"
               />
             </div>
           </motion.div>
