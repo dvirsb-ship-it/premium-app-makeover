@@ -4,6 +4,8 @@ import type { ReactNode } from "react";
 import { Check, Clock, FileText, MapPin, Scale, ShieldCheck, Users } from "lucide-react";
 import { BrandMark } from "../components/BrandMark";
 import { CountUp } from "../components/CountUp";
+import { LawyerSpinHero } from "../components/LawyerSpinHero";
+
 import { categoryIcon } from "../lib/category-icons";
 import { translate, useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
