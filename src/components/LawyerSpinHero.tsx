@@ -31,6 +31,18 @@ import screenVerify from "../assets/lawyers/screen-verify.png";
 
 const SHOTS = [screenFeed, screenMemo, screenOffer, screenVerify];
 
+/*
+ * נקודות המעבר בגלילה. נבחרו כך שכל החלפת מסך נופלת ברגע שהפנים כמעט
+ * ניצבות לצופה או שהגב מולו (270°, 450°, ~588°) — כך התוכן והמסך תמיד
+ * מספרים את אותו הסיפור, בלי שרואים את הרגע שבו התמונה מתחלפת.
+ */
+const ZONES: [number, number][] = [
+  [0, 0.3],
+  [0.3, 0.55],
+  [0.55, 0.78],
+  [0.78, 1],
+];
+
 const BLOCKS: { title: StringKey; body: StringKey }[] = [
   { title: "lpSpin1Title", body: "lpSpin1Body" },
   { title: "lpSpin2Title", body: "lpSpin2Body" },
@@ -60,8 +72,8 @@ export function LawyerSpinHero({ onCta }: { onCta: () => void }) {
   const glow = useTransform(p, [0, 0.4, 1], [0.35, 0.7, 1]);
   const hintOpacity = useTransform(p, [0, 0.06], [1, 0]);
 
-  useMotionValueEvent(rotateY, "change", (deg) => {
-    const next = deg >= 540 ? 3 : deg >= 360 ? 2 : deg >= 180 ? 1 : 0;
+  useMotionValueEvent(p, "change", (v) => {
+    const next = v >= 0.78 ? 3 : v >= 0.55 ? 2 : v >= 0.3 ? 1 : 0;
     setShot((prev) => (prev === next ? prev : next));
   });
 
@@ -215,8 +227,7 @@ function CopyBlock({
   onCta?: () => void;
 }) {
   const t = useT();
-  const zs = index * 0.25;
-  const ze = zs + 0.25;
+  const [zs, ze] = ZONES[index]!;
   const stops = [zs, zs + 0.05, ze - 0.06, ze];
   const opacity = useTransform(progress, stops, [0, 1, 1, 0]);
   const y = useTransform(progress, stops, [44, 0, 0, -44]);
