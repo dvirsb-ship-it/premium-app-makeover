@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<title>JustAsk — מצגת</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+/*
+ * מצגת למשקיעים — 16:9, כהה.
+ *
+ * שונה במכוון מהתדריך המשפטי, כי הקהל עושה עבודה אחרת: עורכת הדין
+ * קוראת כדי לאשר, משקיע **סורק** כדי להחליט אם להמשיך לפגישה. לכן
+ * רעיון אחד לשקופית, טיפוגרפיה גדולה, וכמעט בלי פסקאות.
+ *
+ * כהה ולא בהיר: זה המראה של המוצר עצמו (מסך הפתיחה, כרטיס המסלול),
+ * הזהב קורא עליו חזק, וצילומי המסך הבהירים קופצים ממנו.
+ *
+ * **אין שקופית "בקשה".** ההחלטה של דביר (7/8/2026): המצגת מציגה
+ * ובונה אמינות, ואינה מגייסת. שקופית סכום תיווסף בנפרד אם וכאשר.
+ */
+:root {
+  --ink: #0b1220;
+  --ink-2: #101a30;
+  --paper: #f7f5ef;
+  --dim: rgba(247, 245, 239, .62);
+  --dimmer: rgba(247, 245, 239, .38);
+  --gold: #d4af37;
+  --gold-hi: #f0d375;
+  --gold-lo: #b8912b;
+  --rule: rgba(247, 245, 239, .13);
+  --good: #4ade80;
+  --bad: #f87171;
+}
+
+@page { size: 338mm 190mm; margin: 0; }
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+body {
+  font-family: "Heebo", system-ui, -apple-system, sans-serif;
+  background: var(--ink);
+  color: var(--paper);
+  font-size: 11pt;
+  line-height: 1.6;
+}
+
+.slide {
+  position: relative;
+  width: 338mm; height: 190mm;
+  padding: 17mm 20mm;
+  overflow: hidden;
+  break-after: page;
+  display: flex; flex-direction: column;
+  background: var(--ink);
+}
+.slide:last-child { break-after: auto; }
+
+/* זוהר זהב עדין — עומק, לא קישוט. משתנה מיקום כדי שהשקופיות לא יזדהו */
+.slide::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 55% at 88% -8%, rgba(212,175,55,.13), transparent 58%);
+}
+.slide > * { position: relative; z-index: 1; }
+
+/* ---------- מסגרת ---------- */
+
+.eyebrow {
+  font-size: 8.5pt; font-weight: 800; letter-spacing: .28em;
+  color: var(--gold); margin-bottom: 6mm;
+}
+h1 { font-size: 40pt; font-weight: 900; line-height: 1.04; letter-spacing: -.03em; }
+h2 { font-size: 27pt; font-weight: 900; line-height: 1.12; letter-spacing: -.025em; }
+h3 { font-size: 13pt; font-weight: 800; }
+.lede { margin-top: 6mm; max-width: 190mm; font-size: 14pt; font-weight: 300; line-height: 1.55; color: var(--dim); }
+.gold { color: var(--gold); }
+.grow { flex: 1; }
+
+.foot {
+  margin-top: auto;
+  display: flex; justify-content: space-between; align-items: baseline;
+  padding-top: 4mm; border-top: 1px solid var(--rule);
+  font-size: 8pt; color: var(--dimmer);
+}
+
+/* ---------- שער ---------- */
+
+.cover { justify-content: center; }
+.mark { display: flex; align-items: center; gap: 11px; font-size: 17pt; font-weight: 900; }
+.mark-glyph {
+  width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px;
+  background: linear-gradient(150deg, var(--gold-hi), var(--gold-lo));
+  color: #241a05; font-size: 17pt; line-height: 1;
+}
+.cover h1 { margin-top: 16mm; font-size: 52pt; }
+.cover-tags { margin-top: 12mm; display: flex; gap: 4mm; flex-wrap: wrap; }
+.tag {
+  padding: 2mm 5mm; border-radius: 99px; border: 1px solid rgba(212,175,55,.4);
+  background: rgba(212,175,55,.08); color: var(--gold);
+  font-size: 9.5pt; font-weight: 700;
+}
+
+/* ---------- מספרים ---------- */
+
+.stats { display: flex; gap: 14mm; margin-top: auto; }
+.stat { flex: 1; }
+.stat-n {
+  font-size: 42pt; font-weight: 900; line-height: 1; letter-spacing: -.03em;
+  /*
+   * צבע אחיד ולא גרדיאנט-על-טקסט: background-clip:text נכשל ברינדור
+   * ההדפסה של Chrome והמספרים יצאו כמלבני זהב מלאים. נתפס רק בקריאת
+   * ה-PDF שנוצר — לא בדפדפן.
+   */
+  color: var(--gold-hi);
+  direction: ltr;
+}
+.stat-l { margin-top: 3mm; font-size: 10.5pt; line-height: 1.45; color: var(--dim); }
+
+/* ---------- המסע ---------- */
+
+.track { display: flex; margin-top: auto; margin-bottom: auto; }
+.node { flex: 1; position: relative; text-align: center; padding: 0 3mm; }
+.node:not(:last-child)::after {
+  content: ""; position: absolute; top: 9mm; left: -50%; width: 100%;
+  border-top: 1.5px dashed rgba(212,175,55,.4);
+}
+.node-dot {
+  position: relative; z-index: 1; width: 18mm; height: 18mm; margin: 0 auto;
+  display: grid; place-items: center; border-radius: 50%;
+  background: var(--ink-2); border: 1.5px solid rgba(212,175,55,.55);
+  font-size: 16pt; line-height: 1;
+}
+.node-dot.on { background: linear-gradient(150deg, var(--gold-hi), var(--gold-lo)); border-color: var(--gold-hi); }
+.node-t { margin-top: 4mm; font-size: 11.5pt; font-weight: 800; }
+.node-d { margin-top: 2mm; font-size: 9pt; line-height: 1.5; color: var(--dim); }
+
+/* ---------- כרטיסים ---------- */
+
+.cards { display: flex; gap: 6mm; margin-top: auto; margin-bottom: auto; }
+.card {
+  flex: 1; padding: 8mm 7mm; border-radius: 5mm;
+  background: rgba(247,245,239,.04); border: 1px solid var(--rule);
+}
+.card-i { font-size: 20pt; line-height: 1; }
+.card h3 { margin-top: 4mm; }
+.card p { margin-top: 2.5mm; font-size: 10pt; line-height: 1.55; color: var(--dim); }
+
+.two { display: flex; gap: 12mm; margin-top: auto; margin-bottom: auto; align-items: center; }
+.two > * { flex: 1; }
+
+/* ---------- טבלה ---------- */
+
+table { width: 100%; border-collapse: collapse; margin-top: 6mm; font-size: 11pt; }
+th {
+  text-align: right; padding: 0 4mm 2.5mm; font-size: 8.5pt; font-weight: 800;
+  letter-spacing: .1em; color: var(--gold); border-bottom: 1.5px solid var(--rule);
+}
+td { padding: 3.5mm 4mm; border-bottom: 1px solid rgba(247,245,239,.07); }
+tr:last-child td { border-bottom: 0; }
+td.k { font-weight: 700; width: 34%; }
+.no { color: var(--bad); font-weight: 900; }
+.yes { color: var(--good); font-weight: 900; }
+.big { font-size: 15pt; font-weight: 900; }
+
+/* ---------- רשימת סימונים ---------- */
+
+.checks { list-style: none; margin-top: 5mm; }
+.checks li { position: relative; padding-right: 9mm; margin-top: 4mm; font-size: 11.5pt; }
+.checks li::before {
+  content: "✓"; position: absolute; right: 0; top: -.5mm;
+  color: var(--gold); font-weight: 900; font-size: 12pt;
+}
+.checks small { display: block; margin-top: 1mm; font-size: 9.5pt; color: var(--dim); font-weight: 400; }
+
+/* ---------- מכשיר ---------- */
+
+.phone {
+  width: 62mm; margin: 0 auto; padding: 1mm; border-radius: 11mm;
+  /* רדיוס פנימי = חיצוני פחות עובי המסגרת (11-1=10) — אחרת העקומות לא מקבילות */
+  background: linear-gradient(168deg, #d8dae0, #9ba0aa 20%, #7e838d 50%, #9ba0aa 82%, #d8dae0);
+  box-shadow: 0 18mm 30mm -14mm rgba(0,0,0,.7);
+}
+.screen {
+  border-radius: 10mm; overflow: hidden; background: #f5f2ea;
+  padding: 7mm 3.5mm 4mm; position: relative;
+}
+.island {
+  position: absolute; top: 2.2mm; left: 50%; transform: translateX(-50%);
+  width: 15mm; height: 4mm; border-radius: 99px; background: #14171d;
+}
+.scr-head { display: flex; justify-content: space-between; align-items: baseline; }
+.scr-title { font-size: 8.5pt; font-weight: 900; color: #16223c; }
+.scr-brand { font-size: 5.5pt; font-weight: 800; letter-spacing: .16em; color: var(--gold-lo); }
+.case {
+  margin-top: 3mm; padding: 3.5mm; border-radius: 4mm; background: #fff;
+  border: 1px solid rgba(22,34,60,.07); text-align: right;
+  box-shadow: 0 2mm 5mm -3mm rgba(22,34,60,.2);
+}
+.case-cat { font-size: 5.5pt; font-weight: 800; letter-spacing: .07em; color: var(--gold-lo); }
+.case-t { margin-top: 1mm; font-size: 8pt; font-weight: 800; color: #16223c; line-height: 1.3; }
+.case-m { margin-top: 2.5mm; padding-top: 2.5mm; border-top: 1px solid rgba(22,34,60,.08); }
+.case-ml { font-size: 5.5pt; font-weight: 800; color: var(--gold-lo); }
+.case-mp { margin-top: 1mm; font-size: 6pt; line-height: 1.55; color: #5d6678; }
+
+/* ---------- ציטוט ---------- */
+
+.quote {
+  margin-top: auto; margin-bottom: auto; padding-right: 8mm;
+  border-right: 3px solid var(--gold);
+}
+.quote p { font-size: 20pt; font-weight: 300; line-height: 1.45; }
+.quote cite { display: block; margin-top: 5mm; font-size: 10pt; font-style: normal; color: var(--dim); }
+</style>
+</head>
+<body>
+
+<!-- ═══ 1 · שער ═══ -->
+<section class="slide cover">
+  <div class="mark"><span class="mark-glyph">⚖</span><span>Just<span class="gold">Ask</span></span></div>
+  <h1>לפני שפונים לעורך דין —<br /><span class="gold">לדעת אם יש תיק.</span></h1>
+  <p class="lede">
+    אדם שנפגע מספר מה קרה בשיחה. המערכת בודקת מול הדין הישראלי, כותבת תזכיר,
+    ומחברת אותו לעורך דין מאומת בתחום — רק אם יש עילה.
+  </p>
+  <div class="cover-tags">
+    <span class="tag">מוצר חי</span>
+    <span class="tag">שש שפות</span>
+    <span class="tag">iOS · Android · Web</span>
+    <span class="tag">אוגוסט 2026</span>
+  </div>
+</section>
+
+<!-- ═══ 2 · הבעיה ═══ -->
+<section class="slide">
+  <p class="eyebrow">הבעיה</p>
+  <h2>אדם שנפגע לא יודע אם יש לו תיק —<br />וזו בדיוק השאלה שעולה כסף לשאול.</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-i">🚧</div>
+      <h3>הדלת נעולה מלמעלה</h3>
+      <p>פגישת ייעוץ ראשונה עולה מאות שקלים. מי שלא בטוח שיש לו תיק פשוט לא בא — וזכות שלא נתבעת מתיישנת.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">🎲</div>
+      <h3>הבחירה היא הימור</h3>
+      <p>מי שכן פונה בוחר לפי המלצה מקרית או מודעה ממומנת. אין דרך להשוות תחום, שפה, או שכר טרחה.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">📉</div>
+      <h3>ולעורך הדין — רעש</h3>
+      <p>שיווק מביא לידים גולמיים: רובם ללא עילה, רובם לא בתחומו. הזמן היקר נשרף על סינון.</p>
+    </div>
+  </div>
+  <div class="foot"><span>JustAsk</span><span>02</span></div>
+</section>
+
+<!-- ═══ 3 · השוק ═══ -->
+<section class="slide">
+  <p class="eyebrow">השוק</p>
+  <h2>הצפיפות הגבוהה בעולם — ותחרות שרק מחריפה.</h2>
+  <p class="lede">ישראל היא המדינה עם הכי הרבה עורכי דין ביחס לאוכלוסייה. בשוק כזה, לקוח מסונן הוא הנכס הנדיר.</p>
+  <div class="stats">
+    <div class="stat">
+      <div class="stat-n">76,000</div>
+      <div class="stat-l">עורכי דין <strong>פעילים</strong> בישראל<br />(מתוך ~90,000 מורשים)</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n">1:128</div>
+      <div class="stat-l">עורך דין לכל 128 תושבים —<br />היחס הגבוה בעולם</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n">+3,000</div>
+      <div class="stat-l">עורכי דין חדשים<br />נכנסים לשוק בכל שנה</div>
+    </div>
+  </div>
+  <div class="foot"><span>מקורות: לשכת עורכי הדין · כלכליסט · lawbuzz</span><span>03</span></div>
+</section>
+
+<!-- ═══ 4 · המוצר ═══ -->
+<section class="slide">
+  <p class="eyebrow">איך זה עובד</p>
+  <h2>חמישה שלבים. ארבעה מהם אוטומטיים.</h2>
+  <div class="track">
+    <div class="node">
+      <div class="node-dot">🧍</div>
+      <div class="node-t">אדם נפגע</div>
+      <div class="node-d">נכנס בעצמו. אין פנייה יזומה אליו.</div>
+    </div>
+    <div class="node">
+      <div class="node-dot">💬</div>
+      <div class="node-t">מספר מה קרה</div>
+      <div class="node-d">שיחה מונחית בשפתו. מזהים ישירים מוסרים אוטומטית.</div>
+    </div>
+    <div class="node">
+      <div class="node-dot">⚙️</div>
+      <div class="node-t">בדיקה משפטית</div>
+      <div class="node-d">מול הדין הישראלי. תזכיר: עילה, התיישנות, מסלול.</div>
+    </div>
+    <div class="node">
+      <div class="node-dot on">✓</div>
+      <div class="node-t">הכרעה</div>
+      <div class="node-d">אין עילה — נדחה, ואינו מוצג לאיש.</div>
+    </div>
+    <div class="node">
+      <div class="node-dot">⚖️</div>
+      <div class="node-t">מגיע לעורך הדין</div>
+      <div class="node-d">רק למאומתים בתחום. בלי שם ובלי פרטי קשר.</div>
+    </div>
+  </div>
+  <div class="foot"><span>פרטי הקשר נחשפים רק אחרי שהלקוח בוחר</span><span>04</span></div>
+</section>
+
+<!-- ═══ 5 · הוכחת מוצר ═══ -->
+<section class="slide">
+  <p class="eyebrow">מצב היום</p>
+  <div class="two">
+    <div>
+      <h2>זה לא מוקאפ.<br /><span class="gold">זה רץ.</span></h2>
+      <ul class="checks">
+        <li>אפליקציה חיה באוויר
+          <small>web · PWA · iOS מקומפל · AAB חתום לאנדרואיד</small></li>
+        <li>בדיקה משפטית אמיתית
+          <small>מזהה עילה בשמה ומצטטת חוק — למשל סעיף 35 לפקודת הנזיקין</small></li>
+        <li>שש שפות מלאות
+          <small>עברית · ערבית · רוסית · אנגלית · ספרדית · צרפתית</small></li>
+        <li>אימות אנושי לכל עורך דין
+          <small>תעודת לשכה, השכלה, וסרטון שקושר את החשבון לתעודה</small></li>
+      </ul>
+    </div>
+    <div>
+      <div class="phone">
+        <div class="screen">
+          <span class="island"></span>
+          <div class="scr-head">
+            <span class="scr-title">פניות חדשות</span>
+            <span class="scr-brand">JUSTASK · PRO</span>
+          </div>
+          <div class="case">
+            <div class="case-cat">נזיקין ותאונות · התחום המרכזי שלך</div>
+            <div class="case-t">החלקה על רצפה רטובה בסופרמרקט</div>
+            <div class="case-m">
+              <div class="case-ml">התזכיר המשפטי</div>
+              <p class="case-mp">
+                עילה אפשרית ברשלנות לפי סעיף 35 לפקודת הנזיקין, ובנוסף חובת
+                זהירות מוגברת של תופס מקרקעין. ההתיישנות טרם חלפה…
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>JustAsk</span><span>05</span></div>
+</section>
+
+<!-- ═══ 6 · המודל ═══ -->
+<section class="slide">
+  <p class="eyebrow">המודל העסקי</p>
+  <h2>מנוי חודשי קבוע מעורך הדין. זהו.</h2>
+  <table>
+    <thead><tr><th>רכיב</th><th style="width:14mm"></th><th>למה</th></tr></thead>
+    <tbody>
+      <tr><td class="k">עמלה לליד</td><td><span class="no">✗</span></td><td>תשלום לפי תוצאה הופך אותנו לשותפים בתיק</td></tr>
+      <tr><td class="k">אחוז משכר טרחה</td><td><span class="no">✗</span></td><td>אין חלק בהצלחה — בשום שלב</td></tr>
+      <tr><td class="k">קידום בתשלום בפיד</td><td><span class="no">✗</span></td><td>כסף לא קונה מיקום. זו ההבטחה שמחזיקה את האמון</td></tr>
+      <tr><td class="k"><span class="big">מנוי חודשי קבוע</span></td><td><span class="yes">✓</span></td><td>על זכות השימוש בכלי — כמו פדאור ותקדין</td></tr>
+    </tbody>
+  </table>
+  <p class="lede" style="margin-top:8mm;font-size:11.5pt">
+    <strong class="gold">למה זה חשוב:</strong> המבנה נבנה כך במכוון כדי להישאר בתוך כללי לשכת עורכי הדין.
+    הכנסה צפויה וחוזרת, מנותקת לחלוטין מתוצאות משפטיות.
+  </p>
+  <div class="foot"><span>JustAsk</span><span>06</span></div>
+</section>
+
+<!-- ═══ 7 · למה ישלמו ═══ -->
+<section class="slide">
+  <p class="eyebrow">למה עורך דין ישלם</p>
+  <h2>הוא כבר משלם — הרבה יותר, על הרבה פחות.</h2>
+  <table>
+    <thead><tr><th>מה שעורך דין קונה היום</th><th>עלות חודשית</th><th>מה הוא מקבל</th></tr></thead>
+    <tbody>
+      <tr><td class="k">קידום אתרים — בסיסי</td><td dir="ltr">₪3,500–5,500</td><td>8–22 לידים <strong>גולמיים</strong></td></tr>
+      <tr><td class="k">קידום אתרים — מתקדם</td><td dir="ltr">₪6,000–9,500</td><td>יותר לידים, אותה איכות</td></tr>
+      <tr><td class="k">קידום אתרים — פרימיום</td><td dir="ltr">₪10,000–18,000</td><td>נפח. הסינון עדיין עליו</td></tr>
+      <tr>
+        <td class="k gold"><span class="big">JustAsk</span></td>
+        <td class="gold big" dir="ltr">₪490</td>
+        <td class="gold">פניות שעברו <strong>בדיקה משפטית</strong>, בתחומים שלו בלבד, עם תזכיר</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="lede" style="margin-top:7mm;font-size:11.5pt">
+    ליד גולמי אינו לקוח: בשיעור סגירה של 20%, ליד ב-₪100 הוא לקוח ב-₪500.
+    אצלנו הסינון קורה <strong>לפני</strong> שעורך הדין משקיע דקה.
+  </p>
+  <div class="foot"><span>מקורות: מחירוני קידום אתרים לעורכי דין, 2026</span><span>07</span></div>
+</section>
+
+<!-- ═══ 8 · הקול מהשטח ═══ -->
+<section class="slide">
+  <p class="eyebrow">מהשטח</p>
+  <div class="quote">
+    <p>
+      «התשלום החודשי בסדר גמור, לא יהיו בעיות.<br />
+      <span class="gold">אני משלמת היום לבזק הרבה יותר.»</span>
+    </p>
+    <cite>עורכת דין מקרקעין, אחרי שראתה את המוצר · אוגוסט 2026</cite>
+  </div>
+  <div class="foot"><span>שיחות מוקדמות עם עורכי דין מתרגלים, לפני השקה</span><span>08</span></div>
+</section>
+
+<!-- ═══ 9 · החפיר ═══ -->
+<section class="slide">
+  <p class="eyebrow">מה מגן על זה</p>
+  <h2>הקושי אינו באפליקציה. הוא במה שסביבה.</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-i">⚖️</div>
+      <h3>עמידה בכללי הלשכה</h3>
+      <p>המודל תוכנן סביב איסורי תיווך ושידול — אפס עמלה, אפס אחוז, הלקוח יוזם תמיד. מתחרה שיגיע יצטרך לפתור את זה מהתחלה.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">🔒</div>
+      <h3>ארכיטקטורת פרטיות</h3>
+      <p>מזהים ישירים מוסרים לפני עיבוד, ניתוח באזור נעוץ באיחוד האירופי, מיסוך אזורים מזהים בתמונות, מחיקה אוטומטית.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">📊</div>
+      <h3>נתוני התאמה</h3>
+      <p>כל תיק מסווג לאחד מ-21 תחומים ונבדק מול הדין. ככל שהמאגר גדל, ההתאמה והתזכירים משתפרים.</p>
+    </div>
+  </div>
+  <div class="foot"><span>JustAsk</span><span>09</span></div>
+</section>
+
+<!-- ═══ 10 · לאן ═══ -->
+<section class="slide">
+  <p class="eyebrow">לאן זה הולך</p>
+  <h2>קודם צד ההיצע. אחר כך נפח.</h2>
+  <div class="cards">
+    <div class="card">
+      <div class="card-i">1</div>
+      <h3>עכשיו — גיוס עורכי דין</h3>
+      <p>רשימת המתנה מדף נחיתה ייעודי. חצי שנה ראשונה ללא תשלום, כדי לבנות כיסוי תחומים לפני שהלקוח הראשון מגיע.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">2</div>
+      <h3>הבא — חנויות</h3>
+      <p>הגשה ל-App Store ול-Google Play. האפליקציות בנויות; נדרשים חשבונות מפתח ואישור.</p>
+    </div>
+    <div class="card">
+      <div class="card-i">3</div>
+      <h3>ואז — הכנסה</h3>
+      <p>סיום תקופת החינם, הפעלת מנויים, והרחבה לתחומים שבהם הביקוש הוכח בפועל.</p>
+    </div>
+  </div>
+  <div class="foot"><span>JustAsk</span><span>10</span></div>
+</section>
+
+<!-- ═══ 11 · סיום ═══ -->
+<section class="slide cover">
+  <div class="mark"><span class="mark-glyph">⚖</span><span>Just<span class="gold">Ask</span></span></div>
+  <h1 style="margin-top:14mm;font-size:38pt">
+    שוק עם 76,000 עורכי דין<br />
+    שנאבקים על אותם לקוחות —<br />
+    <span class="gold">ומוצר שכבר עובד.</span>
+  </h1>
+  <div class="cover-tags" style="margin-top:14mm">
+    <span class="tag">justask.co.il</span>
+    <span class="tag">justask.adv@gmail.com</span>
+  </div>
+</section>
+
+</body>
+</html>
