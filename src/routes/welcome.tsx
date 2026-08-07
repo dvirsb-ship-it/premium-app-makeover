@@ -417,14 +417,27 @@ function Welcome() {
             <span className="text-[13px] font-bold uppercase tracking-[0.4em] text-white/90 [text-shadow:0_2px_14px_rgba(0,0,0,0.8)]">
               {t("welcomeScrollHint")}
             </span>
-            <div className="relative h-24 w-px overflow-hidden bg-white/15">
+            <div className="relative h-44 w-px overflow-hidden bg-white/15">
               <motion.div
                 animate={{ y: ["260%", "-100%"] }}
-                transition={{ duration: 1.9, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-x-0 h-10 bg-gradient-to-b from-transparent via-gold to-transparent"
+                transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-x-0 h-16 bg-gradient-to-b from-transparent via-gold to-transparent"
               />
             </div>
+            {/* אצבע שקופה שנוסעת מלמטה למעלה — מדגימה את כיוון הגלילה היחיד */}
+            <motion.img
+              src={swipeFinger}
+              alt=""
+              aria-hidden
+              width={672}
+              height={992}
+              loading="lazy"
+              animate={{ y: [26, -26, 26], opacity: [0, 0.5, 0] }}
+              transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+              className="pointer-events-none -mt-6 h-24 w-auto opacity-50 mix-blend-screen [filter:drop-shadow(0_0_18px_rgba(212,175,55,0.35))]"
+            />
           </motion.div>
+
 
 
         </div>
