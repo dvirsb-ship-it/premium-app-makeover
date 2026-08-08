@@ -1,0 +1,99 @@
+<meta charset="utf-8" />
+<style>
+  /*
+   * Feature Graphic ל-Google Play — 1024×500 בדיוק.
+   *
+   * המוטיב הוא החתימה של האפליקציה: שתי דלתות כהות ותפר של אור זהב
+   * ביניהן. זה מה שהמשתמש רואה בשנייה הראשונה במסך הפתיחה, אז זה גם
+   * מה שהוא צריך לזהות בחנות — אותה תמונה, אותו רגע.
+   *
+   * התפר יושב ב-33% ולא באמצע: מרכז מדויק מחלק את הקנבס לשני חצאים
+   * שווים ומשעממים, ומשאיר לטקסט העברי צר מדי. השליש נותן לכותרת
+   * לנשום בלי לשבור מילים, וגם נראה כמו דלת שנפתחת ולא כמו קו חוצה.
+   *
+   * הטקסט רחוק מהשוליים בכוונה: גוגל חותכת את הגרפיקה הזאת ביחסים
+   * שונים לפי מיקום בחנות, ומה שקרוב לקצה נאכל.
+   */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: 1024px; height: 500px; overflow: hidden; }
+  body {
+    position: relative;
+    font-family: "Heebo", "Assistant", -apple-system, "Segoe UI", sans-serif;
+    background: #0B1120;
+    direction: rtl;
+  }
+
+  /* הדלתות — שני משטחים כהים עם שיפוע עדין שנותן להם חומר */
+  .door { position: absolute; top: 0; bottom: 0; }
+  .door.right { right: 0; left: 33%; background: linear-gradient(255deg, #17233F 0%, #0B1120 72%); }
+  .door.left  { left: 0; right: 67%; background: linear-gradient(105deg, #17233F 0%, #0B1120 82%); }
+
+  /* התפר — קו האור בין הדלתות */
+  /*
+   * שלוש שכבות ולא אחת: ליבה בהירה, זוהר צמוד, והילה רחבה. קו יחיד
+   * נקרא כשריטה אפורה על כהה — האור נבנה מהשכבות שסביבו, לא מהקו.
+   */
+  .seam {
+    position: absolute; top: 0; bottom: 0; left: 33%; width: 3px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg, transparent 0%, #FFF6DC 18%, #FFE9A8 50%, #FFF6DC 82%, transparent 100%);
+  }
+  .seam-core {
+    position: absolute; top: -6%; bottom: -6%; left: 33%; width: 54px;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(255,225,150,0.55), transparent 74%);
+    filter: blur(12px);
+  }
+  .seam-glow {
+    position: absolute; top: -14%; bottom: -14%; left: 33%; width: 300px;
+    transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(212,175,55,0.42), transparent 72%);
+    filter: blur(46px);
+  }
+
+  /* הילה חמה מלמעלה — אותו אור שיש באפליקציה עצמה */
+  .aura {
+    position: absolute; inset: 0;
+    background: radial-gradient(120% 82% at 62% -14%, rgba(212,175,55,0.13), transparent 56%);
+  }
+
+  .copy {
+    position: absolute; z-index: 2;
+    right: 72px; top: 50%; transform: translateY(-50%);
+    width: 560px;
+  }
+  .wordmark {
+    font-size: 14px; font-weight: 700; letter-spacing: 0.44em;
+    color: #D4AF37; text-transform: uppercase;
+  }
+  h1 {
+    margin-top: 22px;
+    font-size: 46px; font-weight: 800; line-height: 1.2;
+    letter-spacing: -0.02em; color: #FFFFFF;
+    white-space: nowrap;                 /* שובר רק היכן שכתבתי <br>, לא באמצע מילה */
+  }
+  h1 .gold { color: #E9C96A; }
+  p {
+    margin-top: 20px;
+    font-size: 19px; line-height: 1.6; font-weight: 400;
+    color: rgba(255,255,255,0.60);
+  }
+  .rule {
+    margin-top: 24px; width: 64px; height: 2px; border-radius: 2px;
+    background: linear-gradient(90deg, rgba(212,175,55,0.05), #D4AF37);
+  }
+</style>
+
+<div class="door right"></div>
+<div class="door left"></div>
+<div class="aura"></div>
+<div class="seam-glow"></div>
+<div class="seam-core"></div>
+<div class="seam"></div>
+
+<div class="copy">
+  <div class="wordmark">JustAsk</div>
+  <h1>מתארים את המקרה.<br /><span class="gold">עורכי הדין פונים אליכם.</span></h1>
+  <p>בודקים אם יש עילה משפטית, ומתחברים לעורך דין מתאים.<br />בלי עלות, בלי התחייבות.</p>
+  <div class="rule"></div>
+</div>
