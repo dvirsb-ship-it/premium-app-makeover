@@ -194,7 +194,22 @@ function ClientHome() {
           * זהב. עד עכשיו לצד עורך הדין הייתה שפה ולצד הלקוח היו רק
           * כרטיסים — וזה נקרא כשתי אפליקציות.
           */}
-        <header className="flex items-start justify-between gap-3 pb-4 pt-9">
+        {/*
+          * אזור הכותרת מובדל משאר הדאשבורד (9/8/2026).
+          *
+          * קו שיער לרוחב מלא + צל לחישה מתחתיו. ה-`-mx-5 px-5` מבטל את
+          * הריפוד של AppShell כדי שהקו יימתח מקצה לקצה; בלעדיו הוא נגמר
+          * באוויר ונקרא כקישוט ולא כהפרדה.
+          *
+          * בלי מילוי כהה — כרטיס המסלול הוא הדבר הכהה היחיד בעמוד וזה כל
+          * כוחו; כותרת כהה מעליו הייתה יוצרת שני מוקדים ומבטלת את שניהם.
+          *
+          * **בלי `sticky`, בכוונה.** ל-AppShell יש `overflow-hidden`, שהופך
+          * אותו למכל־גלילה ומנטרל כל `position: sticky` שבתוכו — נמדד
+          * בדפדפן: נבדק top‏ 0 → ‎-720 בגלילה. לשלוח כאן `sticky` היה
+          * לשלוח קוד מת שנראה מכוון. אותו כלל תקף ל-lawyer.tsx.
+          */}
+        <header className="-mx-5 flex items-start justify-between gap-3 border-b border-border px-5 pb-4 pt-9 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
           <div className="min-w-0">
             <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
               {t(greetKey)}

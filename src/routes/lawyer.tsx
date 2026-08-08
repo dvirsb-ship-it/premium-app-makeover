@@ -151,7 +151,11 @@ function LawyerFeed() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="flex items-center justify-between pt-6"
+        /*
+         * אותה הפרדה בדיוק כמו בבית של הלקוח — קו אחד לשני הצדדים.
+         * ההנמקה המלאה, כולל למה אין כאן `sticky`, נמצאת ב-index.tsx.
+         */
+        className="-mx-5 flex items-center justify-between border-b border-border px-5 pb-4 pt-6 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]"
       >
         <div>
           <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">

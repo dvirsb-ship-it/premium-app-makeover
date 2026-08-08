@@ -405,11 +405,22 @@ function Welcome() {
             style={{ opacity: hintFade }}
             className="pointer-events-none absolute inset-x-0 top-[58%] z-10 flex -translate-y-1/2 flex-col items-center gap-5"
           >
-            <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-foreground/90 [text-shadow:0_2px_14px_oklch(0_0_0_/_0.8)]">
+            {/*
+             * לבן מפורש, לא `text-foreground` (7/8/2026).
+             *
+             * `--foreground` הוא טוקן שמתהפך עם ערכת הנושא: כהה במצב
+             * בהיר, בהיר במצב כהה. מסך הדלתות כהה **תמיד** — הוא תמונה
+             * ולא משטח נושא — ולכן במכשיר במצב בהיר הטקסט נצבע כהה על
+             * רקע כהה ופשוט נעלם. זה מה שקרה בטלפון של דביר.
+             *
+             * **הכלל למסך הזה:** צבעים מפורשים בלבד. כל טוקן שמתהפך
+             * ייעלם באחת משתי ערכות הנושא.
+             */}
+            <span className="text-[13px] font-bold uppercase tracking-[0.32em] text-white/90 [text-shadow:0_2px_14px_oklch(0_0_0_/_0.8)]">
               {t("welcomeScrollHint")}
             </span>
             <div className="relative flex w-32 flex-col items-center">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.65em] text-foreground/45">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.65em] text-white/45">
                 JustAsk
               </span>
               <div className="welcome-hint-elevator relative z-[2] mt-5 h-48 w-16 overflow-hidden">
