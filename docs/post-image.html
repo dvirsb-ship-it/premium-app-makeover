@@ -1,0 +1,67 @@
+<meta charset="utf-8" />
+<style>
+  /*
+   * תמונה לפוסט — 1200×627, המידה של לינקדאין ופייסבוק.
+   *
+   * הכלל היחיד שקובע כאן: **זה נקרא בגודל אגודל בפיד נגלל.** לכן משפט
+   * אחד גדול ולא פסקה, ניגוד חזק, ואפס פרטים קטנים. מי שעוצר יקרא את
+   * השורה הקטנה; מי שלא — עדיין קלט את המסר.
+   *
+   * המשפט הוא ההיפוך עצמו: המודל הקיים הוא רדיפה, שלנו הוא בחירה.
+   * ההדגשה בזהב נופלת על "בוחרים בך" כי זו כל הטענה.
+   */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1200px; height:627px; overflow:hidden; }
+  body {
+    position:relative; background:#0B1120; direction:rtl;
+    font-family:"Heebo","Assistant",-apple-system,"Segoe UI",sans-serif;
+    display:flex; align-items:center;
+  }
+  .door { position:absolute; top:0; bottom:0; }
+  .door.r { right:0; left:30%; background:linear-gradient(255deg,#17233F 0%,#0B1120 74%); }
+  .door.l { left:0; right:70%;  background:linear-gradient(105deg,#17233F 0%,#0B1120 84%); }
+  .glow {
+    position:absolute; top:-14%; bottom:-14%; left:30%; width:340px;
+    transform:translateX(-50%); filter:blur(52px);
+    background:radial-gradient(closest-side, rgba(212,175,55,0.40), transparent 72%);
+  }
+  .core {
+    position:absolute; top:-6%; bottom:-6%; left:30%; width:60px;
+    transform:translateX(-50%); filter:blur(13px);
+    background:radial-gradient(closest-side, rgba(255,225,150,0.52), transparent 74%);
+  }
+  .seam {
+    position:absolute; top:0; bottom:0; left:30%; width:3px; transform:translateX(-50%);
+    background:linear-gradient(180deg,transparent 0%,#FFF6DC 18%,#FFE9A8 50%,#FFF6DC 82%,transparent 100%);
+  }
+  .aura {
+    position:absolute; inset:0;
+    background:radial-gradient(120% 82% at 64% -14%, rgba(212,175,55,0.13), transparent 56%);
+  }
+  .copy { position:absolute; z-index:2; right:80px; top:50%; transform:translateY(-50%); width:640px; }
+  .mark { font:700 15px system-ui; letter-spacing:.44em; color:#D4AF37; text-transform:uppercase; }
+  h1 {
+    margin-top:26px; font-size:60px; font-weight:800; line-height:1.18;
+    letter-spacing:-.022em; color:#FFFFFF; white-space:nowrap;
+  }
+  h1 .g { color:#E9C96A; }
+  .strike { color:rgba(255,255,255,.42); text-decoration:line-through; text-decoration-thickness:3px; }
+  .foot {
+    margin-top:34px; display:inline-flex; align-items:center; gap:14px;
+    border:1px solid rgba(212,175,55,.42); border-radius:999px; padding:11px 22px;
+    font:700 19px system-ui; color:#F1E4C3;
+  }
+  .dot { width:8px; height:8px; border-radius:99px; background:#D4AF37; }
+</style>
+
+<div class="door r"></div><div class="door l"></div><div class="aura"></div>
+<div class="glow"></div><div class="core"></div><div class="seam"></div>
+
+<div class="copy">
+  <div class="mark">JustAsk</div>
+  <h1>
+    <span class="strike">אתה רודף אחרי לקוחות.</span><br />
+    <span class="g">הם בוחרים בך.</span>
+  </h1>
+  <div class="foot"><span class="dot"></span>200 הראשונים · חצי שנה ללא תשלום</div>
+</div>
