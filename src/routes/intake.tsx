@@ -416,14 +416,27 @@ function Intake() {
   return (
     <AppShell bare>
       <div className="relative flex min-h-screen flex-col">
-        {/* Ambient glass aura specific to the intake stage */}
+        {/*
+          * מקור אור אחד, מלמעלה (9/8/2026).
+          *
+          * כאן ישבו שלוש הילות — זהב למעלה, כחול משמאל-למטה וזהב מימין-למטה
+          * — **מעל** שתי ההילות ש-AppShell כבר מצייר. חמישה מקורות אור על
+          * מסך אחד, ולכן במצב בהיר נראה כחול משמאל וקרם מימין באותו גובה.
+          * זה לא נקרא כחדר מואר אלא כתקלת רינדור, וזה מה שהרס את הרקע
+          * שמתחת לטקסט של ה-AI.
+          *
+          * אור בחלל אמיתי מגיע מכיוון אחד. השוויתי שלוש אפשרויות בדפדפן:
+          * בלי הילות מקומיות המסך נקי אבל קר וקליני מדי לשיחה שאדם פותח
+          * אחרי שנפגע; זהב אחד מלמעלה נותן חום בלי ללכלך את השטח שמתחתיו.
+          *
+          * ההילות התחתונות לא הוחלפו במשהו — הן פשוט מיותרות. ל-AppShell
+          * כבר יש כחול מלמטה, והן רק הכפילו אותו במקום אחר.
+          */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
         >
           <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-gold/20 blur-3xl" />
-          <div className="absolute bottom-0 -left-16 h-64 w-64 rounded-full bg-[color:oklch(0.55_0.15_260/0.25)] blur-3xl" />
-          <div className="absolute bottom-24 -right-16 h-64 w-64 rounded-full bg-gold/10 blur-3xl" />
         </div>
 
         <div className="relative z-10 flex min-h-screen flex-col">
