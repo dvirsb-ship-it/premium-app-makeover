@@ -319,6 +319,46 @@ describe("הבעת עניין והצעות", () => {
     );
   });
 
+  it("תיק מלא אינו מקבל הצעה נוספת — תקרת MAX_OFFERS_PER_CASE", async () => {
+    /*
+     * התקרה נבדקת כאן ולא רק במסך: הבעת עניין היא כתיבה ישירה
+     * ל-Firestore, ולכן בדיקה בקוד הלקוח בלבד היא בקשה ולא מגבלה.
+     */
+    const ten = Array.from({ length: 10 }, (_, i) => `l${i}`);
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), "cases/openCase"), {
+        status: "has_interest",
+        interested: ten.map((id) => ({ id })),
+        interestedIds: ten,
+      });
+    });
+    await assertFails(
+      updateDoc(doc(as("lawyerOk"), "cases/openCase"), {
+        status: "has_interest",
+        interested: [...ten.map((id) => ({ id })), { id: "lawyerOk" }],
+        interestedIds: [...ten, "lawyerOk"],
+      }),
+    );
+  });
+
+  it("התיק העשירי עדיין נכנס — הגבול הוא 10 ולא 9", async () => {
+    const nine = Array.from({ length: 9 }, (_, i) => `l${i}`);
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await updateDoc(doc(ctx.firestore(), "cases/openCase"), {
+        status: "has_interest",
+        interested: nine.map((id) => ({ id })),
+        interestedIds: nine,
+      });
+    });
+    await assertSucceeds(
+      updateDoc(doc(as("lawyerOk"), "cases/openCase"), {
+        status: "has_interest",
+        interested: [...nine.map((id) => ({ id })), { id: "lawyerOk" }],
+        interestedIds: [...nine, "lawyerOk"],
+      }),
+    );
+  });
+
   it("רשימת המתעניינים אינה יכולה להתכווץ", async () => {
     await assertFails(
       updateDoc(doc(as("lawyerOk"), "cases/openCase"), {

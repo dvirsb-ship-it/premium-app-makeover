@@ -23,6 +23,7 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, ref as storageRef, uploadBytes } from "firebase/storage";
 import { fbDb, fbStorage } from "./firebase";
+import { MAX_OFFERS_PER_CASE } from "./limits";
 import { stripContactInfo } from "./privacy";
 import type { Case, CaseOffer, CaseStatus, FeedCase, Lawyer, Role } from "./types";
 
@@ -309,7 +310,20 @@ export function watchLawyerFeed(
           "זה הרגע לעבור לסינון תחום בשרת.",
       );
     }
-    cb(docs.map((d) => toFeedCase(d.id, d.data, myUid)));
+    /*
+     * תיק שמלא בהצעות יורד מהפיד — אבל לא ממי שכבר הגיש עליו.
+     *
+     * להציג תיק שאי אפשר להגיש עליו זה להבטיח עבודה ואז לחסום אותה
+     * בלחיצה; עורך דין שקורא תיק שלם ואז נחסם מפסיד את הזמן היקר
+     * ביותר שיש לו. מי שכבר הביע עניין ממשיך לראות אותו, כי הוא עדיין
+     * ממתין לתשובת הלקוח.
+     */
+    const visible = docs.filter(
+      (d) =>
+        (d.data.interestedIds ?? []).length < MAX_OFFERS_PER_CASE ||
+        (d.data.interestedIds ?? []).includes(myUid),
+    );
+    cb(visible.map((d) => toFeedCase(d.id, d.data, myUid)));
   }, (err) => {
     cb([]);
     onError?.(err);
@@ -465,6 +479,16 @@ export async function expressInterestDb(
     ...(offer.retainer ? { retainer: offer.retainer } : {}),
   };
   const hasOffer = !!clean && clean.amount > 0;
+  /*
+   * התיק מלא? — נבדק לפני הכתיבה כדי שעורך הדין יקבל הודעה מובנת
+   * במקום "permission denied" מהחוקים. החוקים הם עדיין האכיפה
+   * האמיתית (ראו firestore.rules); זו שכבת האדיבות בלבד.
+   */
+  const snap = await getDoc(doc(fbDb(), "cases", caseId));
+  const already = ((snap.data()?.interestedIds as string[] | undefined) ?? []);
+  if (!already.includes(lawyer.uid) && already.length >= MAX_OFFERS_PER_CASE) {
+    throw new Error("CASE_FULL");
+  }
   await updateDoc(doc(fbDb(), "cases", caseId), {
     interestedIds: arrayUnion(lawyer.uid),
     interested: arrayUnion(lawyer.profile),

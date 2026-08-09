@@ -460,6 +460,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   proLaunchFree: "Pendant le lancement — tout est inclus, gratuitement",
   proLaunchFreeSub: "Il n'y a rien à acheter pour l'instant : toutes les fonctionnalités sont ouvertes à chaque avocat vérifié. Nous préviendrons à l'avance avant l'entrée en vigueur d'un abonnement.",
   actionFailedRetry: "L'action n'a pas été enregistrée. Vérifiez votre connexion et réessayez.",
+  caseFullToast: "Ce dossier a atteint sa limite de propositions. Vous serez notifié dès qu'un nouveau dossier ouvrira dans vos domaines.",
   homeHello: "Bonjour",
   homeHelloNamed: "Bonjour, {name}",
   homeSub: "Vos dossiers, en un seul endroit",

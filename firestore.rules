@@ -98,6 +98,14 @@ service cloud.firestore {
                .hasOnly(['interested', 'interestedIds', 'status', 'offers'])
           && request.resource.data.interestedIds.hasAll(resource.data.interestedIds)
           && request.resource.data.interested.size() >= resource.data.interested.size()
+          /*
+           * תקרת ההצעות — MAX_OFFERS_PER_CASE ב-src/lib/limits.ts (10).
+           * נאכפת כאן ולא רק במסך: הבעת עניין היא כתיבה ישירה מהלקוח
+           * ל-Firestore, כך שבדיקה במסך בלבד היא בקשה ולא מגבלה.
+           * התנאי על *התוצאה* ולא על המצב הקודם — שתי הבעות עניין
+           * במקביל אינן יכולות שתיהן לעבור את הגבול.
+           */
+          && request.resource.data.interestedIds.size() <= 10
           // הצעות של אחרים אינן ניתנות לעריכה או למחיקה
           && (
             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['offers'])

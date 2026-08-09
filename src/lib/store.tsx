@@ -479,7 +479,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         languages: myLawyerProfile?.languages ?? [],
       };
       // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
-      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch(() => {
+      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch((err) => {
         setFeed((prev) =>
           prev.map((f) =>
             f.id === feedId
@@ -487,7 +487,13 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
               : f,
           ),
         );
-        toast.error(translate("actionFailedRetry", uiLang()));
+        /*
+         * "התיק התמלא" אינו תקלה — זה מרוץ שהוא הפסיד בשניות, וההודעה
+         * חייבת לומר את זה. "נסו שוב" כאן היה שולח אותו ללחוץ שוב על
+         * דבר שלעולם לא יצליח.
+         */
+        const full = err instanceof Error && err.message === "CASE_FULL";
+        toast.error(translate(full ? "caseFullToast" : "actionFailedRetry", uiLang()));
       });
     },
     [user, myLawyerProfile],
