@@ -3,65 +3,81 @@
   /*
    * תמונה לפוסט — 1200×627, המידה של לינקדאין ופייסבוק.
    *
-   * הכלל היחיד שקובע כאן: **זה נקרא בגודל אגודל בפיד נגלל.** לכן משפט
-   * אחד גדול ולא פסקה, ניגוד חזק, ואפס פרטים קטנים. מי שעוצר יקרא את
-   * השורה הקטנה; מי שלא — עדיין קלט את המסר.
+   * הגרסה הראשונה הייתה סיסמה עם קו חוצה ("אתה רודף אחרי לקוחות"), וזה
+   * נקרא כפרסומת. עורך דין מסנן פרסומת בשנייה. אז במקום טענה — **הסבר**:
+   * שלושת השלבים של המוצר, בשורה, כמו שהם באמת קורים.
    *
-   * המשפט הוא ההיפוך עצמו: המודל הקיים הוא רדיפה, שלנו הוא בחירה.
-   * ההדגשה בזהב נופלת על "בוחרים בך" כי זו כל הטענה.
+   * מי שרואה את זה בפיד מבין תוך שנייה מה המוצר עושה, וזה כל התפקיד.
+   * ההבלטה היחידה נופלת על "הוא בוחר", כי זו הנקודה שבה זה שונה מהקיים.
    */
   * { margin:0; padding:0; box-sizing:border-box; }
   html, body { width:1200px; height:627px; overflow:hidden; }
   body {
     position:relative; background:#0B1120; direction:rtl;
     font-family:"Heebo","Assistant",-apple-system,"Segoe UI",sans-serif;
-    display:flex; align-items:center;
   }
-  .door { position:absolute; top:0; bottom:0; }
-  .door.r { right:0; left:30%; background:linear-gradient(255deg,#17233F 0%,#0B1120 74%); }
-  .door.l { left:0; right:70%;  background:linear-gradient(105deg,#17233F 0%,#0B1120 84%); }
-  .glow {
-    position:absolute; top:-14%; bottom:-14%; left:30%; width:340px;
-    transform:translateX(-50%); filter:blur(52px);
-    background:radial-gradient(closest-side, rgba(212,175,55,0.40), transparent 72%);
+  /* אור המותג — אותה הילה חמה מלמעלה שיש באפליקציה עצמה, plus קו זהב
+     בקצה העליון. בלעדיהם התמונה נקראת ככרטיס כהה גנרי של מישהו אחר. */
+  .aura { position:absolute; inset:0;
+    background:
+      radial-gradient(120% 90% at 76% -22%, rgba(212,175,55,0.20), transparent 56%),
+      radial-gradient(90% 70% at 8% 118%, rgba(56,89,168,0.20), transparent 60%); }
+  .topline {
+    position:absolute; top:0; left:0; right:0; height:3px;
+    background:linear-gradient(90deg, transparent 0%, #D4AF37 26%, #F1E4C3 52%, #D4AF37 74%, transparent 100%);
   }
-  .core {
-    position:absolute; top:-6%; bottom:-6%; left:30%; width:60px;
-    transform:translateX(-50%); filter:blur(13px);
-    background:radial-gradient(closest-side, rgba(255,225,150,0.52), transparent 74%);
+  .wrap { position:relative; z-index:2; height:100%; display:flex; flex-direction:column;
+          justify-content:center; padding:0 78px; }
+  .mark { font:700 14px system-ui; letter-spacing:.44em; color:#D4AF37; text-transform:uppercase; }
+
+  .steps { margin-top:46px; display:flex; align-items:stretch; gap:0; }
+  .step { flex:1; padding-inline-end:34px; }
+  .step + .step { padding-inline-start:34px; border-inline-start:1px solid rgba(255,255,255,.10); }
+  .n {
+    display:grid; place-items:center; width:34px; height:34px; border-radius:99px;
+    font:800 14px system-ui; color:#0B1120;
+    background:linear-gradient(#F1E4C3,#D4AF37);
   }
-  .seam {
-    position:absolute; top:0; bottom:0; left:30%; width:3px; transform:translateX(-50%);
-    background:linear-gradient(180deg,transparent 0%,#FFF6DC 18%,#FFE9A8 50%,#FFF6DC 82%,transparent 100%);
-  }
-  .aura {
-    position:absolute; inset:0;
-    background:radial-gradient(120% 82% at 64% -14%, rgba(212,175,55,0.13), transparent 56%);
-  }
-  .copy { position:absolute; z-index:2; right:80px; top:50%; transform:translateY(-50%); width:640px; }
-  .mark { font:700 15px system-ui; letter-spacing:.44em; color:#D4AF37; text-transform:uppercase; }
-  h1 {
-    margin-top:26px; font-size:60px; font-weight:800; line-height:1.18;
-    letter-spacing:-.022em; color:#FFFFFF; white-space:nowrap;
-  }
-  h1 .g { color:#E9C96A; }
-  .strike { color:rgba(255,255,255,.42); text-decoration:line-through; text-decoration-thickness:3px; }
+  .step.last .n { background:none; color:#E9C96A; box-shadow:inset 0 0 0 1.5px rgba(212,175,55,.6); }
+  .t { margin-top:18px; font:700 29px/1.34 system-ui; color:#FFFFFF; letter-spacing:-.01em; }
+  .step.last .t { color:#E9C96A; }
+  .s { margin-top:11px; font:400 17px/1.55 system-ui; color:rgba(255,255,255,.55); }
+
   .foot {
-    margin-top:34px; display:inline-flex; align-items:center; gap:14px;
-    border:1px solid rgba(212,175,55,.42); border-radius:999px; padding:11px 22px;
-    font:700 19px system-ui; color:#F1E4C3;
+    margin-top:50px; display:flex; align-items:center; gap:16px;
+    font:400 17px system-ui; color:rgba(255,255,255,.52);
   }
-  .dot { width:8px; height:8px; border-radius:99px; background:#D4AF37; }
+  .pill {
+    border:1px solid rgba(212,175,55,.40); border-radius:999px; padding:10px 20px;
+    font:700 17px system-ui; color:#F1E4C3;
+  }
 </style>
 
-<div class="door r"></div><div class="door l"></div><div class="aura"></div>
-<div class="glow"></div><div class="core"></div><div class="seam"></div>
-
-<div class="copy">
+<div class="aura"></div>
+<div class="topline"></div>
+<div class="wrap">
   <div class="mark">JustAsk</div>
-  <h1>
-    <span class="strike">אתה רודף אחרי לקוחות.</span><br />
-    <span class="g">הם בוחרים בך.</span>
-  </h1>
-  <div class="foot"><span class="dot"></span>200 הראשונים · חצי שנה ללא תשלום</div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="n">1</div>
+      <div class="t">הלקוח כותב<br />את המקרה</div>
+      <div class="s">מגיע אליך כתיק מסודר, בלי פרטים מזהים</div>
+    </div>
+    <div class="step">
+      <div class="n">2</div>
+      <div class="t">אתה מחליט<br />אם זה רלוונטי</div>
+      <div class="s">מגיש הצעה עם התנאים שלך, או מדלג</div>
+    </div>
+    <div class="step last">
+      <div class="n">3</div>
+      <div class="t">הוא משווה<br />ובוחר</div>
+      <div class="s">משלמים רק כשלקוח בחר בך</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span class="pill">200 עורכי הדין הראשונים</span>
+    <span>חצי שנה ללא תשלום, מיום אישור האימות</span>
+  </div>
 </div>
