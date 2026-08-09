@@ -199,9 +199,18 @@ function WhatItMeans({
               key={lawyer.id}
               className="flex items-center gap-2.5 rounded-2xl bg-foreground/[0.04] px-3 py-2.5"
             >
-              <span className="chip-gold grid size-7 shrink-0 place-items-center rounded-full text-[10px] font-black">
-                {lawyer.initials}
-              </span>
+              {/* פנים ולא ראשי תיבות — זה הרגע שבו הלקוח משווה ובוחר */}
+              {lawyer.photoUrl ? (
+                <img
+                  src={lawyer.photoUrl}
+                  alt=""
+                  className="size-7 shrink-0 rounded-full object-cover ring-1 ring-gold/40"
+                />
+              ) : (
+                <span className="chip-navy grid size-7 shrink-0 place-items-center rounded-full text-[10px] font-black">
+                  {lawyer.initials}
+                </span>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-[12.5px] text-foreground">
                   <span className="text-muted-foreground">{t("meansFee")} </span>

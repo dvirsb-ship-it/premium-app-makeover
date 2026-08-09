@@ -27,6 +27,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as SettingsTermsRouteImport } from './routes/settings.terms'
 import { Route as SettingsSpecialtiesRouteImport } from './routes/settings.specialties'
 import { Route as SettingsPrivacyRouteImport } from './routes/settings.privacy'
+import { Route as SettingsPresentationRouteImport } from './routes/settings.presentation'
 import { Route as SettingsNotificationsRouteImport } from './routes/settings.notifications'
 import { Route as SettingsHelpRouteImport } from './routes/settings.help'
 import { Route as SettingsAccessibilityRouteImport } from './routes/settings.accessibility'
@@ -125,6 +126,11 @@ const SettingsPrivacyRoute = SettingsPrivacyRouteImport.update({
   path: '/settings/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SettingsPresentationRoute = SettingsPresentationRouteImport.update({
+  id: '/settings/presentation',
+  path: '/settings/presentation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsNotificationsRoute = SettingsNotificationsRouteImport.update({
   id: '/settings/notifications',
   path: '/settings/notifications',
@@ -184,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/presentation': typeof SettingsPresentationRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
@@ -211,6 +218,7 @@ export interface FileRoutesByTo {
   '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/presentation': typeof SettingsPresentationRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
@@ -239,6 +247,7 @@ export interface FileRoutesById {
   '/settings/accessibility': typeof SettingsAccessibilityRoute
   '/settings/help': typeof SettingsHelpRoute
   '/settings/notifications': typeof SettingsNotificationsRoute
+  '/settings/presentation': typeof SettingsPresentationRoute
   '/settings/privacy': typeof SettingsPrivacyRoute
   '/settings/specialties': typeof SettingsSpecialtiesRoute
   '/settings/terms': typeof SettingsTermsRoute
@@ -268,6 +277,7 @@ export interface FileRouteTypes {
     | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
+    | '/settings/presentation'
     | '/settings/privacy'
     | '/settings/specialties'
     | '/settings/terms'
@@ -295,6 +305,7 @@ export interface FileRouteTypes {
     | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
+    | '/settings/presentation'
     | '/settings/privacy'
     | '/settings/specialties'
     | '/settings/terms'
@@ -322,6 +333,7 @@ export interface FileRouteTypes {
     | '/settings/accessibility'
     | '/settings/help'
     | '/settings/notifications'
+    | '/settings/presentation'
     | '/settings/privacy'
     | '/settings/specialties'
     | '/settings/terms'
@@ -350,6 +362,7 @@ export interface RootRouteChildren {
   SettingsAccessibilityRoute: typeof SettingsAccessibilityRoute
   SettingsHelpRoute: typeof SettingsHelpRoute
   SettingsNotificationsRoute: typeof SettingsNotificationsRoute
+  SettingsPresentationRoute: typeof SettingsPresentationRoute
   SettingsPrivacyRoute: typeof SettingsPrivacyRoute
   SettingsSpecialtiesRoute: typeof SettingsSpecialtiesRoute
   SettingsTermsRoute: typeof SettingsTermsRoute
@@ -483,6 +496,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsPrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/settings/presentation': {
+      id: '/settings/presentation'
+      path: '/settings/presentation'
+      fullPath: '/settings/presentation'
+      preLoaderRoute: typeof SettingsPresentationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings/notifications': {
       id: '/settings/notifications'
       path: '/settings/notifications'
@@ -558,6 +578,7 @@ const rootRouteChildren: RootRouteChildren = {
   SettingsAccessibilityRoute: SettingsAccessibilityRoute,
   SettingsHelpRoute: SettingsHelpRoute,
   SettingsNotificationsRoute: SettingsNotificationsRoute,
+  SettingsPresentationRoute: SettingsPresentationRoute,
   SettingsPrivacyRoute: SettingsPrivacyRoute,
   SettingsSpecialtiesRoute: SettingsSpecialtiesRoute,
   SettingsTermsRoute: SettingsTermsRoute,

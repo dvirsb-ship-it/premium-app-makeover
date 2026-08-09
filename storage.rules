@@ -33,6 +33,25 @@ service firebase.storage {
         && request.resource.size < 80 * 1024 * 1024;
     }
 
+    /*
+     * תמונת פרופיל של עו"ד — הוא מעלה, וכל משתמש מחובר רואה.
+     *
+     * הקריאה פתוחה בכוונה, בניגוד לכל שאר הדליים כאן: זו התמונה שהלקוח
+     * רואה בהצעה כשהוא בוחר, והוא אינו קשור לעורך הדין בשלב הזה. זו גם
+     * היחידה מבין התמונות שהמשתמש עצמו בחר לפרסם — כל השאר הן תיעוד של
+     * אירוע שקרה לאדם.
+     *
+     * תמונות בלבד (בלי PDF): קובץ HTML בדלי מוגש חזרה כ-HTML מדומיין
+     * ה-Storage, וזה XSS מאוחסן. 4MB מספיק לאווטאר בכל רזולוציה.
+     */
+    match /lawyer-photos/{uid}/{fileName} {
+      allow write: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.size < 4 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow read: if request.auth != null;
+    }
+
     // מסמכי תיק שהלקוח מעלה — רק בעל החשבון
     match /case-files/{uid}/{fileName=**} {
       allow write: if request.auth != null

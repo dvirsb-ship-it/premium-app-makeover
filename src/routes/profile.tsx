@@ -14,6 +14,7 @@ import {
   Shield,
   ShieldCheck,
   Sun,
+  UserRound,
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -181,6 +182,33 @@ function Profile() {
               <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
             </button>
           </Rise>
+
+          {/*
+            * הצגה עצמית — לעורכי דין בלבד, וגבוה ברשימה בכוונה.
+            * זה המסך היחיד כאן שמשפיע ישירות על אם ייבחר.
+            */}
+          {role === "lawyer" && (
+            <Rise>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/settings/presentation" })}
+                className="liquid-glass flex w-full items-center gap-3 rounded-3xl p-4 text-start transition active:scale-[0.99]"
+              >
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold-ink">
+                  <UserRound className="size-5" />
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-bold text-foreground">
+                    {t("presentationTitle")}
+                  </span>
+                  <span className="block text-[11px] text-muted-foreground">
+                    {t("presentationSub")}
+                  </span>
+                </span>
+                <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
+              </button>
+            </Rise>
+          )}
 
           {isAdminUser(user) && (
             <Rise>

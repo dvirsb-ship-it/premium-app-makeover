@@ -613,6 +613,17 @@ export const strings = {
   proLaunchFree: { he: "בתקופת ההשקה — הכול כלול, בחינם", en: "During launch — everything included, free" },
   proLaunchFreeSub: { he: "אין כרגע מה לרכוש: כל התכונות פתוחות לכל עורך דין מאומת. נעדכן מראש לפני שמנוי ייכנס לתוקף.", en: "There is nothing to buy right now — every feature is open to all verified lawyers. We'll give notice before any subscription starts." },
   actionFailedRetry: { he: "הפעולה לא נשמרה. בדקו את החיבור ונסו שוב.", en: "That didn't save. Check your connection and try again." },
+  presentationTitle: { he: "איך אתם מוצגים", en: "How you appear" },
+  presentationSub: { he: "תמונה ומשפט קצר — זה מה שהלקוח רואה בהצעה", en: "Photo and a short line — what clients see on your offer" },
+  photoLabel: { he: "תמונת פרופיל", en: "Profile photo" },
+  photoHelp: { he: "תמונה אמיתית שלכם. לקוח בוחר בין כמה הצעות, ופנים מוכרות עושות את ההבדל.", en: "A real photo of you. Clients compare several offers, and a face makes the difference." },
+  photoUpload: { he: "העלאת תמונה", en: "Upload photo" },
+  photoReplace: { he: "החלפת תמונה", en: "Replace photo" },
+  photoRemove: { he: "הסרת התמונה", en: "Remove photo" },
+  photoTooLarge: { he: "התמונה גדולה מדי — עד 4MB.", en: "That image is too large — 4MB max." },
+  bioLabel: { he: "על עצמכם", en: "About you" },
+  bioHelp: { he: "שתי שורות בקולכם: במה אתם מתמחים ולמה כדאי לפנות אליכם. בלי פרטי קשר — הם נחשפים אחרי הבחירה.", en: "Two lines in your voice: what you focus on and why to pick you. No contact details — those are shared after you're chosen." },
+  bioPlaceholder: { he: "לדוגמה: 12 שנה בנזיקין, מלווה אישית מהיום הראשון ועד הפיצוי.", en: "e.g. 12 years in personal injury, with you from day one through settlement." },
   /* תיק שהגיע לתקרת ההצעות. במפורש לא "נסו שוב" — זה מרוץ שהוכרע. */
   caseFullToast: { he: "התיק הזה כבר קיבל את מלוא ההצעות. תיקים חדשים בתחום שלכם יגיעו בהתראה.", en: "This case has reached its offer limit. You'll be notified when new cases open in your practice areas." },
 

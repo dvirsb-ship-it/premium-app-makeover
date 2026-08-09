@@ -155,3 +155,60 @@ describe("סוגי קבצים שמותר להעלות", () => {
     );
   });
 });
+
+/**
+ * תמונת הפרופיל של עורך הדין.
+ *
+ * זה הדלי היחיד כאן שהקריאה בו פתוחה לכל משתמש מחובר — ובכוונה: זו
+ * התמונה שהלקוח רואה בהצעה, והוא אינו קשור לעורך הדין בשלב הזה. לכן
+ * דווקא כאן חשוב לוודא שהכתיבה נעולה: מי שיכול לכתוב לנתיב של אחר
+ * יכול להחליף לו את הפנים בדיוק ברגע שבו לקוח בוחר.
+ */
+describe("תמונת פרופיל של עו״ד", () => {
+  it("עו״ד מעלה תמונה לנתיב של עצמו", async () => {
+    await assertSucceeds(
+      uploadBytes(ref(storageAs("law1"), "lawyer-photos/law1/avatar"), bytes(0.5), {
+        contentType: "image/jpeg",
+      }),
+    );
+  });
+
+  it("אי אפשר להעלות לנתיב של עו״ד אחר", async () => {
+    await assertFails(
+      uploadBytes(ref(storageAs("law2"), "lawyer-photos/law1/avatar"), bytes(0.5), {
+        contentType: "image/jpeg",
+      }),
+    );
+  });
+
+  it("קובץ שאינו תמונה נדחה — HTML בדלי הוא XSS מאוחסן", async () => {
+    await assertFails(
+      uploadBytes(ref(storageAs("law1"), "lawyer-photos/law1/avatar"), bytes(0.1), {
+        contentType: "text/html",
+      }),
+    );
+  });
+
+  it("מעל 4MB נדחה", async () => {
+    await assertFails(
+      uploadBytes(ref(storageAs("law1"), "lawyer-photos/law1/avatar"), bytes(5), {
+        contentType: "image/jpeg",
+      }),
+    );
+  });
+
+  it("כל משתמש מחובר רואה — זו התמונה שבהצעה", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await uploadBytes(ref(ctx.storage(), "lawyer-photos/law1/avatar"), bytes(0.1), {
+        contentType: "image/jpeg",
+      });
+    });
+    await assertSucceeds(getBytes(ref(storageAs("client9"), "lawyer-photos/law1/avatar")));
+  });
+
+  it("אורח לא מחובר אינו רואה", async () => {
+    await assertFails(
+      getBytes(ref(env.unauthenticatedContext().storage(), "lawyer-photos/law1/avatar")),
+    );
+  });
+});

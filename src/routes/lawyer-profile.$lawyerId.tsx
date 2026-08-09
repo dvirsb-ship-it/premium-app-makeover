@@ -130,11 +130,20 @@ function LawyerProfile() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_70%_at_50%_-10%,rgba(212,175,55,0.22),transparent_60%)]"
         />
         <div className="relative flex items-center gap-4">
-          {/* קודם הוצגה כאן תמונת סטוק עם alt של שם עורך הדין — כלומר תמונה
-              של אדם אחר שהוצגה כמוהו. ראשי תיבות הם אמת. */}
-          <div className="grid size-[74px] shrink-0 place-items-center rounded-[22px] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[26px] font-black text-[#0F172A] shadow-[0_12px_28px_-10px_rgba(212,175,55,0.7)]">
-            {lawyer.initials || lawyer.name.slice(0, 2)}
-          </div>
+          {/* פעם הוצגה כאן תמונת סטוק עם alt של שם עורך הדין — פניו של אדם
+              אחר שהוצגו כמוהו, וראשי התיבות היו התיקון. תמונה שהוא העלה
+              בעצמו היא ההפך: אמת. אין תמונה — חוזרים לראשי התיבות. */}
+          {lawyer.photoUrl ? (
+            <img
+              src={lawyer.photoUrl}
+              alt=""
+              className="size-[74px] shrink-0 rounded-[22px] object-cover shadow-[0_12px_28px_-10px_rgba(212,175,55,0.55)] ring-1 ring-gold/40"
+            />
+          ) : (
+            <div className="grid size-[74px] shrink-0 place-items-center rounded-[22px] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[26px] font-black text-[#0F172A] shadow-[0_12px_28px_-10px_rgba(212,175,55,0.7)]">
+              {lawyer.initials || lawyer.name.slice(0, 2)}
+            </div>
+          )}
           <div className="min-w-0 flex-1">
             {lawyer.city && (
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gold">
@@ -149,6 +158,15 @@ function LawyerProfile() {
             )}
           </div>
         </div>
+        {/*
+          * "על עצמי" בקולו של עורך הדין — מעל אות האמון בכוונה: האימות
+          * אומר שהוא אמיתי, המשפט הזה אומר מי הוא. שניהם נדרשים לבחירה.
+          */}
+        {lawyer.bio && (
+          <p className="relative mt-4 text-[13px] leading-relaxed text-white/75">
+            {lawyer.bio}
+          </p>
+        )}
         {/* אות האמון — מה שהלקוח באמת צריך לדעת לפני שהוא בוחר */}
         <div className="relative mt-4 flex items-center gap-2 rounded-2xl border border-success/30 bg-success/15 px-3 py-2.5">
           <BadgeCheck className="size-4 shrink-0 text-success" strokeWidth={2.4} />

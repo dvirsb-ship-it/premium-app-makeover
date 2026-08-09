@@ -701,8 +701,27 @@ export interface LawyerProfileDoc {
    * המחדל של השוק, ולכן גם ברירת המחדל הבטוחה לפרופילים ישנים.
    */
   languages?: string[];
+  /**
+   * תמונת פרופיל שעורך הדין העלה בעצמו (10/8/2026).
+   *
+   * פעם הוצגו כאן תמונות סטוק עם `alt` של שם עורך הדין — כלומר פניו של
+   * אדם אחר הוצגו כשלו, וראשי התיבות היו התיקון. תמונה שהוא מעלה בעצמו
+   * היא ההפך הגמור: אמת, ולכן מותרת. חסרה = חוזרים לראשי תיבות.
+   */
+  photoUrl?: string;
+  /** שתי שורות "מי אני" בקולו. מוגבל ב-BIO_MAX_CHARS. */
+  bio?: string;
   createdAt: number;
 }
+
+/**
+ * אורך מרבי ל"על עצמי".
+ *
+ * 280 ולא 1000: זה נקרא **בתוך ההצעה**, ברגע שבו הלקוח משווה כמה עורכי
+ * דין זה לצד זה. פסקה ארוכה לא תיקרא כלל, ומי שכתב אותה ייפגע דווקא.
+ * המגבלה מוצגת למשתמש כמונה, לא כשגיאה אחרי שכתב.
+ */
+export const BIO_MAX_CHARS = 280;
 
 /** פרטי הקשר של עו"ד — אוסף נפרד שקריא רק לבעליו ולאדמין (מניעת עקיפה). */
 export interface LawyerContactDoc {
@@ -789,6 +808,36 @@ export async function writeLawyerProfile(
  * כבר מאפשרים את העדכון הזה: מותר לעדכן את רשומת האימות כל עוד `status`
  * אינו בין השדות שהשתנו.
  */
+/**
+ * העלאת תמונת פרופיל של עורך דין, והחזרת כתובת ההורדה.
+ *
+ * נתיב קבוע (`avatar`) ולא שם ייחודי — כך העלאה חדשה דורסת את הקודמת
+ * ולא מצטברות תמונות נטושות בדלי על כל החלפה.
+ */
+export async function uploadLawyerPhoto(uid: string, file: File): Promise<string> {
+  const r = storageRef(fbStorage(), `lawyer-photos/${uid}/avatar`);
+  await uploadBytes(r, file, { contentType: file.type });
+  return getDownloadURL(r);
+}
+
+/** תמונה ו"על עצמי" — נכתבים לפרופיל בלי לגעת באימות או בתחומים. */
+export async function updateLawyerPresentation(
+  uid: string,
+  fields: { photoUrl?: string; bio?: string },
+): Promise<void> {
+  const clean: Record<string, unknown> = {};
+  if (fields.photoUrl !== undefined) clean.photoUrl = fields.photoUrl;
+  if (fields.bio !== undefined) {
+    /*
+     * אותו סינון כמו בהצעות: התקשורת עד החיבור עוברת דרך הפלטפורמה
+     * בלבד. "על עצמי" הוא טקסט חופשי שנקרא בהצעה — בלי הסינון הוא
+     * העוקף הקל ביותר לפרטי קשר.
+     */
+    clean.bio = stripContactInfo(fields.bio).slice(0, BIO_MAX_CHARS);
+  }
+  await setDoc(doc(fbDb(), "lawyerProfiles", uid), clean, { merge: true });
+}
+
 export async function updateLawyerSpecialties(
   uid: string,
   specialties: string[],

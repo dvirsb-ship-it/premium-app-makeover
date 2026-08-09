@@ -477,6 +477,12 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
         city: myLawyerProfile?.city ?? "",
         university: myLawyerProfile?.university ?? "",
         languages: myLawyerProfile?.languages ?? [],
+        /*
+         * מצולמים לתוך התיק ולא נקראים ממנו בזמן אמת: זה מה שהלקוח ראה
+         * ברגע שבחר. שדות ריקים אינם נכתבים — Firestore דוחה undefined.
+         */
+        ...(myLawyerProfile?.photoUrl ? { photoUrl: myLawyerProfile.photoUrl } : {}),
+        ...(myLawyerProfile?.bio ? { bio: myLawyerProfile.bio } : {}),
       };
       // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
       void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch((err) => {
