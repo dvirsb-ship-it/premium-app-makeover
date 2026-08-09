@@ -229,9 +229,12 @@
   --success-ink: oklch(0.70 0.14 162);
   --warning-ink: oklch(0.78 0.135 68);
 
-  --glass-fill: oklch(1 0 0 / 0.06);
-  --glass-fill-quiet: oklch(1 0 0 / 0.03);
-  --glass-fill-raised: oklch(1 0 0 / 0.10);
+  /* המדרגות נפתחו מ-3/6/10 ל-4/8/14 (10/8/2026). שלוש נקודות אחוז בין
+     מדרגות הן מתחת לסף שהעין מבחינה בו על רקע כמעט־שחור, ולכן גם אחרי
+     שהקריסה תוקנה ההבדל עדיין לא נקרא. עכשיו כל מדרגה כפולה מקודמתה. */
+  --glass-fill: oklch(1 0 0 / 0.08);
+  --glass-fill-quiet: oklch(1 0 0 / 0.04);
+  --glass-fill-raised: oklch(1 0 0 / 0.14);
   --glass-blur: 24px;
   --glass-sat: 170%;
   --surface-sunken: oklch(1 0 0 / 0.025);
@@ -246,8 +249,18 @@
   --recess-fill: #101a30;
   --glass-sheen: linear-gradient(180deg, oklch(1 0 0 / 0.05) 0%, oklch(1 0 0 / 0) 26%);
 
-  --elev-1: 0 0 0 oklch(0 0 0 / 0);
-  --elev-2: 0 0 0 oklch(0 0 0 / 0);
+  /*
+   * הצללים היו **אפס מוחלט** — ההנחה הייתה שעל שחור אין לצל מה לעשות.
+   * ההנחה שגויה: הרקע כאן הוא ‎oklch(0.129) ולא שחור מוחלט, ולכן צל שחור
+   * מתחת לכרטיס כן מחשיך אותו ומייצר הפרדה. שני האותות פועלים יחד —
+   * המילוי אומר "אני מעל", הצל אומר "ומרחף".
+   *
+   * שמור על הצללים **קצרים ורכים**: על כהה, צל רחב נקרא כלכלוך ולא כעומק.
+   */
+  --elev-1: 0 2px 6px -3px oklch(0 0 0 / 0.55);
+  --elev-2:
+    0 1px 2px oklch(0 0 0 / 0.40),
+    0 6px 16px -6px oklch(0 0 0 / 0.60);
   --elev-3: 0 30px 64px -30px oklch(0 0 0 / 0.60);
   --rim-inset: inset 0 1px 1px oklch(1 0 0 / 0.12);
   --recess: inset 0 1px 3px oklch(0 0 0 / 0.35), inset 0 0 0 1px oklch(1 0 0 / 0.05);
@@ -590,9 +603,28 @@ html:not(.dark) .anchor-navy .tone-pill {
 }
 
 /* Dark theme = luminous glass over the cinematic studio backdrop */
+/*
+ * ═══ עומק במצב כהה (10/8/2026) ═══
+ *
+ * הכלל הזה קבע `background: rgba(255,255,255,0.06)` קשיח — ומכיוון שהוא
+ * יושב **אחרי** `.liquid-glass.glass-raised` באותה ספציפיות בדיוק, הוא
+ * דרס את כל שלוש המדרגות. quiet‏ (0.03), base‏ (0.06) ו-raised‏ (0.10)
+ * רונדרו כולם כ-0.06. כלומר במצב כהה **לא הייתה היררכיית גובה בכלל** —
+ * וזה, ולא הצללים, מה שגרם ל"הכל נבלע ואין הבדלים".
+ *
+ * עכשיו הכלל קובע רק את מה שייחודי לכהה (הצל והרים), והמילוי מגיע
+ * מהמדרגה — כך שהוספת מדרגה בעתיד לא תדרוש לגעת כאן שוב.
+ */
 .dark .liquid-glass {
-  background: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  box-shadow: var(--elev-1), var(--rim-inset);
+}
+.dark .liquid-glass.glass-quiet {
+  background-color: var(--glass-fill-quiet);
+  box-shadow: var(--rim-inset);
+}
+.dark .liquid-glass.glass-raised {
+  background-color: var(--glass-fill-raised);
+  box-shadow: var(--elev-2), var(--rim-inset);
 }
 
 .dark .liquid-glass::before {
