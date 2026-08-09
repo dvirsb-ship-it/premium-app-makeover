@@ -1,0 +1,60 @@
+<meta charset="utf-8" />
+<style>
+  /*
+   * תמונה לפוסט הלקוחות — 1080×1080 (ריבוע: פייסבוק ואינסטגרם).
+   *
+   * הקהל כאן הוא לא עורכי דין אלא אדם שנפגע, ולכן הטון רך יותר
+   * מפוסט הגיוס: לא "שלושה שלבים" אלא **משפט אחד שמסיר מחסום**.
+   * המחסום הוא כסף, אז המספר הגדול על המסך הוא אפס.
+   *
+   * ‎"0₪ מראש" ולא "חינם": חינם היה נשמע כמו שקר לקהל שנכווה, ו-0
+   * מראש הוא בדיוק מה שקורה — משלמים מהתוצאה, אם יש תוצאה.
+   */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html, body { width:1080px; height:1080px; overflow:hidden; }
+  body { position:relative; background:#0B1120; direction:rtl;
+         font-family:"Heebo","Assistant",-apple-system,sans-serif; }
+
+  .aura { position:absolute; inset:0;
+    background:
+      radial-gradient(105% 62% at 50% -14%, rgba(212,175,55,0.22), transparent 58%),
+      radial-gradient(90% 55% at 12% 116%, rgba(56,89,168,0.20), transparent 62%); }
+  .topline { position:absolute; top:0; left:0; right:0; height:4px;
+    background:linear-gradient(90deg,transparent,#D4AF37 26%,#F1E4C3 52%,#D4AF37 74%,transparent); }
+
+  .wrap { position:relative; z-index:2; height:100%; display:flex; flex-direction:column;
+          justify-content:center; padding:0 84px; }
+  .mark { font:700 17px system-ui; letter-spacing:.44em; color:#D4AF37; text-transform:uppercase; }
+
+  .kicker { margin-top:52px; font:600 32px/1.5 system-ui; color:rgba(255,255,255,.62); }
+
+  .zero { margin-top:14px; display:flex; align-items:baseline; gap:20px; }
+  .zero b { font:800 210px/0.86 system-ui; letter-spacing:-.05em;
+            background:linear-gradient(180deg,#FFF6DC,#D4AF37 62%,#B8912B);
+            -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .zero span { font:800 50px system-ui; color:#E9C96A; letter-spacing:-.01em; }
+
+  h1 { margin-top:32px; font:800 58px/1.26 system-ui; letter-spacing:-.022em; color:#fff; }
+  p  { margin-top:28px; font:400 28px/1.62 system-ui; color:rgba(255,255,255,.66); max-width:820px; }
+
+  .foot { margin-top:60px; display:flex; align-items:center; gap:18px; }
+  .pill { border:1px solid rgba(212,175,55,.45); border-radius:999px; padding:15px 30px;
+          font:800 26px system-ui; color:#F1E4C3; }
+  .soon { font:400 24px system-ui; color:rgba(255,255,255,.52); }
+</style>
+
+<div class="aura"></div><div class="topline"></div>
+<div class="wrap">
+  <div class="mark">JustAsk</div>
+
+  <div class="kicker">בתאונות, נזיקין וביטוח — יש עורכי דין שגובים כך:</div>
+  <div class="zero"><b>0</b><span>₪ מראש</span></div>
+
+  <h1>אין פיצוי — אין שכר טרחה.</h1>
+  <p>אז אם הכסף הוא לא המחסום, מה עוצר אתכם מלבדוק אם המקרה שלכם שווה תביעה?</p>
+
+  <div class="foot">
+    <span class="pill">בדיקה ראשונית · חינם</span>
+    <span class="soon">בקרוב</span>
+  </div>
+</div>
