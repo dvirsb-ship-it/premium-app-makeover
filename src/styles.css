@@ -484,17 +484,26 @@ html:not(.dark) .anchor-navy {
 html:not(.dark) .anchor-navy::before {
   content: none;
 }
-html:not(.dark) .anchor-navy::after {
-  content: "";
-  position: absolute;
-  inset-inline-start: -40px;
-  top: -40px;
-  width: 150px;
-  height: 150px;
-  border-radius: 999px;
-  background: oklch(0.76 0.13 85 / 0.16);
-  filter: blur(30px);
-  pointer-events: none;
+/*
+ * הילת הזהב — גרדיאנט על הרקע של הכרטיס עצמו, ולא פסאודו מטושטש.
+ *
+ * הגרסה הראשונה הייתה `::after` עם `filter: blur(30px)` בתוך הורה עם
+ * `overflow:hidden` + `border-radius`. בכרום זה נראה תקין; **באייפון זה
+ * נשבר** — iOS חותך שכבה שעברה `filter` לתיבת הגבול המרובעת ולא לפינה
+ * המעוגלת, ולכן בלטה פינת זהב מרובעת מחוץ לעיגול (דביר צילם).
+ *
+ * `background-image` נצבע בתוך תיבת הרקע של האלמנט, ולכן `border-radius`
+ * חותך אותו תמיד ובכל דפדפן. זה גם זול יותר — בלי אלמנט נוסף ובלי blur.
+ *
+ * מרכזי (‎50%) ולא בפינה: מיקום רקע הוא פיזי ולא לוגי, כך שפינה הייתה
+ * מתהפכת בין עברית לאנגלית. אור מלמעלה הוא גם ממילא המוטיב של הדלתות.
+ */
+html:not(.dark) .anchor-navy {
+  background-image: radial-gradient(
+    120% 85% at 50% -18%,
+    oklch(0.76 0.13 85 / 0.22),
+    transparent 62%
+  );
 }
 /* תג הסטטוס שבתוך העוגן — צבעי הטון (נייבי/זהב/ירוק) נבלעים על נייבי;
    על העוגן כולם הופכים לחותם זהב. הטקסט נושא את המשמעות. */

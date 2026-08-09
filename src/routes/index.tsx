@@ -514,13 +514,17 @@ function ClientJourney({ active }: { active?: Case }) {
    * על כהה הוא זוהר, על בהיר זוהר לא נראה ולכן הוא מלא ומוצק.
    */
   return (
-    <div className="recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:ring-1 dark:ring-gold/25">
-      {/* הבהוב עדין של זהב בפינה — עומק על כהה בלבד. על משטח בהיר הוא
-          לא קורא כאור אלא ככתם חום, ולכן הוא כבוי שם. */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-16 -top-16 hidden size-48 rounded-full bg-gold/10 blur-3xl dark:block"
-      />
+    /*
+     * ההילה היא **גרדיאנט רקע** ולא אלמנט מטושטש (10/8/2026).
+     *
+     * קודם ישב כאן `div` עם `blur-3xl` בתוך `overflow-hidden` + `rounded`.
+     * iOS חותך שכבה שעברה `filter` לתיבת הגבול המרובעת ולא למעוגלת, ומכאן
+     * פינת זהב מרובעת שבלטה מחוץ לעיגול — נצפתה בכרטיס התיק הפעיל, ואותו
+     * מבנה בדיוק היה כאן. גרדיאנט רקע נחתך ע"י ה-radius בכל דפדפן.
+     *
+     * על כהה בלבד: על משטח בהיר הזהב אינו קורא כאור אלא ככתם חום.
+     */
+    <div className="recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)] dark:ring-1 dark:ring-gold/25">
       <p className="text-[11px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
         {t("journeyEyebrow")}
       </p>
