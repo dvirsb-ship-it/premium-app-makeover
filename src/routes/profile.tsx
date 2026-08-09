@@ -59,14 +59,16 @@ function Profile() {
   return (
     <AppShell>
       <Page>
-        <h1 className="pb-6 pt-8 text-2xl font-black text-foreground">
-          {t("profile")}
-        </h1>
+        {/* אותה הפרדה כמו בכל דאשבורד — ראה את ההנמקה ב-index.tsx */}
+        <header className="-mx-5 border-b border-border px-5 pb-4 pt-8 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
+          <h1 className="text-2xl font-black text-foreground">{t("profile")}</h1>
+        </header>
 
-        <Stagger className="space-y-4">
+        <Stagger className="workspace -mx-5 min-h-screen space-y-4 px-5 pb-4 pt-6">
           <Rise>
             <div className="liquid-glass flex items-center gap-4 rounded-3xl p-5">
-              <span className="chip-gold grid size-14 place-items-center rounded-2xl text-lg font-black">
+              {/* תג התפקיד — "מי אני", כלומר סיווג. דיו, לא זהב. */}
+              <span className="chip-navy grid size-14 place-items-center rounded-2xl text-lg font-black">
                 {role === "lawyer" ? t("lawyerBadge") : t("meBadge")}
               </span>
               <div className="min-w-0 flex-1 text-start">

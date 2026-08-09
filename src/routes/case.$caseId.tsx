@@ -680,7 +680,8 @@ function LawyerChoiceCard({
   return (
     <div className="liquid-glass rounded-3xl p-5">
       <div className="flex items-start gap-3">
-        <span className="chip-gold grid size-12 shrink-0 place-items-center rounded-2xl text-sm font-black">
+        {/* ראשי התיבות של עורך הדין — זהות, ולכן דיו */}
+        <span className="chip-navy grid size-12 shrink-0 place-items-center rounded-2xl text-sm font-black">
           {lawyer.initials}
         </span>
         <div className="min-w-0 flex-1">

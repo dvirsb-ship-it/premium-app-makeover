@@ -71,9 +71,10 @@ function LawyerCases() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        className="pt-6"
+        /* אותה הפרדה כמו בפיד ובבית — ראה את ההנמקה ב-index.tsx */
+        className="-mx-5 border-b border-border px-5 pb-4 pt-6 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]"
       >
-        <p className="text-xs font-medium tracking-[0.22em] text-gold">
+        <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
           JUSTASK · PRO
         </p>
         <h1 className="mt-1 text-2xl font-bold text-foreground">
@@ -84,7 +85,7 @@ function LawyerCases() {
         </p>
       </motion.header>
 
-      <div className="mt-6 space-y-3 pb-4">
+      <div className="workspace -mx-5 min-h-screen space-y-3 px-5 pb-4 pt-6">
         {failed ? (
           <div className="rounded-3xl border border-destructive/30 bg-destructive/[0.05] p-6 text-center" role="alert">
             <p className="text-sm font-bold text-foreground">{t("loadFailedTitle")}</p>

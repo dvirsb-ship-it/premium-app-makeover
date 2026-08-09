@@ -46,7 +46,8 @@ function Cases() {
   return (
     <AppShell>
       <Page>
-        <div className="flex items-center justify-between pb-6 pt-8">
+        {/* אותה הפרדה כמו בכל דאשבורד — ראה את ההנמקה ב-index.tsx */}
+        <div className="-mx-5 flex items-center justify-between border-b border-border px-5 pb-4 pt-8 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
           <div>
             <h1 className="text-2xl font-black text-foreground">{t("myCasesTitle")}</h1>
             <p className="mt-0.5 text-sm text-muted-foreground">{t("myCasesSub")}</p>
@@ -71,6 +72,7 @@ function Cases() {
           </div>
         </div>
 
+        <div className="workspace -mx-5 min-h-screen px-5 pb-4 pt-6">
         {/* כשל טעינה אינו "אין תיקים" — ללקוח זה נראה כאילו הפנייה שלו נעלמה */}
         {casesError ? (
           <div className="rounded-3xl border border-destructive/30 bg-destructive/[0.05] p-6 text-center" role="alert">
@@ -165,6 +167,7 @@ function Cases() {
             })}
           </Stagger>
         )}
+        </div>
       </Page>
     </AppShell>
   );
