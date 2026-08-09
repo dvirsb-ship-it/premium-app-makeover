@@ -178,6 +178,9 @@ function LawyerFeed() {
         </div>
       </motion.header>
 
+      {/* אותו אזור עבודה כמו בבית של הלקוח — קו אחד לשני הצדדים.
+          ההנמקה המלאה נמצאת ב-index.tsx. */}
+      <div className="workspace -mx-5 min-h-screen px-5 pt-1">
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -545,6 +548,8 @@ function LawyerFeed() {
           <HowItWorks />
         </>
       )}
+
+      </div>
 
       {/* silence unused var warnings when lang changes */}
       <span hidden>{lang}</span>

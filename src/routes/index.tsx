@@ -224,6 +224,16 @@ function ClientHome() {
           <NotificationBell />
         </header>
 
+        {/*
+          * כל מה שמתחת לכותרת יושב על אזור עבודה — מישור אחד למטה מהדף.
+          *
+          * הכרטיסים הלבנים היו לבן על כמעט־לבן (הפרש 4% בלבד) ולכן נבלעו.
+          * הפתרון אינו להכהות את הכרטיסים אלא לתת להם על מה לעמוד.
+          * הכותרת נשארת על מפלס הדף, וכך נוצרת ההפרדה שהקו והצל רק רמזו
+          * עליה. ה-`-mx-5 px-5` מבטל את הריפוד של AppShell כדי שהמישור
+          * יימתח מקצה לקצה; `min-h` מונע ממנו להיגמר באוויר במסך ריק.
+          */}
+        <div className="workspace -mx-5 min-h-screen px-5 pt-6">
         {/* השבבים נושאים עובדות, לא קישוט: כמה פתוח, ומה המחיר */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -429,6 +439,7 @@ function ClientHome() {
             </Rise>
           )}
         </Stagger>
+        </div>
       </Page>
     </AppShell>
   );
@@ -491,28 +502,29 @@ function ClientJourney({ active }: { active?: Case }) {
    * עמוד בהיר הופך אותו לעוגן — אותו מהלך כמו רצועת "מה כלול" בדף
    * הנחיתה: רגע כהה אחד, ולכן הוא הרגע שזוכרים.
    *
-   * הצבעים כאן מפורשים ולא טוקנים של ערכת נושא — הכרטיס כהה בשני המצבים,
-   * זו כל הפואנטה שלו. אבל **העומק מתאים את עצמו לדף שסביבו** (9/8/2026):
+   * **הכרטיס הזה שקוע, לא בולט** (9/8/2026).
    *
-   *   כהה → ‎#101a30, כמעט־שחור על עמוד כמעט־שחור. עדין ונכון.
-   *   בהיר → ‎#1E2A45, כהה בבירור אך לא שחור.
+   * עברנו כאן דרך ‎#101a30 ואז ‎#1E2A45, ושניהם הפריעו מאותה סיבה: כרטיס
+   * שבולט נקרא כמשהו שדורש פעולה. אבל זה לוח מחוונים — הוא **מדווח** לך
+   * איפה הפנייה עומדת, ואי אפשר ללחוץ עליו. לכן הוא נחרט לתוך אזור
+   * העבודה במקום לרחף מעליו, ובכך הוא נבדל מ"פנייה חדשה" שמורם.
    *
-   * ‎#101a30 על עמוד בהיר נקרא כחור שנוקב בדף ולא כעוגן, והוא יורה בפואנטה
-   * של מי שבחר במצב בהיר מלכתחילה. ההבדל שאנחנו רוצים הוא **יחסי**: מספיק
-   * רחוק מהרקע כדי להיות עוגן, לא רחוק כל כך שהוא מפסיק להיות חלק מהעמוד.
-   * הזהב זהה בשני המצבים ולכן שומר על הזהות.
+   * במצב כהה הוא נשאר ‎#101a30: שם אין לאן לרדת, והכהות היא השקע.
+   * הזהב הוא מה שמחזיק את הזהות בשני המצבים — אבל **המנגנון שלו משתנה**:
+   * על כהה הוא זוהר, על בהיר זוהר לא נראה ולכן הוא מלא ומוצק.
    */
   return (
-    <div className="relative overflow-hidden rounded-[26px] bg-[#1E2A45] p-5 ring-1 ring-gold/25 dark:bg-[#101a30]">
-      {/* הבהוב עדין של זהב בפינה — עומק, לא קישוט */}
+    <div className="recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:ring-1 dark:ring-gold/25">
+      {/* הבהוב עדין של זהב בפינה — עומק על כהה בלבד. על משטח בהיר הוא
+          לא קורא כאור אלא ככתם חום, ולכן הוא כבוי שם. */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -left-16 -top-16 size-48 rounded-full bg-gold/10 blur-3xl"
+        className="pointer-events-none absolute -left-16 -top-16 hidden size-48 rounded-full bg-gold/10 blur-3xl dark:block"
       />
-      <p className="text-[11px] font-medium tracking-[0.2em] text-gold">
+      <p className="text-[11px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
         {t("journeyEyebrow")}
       </p>
-      <p className="mt-1 text-[15px] font-bold text-white">
+      <p className="mt-1 text-[15px] font-bold text-foreground dark:text-white">
         {t(active ? "journeyTitleActive" : "journeyTitleEmpty")}
       </p>
 
@@ -534,24 +546,30 @@ function ClientJourney({ active }: { active?: Case }) {
                   className={cn(
                     "absolute right-[13px] top-7 bottom-0 w-0.5 rounded-full",
                     done
-                      ? "bg-gradient-to-b from-gold via-gold/70 to-gold/25"
-                      : "bg-white/10",
+                      ? "bg-gold-ink dark:bg-gradient-to-b dark:from-gold dark:via-gold/70 dark:to-gold/25"
+                      : "bg-foreground/15 dark:bg-white/10",
                   )}
                 />
               )}
               <span className="relative mt-0.5 shrink-0" aria-hidden>
                 {/* ההילה המהבהבת — רק על השלב שקורה עכשיו */}
                 {current && (
-                  <span className="absolute inset-0 animate-ping rounded-full bg-gold/50" />
+                  <span className="absolute inset-0 animate-ping rounded-full bg-gold/40 dark:bg-gold/50" />
                 )}
                 <span
                   className={cn(
                     "relative grid size-7 place-items-center rounded-full text-[10.5px] font-black",
+                    /*
+                     * על כהה הזהב זוהר; על בהיר זוהר לא קיים, אז הוא **מלא**.
+                     * אותו מסר בשתי פיזיקות שונות של אור.
+                     */
                     done &&
-                      "bg-gold/15 text-gold ring-1 ring-gold/50 shadow-[0_0_14px_rgba(212,175,55,0.45)]",
+                      "bg-gold-ink text-white dark:bg-gold/15 dark:text-gold dark:ring-1 dark:ring-gold/50 dark:shadow-[0_0_14px_rgba(212,175,55,0.45)]",
                     current &&
-                      "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-[0_0_18px_rgba(212,175,55,0.6)]",
-                    !done && !current && "bg-white/5 text-white/40 ring-1 ring-white/15",
+                      "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-[0_0_0_3px_rgba(201,162,39,0.22)] dark:shadow-[0_0_18px_rgba(212,175,55,0.6)]",
+                    !done &&
+                      !current &&
+                      "bg-background/70 text-muted-foreground ring-1 ring-foreground/12 dark:bg-white/5 dark:text-white/40 dark:ring-white/15",
                   )}
                 >
                   {done ? <Check className="size-4" strokeWidth={3} /> : i + 1}
@@ -561,13 +579,17 @@ function ClientJourney({ active }: { active?: Case }) {
                 <p
                   className={cn(
                     "text-[12.5px] leading-relaxed",
-                    current ? "font-semibold text-white" : done ? "text-white/80" : "text-white/45",
+                    current
+                      ? "font-semibold text-foreground dark:text-white"
+                      : done
+                        ? "text-foreground/80 dark:text-white/80"
+                        : "text-muted-foreground dark:text-white/45",
                   )}
                 >
                   {t(s.key)}
                 </p>
                 {s.note && (
-                  <p className="mt-1 text-[12px] font-bold text-gold">{s.note}</p>
+                  <p className="mt-1 text-[12px] font-bold text-gold-ink dark:text-gold">{s.note}</p>
                 )}
               </div>
             </li>
