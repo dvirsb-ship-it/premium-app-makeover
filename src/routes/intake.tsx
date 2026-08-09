@@ -576,12 +576,23 @@ function Intake() {
             </AnimatePresence>
           </div>
 
-          <div className="sticky bottom-0 px-5 pb-6 pt-3">
-            {/* fade the messages behind the composer */}
-            <div
-              aria-hidden
-              className="pointer-events-none absolute inset-x-0 -top-8 h-10 bg-gradient-to-b from-transparent to-background"
-            />
+          {/*
+            * רציף הכתיבה — משטח משלו, לא המשך של השיחה (9/8/2026).
+            *
+            * קודם ישבה כאן דהייה `to-background`, כלומר אל צבע הרקע **השטוח**.
+            * אבל הרקע כאן אינו שטוח: המסך הזה מצייר שלוש הילות משלו — זהב
+            * למעלה, כחול משמאל-למטה וזהב מימין-למטה — ולכן הדהייה נחתה על
+            * אפור אחיד בזמן שהעמוד סביבה מגוון, ונוצר פס בצבע שלא שייך לאף
+            * אחד מהם. זה נראה כמו תקלה כי זו הייתה תקלה.
+            *
+            * הפתרון הוא לא דהייה מדויקת יותר אלא **להפסיק לדהות**: מילוי אטום
+            * מדרגה אחת מתחת לעמוד, וקו שיער מעליו. הפרדה שמוצהרת קוראת
+            * כהחלטה; הפרדה שמנסה להיעלם ולא מצליחה קוראת כשבר.
+            *
+            * `--workspace` ולא צבע קבוע — אותו טוקן של אזור העבודה בדאשבורד,
+            * ולכן הוא מתהפך נכון: כהה מהעמוד במצב בהיר, בהיר ממנו במצב כהה.
+            */}
+          <div className="workspace sticky bottom-0 border-t border-border px-5 pb-6 pt-4 [box-shadow:0_-12px_28px_-24px_oklch(var(--sh)_/_0.5)]">
             <AnimatePresence>
               {notSuitable && (
                 <motion.div
