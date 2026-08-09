@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { cn } from "../lib/utils";
 import { useShowsBottomNav } from "../lib/use-bottom-nav";
 
@@ -25,8 +25,26 @@ export function AppShell({
   const withNav = useShowsBottomNav();
   return (
     <div
+      /*
+       * `overflow-clip` ולא `overflow-hidden` (10/8/2026).
+       *
+       * `hidden` הופך את האלמנט למכל־גלילה, וכל `position: sticky` שבתוכו
+       * מאבד את נקודת הייחוס שלו ופשוט נגלל החוצה. נמדד בדפדפן: כותרת
+       * דביקה נעה מ-0 ל-‎-812 בגלילה של 700 פיקסלים. זה השבית בשקט את
+       * `TopBar` ב-17 מסכים ואת כל פסי־הפעולה התחתונים — כולם נכתבו כדי
+       * להידבק, ואף אחד מהם לא נדבק מעולם.
+       *
+       * `clip` חותך בדיוק אותו דבר אך **אינו** יוצר מכל־גלילה, ולכן sticky
+       * ממשיך להתייחס לחלון. נמדד: נשאר על 0.
+       *
+       * `--nav-inset` נולד מכאן: ברגע ש-sticky חי, פס־פעולה תחתון נצמד
+       * לתחתית החלון — כלומר *מתחת* לתפריט הניווט שהוא `fixed bottom-0`.
+       * המשתנה נותן לפסים האלה להיעצר מעל התפריט, ומגיע ממקום אחד כדי
+       * שגובה התפריט לא יישכפל בשישה קבצים.
+       */
+      style={{ "--nav-inset": withNav ? "5.5rem" : "0px" } as CSSProperties}
       className={cn(
-        "relative min-h-screen w-full overflow-hidden bg-background text-foreground",
+        "relative min-h-screen w-full overflow-clip bg-background text-foreground",
         outerClassName,
       )}
     >

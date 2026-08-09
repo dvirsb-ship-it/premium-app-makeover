@@ -745,7 +745,7 @@ function LawyerCaseDetail() {
           )}
         </div>
 
-        <div className="sticky bottom-0 border-t border-border/60 bg-background/90 px-5 py-5 backdrop-blur-xl">
+        <div className="sticky bottom-[var(--nav-inset)] border-t border-border/60 bg-background/90 px-5 py-5 backdrop-blur-xl">
           <AnimatePresence mode="wait">
             {item.expressed ? (
               <motion.div

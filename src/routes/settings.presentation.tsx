@@ -191,7 +191,7 @@ function PresentationSettings() {
           </section>
         </div>
 
-        <div className="sticky bottom-0 border-t border-border bg-background/80 px-1 py-4 backdrop-blur-xl">
+        <div className="sticky bottom-[var(--nav-inset)] border-t border-border bg-background/80 px-1 py-4 backdrop-blur-xl">
           <button
             type="button"
             onClick={() => void saveBio()}

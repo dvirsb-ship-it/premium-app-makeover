@@ -115,7 +115,7 @@ function EditSpecialties() {
           * הכפתור מוצמד לתחתית: 21 תחומים בשש קבוצות הם מסך ארוך, ומי
           * שסימן תחום בראש הרשימה לא אמור לגלול עד הסוף כדי לשמור.
           */}
-        <div className="sticky bottom-0 border-t border-border bg-background/80 px-1 py-4 backdrop-blur-xl">
+        <div className="sticky bottom-[var(--nav-inset)] border-t border-border bg-background/80 px-1 py-4 backdrop-blur-xl">
           <button
             type="button"
             onClick={save}
