@@ -61,9 +61,27 @@ function GoogleIcon() {
 type Method = "email" | "phone" | null;
 type LoadingProvider = "google" | "apple" | "email" | "phone" | "code" | null;
 
-// החלטת מוצר (07/2026): התחברות דרך גוגל בלבד בהשקה. אפל/אימייל/טלפון מוכנים —
-// כדי להחזיר אותם משנים ל-false.
-const GOOGLE_ONLY = true;
+/*
+ * אילו דרכי כניסה מוצגות (9/8/2026).
+ *
+ * עד היום היה כאן דגל אחד, GOOGLE_ONLY, והוא הסתיר את שלושתן יחד.
+ * זה נשבר כשהתברר שגוגל-בלבד חוסמת את שתי החנויות: הבודק של גוגל ושל
+ * אפל חייב להיכנס לאפליקציה, ואין לו איך. לתת לו חשבון גוגל אמיתי זה
+ * הפתרון שנכשל הכי הרבה — גוגל חוסמת התחברות ממדינה ומכשיר חדשים,
+ * והבודק רואה "verify it's you" במקום את המוצר.
+ *
+ * טלפון פותר את זה נקי: מספר בדיקה רשום ב-Firebase נכנס בלי SMS ובלי
+ * סיסמה בשום מקום. הוא גם הכניסה הטבעית יותר לקהל הישראלי.
+ *
+ * אפל נשאר כבוי **בכוונה** עד שחשבון המפתח יהיה פעיל — כפתור אפל בלי
+ * חשבון הוא כפתור שנשבר, כלומר דחייה במקום פתרון. כשהחשבון יעלה חייבים
+ * להדליק אותו בכל מקרה, בגלל הדרישה של אפל להצעת כניסה שוות-ערך.
+ *
+ * אימייל כבוי כי הוא קישור לתיבת דואר — חסר תועלת לבודק שאין לו גישה אליה.
+ */
+const SHOW_PHONE = true;
+const SHOW_EMAIL = false;
+const SHOW_APPLE = false;
 
 function Auth() {
   const navigate = useNavigate();
@@ -85,8 +103,7 @@ function Auth() {
   const [error, setError] = useState<string | null>(null);
   /*
    * state ולא ref: הצבת ConfirmationResult חייבת לגרום לרינדור, אחרת
-   * מסך הזנת הקוד לא מופיע לעולם. רדום כל עוד GOOGLE_ONLY, אבל מתפוצץ
-   * ברגע שהדגל יירד.
+   * מסך הזנת הקוד לא מופיע לעולם. פעיל מאז ש-SHOW_PHONE נדלק.
    */
   const [confirmation, setConfirmation] = useState<ConfirmationResult | null>(null);
   const phoneStep = confirmation !== null;
@@ -337,7 +354,7 @@ function Auth() {
               </button>
             </Rise>}
 
-            {!GOOGLE_ONLY && <Rise>
+            {SHOW_APPLE && <Rise>
               <button
                 type="button"
                 onClick={() => proceed("apple")}
@@ -360,9 +377,9 @@ function Auth() {
               </button>
             </Rise>}
 
-            {!GOOGLE_ONLY && <>
-            {/* divider */}
-            <Rise>
+            {/* המפריד מופיע רק אם יש מתחתיו משהו — אחרת הוא קו שמפריד בין
+                כפתור אחד לכלום. */}
+            {(SHOW_EMAIL || SHOW_PHONE) && <Rise>
               <div className="flex items-center gap-3 py-1" aria-hidden>
                 <span className="h-px flex-1 bg-border" />
                 <span className="text-xs font-medium text-muted-foreground">
@@ -370,10 +387,9 @@ function Auth() {
                 </span>
                 <span className="h-px flex-1 bg-border" />
               </div>
-            </Rise>
+            </Rise>}
 
-            {/* Email + phone */}
-            <Rise>
+            {SHOW_EMAIL && <Rise>
               <button
                 type="button"
                 onClick={() => setMethod(method === "email" ? null : "email")}
@@ -385,9 +401,9 @@ function Auth() {
                 <Mail className="size-5 text-gold" aria-hidden />
                 <span>{t("continueEmail")}</span>
               </button>
-            </Rise>
+            </Rise>}
 
-            <Rise>
+            {SHOW_PHONE && <Rise>
               <button
                 type="button"
                 onClick={() => setMethod(method === "phone" ? null : "phone")}
@@ -399,8 +415,7 @@ function Auth() {
                 <Phone className="size-5 text-gold" aria-hidden />
                 <span>{t("continuePhone")}</span>
               </button>
-            </Rise>
-            </>}
+            </Rise>}
 
             <AnimatePresence initial={false} mode="wait">
               {method && (
