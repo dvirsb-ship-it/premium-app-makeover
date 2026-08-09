@@ -30,15 +30,18 @@ export function AppShell({
         outerClassName,
       )}
     >
-      {/* soft gold aura from above */}
+      {/*
+        * ההילות — במצב כהה בלבד (10/8/2026). שם הן אווירה; על נייר לבן
+        * הן שטיפה כחלחלה-קרם שהופכת את הדף ל"תכלת אפרפר" — בדיוק מה
+        * שדביר ביקש להוריד. הנייר נשאר נייר.
+        */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.12),transparent_60%)]"
+        className="pointer-events-none fixed inset-0 z-0 hidden bg-[radial-gradient(120%_80%_at_50%_-10%,rgba(212,175,55,0.12),transparent_60%)] dark:block"
       />
-      {/* cool depth from below */}
       <div
         aria-hidden
-        className="pointer-events-none fixed inset-0 z-0 bg-[radial-gradient(110%_70%_at_50%_120%,rgba(56,89,168,0.12),transparent_55%)]"
+        className="pointer-events-none fixed inset-0 z-0 hidden bg-[radial-gradient(110%_70%_at_50%_120%,rgba(56,89,168,0.12),transparent_55%)] dark:block"
       />
       <div
         className={cn(

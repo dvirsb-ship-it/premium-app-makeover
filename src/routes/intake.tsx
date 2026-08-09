@@ -436,7 +436,7 @@ function Intake() {
           aria-hidden
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
         >
-          <div className="absolute -top-32 left-1/2 h-72 w-72 -translate-x-1/2 rounded-full bg-gold/20 blur-3xl" />
+          <div className="absolute -top-32 left-1/2 hidden h-72 w-72 -translate-x-1/2 rounded-full bg-gold/20 blur-3xl dark:block" />
         </div>
 
         <div className="relative z-10 flex min-h-screen flex-col">
@@ -523,18 +523,15 @@ function Intake() {
                     className={
                       m.from === "assistant"
                         ? "max-w-[92%] text-[15px] leading-relaxed text-foreground"
-                        : "liquid-glass max-w-[85%] rounded-3xl px-4 py-3 text-[15px] leading-relaxed text-foreground shadow-luxe " +
+                        : /*
+                           * `bubble-user`: בבהיר — דיו נייבי מלא (חפץ, לא
+                           * זכוכית); בכהה — הזכוכית עם קצה הזהב, בלי שינוי.
+                           * שני המצבים מוגדרים ב-styles.css תחת חוקי החומרים.
+                           */
+                          "bubble-user liquid-glass max-w-[85%] rounded-3xl px-4 py-3 text-[15px] leading-relaxed text-foreground shadow-luxe " +
                           (dir === "rtl"
                             ? "rounded-br-lg"
                             : "rounded-bl-lg")
-                    }
-                    style={
-                      m.from === "user"
-                        ? {
-                            borderInlineEnd:
-                              "1.5px solid oklch(0.76 0.13 85 / 0.55)",
-                          }
-                        : undefined
                     }
                   >
                     {m.images?.length ? (

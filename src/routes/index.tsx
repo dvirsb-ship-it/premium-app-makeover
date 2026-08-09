@@ -263,7 +263,7 @@ function ClientHome() {
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
-                  "liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
+                  "anchor-navy liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
                   active.status === "has_interest" && "glass-warm",
                   active.status === "connected" && "glass-lit",
                 )}
@@ -271,19 +271,19 @@ function ClientHome() {
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-3">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
+                      className={`tone-pill rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
                     >
                       {activeMeta!.label}
                     </span>
-                    <span className="text-[11px] font-medium text-muted-foreground">
+                    <span className="text-[11px] font-medium text-white/60 dark:text-muted-foreground">
                       {ago(active.createdAt)}
                     </span>
                   </div>
 
-                  <h2 className="mt-3.5 text-[1.35rem] font-extrabold leading-[1.2] tracking-tight text-foreground">
+                  <h2 className="mt-3.5 text-[1.35rem] font-extrabold leading-[1.2] tracking-tight text-white dark:text-foreground">
                     {active.title || t("homeCaseUntitled")}
                   </h2>
-                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70 dark:text-muted-foreground">
                     {active.summary}
                   </p>
                 </div>

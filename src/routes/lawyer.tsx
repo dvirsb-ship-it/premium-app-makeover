@@ -447,7 +447,8 @@ function LawyerFeed() {
             <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
               <div className="min-w-0">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gold">
+                  {/* gold-ink על נייר — ‎--gold נותן 2.16:1 על לבן ונכשל AA */}
+                  <span className="text-[11px] font-semibold uppercase tracking-wider text-gold-ink dark:text-gold">
                     {f.category}
                   </span>
                   {f.urgency === urgentLabel && (
