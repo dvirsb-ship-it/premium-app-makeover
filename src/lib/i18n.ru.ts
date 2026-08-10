@@ -498,6 +498,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   homeHello: "Здравствуйте",
   homeHelloNamed: "Здравствуйте, {name}",
   homeSub: "Ваши дела — в одном месте",
+  homeFreeClaim: "Юридическая проверка бесплатна и всегда останется бесплатной.",
   homeCaseUntitled: "Ваше обращение",
   homeNewCase: "Новое обращение",
   homeFirstCase: "Рассказать о моём случае",

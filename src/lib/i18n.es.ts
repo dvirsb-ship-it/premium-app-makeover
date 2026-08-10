@@ -498,6 +498,7 @@ export const es: Partial<Record<StringKey, string>> = {
   homeHello: "Hola",
   homeHelloNamed: "Hola, {name}",
   homeSub: "Sus casos, en un solo lugar",
+  homeFreeClaim: "La revisión legal es gratuita, y siempre lo será.",
   homeCaseUntitled: "Su consulta",
   homeNewCase: "Nueva consulta",
   homeFirstCase: "Compartir mi caso",

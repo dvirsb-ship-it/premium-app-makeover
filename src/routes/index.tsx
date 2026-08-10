@@ -9,7 +9,6 @@ import {
   LifeBuoy,
   Plus,
   Scale,
-  ShieldCheck,
   Sparkles,
   UserRound,
 } from "lucide-react";
@@ -195,33 +194,42 @@ function ClientHome() {
           * כרטיסים — וזה נקרא כשתי אפליקציות.
           */}
         {/*
-          * אזור הכותרת מובדל משאר הדאשבורד (9/8/2026).
+          * לוח הכותרת — מנוגד לדף בשני המצבים (10/8/2026, רעיון של דביר).
           *
-          * קו שיער לרוחב מלא + צל לחישה מתחתיו. ה-`-mx-5 px-5` מבטל את
-          * הריפוד של AppShell כדי שהקו יימתח מקצה לקצה; בלעדיו הוא נגמר
-          * באוויר ונקרא כקישוט ולא כהפרדה.
+          * קודם ישבה כאן כותרת לבנה על דף לבן עם קו שיער מתחתיה, והעמוד
+          * התחיל באוויר. עכשיו: בבהיר לוח נייבי, בכהה לוח עצם — הכותרת
+          * אינה חלק מהדף אלא הדבר שמעליו, כמו כריכת ה-PDF.
           *
-          * בלי מילוי כהה — כרטיס המסלול הוא הדבר הכהה היחיד בעמוד וזה כל
-          * כוחו; כותרת כהה מעליו הייתה יוצרת שני מוקדים ומבטלת את שניהם.
+          * ה-`-mx-5 px-5` מבטל את הריפוד של AppShell כדי שהלוח יימתח
+          * מקצה לקצה; בלעדיו הוא כרטיס ולא רצפה, וכל המהלך מתפרק.
           *
-          * **בלי `sticky`, בכוונה.** ל-AppShell יש `overflow-hidden`, שהופך
-          * אותו למכל־גלילה ומנטרל כל `position: sticky` שבתוכו — נמדד
-          * בדפדפן: נבדק top‏ 0 → ‎-720 בגלילה. לשלוח כאן `sticky` היה
-          * לשלוח קוד מת שנראה מכוון. אותו כלל תקף ל-lawyer.tsx.
+          * החשש היה שהוא יתחרה בכרטיס התיק שגם הוא נייבי — ראו את
+          * ההסבר ב-`.masthead` ב-styles.css. בקצרה: זה שטוח וישר-פינות
+          * ונמתח לרוחב, וזה מעוגל ומרחף. רצפה מול חפץ.
+          *
+          * **בלי `sticky`, בכוונה.** ל-AppShell יש `overflow-clip`, ולכן
+          * הוא אינו מכל־גלילה ו-sticky כן שורד בו היום — אבל כותרת
+          * שנדבקת פירושה שהיא רודפת אחרי הקורא בכל גלילה, וזה בדיוק מה
+          * שלוח פתיח לא אמור לעשות. הוא נאמר פעם אחת ונשאר מאחור.
           */}
-        <header className="-mx-5 flex items-start justify-between gap-3 border-b border-border px-5 pb-4 pt-9 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
+        <header className="masthead -mx-5 flex items-start justify-between gap-3 px-5 pb-5 pt-9">
           <div className="min-w-0">
             <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
               {t(greetKey)}
             </p>
-            <h1 className="mt-1 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight text-foreground">
+            <h1 className="mast-name mt-1 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight">
               {firstName || t("meBadge")}
             </h1>
-            {!active && (
-              <p className="mt-1.5 text-sm text-muted-foreground">{t("homeSub")}</p>
-            )}
+            {/*
+              * ההבטחה נאמרת תמיד ולא רק במסך ריק. היא הדבר היחיד שלקוח
+              * צריך לדעת לפני שהוא מספר מה קרה לו, והיא ישבה עד עכשיו
+              * בשבב 12px בין מונה תיקים לבין אייקון מגן.
+              */}
+            <p className="mast-sub mt-2 text-[13px] leading-relaxed">
+              <span className="mark-gold">{t("homeFreeClaim")}</span>
+            </p>
           </div>
-          <NotificationBell />
+          <NotificationBell className="mast-bell" />
         </header>
 
         {/*
@@ -234,7 +242,8 @@ function ClientHome() {
           * יימתח מקצה לקצה; `min-h` מונע ממנו להיגמר באוויר במסך ריק.
           */}
         <div className="workspace -mx-5 min-h-screen px-5 pt-6">
-        {/* השבבים נושאים עובדות, לא קישוט: כמה פתוח, ומה המחיר */}
+        {/* שבב אחד, ועובדה אחת: כמה פתוח. "חינם, תמיד" עלה ללוח הכותרת —
+            הבטחה נושאת אינה שבב ליד מונה. */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
@@ -250,10 +259,6 @@ function ClientHome() {
               : competingCount === 1
                 ? t("homeChipOneCase")
                 : `${competingCount} ${t("homeChipCases")}`}
-          </span>
-          <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
-            <ShieldCheck className="size-3.5 text-gold" strokeWidth={2} />
-            {t("homeChipFree")}
           </span>
         </motion.div>
 
@@ -524,7 +529,12 @@ function ClientJourney({ active }: { active?: Case }) {
      *
      * על כהה בלבד: על משטח בהיר הזהב אינו קורא כאור אלא ככתם חום.
      */
-    <div className="recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)] dark:ring-1 dark:ring-gold/25">
+    /*
+     * קצה הזהב (10/8/2026) — "יש כאן משהו", בלי להוסיף צבע ובלי להגביה.
+     * הכרטיס נשאר שקוע, כמו שהוכרע ב-9/8; הקצה הוא הסימון היחיד שאפשר
+     * להוסיף לו בלי לסתור את זה.
+     */
+    <div className="edge-gold recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)] dark:ring-1 dark:ring-gold/25">
       <p className="text-[11px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
         {t("journeyEyebrow")}
       </p>

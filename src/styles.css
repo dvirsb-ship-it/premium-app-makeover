@@ -567,6 +567,87 @@ html:not(.dark) .anchor-navy .tone-pill {
   border-inline-start: 3px solid var(--gold);
 }
 
+/*
+ * ═══ לוח הכותרת — תמיד מנוגד לדף (10/8/2026) ═══
+ *
+ * הרעיון של דביר: בבהיר כותרת כהה, בכהה כותרת בהירה. הכלל אחד —
+ * **הכותרת אינה חלק מהדף אלא הדבר שמעליו**, וזה בדיוק מה שכריכת
+ * ה-PDF עושה. עד עכשיו העמוד פתח בלבן על לבן והתחיל באוויר.
+ *
+ * החשש היה שלוח נייבי יתחרה בכרטיס התיק שגם הוא נייבי. הוא לא —
+ * הלוח נמתח מקצה לקצה, שטוח וישר-פינות; הכרטיס מעוגל ומרחף עם צל.
+ * זו רצפה מול חפץ, והעין לא מבלבלת ביניהם.
+ *
+ * **נכתב כמחלקה ולא כ-utilities עם `dark:`** — CSS ידני מחוץ ל-layer
+ * מנצח כל utility של Tailwind בלי קשר לספציפיות, ולכן ערבוב של השניים
+ * כאן היה נשבר בדיוק כמו שקרה ב-.recessed.
+ */
+.masthead {
+  background-color: var(--navy);
+  background-image: radial-gradient(
+    120% 90% at 74% -20%,
+    oklch(0.76 0.13 85 / 0.20),
+    transparent 58%
+  );
+  border-bottom: 2px solid var(--gold);
+}
+.masthead .mast-name { color: oklch(1 0 0); }
+.masthead .mast-sub { color: oklch(1 0 0 / 0.62); }
+/* הפעמון נושא `liquid-glass` ו-`text-foreground`; שניהם מכוילים לדף ולא
+   ללוח, ובבהיר זה נותן אייקון נייבי על נייבי. הלוח מגדיר אותו מחדש. */
+.masthead .mast-bell {
+  background-color: oklch(1 0 0 / 0.10);
+  background-image: none;
+  box-shadow: inset 0 0 0 1px oklch(1 0 0 / 0.14);
+  color: oklch(1 0 0);
+}
+.masthead .mast-bell::before { content: none; }
+/* קצוות הגרדיאנט של תווית-הגג הם --gold-ink, שנועד לכתוב על נייר.
+   על לוח נייבי הוא כמעט בלתי נראה — הזהב כאן חייב להיות מלא. */
+.masthead .eyebrow-live {
+  background-image: linear-gradient(100deg, var(--gold) 20%, #f7e7a8 50%, var(--gold) 80%);
+}
+/*
+ * **הסימון הופך לדיו על משטח כהה.**
+ *
+ * `mark-gold` בנוי כטוש על נייר: 32% זהב מתחת לאמצע האות. על נייבי זה
+ * אינו מסמן אלא מלכלך — נראה כקו תחתון שבור. אותו תפקיד בדיוק, פיזיקת
+ * אור הפוכה: כאן הביטוי עצמו הוא הזהב, בלי דבר מאחוריו.
+ */
+.masthead .mark-gold {
+  background-image: none;
+  color: var(--gold);
+  font-weight: 700;
+}
+
+.dark .masthead {
+  background-color: oklch(0.93 0.028 88);
+  background-image: radial-gradient(
+    120% 90% at 74% -20%,
+    oklch(0.76 0.13 85 / 0.26),
+    transparent 58%
+  );
+  border-bottom-color: oklch(0.62 0.12 82);
+}
+.dark .masthead .mast-name { color: var(--navy); }
+.dark .masthead .mast-sub { color: oklch(0.44 0.09 78); }
+.dark .masthead .mast-bell {
+  background-color: oklch(0.208 0.042 265.755 / 0.07);
+  box-shadow: inset 0 0 0 1px oklch(0.208 0.042 265.755 / 0.10);
+  color: var(--navy);
+}
+/* על לוח העצם --gold-ink הוא הגוון הבהיר של המצב הכהה — נבלע. ערכים
+   מפורשים, כי הלוח הזה אינו נייר וגם אינו הדף הכהה. */
+.dark .masthead .eyebrow-live {
+  background-image: linear-gradient(
+    100deg,
+    oklch(0.48 0.11 78) 20%,
+    oklch(0.63 0.13 80) 50%,
+    oklch(0.48 0.11 78) 80%
+  );
+}
+.dark .masthead .mark-gold { color: oklch(0.42 0.10 76); }
+
 /* המישור השלישי — חרוט לתוך הקנבס, מתחת לקו הבסיס */
 .surface-sunken {
   position: relative;

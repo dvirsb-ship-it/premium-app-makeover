@@ -654,6 +654,15 @@ export const strings = {
   homeHello: { he: "שלום", en: "Hello" },
   homeHelloNamed: { he: "שלום, {name}", en: "Hello, {name}" },
   homeSub: { he: "התיקים שלך, במקום אחד", en: "Your cases, in one place" },
+  /*
+   * ההבטחה הנושאת, על לוח הכותרת. עד עכשיו היא ישבה בשבב 12px ליד מונה
+   * התיקים — כלומר הדבר החשוב ביותר שלקוח צריך לדעת הוצג באותו משקל
+   * כמו ספירה. משפט שלם ולא שני מפתחות: סדר המילים משתנה בין שפות.
+   */
+  homeFreeClaim: {
+    he: "הבדיקה המשפטית חינם, ותמיד תישאר חינם.",
+    en: "The legal check is free, and always will be.",
+  },
   homeCaseUntitled: { he: "הפנייה שלך", en: "Your case" },
   homeNewCase: { he: "פנייה חדשה", en: "New case" },
   homeFirstCase: { he: "שיתוף המקרה שלי", en: "Share my case" },
