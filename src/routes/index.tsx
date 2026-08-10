@@ -217,9 +217,16 @@ function ClientHome() {
             <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
               {t(greetKey)}
             </p>
-            {/* 2.25rem/900 היה עבה מדי על הלוח: מה שנשא את המסך כשהוא ישב
-                על לבן הפך לכבד ברגע שקיבל רקע כהה מתחתיו. */}
-            <h1 className="mast-name mt-1 truncate text-[1.95rem] font-extrabold leading-[1.15] tracking-tight">
+            {/*
+              * זהה בדיוק לכותרות של "התיקים שלי" ו"פרופיל" — `text-2xl`
+              * במשקל 800, בלי leading או tracking משלו.
+              *
+              * המשקל כבר היה זהה אחרי הסבב הקודם; מה שנקרא כעבה יותר היה
+              * הגודל. אותיות עבריות ב-1.95rem נושאות קו עבה יותר מאותן
+              * אותיות ב-1.5rem גם במשקל זהה, ולכן יישור המשקל לבדו לא
+              * היה פותר את זה.
+              */}
+            <h1 className="mast-name mt-1 truncate text-2xl font-extrabold">
               {firstName || t("meBadge")}
             </h1>
             {/*
