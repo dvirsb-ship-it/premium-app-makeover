@@ -13,7 +13,7 @@ import { renderErrorPage } from "./lib/error-page";
  *
  * שורה אחת ב-curl עונה על זה עכשיו, בלי לנחש.
  */
-const BUILD_STAMP = "2026-08-11T20:25Z";
+const BUILD_STAMP = "2026-08-11T21:00Z";
 
 type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
