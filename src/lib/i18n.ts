@@ -613,6 +613,8 @@ export const strings = {
   proLaunchFree: { he: "בתקופת ההשקה — הכול כלול, בחינם", en: "During launch — everything included, free" },
   proLaunchFreeSub: { he: "אין כרגע מה לרכוש: כל התכונות פתוחות לכל עורך דין מאומת. נעדכן מראש לפני שמנוי ייכנס לתוקף.", en: "There is nothing to buy right now — every feature is open to all verified lawyers. We'll give notice before any subscription starts." },
   actionFailedRetry: { he: "הפעולה לא נשמרה. בדקו את החיבור ונסו שוב.", en: "That didn't save. Check your connection and try again." },
+  imagesAfterInterest: { he: "תיעוד מצורף — נפתח לאחר הבעת עניין", en: "Attached documentation — available after you express interest" },
+  imagesAfterInterestWhy: { he: "התיעוד הוא של אדם שנפגע. הוא נפתח למי שהביע עניין בתיק, ולא לכל מי שגולש בלוח. התיאור והתזכיר המשפטי מספיקים כדי להחליט.", en: "The documentation belongs to an injured person. It opens to those who expressed interest in this case, not to everyone browsing the board. The description and legal memo are enough to decide." },
   conflictTitle: { he: "בדיקת ניגוד עניינים", en: "Conflict check" },
   conflictBody: { he: "אשרו לפני ההגשה: אינכם מייצגים את הצד שכנגד בעניין זה, אין לכם או למשרדכם ניגוד עניינים בתיק, ולא ייצגתם בו צד אחר בעבר.", en: "Confirm before submitting: you do not represent the opposing party in this matter, neither you nor your firm has a conflict in this case, and you have not previously acted for another party in it." },
   conflictAgree: { he: "בדקתי — אין ניגוד עניינים", en: "I've checked — no conflict" },

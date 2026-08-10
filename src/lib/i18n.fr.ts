@@ -460,6 +460,8 @@ export const fr: Partial<Record<StringKey, string>> = {
   proLaunchFree: "Pendant le lancement — tout est inclus, gratuitement",
   proLaunchFreeSub: "Il n'y a rien à acheter pour l'instant : toutes les fonctionnalités sont ouvertes à chaque avocat vérifié. Nous préviendrons à l'avance avant l'entrée en vigueur d'un abonnement.",
   actionFailedRetry: "L'action n'a pas été enregistrée. Vérifiez votre connexion et réessayez.",
+  imagesAfterInterest: "Pièces jointes — accessibles après manifestation d'intérêt",
+  imagesAfterInterestWhy: "Ces pièces concernent une personne blessée. Elles s'ouvrent à ceux qui ont manifesté leur intérêt, pas à tous ceux qui parcourent le tableau. La description et la note juridique suffisent pour décider.",
   conflictTitle: "Vérification de conflit d'intérêts",
   conflictBody: "Confirmez avant l'envoi : vous ne représentez pas la partie adverse dans cette affaire, ni vous ni votre cabinet n'avez de conflit dans ce dossier, et vous n'y avez pas déjà agi pour une autre partie.",
   conflictAgree: "Vérifié — aucun conflit",

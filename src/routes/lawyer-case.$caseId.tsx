@@ -368,6 +368,25 @@ function LawyerCaseDetail() {
               </p>
             </div>
 
+            {/*
+              * אין תמונות = אין הרשאה, לא תקלה.
+              *
+              * מאז שחוקי ה-Storage צומצמו למי שהביע עניין בתיק הזה,
+              * `imgUrls` חוזר ריק לעורך דין שטרם הביע עניין. בלי ההסבר
+              * הזה החלק הזה פשוט נעלם מהמסך, והוא היה נראה כמו תיק בלי
+              * תיעוד — כלומר מידע שגוי על התיק.
+              */}
+            {imgUrls.length === 0 && details?.hasDocumentation && (
+              <div className="liquid-glass mt-4 rounded-3xl border border-gold/20 p-4">
+                <p className="text-[13px] font-bold text-foreground">
+                  {t("imagesAfterInterest")}
+                </p>
+                <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
+                  {t("imagesAfterInterestWhy")}
+                </p>
+              </div>
+            )}
+
             {imgUrls.length > 0 && (
               <div className="liquid-glass mt-4 rounded-3xl p-4">
                 <p className="text-[13px] font-bold text-foreground">{t("lawyerImagesHeader")}</p>
