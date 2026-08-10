@@ -498,7 +498,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   homeHello: "Bonjour",
   homeHelloNamed: "Bonjour, {name}",
   homeSub: "Vos dossiers, en un seul endroit",
-  homeFreeClaim: "L'examen juridique est gratuit, et le restera toujours.",
+  greetNamed: "{greet}, {name}",
   homeCaseUntitled: "Votre demande",
   homeNewCase: "Nouvelle demande",
   homeFirstCase: "Partager mon cas",

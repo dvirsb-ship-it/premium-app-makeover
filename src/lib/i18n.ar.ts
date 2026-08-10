@@ -498,7 +498,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   homeHello: "مرحبًا",
   homeHelloNamed: "مرحبًا، {name}",
   homeSub: "ملفاتك في مكان واحد",
-  homeFreeClaim: "الفحص القانوني مجاني، وسيبقى مجانيًا دائمًا.",
+  greetNamed: "{greet}، {name}",
   homeCaseUntitled: "طلبك",
   homeNewCase: "طلب جديد",
   homeFirstCase: "مشاركة حالتي",

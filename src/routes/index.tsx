@@ -128,12 +128,16 @@ function ClientHome() {
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   const firstName = (user?.displayName ?? "").trim().split(" ")[0];
-  /*
-   * הברכה לפי שעת היום ירדה מהלוח (10/8/2026) — היא הייתה השורה
-   * השלישית, ו-22 הפיקסלים שהפרידו את גובה הלוח כאן מזה שב"התיקים
-   * שלי". המחרוזות greetMorning/Afternoon/Evening/Night נשארו ב-i18n
-   * על מנת שהחזרה תהיה שינוי של שורה אחת.
-   */
+  /* ברכה לפי שעת היום — הדבר הקטן שגורם למסך להרגיש חי ולא תבנית */
+  const hour = new Date().getHours();
+  const greetKey =
+    hour >= 5 && hour < 12
+      ? "greetMorning"
+      : hour >= 12 && hour < 17
+        ? "greetAfternoon"
+        : hour >= 17 && hour < 22
+          ? "greetEvening"
+          : "greetNight";
   const [active, ...rest] = cases;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
@@ -209,14 +213,15 @@ function ClientHome() {
           * שלוח פתיח לא אמור לעשות. הוא נאמר פעם אחת ונשאר מאחור.
           */}
         {/*
-          * גובה הלוח מיושר ל"התיקים שלי": pb-4 pt-8 ו-items-center, ובלי
-          * שורת הברכה.
+          * הלוח הוא שורה אחת: הברכה והשם יחד (10/8/2026).
           *
-          * נמדד ברוחב טלפון אמיתי: הלוח היה 127px מול 104px ב"התיקים
-          * שלי". הריפוד הסביר 8 מתוך ההפרש בלבד — 22 הנותרים היו **שורה
-          * שלישית**, ואי אפשר לקצר שורה בלי להוריד אותה. בלי הברכה:
-          * 105px, כלומר זהה. (פרופיל הוא 82px כי יש בו שורה אחת בסך הכל;
-          * להגיע לשם היה מחייב להוריד גם את ההבטחה.)
+          * עברנו כאן דרך שלוש שורות (ברכה, שם, הבטחה) ואז שתיים, ודביר
+          * ביקש את הקצר ביותר. במקום להוריד את הברכה — היא חזרה **לתוך**
+          * הכותרת. "בוקר טוב, Dvir" אומר את שניהם במחיר של שורה אחת,
+          * והלוח מגיע לגובה של פרופיל.
+          *
+          * הפסיק הוא חלק מהמחרוזת ולא מהקוד: יש שפות שאינן מפסיקות כאן,
+          * ושרשור בקוד היה נועל אותן לתחביר העברי.
           */}
         <header className="masthead -mx-5 flex items-center justify-between gap-3 px-5 pb-4 pt-8">
           <div className="min-w-0">
@@ -230,16 +235,10 @@ function ClientHome() {
               * היה פותר את זה.
               */}
             <h1 className="mast-name truncate text-2xl font-extrabold">
-              {firstName || t("meBadge")}
+              {t("greetNamed")
+                .replace("{greet}", t(greetKey))
+                .replace("{name}", firstName || t("meBadge"))}
             </h1>
-            {/*
-              * ההבטחה נאמרת תמיד ולא רק במסך ריק. היא הדבר היחיד שלקוח
-              * צריך לדעת לפני שהוא מספר מה קרה לו, והיא ישבה עד עכשיו
-              * בשבב 12px בין מונה תיקים לבין אייקון מגן.
-              */}
-            <p className="mast-sub mt-0.5 text-[13px] leading-relaxed">
-              <span className="mark-gold">{t("homeFreeClaim")}</span>
-            </p>
           </div>
           <NotificationBell className="mast-bell" />
         </header>

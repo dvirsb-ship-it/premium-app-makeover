@@ -655,14 +655,13 @@ export const strings = {
   homeHelloNamed: { he: "שלום, {name}", en: "Hello, {name}" },
   homeSub: { he: "התיקים שלך, במקום אחד", en: "Your cases, in one place" },
   /*
-   * ההבטחה הנושאת, על לוח הכותרת. עד עכשיו היא ישבה בשבב 12px ליד מונה
-   * התיקים — כלומר הדבר החשוב ביותר שלקוח צריך לדעת הוצג באותו משקל
-   * כמו ספירה. משפט שלם ולא שני מפתחות: סדר המילים משתנה בין שפות.
+   * הברכה והשם בשורה אחת, על לוח הכותרת.
+   *
+   * תבנית ולא שרשור בקוד: הפסיק הוא סימן פיסוק של שפה, לא של תוכנית.
+   * בערבית הוא ‎،‎ ולא ‎,‎ — שרשור ב-JSX היה נועל את כל השפות לתחביר
+   * העברי, ומייצר בערבית משפט עם סימן זר באמצע.
    */
-  homeFreeClaim: {
-    he: "הבדיקה המשפטית חינם, ותמיד תישאר חינם.",
-    en: "The legal check is free, and always will be.",
-  },
+  greetNamed: { he: "{greet}, {name}", en: "{greet}, {name}" },
   homeCaseUntitled: { he: "הפנייה שלך", en: "Your case" },
   homeNewCase: { he: "פנייה חדשה", en: "New case" },
   homeFirstCase: { he: "שיתוף המקרה שלי", en: "Share my case" },
