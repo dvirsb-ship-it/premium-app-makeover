@@ -32,6 +32,7 @@ import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import type { CaseOffer, Lawyer } from "../lib/types";
 import { useRequireAuth } from "../lib/require-auth";
+import { LAWYER_RATINGS_VISIBLE } from "../lib/limits";
 import { CATEGORY_SPECS } from "../lib/specialties";
 import { GoldBurst } from "../components/GoldBurst";
 
@@ -695,7 +696,7 @@ function LawyerChoiceCard({
             * שיצטבר דירוג ראשון — כלומר על כולם, בכל הפעמים הראשונות.
             */}
           <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs">
-            {rating ? (
+            {LAWYER_RATINGS_VISIBLE && rating ? (
               <>
                 <span className="flex items-center gap-0.5 font-bold text-foreground">
                   <Star className="size-3.5 fill-gold text-gold" />
@@ -708,7 +709,7 @@ function LawyerChoiceCard({
             ) : (
               <span className="flex items-center gap-1 font-semibold text-gold">
                 <BadgeCheck className="size-3.5" strokeWidth={2.4} />
-                {t("verifiedLawyerChip")}
+                {t("verifiedLawyerChipShort")}
               </span>
             )}
             {lawyer.years > 0 && (

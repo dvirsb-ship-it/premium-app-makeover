@@ -1111,7 +1111,14 @@ export const strings = {
   casesErrorSub: { he: "התיקים שלך לא נעלמו — רק לא הצלחנו לטעון אותם כרגע. רעננו את הדף.", en: "Your cases haven't gone anywhere — we just couldn't load them. Refresh the page." },
   loadFailedTitle: { he: "הרשימה לא נטענה", en: "This list didn't load" },
   loadFailedSub: { he: "זו תקלה ולא רשימה ריקה. רעננו את הדף.", en: "This is a failure, not an empty list. Refresh the page." },
-  verifiedLawyerChip: { he: "זהות ורישיון אומתו", en: "Identity & license verified" },
+  /* מדויק ולא מרשים: תג שהציבור מסתמך עליו חייב לומר בדיוק מה נבדק.
+     "זהות ורישיון אומתו" נשמע כמו אימות מתמשך; בפועל זו בדיקה ידנית
+     מול פנקס הלשכה במועד האישור. ‎`verifiedOnDate` נושא את התאריך. */
+  verifiedLawyerChip: { he: "תעודה ומספר רישיון נבדקו מול פנקס הלשכה", en: "Certificate and licence number checked against the Bar register" },
+  verifiedOnDate: { he: "נבדק ב-{d}", en: "Checked on {d}" },
+  /* גרסה קצרה לשורת מטא צרה — מדויקת באותה מידה, בלי לשבור פריסה. */
+  verifiedLawyerChipShort: { he: "רישיון נבדק", en: "Licence checked" },
+  verifiedWhatItMeans: { he: "הבדיקה נעשית ידנית במועד האישור ומתחדשת מדי שנה. היא אינה מהווה המלצה ואינה חוות דעת על טיב הייצוג.", en: "The check is performed manually at approval and renewed annually. It is not a recommendation and not an opinion on the quality of representation." },
 
   /* ---------- מנוי עורכי דין ---------- */
   proHeroTitle: { he: "מה פתוח לך", en: "What's open to you" },

@@ -8,6 +8,7 @@ import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { avgRating, avgResponseLabel, readLawyerStats } from "../lib/db";
+import { LAWYER_RATINGS_VISIBLE } from "../lib/limits";
 import { SPECIALTIES, type SpecId } from "../lib/specialties";
 import { SPEC_ICON } from "../lib/category-icons";
 
@@ -97,7 +98,7 @@ function LawyerProfile() {
       ? [{ n: `${lawyer.years}`, label: t("yearsExperience"), icon: Award }]
       : []),
     ...(responseLabel ? [{ n: responseLabel, label: t("responseTimeLabel"), icon: Briefcase }] : []),
-    ...(rating
+    ...(LAWYER_RATINGS_VISIBLE && rating
       ? [{ n: rating.avg.toFixed(1), label: `${rating.count} ${t("ratingCount")}`, icon: Star }]
       : []),
   ];
@@ -167,12 +168,24 @@ function LawyerProfile() {
             {lawyer.bio}
           </p>
         )}
-        {/* אות האמון — מה שהלקוח באמת צריך לדעת לפני שהוא בוחר */}
-        <div className="relative mt-4 flex items-center gap-2 rounded-2xl border border-success/30 bg-success/15 px-3 py-2.5">
-          <BadgeCheck className="size-4 shrink-0 text-success" strokeWidth={2.4} />
-          <span className="text-[12.5px] font-bold text-white">
-            {t("verifiedLawyerChip")}
-          </span>
+        {/*
+          * אות האמון — ומה שהוא **אינו** אומר (11/8/2026).
+          *
+          * קודם נכתב כאן "זהות ורישיון אומתו", וזה נשמע כמו אימות מתמשך
+          * ואולי אף כהמלצה. בפועל זו בדיקה ידנית מול פנקס הלשכה במועד
+          * האישור. תג שהציבור מסתמך עליו חייב לומר בדיוק מה נבדק — אחרת
+          * הוא חשיפה בפני עצמו, בנפרד מכל שאלת אתיקה.
+          */}
+        <div className="relative mt-4 rounded-2xl border border-success/30 bg-success/15 px-3 py-2.5">
+          <div className="flex items-center gap-2">
+            <BadgeCheck className="size-4 shrink-0 text-success" strokeWidth={2.4} />
+            <span className="text-[12.5px] font-bold text-white">
+              {t("verifiedLawyerChip")}
+            </span>
+          </div>
+          <p className="mt-1.5 text-[11px] leading-relaxed text-white/60">
+            {t("verifiedWhatItMeans")}
+          </p>
         </div>
       </motion.div>
 
