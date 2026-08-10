@@ -763,7 +763,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   verifiedLawyerChip: "Certificat et numéro de licence vérifiés au registre du Barreau",
   verifiedOnDate: "Vérifié le {d}",
   verifiedLawyerChipShort: "Licence vérifiée",
-  verifiedWhatItMeans: "La vérification est faite manuellement à l'approbation et renouvelée chaque année. Ce n'est ni une recommandation ni un avis sur la qualité de la représentation.",
+  verifiedWhatItMeans: "La vérification est faite manuellement au registre du Barreau lors de l'approbation. Ce n'est ni une recommandation ni un avis sur la qualité de la représentation, et elle n'est pas mise à jour automatiquement ensuite.",
   proHeroTitle: "Ce qui vous est ouvert",
   proNowHeader: "Inclus dès maintenant — sans frais",
   proNow1: "Tous les dossiers des domaines choisis, dès la validation de l'analyse juridique",

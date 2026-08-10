@@ -763,7 +763,7 @@ export const es: Partial<Record<StringKey, string>> = {
   verifiedLawyerChip: "Certificado y número de licencia cotejados con el registro del Colegio",
   verifiedOnDate: "Comprobado el {d}",
   verifiedLawyerChipShort: "Licencia comprobada",
-  verifiedWhatItMeans: "La comprobación se realiza manualmente al aprobar y se renueva cada año. No es una recomendación ni una opinión sobre la calidad de la representación.",
+  verifiedWhatItMeans: "La comprobación se realiza manualmente contra el registro del Colegio al aprobar. No es una recomendación, no opina sobre la calidad de la representación y no se actualiza automáticamente después.",
   proHeroTitle: "Qué tiene disponible",
   proNowHeader: "Incluido ahora — sin costo",
   proNow1: "Todos los casos de las áreas que eligió, apenas se aprueba la revisión legal",

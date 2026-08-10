@@ -1127,7 +1127,7 @@ export const strings = {
   verifiedOnDate: { he: "נבדק ב-{d}", en: "Checked on {d}" },
   /* גרסה קצרה לשורת מטא צרה — מדויקת באותה מידה, בלי לשבור פריסה. */
   verifiedLawyerChipShort: { he: "רישיון נבדק", en: "Licence checked" },
-  verifiedWhatItMeans: { he: "הבדיקה נעשית ידנית במועד האישור ומתחדשת מדי שנה. היא אינה מהווה המלצה ואינה חוות דעת על טיב הייצוג.", en: "The check is performed manually at approval and renewed annually. It is not a recommendation and not an opinion on the quality of representation." },
+  verifiedWhatItMeans: { he: "הבדיקה נעשית ידנית מול פנקס הלשכה במועד האישור. היא אינה מהווה המלצה, אינה חוות דעת על טיב הייצוג, ואינה מתעדכנת אוטומטית לאחר מכן.", en: "The check is performed manually against the Bar register at approval. It is not a recommendation, not an opinion on the quality of representation, and is not updated automatically afterwards." },
 
   /* ---------- מנוי עורכי דין ---------- */
   proHeroTitle: { he: "מה פתוח לך", en: "What's open to you" },
