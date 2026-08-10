@@ -555,7 +555,19 @@ function ClientJourney({ active }: { active?: Case }) {
      * הכרטיס נשאר שקוע, כמו שהוכרע ב-9/8; הקצה הוא הסימון היחיד שאפשר
      * להוסיף לו בלי לסתור את זה.
      */
-    <div className="edge-gold recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)] dark:ring-1 dark:ring-gold/25">
+    /*
+     * `dark:ring-1 dark:ring-gold/25` ישב כאן והיה **קוד מת**.
+     *
+     * `ring` של Tailwind נכתב כ-box-shadow, ו-`.dark .recessed` קובע
+     * box-shadow משלו ב-CSS ידני מחוץ ל-layer — שמנצח כל utility בלי
+     * קשר לספציפיות. הטבעת מעולם לא רונדרה. נמדד: הצל בכהה מכיל רק את
+     * שתי השכבות הפנימיות של `.recessed`.
+     *
+     * הוסרה במקום לתקן: `edge-gold` כבר נותן את סימון הזהב, ובשני
+     * המצבים באותה צורה. טבעת מלאה **ועוד** קצה היו שני אותות זהב על
+     * כרטיס אחד — בדיוק מה שדביר קרא לו "מצועצע" בלוח הכותרת.
+     */
+    <div className="edge-gold recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)]">
       <p className="text-[11px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
         {t("journeyEyebrow")}
       </p>
@@ -581,7 +593,7 @@ function ClientJourney({ active }: { active?: Case }) {
                   className={cn(
                     "absolute right-[13px] top-7 bottom-0 w-0.5 rounded-full",
                     done
-                      ? "bg-gold-ink dark:bg-gradient-to-b dark:from-gold dark:via-gold/70 dark:to-gold/25"
+                      ? "bg-gold dark:bg-gradient-to-b dark:from-gold dark:via-gold/70 dark:to-gold/25"
                       : "bg-foreground/15 dark:bg-white/10",
                   )}
                 />
@@ -597,9 +609,19 @@ function ClientJourney({ active }: { active?: Case }) {
                     /*
                      * על כהה הזהב זוהר; על בהיר זוהר לא קיים, אז הוא **מלא**.
                      * אותו מסר בשתי פיזיקות שונות של אור.
+                     *
+                     * המילוי היה `gold-ink` (10/8/2026) — הדיו שנועד **לכתוב**
+                     * על נייר, ‎oklch(0.52)‎. כמילוי של עיגול הוא נקרא כחום
+                     * עכור ולא כזהב, וכך דביר תיאר אותו. `--gold` הוא הצבע
+                     * הנכון לכל מה שהוא משטח; `--gold-ink` נשאר לטקסט בלבד,
+                     * שם הוא קיים כי ‎--gold‎ נכשל AA על נייר (2.16:1).
+                     *
+                     * טבעת רכה במקום זוהר: על כהה ההילה היא אור שנפלט, ועל
+                     * נייר אין ממה לפלוט — שם אותו תפקיד נעשה בהילה מוצקה
+                     * ודקה סביב העיגול.
                      */
                     done &&
-                      "bg-gold-ink text-white dark:bg-gold/15 dark:text-gold dark:ring-1 dark:ring-gold/50 dark:shadow-[0_0_14px_rgba(212,175,55,0.45)]",
+                      "bg-gold text-[#0F172A] shadow-[0_0_0_4px_oklch(0.76_0.13_85/0.16)] dark:bg-gold/15 dark:text-gold dark:shadow-[0_0_14px_rgba(212,175,55,0.45)] dark:ring-1 dark:ring-gold/50",
                     current &&
                       "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-[0_0_0_3px_rgba(201,162,39,0.22)] dark:shadow-[0_0_18px_rgba(212,175,55,0.6)]",
                     !done &&
