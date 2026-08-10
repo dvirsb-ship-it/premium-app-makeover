@@ -10,6 +10,16 @@ import { notify } from "./db";
 
 export type VerificationStatus = "pending" | "approved" | "rejected";
 
+/**
+ * גרסת נוסח ההתחייבות המקצועית.
+ *
+ * **להעלות בכל שינוי בנוסח.** בלי זה, חתימה שניתנה על נוסח ישן תיראה
+ * כאילו ניתנה על החדש — וזו בדיוק הטענה שתפיל את ההסתמכות עליה.
+ * הנוסח הנוכחי נכתב על ידינו וטרם עבר עורך דין; כשהוא ינוסח מחדש,
+ * המספר עולה ל-2 ומי שנרשם קודם יתבקש לאשר שוב.
+ */
+export const UNDERTAKING_VERSION = 1;
+
 export interface VerificationRecord {
   id: string; // ה-uid של עורך הדין
   fullName: string;
@@ -24,6 +34,20 @@ export interface VerificationRecord {
   /** שפות שבהן עורך הדין נותן שירות — נשמר גם כאן, כדי שהאדמין יראה. */
   languages?: string[];
   otherSpecialty?: string;
+  /**
+   * ההתחייבות המקצועית שעורך הדין אישר בהגשה (10/8/2026).
+   *
+   * עד היום עורך דין לא אישר **דבר** מעבר לתנאי השימוש הכלליים — לא
+   * הצהרת רישיון, לא סודיות לגבי תיקים שראה ולא נבחר בהם, ולא איסור
+   * יצירת קשר מחוץ לפלטפורמה. הלקוח, לעומתו, מסמן שש התחייבויות מפורשות.
+   *
+   * נשמר **עם חותמת זמן וגרסה** ולא כ-boolean: התחייבות שאי אפשר להוכיח
+   * מתי ניתנה ועל איזה נוסח אינה שווה הרבה ביום שבו צריך להסתמך עליה.
+   * שינוי הנוסח מחייב העלאת `undertakingVersion`, כדי שלא ייווצר מצב שבו
+   * חתימה ישנה נראית כאילו ניתנה על נוסח חדש.
+   */
+  undertakingAt?: number;
+  undertakingVersion?: number;
   submittedAt: number;
   status: VerificationStatus;
   reviewedAt?: number;

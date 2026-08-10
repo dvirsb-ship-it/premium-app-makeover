@@ -32,6 +32,7 @@ import { SPEC_ICON } from "../lib/category-icons";
 import { isValidIsraeliId } from "../lib/legal";
 import { cn } from "../lib/utils";
 import {
+  UNDERTAKING_VERSION,
   enqueueVerification,
   selfieVideoProblem,
   type VerificationRecord,
@@ -192,6 +193,8 @@ function LawyerOnboarding() {
   const rtl = dir === "rtl";
 
   const [stepIdx, setStepIdx] = useState(0);
+  /* ההתחייבות המקצועית — נדרשת לפני שההגשה נפתחת. ראה ReviewStep. */
+  const [undertook, setUndertook] = useState(false);
   const [form, setForm] = useState<FormState>({
     fullName: "",
     idNumber: "",
@@ -278,6 +281,7 @@ function LawyerOnboarding() {
 
   function runVerification() {
     if (verifyState === "running") return;
+    if (!undertook) return;
     setVerifyState("running");
     const found = collectIssues(form);
     // האנימציה רצה במקביל להעלאה האמיתית ל-Storage + Firestore.
@@ -298,6 +302,12 @@ function LawyerOnboarding() {
                 gradYear: form.gradYear,
                 specialties: [...form.specialties],
                 languages: [...form.languages],
+                /*
+                 * החתימה נשמרת עם הרשומה ולא בנפרד: ביום שבו נצטרך להראות
+                 * שעורך הדין התחייב, צריך שזה יהיה באותו מסמך שבו אושר.
+                 */
+                undertakingAt: Date.now(),
+                undertakingVersion: UNDERTAKING_VERSION,
               },
               { barCard: form.barCardFile, diploma: form.diplomaFile, selfieVideo: form.selfieVideo },
             );
@@ -441,7 +451,13 @@ function LawyerOnboarding() {
                   toggleLang={toggleLang}
                 />
               )}
-              {step === "review" && <ReviewStep form={form} />}
+              {step === "review" && (
+                <ReviewStep
+                  form={form}
+                  undertook={undertook}
+                  setUndertook={setUndertook}
+                />
+              )}
             </motion.div>
           )}
         </AnimatePresence>
@@ -451,11 +467,17 @@ function LawyerOnboarding() {
         <div className="mt-6 pb-6">
           {step === "review" ? (
             <>
+              {/*
+                * ההגשה חסומה עד לאישור ההתחייבות. **חסימה ולא אזהרה:**
+                * התחייבות שאפשר לדלג עליה אינה התחייבות, וזו בדיוק הנקודה
+                * שעליה נסמוך ביום שבו נצטרך להוכיח שעורך הדין ידע.
+                */}
               <motion.button
                 type="button"
                 onClick={runVerification}
-                whileTap={{ scale: 0.97 }}
-                className="btn-gold flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold"
+                disabled={!undertook}
+                whileTap={undertook ? { scale: 0.97 } : undefined}
+                className="btn-gold flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold transition disabled:cursor-not-allowed disabled:opacity-40"
               >
                 <ShieldCheck className="size-5" strokeWidth={2.4} />
                 {t("reviewSubmit")}
@@ -1057,7 +1079,100 @@ export function SpecialtiesStep({
 }
 
 
-function ReviewStep({ form }: { form: FormState }) {
+/**
+ * ההתחייבות המקצועית — שש נקודות שעורך הדין מאשר לפני ההגשה.
+ *
+ * עד היום הוא לא אישר **דבר** מעבר לתנאי השימוש הכלליים, בזמן שהלקוח
+ * מסמן שש התחייבויות מפורשות. זה היה פער אמיתי: אין מסמך שבו הוא מצהיר
+ * על רישיון בתוקף, מתחייב לסודיות לגבי תיקים שראה ולא נבחר בהם, או
+ * מקבל על עצמו את איסור יצירת הקשר מחוץ לפלטפורמה.
+ *
+ * כל נקודה נגזרת מכלל ממשי ולא מניסוח כללי — סודיות, ניגוד עניינים,
+ * תקרות שכר טרחה, ואיסור התניית שכר בתוצאה בפלילי. הניסוח הסופי יעבור
+ * את עורך הדין; זה מה שקיים עד אז, וזה עדיף בהרבה על כלום.
+ *
+ * **החתימה נשמרת עם חותמת זמן וגרסה** ברשומת האימות, ולא כ-boolean —
+ * ראה `undertakingVersion` ב-verification-queue.ts.
+ */
+const UNDERTAKING_KEYS: StringKey[] = [
+  "undertake1",
+  "undertake2",
+  "undertake3",
+  "undertake4",
+  "undertake5",
+  "undertake6",
+];
+
+function UndertakingBlock({
+  checked,
+  onChange,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+}) {
+  const t = useT();
+  return (
+    <section className="mt-4 rounded-[24px] border border-gold/30 bg-gold/[0.05] p-4">
+      <div className="flex items-center gap-2">
+        <Scale className="size-4 shrink-0 text-gold-ink" strokeWidth={2.2} aria-hidden />
+        <h3 className="text-[13.5px] font-bold text-foreground">
+          {t("undertakingTitle")}
+        </h3>
+      </div>
+      <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
+        {t("undertakingDesc")}
+      </p>
+
+      <ol className="mt-3 space-y-2.5">
+        {UNDERTAKING_KEYS.map((k, i) => (
+          <li key={k} className="flex gap-2.5">
+            <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-gold-ink text-[10px] font-black text-white">
+              {i + 1}
+            </span>
+            <span className="text-[12.5px] leading-relaxed text-foreground">
+              {t(k)}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <button
+        type="button"
+        role="checkbox"
+        aria-checked={checked}
+        onClick={() => onChange(!checked)}
+        className="mt-4 flex w-full items-center gap-3 rounded-2xl border border-border bg-background/60 p-3 text-start transition active:scale-[0.99]"
+      >
+        <span
+          className={cn(
+            "grid size-6 shrink-0 place-items-center rounded-lg border-2 transition",
+            checked ? "border-gold-ink bg-gold-ink" : "border-muted-foreground/40",
+          )}
+        >
+          {checked && <Check className="size-4 text-white" strokeWidth={3} />}
+        </span>
+        <span className="text-[13px] font-bold text-foreground">
+          {t("undertakeAgree")}
+        </span>
+      </button>
+      {!checked && (
+        <p className="mt-2 text-[11.5px] text-muted-foreground">
+          {t("undertakeRequired")}
+        </p>
+      )}
+    </section>
+  );
+}
+
+function ReviewStep({
+  form,
+  undertook,
+  setUndertook,
+}: {
+  form: FormState;
+  undertook: boolean;
+  setUndertook: (v: boolean) => void;
+}) {
   const t = useT();
   return (
     <div>
@@ -1101,6 +1216,7 @@ function ReviewStep({ form }: { form: FormState }) {
           ]}
         />
       </div>
+      <UndertakingBlock checked={undertook} onChange={setUndertook} />
     </div>
   );
 }
