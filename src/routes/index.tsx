@@ -213,7 +213,16 @@ function ClientHome() {
           * שנדבקת רודפת אחרי הקורא בכל גלילה, וזה בדיוק מה שפתיח לא אמור
           * לעשות. הוא נאמר פעם אחת ונשאר מאחור.
           */}
-        <header className="masthead -mx-5 flex items-center justify-between gap-3 px-5 pb-4 pt-8">
+        {/*
+          * `items-start` ולא `items-center` — יישור לשאר הלשוניות.
+          *
+          * הכותרת כאן היא שורה אחת (32px) והפעמון 44px. עם `items-center`
+          * הפלקס מרכז את שניהם מול הגבוה מביניהם, והכותרת נדחפת 6px
+          * למטה: היא התחילה ב-38 בעוד ב"התיקים שלי" ובפרופיל היא ב-32.
+          * מעבר בין שלוש הלשוניות הקפיץ אותה. זה לא היה עיצוב אלא תוצר
+          * לוואי של הפלקס, ולכן היישור לראש.
+          */}
+        <header className="masthead -mx-5 flex items-start justify-between gap-3 px-5 pb-4 pt-8">
           <div className="min-w-0">
             {/*
               * זהה לכותרות של "התיקים שלי" ו"פרופיל" — text-2xl במשקל 800.
