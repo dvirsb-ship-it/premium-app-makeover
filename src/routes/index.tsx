@@ -215,11 +215,28 @@ function ClientHome() {
           */}
         <header className="masthead -mx-5 flex items-center justify-between gap-3 px-5 pb-4 pt-8">
           <div className="min-w-0">
-            {/* זהה לכותרות של "התיקים שלי" ו"פרופיל" — text-2xl במשקל 800 */}
+            {/*
+              * זהה לכותרות של "התיקים שלי" ו"פרופיל" — text-2xl במשקל 800.
+              *
+              * הברכה נשארת בזהב החי שהיה לה כשישבה בשורה נפרדת; רק השם
+              * הוא דיו. פיצול לפי התבנית ולא `replace` על מחרוזת אחת, כדי
+              * שסדר המילים והפיסוק יישארו של השפה: בערבית הפסיק הוא ‎،‎,
+              * ויש שפות שבהן השם מקדים את הברכה.
+              */}
             <h1 className="truncate text-2xl font-extrabold text-foreground">
               {t("greetNamed")
-                .replace("{greet}", t(greetKey))
-                .replace("{name}", firstName || t("meBadge"))}
+                .split(/(\{greet\}|\{name\})/)
+                .map((part, i) =>
+                  part === "{greet}" ? (
+                    <span key={i} className="eyebrow-live">
+                      {t(greetKey)}
+                    </span>
+                  ) : part === "{name}" ? (
+                    <span key={i}>{firstName || t("meBadge")}</span>
+                  ) : (
+                    part
+                  ),
+                )}
             </h1>
           </div>
           <NotificationBell />
@@ -261,7 +278,7 @@ function ClientHome() {
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
-                  "anchor-navy liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
+                  "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
                   active.status === "has_interest" && "glass-warm",
                   active.status === "connected" && "glass-lit",
                 )}
@@ -273,15 +290,17 @@ function ClientHome() {
                     >
                       {activeMeta!.label}
                     </span>
-                    <span className="text-[11px] font-medium text-white/60 dark:text-muted-foreground">
+                    {/* היה `text-white` בבהיר, כי הכרטיס היה נייבי. עכשיו
+                        הוא בהיר בשני המצבים ולכן גם הטקסט אחד. */}
+                    <span className="text-[11px] font-medium text-muted-foreground">
                       {ago(active.createdAt)}
                     </span>
                   </div>
 
-                  <h2 className="mt-3.5 text-[1.35rem] font-extrabold leading-[1.2] tracking-tight text-white dark:text-foreground">
+                  <h2 className="mt-3.5 text-[1.35rem] font-extrabold leading-[1.2] tracking-tight text-foreground">
                     {active.title || t("homeCaseUntitled")}
                   </h2>
-                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-white/70 dark:text-muted-foreground">
+                  <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                     {active.summary}
                   </p>
                 </div>
