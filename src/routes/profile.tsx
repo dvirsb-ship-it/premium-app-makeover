@@ -60,9 +60,9 @@ function Profile() {
   return (
     <AppShell>
       <Page>
-        {/* אותה הפרדה כמו בכל דאשבורד — ראה את ההנמקה ב-index.tsx */}
-        <header className="-mx-5 border-b border-border px-5 pb-4 pt-8 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
-          <h1 className="text-2xl font-black text-foreground">{t("profile")}</h1>
+        {/* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */}
+        <header className="masthead -mx-5 px-5 pb-4 pt-8">
+          <h1 className="mast-name text-2xl font-extrabold">{t("profile")}</h1>
         </header>
 
         <Stagger className="workspace -mx-5 min-h-screen space-y-4 px-5 pb-4 pt-6">

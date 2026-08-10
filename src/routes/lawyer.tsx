@@ -152,28 +152,30 @@ function LawyerFeed() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         /*
-         * אותה הפרדה בדיוק כמו בבית של הלקוח — קו אחד לשני הצדדים.
-         * ההנמקה המלאה, כולל למה אין כאן `sticky`, נמצאת ב-index.tsx.
+         * אותו לוח כותרת בדיוק כמו בבית של הלקוח — קו אחד לשני הצדדים.
+         * ההנמקה המלאה, כולל למה אין כאן `sticky`, נמצאת ב-`.masthead`.
          */
-        className="-mx-5 flex items-center justify-between border-b border-border px-5 pb-4 pt-6 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]"
+        className="masthead -mx-5 flex items-center justify-between px-5 pb-4 pt-6"
       >
         <div>
           <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
             JUSTASK · PRO
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-foreground">
+          <h1 className="mast-name mt-1 text-2xl font-bold">
             {t("newLeads")}
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <NotificationBell />
+          <NotificationBell className="mast-bell" />
           <button
             type="button"
             onClick={() => navigate({ to: "/lawyer-subscription" })}
-            className="liquid-glass grid size-11 place-items-center rounded-full text-foreground"
+            className="mast-bell liquid-glass grid size-11 place-items-center rounded-full text-foreground"
             aria-label={t("proSubscriptionAria")}
           >
-            <Sparkles className="size-5 text-gold" strokeWidth={2} />
+            {/* לא `text-gold`: על לוח העצם זהב-על-קרם הוא אותה משפחת גוון
+                ונעלם. `mast-accent` נותן את הזהב הנכון לכל לוח. */}
+            <Sparkles className="mast-accent size-5" strokeWidth={2} />
           </button>
         </div>
       </motion.header>

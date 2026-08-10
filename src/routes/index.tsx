@@ -217,7 +217,9 @@ function ClientHome() {
             <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
               {t(greetKey)}
             </p>
-            <h1 className="mast-name mt-1 truncate text-[2.25rem] font-black leading-[1.1] tracking-tight">
+            {/* 2.25rem/900 היה עבה מדי על הלוח: מה שנשא את המסך כשהוא ישב
+                על לבן הפך לכבד ברגע שקיבל רקע כהה מתחתיו. */}
+            <h1 className="mast-name mt-1 truncate text-[1.95rem] font-extrabold leading-[1.15] tracking-tight">
               {firstName || t("meBadge")}
             </h1>
             {/*

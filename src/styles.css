@@ -602,6 +602,8 @@ html:not(.dark) .anchor-navy .tone-pill {
   color: oklch(1 0 0);
 }
 .masthead .mast-bell::before { content: none; }
+/* אייקון מודגש בתוך הלוח — הזהב הנכון לכל אחד משני הלוחות */
+.masthead .mast-accent { color: var(--gold); }
 /* קצוות הגרדיאנט של תווית-הגג הם --gold-ink, שנועד לכתוב על נייר.
    על לוח נייבי הוא כמעט בלתי נראה — הזהב כאן חייב להיות מלא. */
 .masthead .eyebrow-live {
@@ -647,6 +649,14 @@ html:not(.dark) .anchor-navy .tone-pill {
   );
 }
 .dark .masthead .mark-gold { color: oklch(0.42 0.10 76); }
+.dark .masthead .mast-accent { color: oklch(0.48 0.11 78); }
+/* כפתור הפעולה הוא זהב מלא. על לוח נייבי הוא קופץ; על לוח העצם הוא
+   זהב על קרם — אותה משפחת גוון, והקצה שלו נעלם. טבעת דיו מחזירה אותו. */
+.dark .masthead .chip-gold {
+  box-shadow:
+    0 0 0 1px oklch(0.208 0.042 265.755 / 0.22),
+    0 6px 14px -8px oklch(0.208 0.042 265.755 / 0.45);
+}
 
 /* המישור השלישי — חרוט לתוך הקנבס, מתחת לקו הבסיס */
 .surface-sunken {

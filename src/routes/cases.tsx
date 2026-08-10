@@ -46,14 +46,14 @@ function Cases() {
   return (
     <AppShell>
       <Page>
-        {/* אותה הפרדה כמו בכל דאשבורד — ראה את ההנמקה ב-index.tsx */}
-        <div className="-mx-5 flex items-center justify-between border-b border-border px-5 pb-4 pt-8 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]">
+        {/* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */}
+        <div className="masthead -mx-5 flex items-center justify-between px-5 pb-4 pt-8">
           <div>
-            <h1 className="text-2xl font-black text-foreground">{t("myCasesTitle")}</h1>
-            <p className="mt-0.5 text-sm text-muted-foreground">{t("myCasesSub")}</p>
+            <h1 className="mast-name text-2xl font-extrabold">{t("myCasesTitle")}</h1>
+            <p className="mast-sub mt-0.5 text-sm">{t("myCasesSub")}</p>
           </div>
           <div className="flex items-center gap-2">
-            <NotificationBell />
+            <NotificationBell className="mast-bell" />
             {/*
               * ל-/intake-tips, לא ל-/onboarding.
               *

@@ -71,16 +71,16 @@ function LawyerCases() {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-        /* אותה הפרדה כמו בפיד ובבית — ראה את ההנמקה ב-index.tsx */
-        className="-mx-5 border-b border-border px-5 pb-4 pt-6 [box-shadow:0_6px_18px_-14px_oklch(0_0_0_/_0.35)]"
+        /* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */
+        className="masthead -mx-5 px-5 pb-4 pt-6"
       >
         <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
           JUSTASK · PRO
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-foreground">
+        <h1 className="mast-name mt-1 text-2xl font-bold">
           {t("lawyerActiveTitle")}
         </h1>
-        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="mast-sub mt-1 text-[13px] leading-relaxed">
           {t("lawyerActiveSub")}
         </p>
       </motion.header>
