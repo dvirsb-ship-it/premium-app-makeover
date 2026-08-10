@@ -377,7 +377,7 @@ function LawyerCaseDetail() {
               * תיעוד — כלומר מידע שגוי על התיק.
               */}
             {imgUrls.length === 0 && details?.hasDocumentation && (
-              <div className="liquid-glass mt-4 rounded-3xl border border-gold/20 p-4">
+              <div className="note-gold mt-4 rounded-3xl">
                 <p className="text-[13px] font-bold text-foreground">
                   {t("imagesAfterInterest")}
                 </p>
@@ -1066,7 +1066,7 @@ function LawyerCaseDetail() {
                   * לדעת הייתה לבקש ממנו את רשימת הלקוחות שלו — כלומר
                   * לפגוע בסודיות כדי להגן עליה.
                   */}
-                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-gold/30 bg-gold/[0.05] p-3.5">
+                <label className="note-gold flex cursor-pointer items-start gap-3 rounded-2xl">
                   <input
                     type="checkbox"
                     checked={noConflict}

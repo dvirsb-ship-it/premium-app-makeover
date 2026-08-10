@@ -1112,7 +1112,7 @@ function UndertakingBlock({
 }) {
   const t = useT();
   return (
-    <section className="mt-4 rounded-[24px] border border-gold/30 bg-gold/[0.05] p-4">
+    <section className="note-gold mt-4 rounded-[24px]">
       <div className="flex items-center gap-2">
         <Scale className="size-4 shrink-0 text-gold-ink" strokeWidth={2.2} aria-hidden />
         <h3 className="text-[13.5px] font-bold text-foreground">

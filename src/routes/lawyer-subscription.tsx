@@ -93,7 +93,7 @@ function LawyerSubscription() {
         transition={{ delay: 0.28, duration: 0.5 }}
         className="mt-7"
       >
-        <h2 className="px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <h2 className="rule-gold px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           {t("proNowHeader")}
         </h2>
         <ul className="liquid-glass mt-3 space-y-3.5 rounded-[24px] p-5">
@@ -129,7 +129,7 @@ function LawyerSubscription() {
         transition={{ delay: 0.5, duration: 0.5 }}
         className="mt-6 pb-10"
       >
-        <h2 className="px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
+        <h2 className="rule-gold px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           {t("proLaterHeader")}
         </h2>
         <p className="mt-3 rounded-[22px] border border-border bg-card p-5 text-[13px] leading-relaxed text-muted-foreground">
@@ -144,9 +144,10 @@ function LawyerSubscription() {
           * שנכווה מחברות לידים מניח שהתשובה היא כן. מוטב שיקרא אותה
           * בעצמו לפני שהוא מקליד כרטיס, ולא ימצא אותה בתקנון בדיעבד.
           */}
-        <div className="mt-3 rounded-[22px] border border-gold/30 bg-gold/[0.05] p-5">
+        <div className="note-gold mt-3 rounded-[22px] p-5">
           <p className="text-[13px] font-bold text-foreground">
-            {t("proNoPriorityTitle")}
+            {/* סימון על הכותרת בלבד — זו הטענה, וכל השאר הוא ההסבר שלה */}
+            <span className="mark-gold">{t("proNoPriorityTitle")}</span>
           </p>
           <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
             {t("proNoPriority")}

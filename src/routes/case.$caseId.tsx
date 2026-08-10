@@ -587,9 +587,9 @@ function CaseDetail() {
                         * הציצו, אלא מה מותר להם לעשות עם מה שראו.
                         */}
                       {typeof item.notifiedLawyers === "number" && (
-                        <div className="mt-3 rounded-3xl border border-border bg-foreground/[0.03] p-4">
+                        <div className="note-gold mt-3 rounded-3xl">
                           <p className="text-[13px] font-bold text-foreground">
-                            {t("whoSeesTitle")}
+                            <span className="mark-gold">{t("whoSeesTitle")}</span>
                           </p>
                           <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
                             <li>
