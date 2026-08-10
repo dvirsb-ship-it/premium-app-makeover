@@ -49,11 +49,11 @@ function Cases() {
         {/* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */}
         <div className="masthead -mx-5 flex items-center justify-between px-5 pb-4 pt-8">
           <div>
-            <h1 className="mast-name text-2xl font-extrabold">{t("myCasesTitle")}</h1>
-            <p className="mast-sub mt-0.5 text-sm">{t("myCasesSub")}</p>
+            <h1 className="text-2xl font-extrabold text-foreground">{t("myCasesTitle")}</h1>
+            <p className="mt-0.5 text-sm text-muted-foreground">{t("myCasesSub")}</p>
           </div>
           <div className="flex items-center gap-2">
-            <NotificationBell className="mast-bell" />
+            <NotificationBell />
             {/*
               * ל-/intake-tips, לא ל-/onboarding.
               *

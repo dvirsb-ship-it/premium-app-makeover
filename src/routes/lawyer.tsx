@@ -161,21 +161,19 @@ function LawyerFeed() {
           <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
             JUSTASK · PRO
           </p>
-          <h1 className="mast-name mt-1 text-2xl font-bold">
+          <h1 className="mt-1 text-2xl font-bold text-foreground">
             {t("newLeads")}
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <NotificationBell className="mast-bell" />
+          <NotificationBell />
           <button
             type="button"
             onClick={() => navigate({ to: "/lawyer-subscription" })}
-            className="mast-bell liquid-glass grid size-11 place-items-center rounded-full text-foreground"
+            className="liquid-glass grid size-11 place-items-center rounded-full text-foreground"
             aria-label={t("proSubscriptionAria")}
           >
-            {/* לא `text-gold`: על לוח העצם זהב-על-קרם הוא אותה משפחת גוון
-                ונעלם. `mast-accent` נותן את הזהב הנכון לכל לוח. */}
-            <Sparkles className="mast-accent size-5" strokeWidth={2} />
+            <Sparkles className="size-5 text-gold" strokeWidth={2} />
           </button>
         </div>
       </motion.header>

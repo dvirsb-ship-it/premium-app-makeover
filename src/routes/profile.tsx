@@ -62,7 +62,7 @@ function Profile() {
       <Page>
         {/* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */}
         <header className="masthead -mx-5 px-5 pb-4 pt-8">
-          <h1 className="mast-name text-2xl font-extrabold">{t("profile")}</h1>
+          <h1 className="text-2xl font-extrabold text-foreground">{t("profile")}</h1>
         </header>
 
         <Stagger className="workspace -mx-5 min-h-screen space-y-4 px-5 pb-4 pt-6">

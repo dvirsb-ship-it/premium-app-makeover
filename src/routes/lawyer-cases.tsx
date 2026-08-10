@@ -77,10 +77,10 @@ function LawyerCases() {
         <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
           JUSTASK · PRO
         </p>
-        <h1 className="mast-name mt-1 text-2xl font-bold">
+        <h1 className="mt-1 text-2xl font-bold text-foreground">
           {t("lawyerActiveTitle")}
         </h1>
-        <p className="mast-sub mt-1 text-[13px] leading-relaxed">
+        <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
           {t("lawyerActiveSub")}
         </p>
       </motion.header>
