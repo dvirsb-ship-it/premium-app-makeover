@@ -472,6 +472,11 @@ export async function expressInterestDb(
     expensesEstimate: stripContactInfo(offer.expensesEstimate),
     duration: stripContactInfo(offer.duration),
     note: stripContactInfo(offer.note),
+    /*
+     * הצהרת ניגוד העניינים נשמרת תמיד כשהיא ניתנה — היא הראיה היחידה
+     * שהבדיקה נעשתה, ולכן היא לא עוברת דרך הסינון של הערכים הריקים.
+     */
+    ...(offer.noConflict ? { noConflict: true } : {}),
     // Firestore דוחה undefined — האופציונליים נכנסים רק כשיש בהם ערך ממשי
     ...(offer.vat ? { vat: offer.vat } : {}),
     ...(offer.postSuitPercent ? { postSuitPercent: offer.postSuitPercent } : {}),

@@ -198,6 +198,14 @@ function LawyerCaseDetail() {
   const [expensesEstimate, setExpensesEstimate] = useState("");
   const [duration, setDuration] = useState("");
   const [note, setNote] = useState("");
+  /*
+   * ניגוד עניינים — מאופס בכוונה בכל תיק ותיק.
+   *
+   * זה state של הרכיב, כלומר הוא נולד false בכל כניסה למסך של תיק אחר.
+   * "זוכר" היה הופך את הבדיקה לטקס שנעשה פעם אחת ומסומן לנצח, וזו בדיוק
+   * ההפך מהכוונה: הניגוד תלוי בצדדים של **התיק הזה**.
+   */
+  const [noConflict, setNoConflict] = useState(false);
 
   /*
    * בתביעות פלת"ד שכר הטרחה מוגבל בכללי לשכת עורכי הדין. הקטגוריה "נזיקין
@@ -1026,14 +1034,53 @@ function LawyerCaseDetail() {
                   {t("offerNonBinding")}
                 </p>
 
+                {/*
+                  * ניגוד עניינים — נבדק לפני ההגשה ולא אחריה.
+                  *
+                  * זו הנקודה שעורך הדין כבר התחייב עליה בהרשמה (סעיף 4
+                  * בהתחייבות המקצועית); כאן המוצר מבקש אותה בפועל, על
+                  * התיק הספציפי. התחייבות כללית שאין לה רגע יישום היא
+                  * הצהרה, לא מנגנון.
+                  *
+                  * **הבדיקה עליו ולא עלינו, וזה אינו פער אלא הכרח:**
+                  * אנחנו לא יודעים מי הצדדים בתיקים שלו, והדרך היחידה
+                  * לדעת הייתה לבקש ממנו את רשימת הלקוחות שלו — כלומר
+                  * לפגוע בסודיות כדי להגן עליה.
+                  */}
+                <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-gold/30 bg-gold/[0.05] p-3.5">
+                  <input
+                    type="checkbox"
+                    checked={noConflict}
+                    onChange={(e) => setNoConflict(e.target.checked)}
+                    className="mt-0.5 size-5 shrink-0 accent-[oklch(0.52_0.115_80)]"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-[13px] font-bold text-foreground">
+                      {t("conflictAgree")}
+                    </span>
+                    <span className="mt-1 block text-[11.5px] leading-relaxed text-muted-foreground">
+                      {t("conflictBody")}
+                    </span>
+                    <span className="mt-1.5 block text-[11px] leading-relaxed text-muted-foreground/80">
+                      {t("conflictWhy")}
+                    </span>
+                  </span>
+                </label>
+
                 <motion.button
                   type="button"
                   whileTap={{ scale: 0.98 }}
-                  disabled={!(Number(amount) > 0) || impossiblePercent || stagedIncomplete}
+                  disabled={
+                    !noConflict ||
+                    !(Number(amount) > 0) ||
+                    impossiblePercent ||
+                    stagedIncomplete
+                  }
                   onClick={() => {
                     expressInterest(item.id, {
                       model,
                       amount: Number(amount),
+                      noConflict,
                       noWinNoFee: model === "contingency" ? noWin : false,
                       expenses,
                       expensesEstimate: expenses === "included" ? "" : expensesEstimate.trim(),
