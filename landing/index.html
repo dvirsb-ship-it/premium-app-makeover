@@ -39,6 +39,11 @@
     --gold-lo: #b8912b;
     --gold-text: #9d7a12;
     --err: #c0362c;
+    /* ── שפת המסמך — זהה לאפליקציה ול-PDFs (11/8/2026) ──
+       הפלטה כאן כבר הייתה נכונה; מה שחסר היה מה עושים איתה. */
+    --parchment: #fdf8ea;
+    --parchment-line: #e6d8ab;
+    --gold-mark: rgba(212, 175, 55, .32);
   }
   * { margin: 0; padding: 0; box-sizing: border-box; }
   html { scroll-behavior: smooth; }
@@ -265,6 +270,29 @@
   .done p { margin-top: 8px; font-size: 13.5px; line-height: 1.7; color: var(--muted); }
 
   /* ---------- שלבים ---------- */
+  /* ═══ שפת המסמך — ארבעה מהלכים ═══
+     ⚠️ לא לפזר. הם עובדים כי הם נדירים: הערה אחת לפרק, סימון אחד לטענה. */
+  .note-gold {
+    background: var(--parchment);
+    border: 1px solid var(--parchment-line);
+    border-radius: 16px;
+    padding: 16px 18px;
+  }
+  .note-gold b { color: var(--gold-text); }
+  /* קו הזהב קצר ולא לרוחב מלא — מתחת לכותרת הוא חתימה, לא מפריד */
+  .rule-gold::after {
+    content: "";
+    display: block;
+    width: 56px;
+    height: 3px;
+    margin-top: 12px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, var(--gold-mid), var(--gold-hi));
+  }
+  /* מתחת לאמצע האות — כך הטקסט נשאר קריא והסימון נקרא כעט */
+  .mark-gold { background-image: linear-gradient(transparent 62%, var(--gold-mark) 62%); }
+  .edge-gold { border-inline-start: 3px solid var(--gold-mid); }
+
   h2 { margin-top: 64px; font-size: 1.8rem; font-weight: 900; letter-spacing: -0.01em; }
   .steps { margin-top: 32px; display: grid; gap: 12px; list-style: none; }
   @media (min-width: 768px) { .steps { grid-template-columns: repeat(3, 1fr); } }
@@ -433,7 +461,7 @@
 
   <!-- הטופס — ההצטרפות עצמה. בלי אפליקציה ובלי בירוקרטיה. -->
   <section class="join" id="join">
-    <h2 class="reveal">הצטרפות מוקדמת</h2>
+    <h2 class="reveal rule-gold">הצטרפות מוקדמת</h2>
     <p class="sub reveal">משאירים פרטים, ואנחנו חוזרים אישית. חצי השנה ללא תשלום נספרת מיום האישור.</p>
     <form id="lead" novalidate>
       <div class="form-row">
@@ -485,7 +513,7 @@
   </section>
 
   <!-- שלבים -->
-  <h2 class="reveal">שלושה שלבים</h2>
+  <h2 class="reveal rule-gold">שלושה שלבים</h2>
   <ol class="steps">
     <li class="step reveal">
       <span class="step-icon" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1ZM2 16l3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1ZM7 21h10M12 3v18M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg></span>
@@ -511,7 +539,7 @@
 <!-- הרצועה הכהה — הרגע שבו כל הדף מחליף צבע -->
 <section class="band">
   <div class="wrap">
-    <h2 class="reveal">מה כלול — ומה לא תמצא כאן</h2>
+    <h2 class="reveal rule-gold">מה כלול — ומה לא תמצא כאן</h2>
     <div class="compare">
       <div class="panel panel-yes reveal">
         <h3>מה כלול</h3>
@@ -541,11 +569,15 @@
   <!-- סיום: אימות ומחיר, בשקיפות -->
   <section class="final reveal">
     <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b8912b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>
-    <h2>אימות רישיון, ואתה בפנים</h2>
+    <h2 class="rule-gold">אימות רישיון, ואתה בפנים</h2>
     <p class="sub">רישיון, תעודת בוגר, וסרטון זיהוי קצר. כל בקשה נבדקת אישית.</p>
-    <div class="price-lines">
-      <p><span class="mark">✓</span>חצי שנה ראשונה ללא תשלום — נספרת מיום האישור</p>
-      <p><span class="mark">✓</span>אחר כך מנוי חודשי אחיד: בלי עמלות, בלי אחוזים, בלי הפתעות</p>
+    <!--
+      התמחור על קלף — אותה הערת צד שב-PDFs. זה החלק שעורך דין קורא
+      פעמיים לפני שהוא מחליט, ובלי משטח משלו הוא נבלע בין הפסקאות.
+    -->
+    <div class="price-lines note-gold" style="text-align:start;margin-top:22px">
+      <p><span class="mark">✓</span><b>חצי שנה ראשונה ללא תשלום</b> — נספרת מיום האישור</p>
+      <p><span class="mark">✓</span>אחר כך <span class="mark-gold">מנוי חודשי אחיד</span>: בלי עמלות, בלי אחוזים, בלי הפתעות</p>
       <p><span class="mark">✓</span>ביטול בלחיצה, מתי שרוצים</p>
     </div>
     <a class="cta" href="#join" style="margin-top:28px">הצטרפות כעורך דין</a>
