@@ -572,9 +572,39 @@ function CaseDetail() {
                       </p>
                     </div>
                   ) : (
-                    <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
-                      {t("noInterestYet")}
-                    </div>
+                    <>
+                      <div className="rounded-3xl border border-dashed border-white/15 bg-white/[0.03] p-8 text-center text-sm text-muted-foreground">
+                        {t("noInterestYet")}
+                      </div>
+                      {/*
+                        * מי רואה את הפנייה — גילוי יזום, בזמן ההמתנה.
+                        *
+                        * שקלנו כאן יומן צפיות ("N עורכי דין צפו בתיק"), וזנחנו
+                        * אותו: הוא היה מחייב לתעד כל גלישה של כל עורך דין —
+                        * מאגר מעקב חדש שנבנה כדי **לדווח** על חשיפה בלי
+                        * להקטין אותה. גילוי מפורש עושה את אותה עבודה בלי
+                        * לאסוף דבר, וזה גם מה שהלקוח באמת רוצה לדעת: לא כמה
+                        * הציצו, אלא מה מותר להם לעשות עם מה שראו.
+                        */}
+                      {typeof item.notifiedLawyers === "number" && (
+                        <div className="mt-3 rounded-3xl border border-border bg-foreground/[0.03] p-4">
+                          <p className="text-[13px] font-bold text-foreground">
+                            {t("whoSeesTitle")}
+                          </p>
+                          <ul className="mt-2 space-y-1.5 text-[12px] leading-relaxed text-muted-foreground">
+                            <li>
+                              {t("whoSeesCount").replace(
+                                "{n}",
+                                String(item.notifiedLawyers),
+                              )}
+                            </li>
+                            <li>{t("whoSeesConfidential")}</li>
+                            <li>{t("whoSeesDocs")}</li>
+                            <li>{t("whoSeesContact")}</li>
+                          </ul>
+                        </div>
+                      )}
+                    </>
                   )
                 ) : (
                   <>

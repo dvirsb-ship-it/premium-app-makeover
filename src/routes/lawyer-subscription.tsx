@@ -135,6 +135,23 @@ function LawyerSubscription() {
         <p className="mt-3 rounded-[22px] border border-border bg-card p-5 text-[13px] leading-relaxed text-muted-foreground">
           {t("proLaterSub")}
         </p>
+
+        {/*
+          * "תשלום לא קונה מקום בתור" — נאמר כאן ולא רק במסמכים.
+          *
+          * זו הטענה החזקה ביותר שיש לנו מול שאלת התיווך, והמוצר עצמו לא
+          * אמר אותה לאיש. עורך דין ששוקל להצטרף שואל בדיוק את זה, ומי
+          * שנכווה מחברות לידים מניח שהתשובה היא כן. מוטב שיקרא אותה
+          * בעצמו לפני שהוא מקליד כרטיס, ולא ימצא אותה בתקנון בדיעבד.
+          */}
+        <div className="mt-3 rounded-[22px] border border-gold/30 bg-gold/[0.05] p-5">
+          <p className="text-[13px] font-bold text-foreground">
+            {t("proNoPriorityTitle")}
+          </p>
+          <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
+            {t("proNoPriority")}
+          </p>
+        </div>
       </motion.section>
     </AppShell>
   );
