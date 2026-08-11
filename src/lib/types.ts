@@ -151,5 +151,5 @@ export interface FeedCase {
    * חודשים שנותרו עד ההתיישנות. undefined כשאין תאריך אירוע תקין.
    * זה הנתון שגורם לעורך דין לקפוץ על תיק — וה-AI כבר חישב אותו.
    */
-  incidentAgeMonths?: number;
+  limitationMonthsLeft?: number;
 }

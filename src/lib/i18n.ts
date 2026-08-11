@@ -5,7 +5,7 @@ type Dict = Record<string, { he: string; en: string }>;
 
 export const strings = {
   // Hero / Landing
-  heroTagline: { he: "מספרים מה קרה — ומגיעים לעורך דין בתחום הנכון", en: "Tell us what happened — reach a lawyer in the right field" },
+  heroTagline: { he: "כתבו מה קרה — וגלו אם יש סיכוי לעילה", en: "Tell us what happened — find out if there's a chance" },
   enter: { he: "כניסה לאפליקציה", en: "Enter the app" },
   /*
    * "אני מחפש **עורך דין**" ולא "ייעוץ" (10/8/2026).
@@ -15,9 +15,9 @@ export const strings = {
    * של עצמנו במסך הראשון שאדם רואה.
    */
   clientCTA: { he: "אני מחפש עורך דין", en: "I'm looking for a lawyer" },
-  clientCTASub: { he: "ספרו מה קרה. נסדר את הפרטים ונציג אותם לעורכי דין בתחום", en: "Tell us what happened. We organize the details and show them to lawyers in that field" },
+  clientCTASub: { he: "ספרו מה קרה — נבדוק אם יש סיכוי, ורק אז נציג לעורכי דין", en: "Tell us what happened — we check if there's a chance, then show it to lawyers" },
   lawyerCTA: { he: "אני עורך דין", en: "I'm a lawyer" },
-  lawyerCTASub: { he: "פניות מסודרות, מסווגות לפי תחום", en: "Organized matters, sorted by field" },
+  lawyerCTASub: { he: "פניות שכבר עברו בדיקה ראשונית", en: "Matters that already passed an initial check" },
   trustBadge: { he: "שלב השקה · השירות ללקוחות חינם — תמיד", en: "Launch phase · always free for clients" },
 
   // Bottom nav
@@ -91,7 +91,7 @@ export const strings = {
     en: "So we can help you as best we can, we need to agree on a few things:",
   },
   term1: { he: "המידע שאשתף הוא אמיתי ומדויק למיטב ידיעתי.", en: "The information I share is true and accurate to the best of my knowledge." },
-  term2: { he: "המיון הראשוני אינו ייעוץ משפטי ואינו מהווה ייצוג.", en: "The initial review is not legal advice and does not constitute representation." },
+  term2: { he: "הבדיקה הראשונית היא הערכה בלבד — אינה ייעוץ משפטי, אינה מהווה ייצוג, ואינה מבטיחה תוצאה.", en: "The initial check is an estimate only — it is not legal advice, does not constitute representation, and guarantees no outcome." },
   term3: { he: "פרטי הפנייה יישמרו ויוצגו לעורכי דין מאומתים בתחום המשפטי של המקרה — בלי שמי ובלי פרטי הקשר שלי.", en: "My request will be stored and shown to verified lawyers in its legal field — without my name or contact details." },
   term4: { he: "אני פונה מתוך כוונה אמיתית לקבל סיוע משפטי.", en: "I'm reaching out with a genuine intent to receive legal help." },
   /*
@@ -109,7 +109,7 @@ export const strings = {
    * מכילים לעיתים פרטים של אנשים אחרים, וההסכמה של הפונה אינה מכסה
    * אותם.
    */
-  term5: { he: "תיאור המקרה והמסמכים שאצרף יעובדו ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך המיון בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The description and documents I attach will be processed by a Google AI service on servers in the European Union, for the sorting only. ID number, phone and email are stripped automatically beforehand." },
+  term5: { he: "תיאור המקרה והמסמכים שאצרף יעובדו ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description and documents I attach will be processed by a Google AI service on servers in the European Union, for the initial check only. ID number, phone and email are stripped automatically before processing." },
   term6: { he: "אצרף מסמכים הנוגעים אליי. אם מסמך כולל פרטים של אדם אחר — אשחיר אותם או אצרף רק את החלק הרלוונטי.", en: "I'll attach documents that concern me. If a document includes another person's details, I'll redact them or attach only the relevant part." },
   agreeText: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I've read and agree to the above" },
   confirmContinue: { he: "אני מאשר/ת וממשיך/ה", en: "I agree and continue" },
@@ -138,15 +138,9 @@ export const strings = {
     en: "Write the way you think. There's no right or wrong answer — you can revise or add anything at any point.",
   },
   tipDatesTitle: { he: "הוסיפו תאריכים מדויקים", en: "Add precise dates" },
-  tipDatesBody: {
-    he: "מתי זה קרה? מתי פניתם לגורמים אחרים? תאריכים עוזרים לנו לסדר את הפרטים ולסווג את המקרה נכון.",
-    en: "When did it happen? When did you contact others? Dates help us organize the details and classify your case correctly.",
-  },
+  tipDatesBody: { he: "מתי זה קרה? מתי פניתם לגורמים אחרים? תאריכים עוזרים לנו לבדוק מועדים ולסווג את המקרה נכון.", en: "When did it happen? When did you contact others? Dates help us check deadlines and classify your case correctly." },
   tipPhotosTitle: { he: "צרפו תמונות ומסמכים", en: "Attach photos and documents" },
-  tipPhotosBody: {
-    he: "צילומי מסך, תמונות של פגיעות, חוזים, הודעות וואטסאפ — כל תיעוד עוזר לעורך הדין להבין מהר יותר ועוזר להתאמה טובה יותר.",
-    en: "Screenshots, injury photos, contracts, WhatsApp messages — any documentation helps the lawyer understand faster.",
-  },
+  tipPhotosBody: { he: "צילומי מסך, תמונות של פגיעות, חוזים, הודעות וואטסאפ — כל תיעוד מחזק את הבדיקה ומשפר את ההתאמה.", en: "Screenshots, injury photos, contracts, WhatsApp messages — any evidence strengthens the check and improves matching." },
   tipDetailsTitle: { he: "כמה שיותר פרטים", en: "As many details as possible" },
   tipDetailsBody: {
     he: "שמות של גורמים מעורבים, סכומים, מקומות ותוצאות. ככל שיש יותר מידע — כך הבדיקה מדויקת יותר וההתאמה איכותית יותר.",
@@ -161,10 +155,10 @@ export const strings = {
   // Validating
   valStep1: { he: "מנתח את פרטי המקרה", en: "Analyzing case details" },
   valStep2: { he: "בודק התאמה לדיני נזיקין", en: "Checking match to tort law" },
-  valStep3: { he: "מסדר את הפרטים ומסווג תחום", en: "Organizing details and classifying" },
+  valStep3: { he: "בודק מועדים ומסווג תחום", en: "Checking deadlines and classifying" },
   valStep4: { he: "מאתר עורכי דין מומחים", en: "Locating expert lawyers" },
-  valTitle: { he: "מסדרים את הפנייה שלך", en: "Organizing your request" },
-  valSub: { he: "מסדרים את הפרטים ומזהים לאיזה תחום הפנייה שייכת — עד דקה", en: "Organizing the details and identifying the field — up to a minute" },
+  valTitle: { he: "בודקים את הפנייה שלך", en: "Reviewing your request" },
+  valSub: { he: "בדיקה ראשונית של הסיכוי — עד דקה", en: "An initial check of the chances — up to a minute" },
   defaultSummary: { he: "פנייה משפטית חדשה", en: "New legal request" },
   defaultCategory: { he: "נזיקין ותאונות דרכים", en: "Personal Injury & Traffic" },
 
@@ -238,7 +232,7 @@ export const strings = {
   // Lawyer onboarding
   lawyerOnboardMetaTitle: { he: "JustAsk — הרשמת עורך דין", en: "JustAsk — Lawyer signup" },
   lawyerOnboardMetaDesc: { he: "בחרו את תחומי ההתמחות שלכם כדי לקבל פניות רלוונטיות ב-JustAsk.", en: "Choose your practice areas to receive relevant leads on JustAsk." },
-  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי לקבל פניות מסודרות בתחום שלך.", en: "Pick practice areas to receive organized matters in your field." },
+  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי לקבל פניות שכבר עברו בדיקה ראשונית.", en: "Pick practice areas to receive matters that already passed an initial check." },
   lawyerOnboardTitle: { he: "הרשמת עורך דין", en: "Lawyer signup" },
   lawyerOnboardSubtitle: { he: "בחרו את תחומי ההתמחות שלכם", en: "Choose your practice areas" },
   joinRosterBadge: { he: "JustAsk · הצטרפות כעורך דין", en: "JustAsk · Join as a lawyer" },
@@ -280,13 +274,13 @@ export const strings = {
   // Lawyer subscription
   subMetaTitle: { he: "JustAsk Pro — מנוי לעורכי דין", en: "JustAsk Pro — Lawyer membership" },
   subMetaDesc: { he: "פתחו גישה מלאה ללידים איכותיים, כלי AI ותכונות מתקדמות לעורכי דין.", en: "Unlock full access to quality leads, AI tools and advanced features for lawyers." },
-  subOgDesc: { he: "מנוי חודשי קבוע לעורכי דין — גישה לפניות בתחום שלך, עם התקציר העובדתי המלא.", en: "A flat monthly subscription for lawyers — access to matters in your field, with the full factual summary." },
-  subHeroDesc: { he: "כל הפניות בתחום שלך, מיד כשהן נכנסות — עם התקציר העובדתי המלא.", en: "Every matter in your field, the moment it arrives — with the full factual summary." },
+  subOgDesc: { he: "מנוי חודשי קבוע לעורכי דין — גישה לתיקים שעברו בדיקה ראשונית, עם התזכיר המלא.", en: "A flat monthly subscription for lawyers — access to matters that passed an initial check, with the full memo." },
+  subHeroDesc: { he: "כל התיקים בתחום שלך, מיד כשהם עוברים את הבדיקה הראשונית — עם התזכיר המלא.", en: "Every matter in your field, the moment it passes the initial check — with the full memo." },
 
   // Root meta
-  rootMetaTitle: { he: "JustAsk — מספרים מה קרה, ומגיעים לעורך דין", en: "JustAsk — Tell us what happened, reach a lawyer" },
-  rootMetaDesc: { he: "ספרו מה קרה בשיחה קצרה. נסדר את הפרטים ונציג את הפנייה לעורכי דין מאומתים בתחום — ואתם בוחרים במי לפנות. חינם לחלוטין.", en: "Tell us what happened in a short chat. We organize the details and show the matter to verified lawyers in that field — and you choose. Completely free." },
-  rootOgDesc: { he: "ספרו מה קרה — ונציג את הפנייה לעורכי דין מאומתים בתחום. אתם בוחרים במי לפנות, והשירות חינם.", en: "Tell us what happened — we'll show the matter to verified lawyers in that field. You choose who to approach, and the service is free." },
+  rootMetaTitle: { he: "JustAsk — גלו אם יש לכם סיכוי, בחינם", en: "JustAsk — Find out if you have a chance, free" },
+  rootMetaDesc: { he: "ספרו מה קרה בשיחה קצרה. נבדוק אם יש סיכוי, ואם כן נציג את הפנייה לעורכי דין מאומתים בתחום — ואתם בוחרים. זו הערכה ראשונית בלבד ושום דבר אינו מובטח. חינם לחלוטין.", en: "Tell us what happened in a short chat. We check whether there's a chance, and if so we show the matter to verified lawyers in that field — and you choose. This is an initial estimate only; nothing is guaranteed. Completely free." },
+  rootOgDesc: { he: "ספרו מה קרה וגלו אם יש סיכוי. הערכה ראשונית בלבד — שום דבר אינו מובטח, וההערכה הסופית היא של עורך הדין. השירות חינם.", en: "Tell us what happened and find out if there's a chance. An initial estimate only — nothing is guaranteed, and the final assessment is the lawyer's. The service is free." },
 
   // Welcome onboarding
   welcomeSkip: { he: "דלג", en: "Skip" },
@@ -294,8 +288,8 @@ export const strings = {
   welcomeNext: { he: "הבא", en: "Next" },
   welcomeStart: { he: "בואו נתחיל", en: "Let's start" },
   handshakeWelcome: { he: "לחיצת יד לתחילת הדרך", en: "Sealed with a handshake" },
-  welcomeSlide1Title: { he: "קודם כל — ספרו מה קרה", en: "First — tell us what happened" },
-  welcomeSlide1Body: { he: "שיחה קצרה שבה תספרו מה קרה. נסדר את הפרטים ונזהה לאיזה תחום משפטי הפנייה שייכת — בלי הערכות ובלי הבטחות.", en: "A short chat where you tell us what happened. We organize the details and identify which field of law the matter belongs to — no assessments, no promises." },
+  welcomeSlide1Title: { he: "קודם כל — יש לכם סיכוי?", en: "First — do you have a chance?" },
+  welcomeSlide1Body: { he: "ספרו מה קרה בשיחה קצרה. נבדוק אם יש סיכוי לעילה ונגיד לכם בכנות — גם כשהתשובה שלילית. זו הערכה ראשונית ולא הבטחה.", en: "Tell us what happened in a short chat. We check whether there's a chance and tell you honestly — including when the answer is no. It's an initial estimate, not a promise." },
   welcomeSlide2Title: { he: "מתחברים לעורך הדין הנכון", en: "Matched with the right lawyer" },
   welcomeSlide2Body: { he: "רק עורכי דין מאומתים בתחום של התיק רואים את הפנייה ומביעים עניין. אתם בוחרים.", en: "Only verified lawyers in the case's field see it and express interest. You choose." },
   welcomeSlide3Title: { he: "הפרטים שלכם, בשליטתכם", en: "Your details, your control" },
@@ -433,7 +427,7 @@ export const strings = {
     en: "Your privacy is the foundation of JustAsk. What you share is encrypted, kept in a secured region, and shared only with lawyers you pick.",
   },
   privacyEnc: { he: "הצפנה במעבר ובאחסון", en: "Encrypted in transit and at rest" },
-  privacyEncSub: { he: "כל שיחה, מסמך ותמונה מוצפנים בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — המיון מחייב שהמערכת תוכל לקרוא את התוכן.", en: "Chats, documents and images are encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — the sorting requires the system to read the content." },
+  privacyEncSub: { he: "כל שיחה, מסמך ותמונה מוצפנים בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — הבדיקה מחייבת שהמערכת תוכל לקרוא את התוכן.", en: "Every conversation, document and image is encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — the check requires the system to read the content." },
   privacyControl: { he: "אתם בשליטה", en: "You're in control" },
   privacyControlSub: { he: "פרטי הקשר נחשפים רק לאחר בחירתכם בעורך דין ספציפי.", en: "Contact details are revealed only after you pick a specific lawyer." },
   privacyRls: { he: "בידוד בין משתמשים", en: "User isolation" },
@@ -462,7 +456,7 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, המיון והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התקציר העובדתי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. תשלום אינו משפיע על סדר התצוגה: אין עדיפות בפיד ואין מיון לפי מחיר. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
+    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הבדיקה הראשונית והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התקציר העובדתי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. תשלום אינו משפיע על סדר התצוגה: אין עדיפות בפיד ואין מיון לפי מחיר. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
     /*
      * האנגלית פיגרה אחרי העברית ואחרי המוצר: היא הבטיחה תשלום
      * "per completed connection" ו-"feed priority" — שניהם נשקלו ונדחו.
@@ -475,7 +469,7 @@ export const strings = {
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
   termsSection7Title: { he: "7. עיבוד המידע שלך", en: "7. Processing your information" },
   termsSection7Body: {
-    he: "תיאור המקרה והמסמכים שתצרפו מעובדים ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך המיון בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני השליחה. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל. השימוש בשירות מהווה הסכמה לעיבוד ולהעברה כמתואר כאן. בצירוף מסמכים יש להימנע מהעלאת פרטיהם של אנשים אחרים שאינם נוגעים לעניין.",
+    he: "תיאור המקרה והמסמכים שתצרפו מעובדים ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני השליחה. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל. השימוש בשירות מהווה הסכמה לעיבוד ולהעברה כמתואר כאן. בצירוף מסמכים יש להימנע מהעלאת פרטיהם של אנשים אחרים שאינם נוגעים לעניין.",
     en: "Your case description and attached documents are processed by a Google AI service, on servers in the European Union, for the sorting only — not to train the model and not for advertising. Direct identifiers (ID number, phone, email) are stripped automatically before anything is sent. Cases and files themselves are stored on Google servers in Israel. Using the service constitutes consent to the processing and transfer described here. When attaching documents, avoid uploading other people's details that are not relevant to the matter.",
   },
   termsSection6Body: {
@@ -519,12 +513,12 @@ export const strings = {
   authAppleSoon: { he: "ההתחברות עם Apple תופעל בקרוב — השתמשו בינתיים בגוגל, אימייל או טלפון.", en: "Apple sign-in is coming soon — use Google, email or phone for now." },
   intakeError: { he: "מצטערים, הייתה תקלה רגעית בחיבור. אפשר לשלוח שוב את ההודעה.", en: "Sorry, there was a momentary connection issue. Please send your message again." },
   valRejectedTitle: { he: "הפנייה לא אושרה בשלב זה", en: "Your case wasn't approved at this stage" },
-  valRejectedSub: { he: "על סמך הפרטים שנמסרו, הפנייה אינה נמצאת בתחומי השירות. אפשר לפתוח פנייה חדשה עם פרטים נוספים.", en: "Based on the details given, this matter isn't within the service. You can open a new request with more details." },
+  valRejectedSub: { he: "על סמך הפרטים שנמסרו לא זוהה סיכוי מספיק כרגע. זו הערכה ראשונית ולא חוות דעת — אפשר לפתוח פנייה חדשה עם פרטים נוספים, או לפנות לעורך דין ישירות.", en: "Based on the details given, no sufficient chance was identified right now. This is an initial estimate, not an opinion — you can open a new request with more details, or approach a lawyer directly." },
   valNewRequest: { he: "פנייה חדשה", en: "New request" },
   notifCenterTitle: { he: "התראות", en: "Notifications" },
   notifCenterSub: { he: "כל העדכונים על התיקים שלך", en: "All updates about your cases" },
   notifEmpty: { he: "אין התראות עדיין", en: "No notifications yet" },
-  notifEmptySub: { he: "כאן יופיעו העדכונים על התיק שלכם — כשהמיון מסתיים, כשעורך דין מביע עניין, וכשהטיפול מתקדם.", en: "Updates on your case land here — when the sorting finishes, when a lawyer expresses interest, and as the work progresses." },
+  notifEmptySub: { he: "כאן יופיעו העדכונים על התיק שלכם — כשהבדיקה הראשונית מסתיימת, כשעורך דין מביע עניין, וכשהטיפול מתקדם.", en: "Updates on your case land here — when the initial check finishes, when a lawyer expresses interest, and as the work progresses." },
   notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
   verifyUploadError: { he: "ההגשה לא הושלמה. בדקו את החיבור ונסו שוב — אפשר לשלוח שוב בבטחה.", en: "Your submission didn't complete. Check your connection and try again — resubmitting is safe." },
   verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },
@@ -552,7 +546,7 @@ export const strings = {
    * מאשרים תיקים — אנחנו ממיינים לתחום, והשדה עצמו מכיל עובדות
    * שהפונה מסר. הכותרת מתארת עכשיו את מה שיש מתחתיה.
    */
-  caseContextHeader: { he: "רקע עובדתי", en: "Factual background" },
+  caseContextHeader: { he: "הבסיס להערכה", en: "Basis for the assessment" },
   incidentDateLabel: { he: "תאריך האירוע", en: "Incident date" },
   damageTypeLabel: { he: "סוג הנזק", en: "Damage type" },
   documentationLabel: { he: "תיעוד", en: "Documentation" },
@@ -577,7 +571,7 @@ export const strings = {
   offerHeader: { he: "ההצעה של עורך הדין", en: "Lawyer's offer" },
   offerFeeShort: { he: "שכ״ט", en: "Fee" },
   offerDurationShort: { he: "משך משוער", en: "Est. duration" },
-  adminAppealsHeader: { he: "ערעורים על מיון", en: "Routing appeals" },
+  adminAppealsHeader: { he: "ערעורים על הבדיקה", en: "Assessment appeals" },
   appealsEmpty: { he: "אין ערעורים — כשעורך דין ידווח על בדיקה שגויה, זה יופיע כאן.", en: "No appeals — when a lawyer reports an incorrect assessment it will appear here." },
   appealBy: { he: "דווח ע״י", en: "Reported by" },
   appealAccept: { he: "קבלת הערעור", en: "Accept appeal" },
@@ -590,10 +584,10 @@ export const strings = {
   ticketHandled: { he: "טופל", en: "Handled" },
   adminCasesHeader: { he: "ארכיון תיקים", en: "Cases archive" },
   adminCasesEmpty: { he: "אין תיקים עדיין.", en: "No cases yet." },
-  caseValidatedChip: { he: "מוינה לתחום", en: "Sorted to a field" },
+  caseValidatedChip: { he: "עברה את הבדיקה הראשונית", en: "Passed the initial check" },
   adminOfficeBtn: { he: "המשרד הטכנולוגי", en: "Admin office" },
   adminOfficeSub: { he: "אימותים, ערעורים, פניות תמיכה וארכיון", en: "Verifications, appeals, support & archive" },
-  intakeNotSuitableTitle: { he: "הפנייה אינה נמצאת בתחומי השירות", en: "This matter isn't within the service" },
+  intakeNotSuitableTitle: { he: "הבדיקה הראשונית: כרגע לא נראה סיכוי", en: "Initial check: no chance identified right now" },
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
   composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
 
@@ -613,7 +607,7 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
-  submittedStep1: { he: "הפנייה מוינה לתחום", en: "Your case passed the initial sorting" },
+  submittedStep1: { he: "הפנייה עברה את הבדיקה הראשונית", en: "Your case passed the initial check" },
   submittedStep2: { he: "הפנייה נפתחה לעורכי דין מאומתים בתחום", en: "Your case was opened to verified lawyers in the field" },
   submittedStep3: { he: "נעדכן אותך ברגע שמישהו יביע עניין", en: "We'll update you the moment someone shows interest" },
   submittedGoodLuck: { he: "בהצלחה בבחירת עורך הדין שלך", en: "Good luck choosing your lawyer" },
@@ -636,7 +630,7 @@ export const strings = {
   whoSeesDocs: { he: "התיעוד שצירפתם נפתח רק למי שהגיש הצעה — לא לכל מי שרואה את התיק.", en: "The documentation you attached opens only to those who submitted an offer — not to everyone who can see the case." },
   whoSeesContact: { he: "פרטי הקשר שלכם נחשפים רק לעורך הדין שתבחרו, ורק ברגע הבחירה.", en: "Your contact details are revealed only to the lawyer you choose, and only at the moment you choose." },
   imagesAfterInterest: { he: "תיעוד מצורף — נפתח לאחר הבעת עניין", en: "Attached documentation — available after you express interest" },
-  imagesAfterInterestWhy: { he: "התיעוד הוא של אדם שנפגע. הוא נפתח למי שהביע עניין בתיק, ולא לכל מי שגולש בלוח. התיאור והתקציר העובדתי מספיקים כדי להחליט.", en: "The documentation belongs to an injured person. It opens to those who expressed interest in this case, not to everyone browsing the board. The description and legal memo are enough to decide." },
+  imagesAfterInterestWhy: { he: "התיעוד הוא של אדם שנפגע. הוא נפתח למי שהביע עניין בתיק, ולא לכל מי שגולש בלוח. התיאור והתזכיר מספיקים כדי להחליט.", en: "The documents belong to an injured person. They open to whoever expressed interest, not to everyone browsing the feed. The description and memo are enough to decide." },
   conflictTitle: { he: "בדיקת ניגוד עניינים", en: "Conflict check" },
   conflictBody: { he: "אשרו לפני ההגשה: אינכם מייצגים את הצד שכנגד בעניין זה, אין לכם או למשרדכם ניגוד עניינים בתיק, ולא ייצגתם בו צד אחר בעבר.", en: "Confirm before submitting: you do not represent the opposing party in this matter, neither you nor your firm has a conflict in this case, and you have not previously acted for another party in it." },
   conflictAgree: { he: "בדקתי — אין ניגוד עניינים", en: "I've checked — no conflict" },
@@ -681,7 +675,7 @@ export const strings = {
   homeNewCase: { he: "פנייה חדשה", en: "New case" },
   homeFirstCase: { he: "שיתוף המקרה שלי", en: "Share my case" },
   homeEmptyTitle: { he: "עוד לא שיתפת מקרה", en: "No case shared yet" },
-  homeEmptySub: { he: "ספרו מה קרה בשיחה קצרה, ונציג את הפנייה לעורכי דין מאומתים בתחום.", en: "Tell us what happened in a short chat, and we'll show the matter to verified lawyers in that field." },
+  homeEmptySub: { he: "ספרו מה קרה בשיחה קצרה, ונבדוק אם יש סיכוי לפני שנפנה לעורכי דין.", en: "Tell us what happened in a short chat, and we'll check if there's a chance before reaching out to lawyers." },
   homeOtherCases: { he: "פניות נוספות", en: "Other cases" },
   homeAllCases: { he: "לכל התיקים", en: "See all cases" },
 
@@ -703,8 +697,8 @@ export const strings = {
   funnelNoInterest: { he: "בלי התעניינות", en: "with no interest" },
 
   // התקציר העובדתי המלא + מדד תגובתיות
-  memoHeader: { he: "התקציר העובדתי המלא", en: "Full factual summary" },
-  memoSub: { he: "העובדות כפי שנמסרו, מסודרות — כדי שהפגישה הראשונה לא תלך על איסוף פרטים.", en: "The facts as given, organized — so the first meeting isn't spent collecting them." },
+  memoHeader: { he: "תזכיר הבדיקה המלא", en: "The full assessment memo" },
+  memoSub: { he: "ניתוח העילות, המועדים והטענות שכנגד — נכתב לפני שראיתם את התיק. הערכה ראשונית בלבד; ההכרעה שלכם.", en: "An analysis of the grounds, deadlines and counterarguments — written before you saw the case. An initial estimate only; the call is yours." },
   memoShow: { he: "הצגה", en: "Show" },
   memoHide: { he: "הסתרה", en: "Hide" },
   responseTimeLabel: { he: "מגיב בתוך", en: "Responds within" },
@@ -810,7 +804,7 @@ export const strings = {
   lawyerImagesHeader: { he: "תיעוד מצולם", en: "Photo documentation" },
   lawyerImagesNote: { he: "פרטים מזהים הוסתרו אוטומטית. המקור נחשף לאחר יצירת החיבור.", en: "Identifying details are hidden automatically. Originals are revealed after connecting." },
   lawyerImagesOriginalsNote: { he: "החיבור נוצר — אלו תמונות המקור.", en: "You're connected — these are the originals." },
-  resumeValidation: { he: "המשך את המיון", en: "Resume the sorting" },
+  resumeValidation: { he: "המשך את הבדיקה הראשונית", en: "Resume the initial check" },
   deleteAccountBtn: { he: "מחיקת החשבון והנתונים", en: "Delete my account and data" },
   deleteConfirmTitle: { he: "למחוק את החשבון?", en: "Delete your account?" },
   deleteConfirmBody: { he: "הפניות הפתוחות שלך ייסגרו מיד ולא יוצגו לעורכי דין. מחיקת החשבון והנתונים תושלם בתוך 14 יום, כנדרש בדין. תיקים שכבר חוברו לעורך דין עשויים להישמר אצלו בהתאם לחובות שמירת מסמכים החלות עליו.", en: "Your open requests close immediately and will no longer be shown to lawyers. Account and data deletion completes within 14 days, as required by law. Cases already connected to a lawyer may be retained by them under their own record-keeping duties." },
@@ -896,16 +890,16 @@ export const strings = {
   /* ---------- הדף הציבורי לעורכי דין ---------- */
   /*
    * כל טענה כאן ניתנת להצבעה על מקורה באפליקציה. במיוחד:
-   * "עברו מיון" ולא "לקוחות מאומתים" (איננו מאמתים לקוחות)
+   * "עברו בדיקה ראשונית" ולא "לקוחות מאומתים" (איננו מאמתים לקוחות)
    * ולא "יש להם עילה" (התקנון אומר שהבדיקה אינה ייעוץ משפטי).
    */
-  lpMetaTitle: { he: "JustAsk לעורכי דין — פניות מסודרות לפי תחום", en: "JustAsk for lawyers — matters organized by field" },
-  lpMetaDesc: { he: "פנייה מגיעה אליך מסודרת, עם תקציר עובדתי: מה קרה, ציר זמן, תיעוד קיים ומה עדיין לא ידוע. חצי שנה ראשונה ללא תשלום.", en: "Matters arrive organized, with a factual summary: what happened, a timeline, existing documents and what's still unknown. First six months free." },
+  lpMetaTitle: { he: "JustAsk לעורכי דין — פניות שעברו בדיקה ראשונית", en: "JustAsk for lawyers — matters that passed an initial check" },
+  lpMetaDesc: { he: "פנייה מגיעה אליך אחרי בדיקה ראשונית, עם תזכיר מלא: עילות, מועדים וטענות נגד. הערכה ראשונית בלבד — ההכרעה המקצועית שלך. חצי שנה ראשונה ללא תשלום.", en: "Matters arrive after an initial check, with a full memo: grounds, deadlines and counterarguments. An initial estimate only — the professional call is yours. First six months free." },
   lpNavCta: { he: "כניסה", en: "Sign in" },
   lpBadge: { he: "חצי שנה ראשונה — ללא תשלום", en: "First six months — free" },
   lpH1a: { he: "לא ליד.", en: "Not a lead." },
-  lpH1b: { he: "פנייה שכבר סודרה.", en: "A matter already organized." },
-  lpSub: { he: "הפונה מספר מה קרה, המערכת מסדרת את הפרטים, מזהה את התחום וכותבת תקציר עובדתי. אתה מקבל את שניהם.", en: "The person describes what happened; the system organizes the details, identifies the field and writes a factual summary. You get both." },
+  lpH1b: { he: "תיק שכבר נבדק.", en: "A matter already checked." },
+  lpSub: { he: "הפונה מספר מה קרה, המערכת בודקת אם יש סיכוי וכותבת תזכיר. אתה מקבל את שניהם — וההכרעה שלך.", en: "The person describes what happened; the system checks whether there's a chance and writes a memo. You get both — and the call is yours." },
   lpHeroCta: { he: "הצטרפות כעורך דין", en: "Join as a lawyer" },
   lpHeroNote: { he: "אימות רישיון נדרש · ללא התחייבות", en: "Licence verification required · no commitment" },
   lpArtifactLabel: { he: "כך זה נוחת אצלך", en: "This is what lands with you" },
@@ -916,10 +910,10 @@ export const strings = {
   lpCardMatch: { he: "בתחום שלך", en: "In your field" },
   lpCardTitle: { he: "החלקה על רצפה רטובה בסופרמרקט", en: "Slip on a wet supermarket floor" },
   lpCardCity: { he: "ירושלים", en: "Jerusalem" },
-  lpMemoLabel: { he: "התקציר העובדתי", en: "The factual summary" },
-  lpMemoBody: { he: "החלקה על רצפה רטובה בסופרמרקט, ללא שילוט אזהרה לדברי הפונה. פנה לחדר מיון באותו יום. קיימים צילומי מקום ואישורי מחלה. עדיין לא ידוע אם קיים דוח בטיחות.", en: "A slip on a wet supermarket floor, with no warning sign according to the person. They went to the ER the same day. Photos of the scene and sick notes exist. Whether a safety report exists is still unknown." },
+  lpMemoLabel: { he: "תזכיר הבדיקה", en: "The assessment memo" },
+  lpMemoBody: { he: "עילה אפשרית ברשלנות — חובת זהירות של תופס מקרקעין כלפי מבקר, שילוט אזהרה שלא הוצב, ותיעוד רפואי מאותו יום. המועדים פתוחים. הערכה ראשונית; ההכרעה שלך.", en: "A possible negligence claim — an occupier's duty of care toward a visitor, a warning sign that wasn't placed, and medical documentation from the same day. Deadlines are open. An initial estimate; the call is yours." },
 
-  lpStat1: { he: "מהפניות מגיעות מסודרות לפי תחום", en: "of matters arrive organized by field" },
+  lpStat1: { he: "מהפניות עברו בדיקה ראשונית", en: "of matters passed an initial check" },
   lpStat2: {
     he: "תחומי משפט — מקבלים רק את שלך",
     en: "practice areas — you get only yours",
@@ -945,10 +939,7 @@ export const strings = {
     he: "הפונה בוחר. רק אז נחשפים פרטיו, וההסכם נכרת ישירות ביניכם.",
     en: "The person chooses. Only then are their details revealed, and the agreement is made directly between you.",
   },
-  lpDisclaimer: {
-    he: "המיון הראשוני של JustAsk אינו ייעוץ משפטי ואינו מחליף אותו. ההערכה המשפטית נעשית על ידי עורך הדין בלבד.",
-    en: "JustAsk's initial check is not legal advice and does not replace it. The legal assessment is made by the lawyer alone.",
-  },
+  lpDisclaimer: { he: "הבדיקה הראשונית של JustAsk היא הערכה בלבד — אינה ייעוץ משפטי, אינה מחליפה אותו, ואינה מבטיחה תוצאה. ההערכה המקצועית נעשית על ידי עורך הדין בלבד.", en: "JustAsk's initial check is an estimate only — it is not legal advice, does not replace it, and guarantees no outcome. The professional assessment is made by the lawyer alone." },
 
   lpIncTitle: {
     he: "מה כלול",
@@ -958,10 +949,7 @@ export const strings = {
     he: "כל הפניות בתחומים שסימנת",
     en: "Every matter in the areas you selected",
   },
-  lpInc2: {
-    he: "התקציר העובדתי המלא",
-    en: "The full factual summary",
-  },
+  lpInc2: { he: "תזכיר הבדיקה המלא", en: "The full assessment memo" },
   lpInc3: {
     he: "התראה על כל פנייה חדשה",
     en: "An alert on every new matter",
@@ -1005,10 +993,10 @@ export const strings = {
   lpFooterRights: { he: "כל הזכויות שמורות", en: "All rights reserved" },
   lpSpinAria: { he: "סיפור הכניסה לעורכי דין", en: "The lawyer entry story" },
   lpSpinHint: { he: "גללו", en: "Scroll" },
-  lpSpin1Title: { he: "לא ליד. פנייה מסודרת.", en: "Not a lead. An organized matter." },
+  lpSpin1Title: { he: "לא ליד. תיק שנבדק.", en: "Not a lead. A checked matter." },
   lpSpin1Body: { he: "הפונה מספר מה קרה, המערכת בודקת אם יש עניין משפטי — ואתה מקבל את שניהם.", en: "The person describes what happened, the system checks for a legal matter — and you get both." },
-  lpSpin2Title: { he: "התקציר העובדתי המלא", en: "The full factual summary" },
-  lpSpin2Body: { he: "מה קרה, ציר זמן, תיעוד קיים ומה עדיין לא ידוע — לפני שאתה מקדיש דקה אחת.", en: "What happened, a timeline, existing documents and what's still unknown — before you spend a single minute." },
+  lpSpin2Title: { he: "תזכיר הבדיקה המלא", en: "The full assessment memo" },
+  lpSpin2Body: { he: "עילות, מועדים וטענות נגד — לפני שאתה מקדיש דקה אחת לתיק.", en: "Grounds, deadlines and counterarguments — before you spend a single minute." },
   lpSpin3Title: { he: "ההצעה שלך, לפני הבחירה", en: "Your proposal, before the choice" },
   lpSpin3Body: { he: "אתה מביע עניין ומצרף הצעת שכר טרחה. הפונה בוחר — ורק אז נחשפים פרטיו.", en: "You respond and attach a fee proposal. The person chooses — and only then are their details revealed." },
   lpSpin4Title: { he: "אימות רישיון, ואתה בפנים", en: "Verify your licence, and you're in" },
@@ -1042,10 +1030,7 @@ export const strings = {
     en: "A matter in your field opens to several lawyers at once. Without alerts you'll see it only next time you open the app — by then the client has chosen.",
   },
   primerClientTitle: { he: "שנעדכן אותך כשמשהו קורה?", en: "Want updates as things happen?" },
-  primerClientBody: {
-    he: "נודיע לך כשהמיון מסתיים, וכשעורך דין מביע עניין בתיק שלך. בלי זה תצטרך להיכנס ולבדוק בעצמך.",
-    en: "We'll tell you when the sorting is done, and when a lawyer responds to your matter. Without this you'll have to check yourself.",
-  },
+  primerClientBody: { he: "נודיע לך כשהבדיקה הראשונית מסתיימת, וכשעורך דין מביע עניין בתיק שלך. בלי זה תצטרך להיכנס ולבדוק בעצמך.", en: "We'll tell you when the initial check finishes and when a lawyer expresses interest. Without it you'd have to check yourself." },
   primerAllow: { he: "הפעלת התראות", en: "Turn on notifications" },
   primerLater: { he: "לא עכשיו", en: "Not now" },
   primerNote: {
@@ -1057,10 +1042,7 @@ export const strings = {
   archiveBadge: { he: "הסתיים", en: "Closed" },
 
   privacyAi: { he: "ניתוח ע״י בינה מלאכותית", en: "Analysis by AI" },
-  privacyAiSub: {
-    he: "המיון נעשה ע״י מנוע Gemini של גוגל. לפני השליחה מוסרים אוטומטית מזהים ישירים שכתבתם — מספר תעודת זהות, טלפון ודוא״ל — והם אינם יוצאים מהמערכת כלל. תיאור המקרה עצמו והתמונות כן נשלחים, לצורך הבדיקה בלבד — לא לאימון המודל ולא לפרסום. התיקים והקבצים נשמרים בשרתי גוגל בישראל; הניתוח עצמו מתבצע בשרתי גוגל, ולא בהכרח בישראל.",
-    en: "The sorting is performed by Google's Gemini. Direct identifiers you write — ID number, phone and email — are stripped automatically before anything is sent, and never leave our systems. The description of the case itself and any photos are sent, for that check only — never to train the model and never for advertising. Cases and files are stored on Google servers in Israel; the analysis itself runs on Google servers, not necessarily in Israel.",
-  },
+  privacyAiSub: { he: "הבדיקה הראשונית נעשית ע״י מנוע Gemini של גוגל. לפני השליחה מוסרים אוטומטית מזהים ישירים שכתבתם — מספר תעודת זהות, טלפון ודוא״ל — והם אינם יוצאים מהמערכת כלל. תיאור המקרה עצמו והתמונות כן נשלחים, לצורך הבדיקה בלבד.", en: "The initial check is performed by Google's Gemini. Direct identifiers you write — ID number, phone and email — are stripped automatically before anything is sent, and never leave the system. The case description and images are sent, for the check only." },
 
   registryGateTitle: {
     he: "לפני האישור — בדיקה מול פנקס הלשכה",
@@ -1078,7 +1060,7 @@ export const strings = {
 
   journeyTitleActive: { he: "איפה הפנייה שלך עומדת", en: "Where your matter stands" },
   journeyTitleEmpty: { he: "מה יקרה אחרי שתשתפו", en: "What happens after you share" },
-  journeyStep1: { he: "אנחנו מסדרים את הפרטים ומזהים לאיזה תחום הפנייה שייכת. חינם, ותמיד תישאר חינם.", en: "We organize the details and identify which field the matter belongs to. Free, and always will be." },
+  journeyStep1: { he: "הבדיקה הראשונית בוחנת אם יש סיכוי, מה המועדים ומה המסלול. חינם, ותמיד תישאר חינם.", en: "The initial check looks at whether there's a chance, the deadlines and the route. Free, and always will be." },
   journeyStep2: {
     he: "עורכי דין מאומתים בתחום שלכם רואים את הפנייה — בלי שמכם ובלי פרטי הקשר שלכם.",
     en: "Verified lawyers in your area of law see the matter — without your name or contact details.",
@@ -1105,10 +1087,7 @@ export const strings = {
   pulseEditSpecs: { he: "עדכון התחומים שלי", en: "Update my practice areas" },
 
   howTitle: { he: "מה קורה אחרי שמביעים עניין", en: "What happens after you respond" },
-  howStep1: {
-    he: "כל פנייה ממוינת לתחום לפני שהיא מגיעה אליך, ומגיעה עם תקציר עובדתי מלא — מה קרה, ציר זמן, תיעוד ומה עדיין לא ידוע.",
-    en: "Every matter passes sorting before it reaches you, and arrives with a full factual summary — what happened, a timeline, documents and what's still unknown.",
-  },
+  howStep1: { he: "כל פנייה עוברת בדיקה ראשונית לפני שהיא מגיעה אליך, ומגיעה עם תזכיר מלא — עילות, מועדים וטענות נגד. ההכרעה המקצועית שלך.", en: "Every matter passes an initial check before it reaches you, and arrives with a full memo — grounds, deadlines and counterarguments. The professional call is yours." },
   howStep2: {
     he: "אתה מביע עניין ויכול לצרף הצעת שכר טרחה. הלקוח רואה את כל מי שהביע עניין — אנחנו לא מדרגים לפי תשלום.",
     en: "You express interest and may attach a fee proposal. The client sees everyone who responded — we don't rank by payment.",
@@ -1119,8 +1098,8 @@ export const strings = {
   },
   feedFirstRunTitle: { he: "אתם בין הראשונים כאן", en: "You're among the first here" },
   feedFirstRunSub: { he: "JustAsk בשלב השקה, ועדיין אין פנייה פתוחה בתחומים שבחרתם. זה לא יישאר ככה — וכשתגיע פנייה, אתם תראו אותה ראשונים.", en: "JustAsk is in launch phase and there's no open case in your fields yet. That won't last — and when one arrives, you'll see it first." },
-  feedFirstRun1: { he: "כל פנייה מגיעה מסודרת ומסווגת לתחום — לא לידים גולמיים", en: "Every matter arrives organized and sorted to a field — not raw leads" },
-  feedFirstRun2: { he: "תקבלו רק פניות בתחומים שסימנתם, עם התקציר העובדתי המלא", en: "You'll only get matters in the fields you picked, with the full factual summary" },
+  feedFirstRun1: { he: "כל פנייה שתגיע כבר עברה בדיקה ראשונית — לא לידים גולמיים", en: "Every matter that arrives already passed an initial check — not raw leads" },
+  feedFirstRun2: { he: "תקבלו רק פניות בתחומים שסימנתם, עם תזכיר הבדיקה המלא", en: "You'll only get matters in the fields you picked, with the full assessment memo" },
   feedFirstRun3: { he: "אין עלות, אין כרטיס אשראי, ואין מה לרכוש בתקופת ההשקה", en: "No cost, no card on file, nothing to buy during launch" },
   feedFirstRunNotify: { he: "הפעילו התראות בהגדרות כדי לדעת על פנייה חדשה מיד — מי שמגיב ראשון בולט אצל הלקוח.", en: "Turn on notifications in settings to hear about a new case immediately — responding first stands out to the client." },
   verStatusErrorTitle: { he: "לא הצלחנו לבדוק את סטטוס האימות שלך", en: "Couldn't check your verification status" },
@@ -1140,8 +1119,8 @@ export const strings = {
   /* ---------- מנוי עורכי דין ---------- */
   proHeroTitle: { he: "מה פתוח לך", en: "What's open to you" },
   proNowHeader: { he: "כלול עכשיו — בלי תשלום", en: "Included now — at no cost" },
-  proNow1: { he: "כל התיקים בתחומים שבחרת, מיד עם סיום המיון", en: "Every case in the fields you picked, the moment it passes the sorting" },
-  proNow2: { he: "התקציר העובדתי המלא — מה קרה, ציר זמן ותיעוד", en: "The full factual summary — what happened, a timeline and documents" },
+  proNow1: { he: "כל התיקים בתחומים שבחרת, מיד עם סיום הבדיקה הראשונית", en: "Every matter in the fields you picked, the moment the initial check completes" },
+  proNow2: { he: "תזכיר הבדיקה המלא — עילות, מועדים וטענות נגד", en: "The full assessment memo — grounds, deadlines and counterarguments" },
   proNow3: { he: "התראה בזמן אמת על כל פנייה חדשה בתחום שלך", en: "Real-time alerts on every new lead in your field" },
   proNow4: { he: "צירוף הצעת שכר טרחה לפני שהלקוח בוחר", en: "Attach a fee proposal before the client chooses" },
   proNow5: { he: "מדד זמן תגובה שמוצג ללקוח לצד ההצעה שלך", en: "A response-time metric shown to the client next to your offer" },
@@ -1175,7 +1154,7 @@ export const strings = {
 
   /* ---------- גיל האירוע: עובדה שכבר חושבה ולא הוצגה ---------- */
   // התראות הפעמון — מפתח+פרמטרים נכתבים על המסמך ומתורגמים בזמן קריאה
-  validatingCardHint: { he: "המיון רץ עכשיו — בדרך כלל פחות מדקה, ונעדכן בפעמון", en: "The sorting is running — usually under a minute; we'll ping the bell" },
+  validatingCardHint: { he: "הבדיקה הראשונית רצה עכשיו — בדרך כלל פחות מדקה, ונעדכן בפעמון", en: "The initial check is running — usually under a minute; we'll ping the bell" },
   notifInterestTitle: { he: "עורך דין מעוניין בתיק שלך", en: "A lawyer is interested in your case" },
   notifInterestBody: { he: "{name} הביע עניין בפנייה \"{title}\"", en: "{name} expressed interest in \"{title}\"" },
   notifInterestBodyOffer: { he: "{name} הביע עניין בפנייה \"{title}\" וצירף הצעה", en: "{name} expressed interest in \"{title}\" and attached an offer" },
@@ -1198,9 +1177,9 @@ export const strings = {
   notifMsBody_filed: { he: "התביעה הוגשה לבית המשפט.", en: "The suit was filed in court." },
   notifMsTitle_closed: { he: "התיק הסתיים", en: "Case closed" },
   notifMsBody_closed: { he: "עורך הדין סימן שהטיפול בתיק הושלם.", en: "Your lawyer marked the case as complete." },
-  notifValidatedTitle: { he: "הפנייה שלך מוינה לתחום ✓", en: "Your case passed the sorting ✓" },
+  notifValidatedTitle: { he: "הפנייה שלך עברה את הבדיקה הראשונית ✓", en: "Your case passed the initial check ✓" },
   notifValidatedBody: { he: "\"{title}\" אושר — פתחו את התיק לפרטים ולמצב החיפוש", en: "\"{title}\" was approved — open the case for details and search status" },
-  notifCaseRejectedTitle: { he: "המיון הושלם", en: "The sorting is complete" },
+  notifCaseRejectedTitle: { he: "הבדיקה הראשונית הושלמה", en: "The initial check is complete" },
   notifVerApprovedTitle: { he: "האימות שלך אושר! 🎉", en: "You're verified! 🎉" },
   notifVerApprovedBody: { he: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.", en: "Your profile is verified — you can now express interest in cases and appear to clients." },
   notifVerRejectedTitle: { he: "האימות לא אושר", en: "Verification not approved" },
@@ -1216,7 +1195,7 @@ export const strings = {
   deleteScheduledTitle: { he: "המחיקה נקבעה", en: "Deletion scheduled" },
   deleteScheduledBody: { he: "החשבון וכל התוכן יימחקו אוטומטית בעוד {n} ימים. אם תתחברו שוב לפני כן — המחיקה תבוטל.", en: "Your account and all its content will be deleted automatically in {n} days. Sign in again before then and the deletion is cancelled." },
   noDocsTitle: { he: "רגע לפני ששולחים — יש לכם תמונה או מסמך?", en: "One moment — do you have a photo or document?" },
-  noDocsBody: { he: "עורכי הדין רואים על הפנייה אם צורף תיעוד. תמונות מהמקום, מסמכים רפואיים או קבלות נותנים להם תמונה מלאה יותר — ולתקציר העובדתי בסיס רחב יותר. אפשר לשלוח גם בלי, וזה בסדר גמור.", en: "Lawyers can see whether documentation was attached. Photos from the scene, medical records or receipts give them a fuller picture — and give the factual summary more to work with. You can send without, and that's fine." },
+  noDocsBody: { he: "עורכי הדין רואים על הפנייה אם צורף תיעוד. תמונות מהמקום, מסמכים רפואיים או קבלות נותנים להם תמונה מלאה יותר — ולתזכיר בסיס רחב יותר. אפשר לשלוח גם בלי, וזה בסדר גמור.", en: "Lawyers see whether documents were attached. Photos from the scene, medical records or receipts give them a fuller picture — and the memo a broader base. You can send without, and that's perfectly fine." },
   noDocsAttach: { he: "צירוף תמונה או מסמך", en: "Attach a photo or document" },
   noDocsSendAnyway: { he: "שליחה בלי תיעוד ←", en: "Send without documentation →" },
   greetMorning: { he: "בוקר טוב", en: "Good morning" },
@@ -1236,8 +1215,8 @@ export const strings = {
   notifWithdrawnTitle: { he: "הפונה משך את הפנייה", en: "The client withdrew their case" },
   notifWithdrawnBody: { he: "\"{title}\" כבר אינו פתוח. תודה על הזמן שהשקעת.", en: "\"{title}\" is no longer open. Thank you for the time you put in." },
   staleCheckTitle: { he: "הבדיקה לא הסתיימה", en: "The check didn't finish" },
-  staleCheckBody: { he: "המיון אמור לקחת פחות מדקה, וכאן היא נתקעה. אף עורך דין לא ראה את הפנייה הזו, והסיפור שסיפרתם שמור. אפשר להריץ את המיון שוב, או להסיר את הפנייה.", en: "The sorting should take under a minute, and this one stalled. No lawyer has seen this case, and what you told us is saved. You can run the check again, or remove the case." },
-  staleCheckRetry: { he: "להריץ את המיון שוב", en: "Run the sorting again" },
+  staleCheckBody: { he: "הבדיקה הראשונית אמורה לקחת פחות מדקה, וכאן היא נתקעה. אף עורך דין לא ראה את הפנייה הזו, והסיפור שסיפרתם שמור. אפשר להריץ את הבדיקה שוב, או להסיר את הפנייה.", en: "The initial check should take under a minute, and this one stalled. No lawyer has seen this case, and what you told us is saved. You can run the check again, or remove the case." },
+  staleCheckRetry: { he: "להריץ את הבדיקה שוב", en: "Run the check again" },
   staleCheckRemove: { he: "הסרת הפנייה", en: "Remove this case" },
   tooManyOpenTitle: { he: "יש לכם כבר {n} פניות פתוחות", en: "You already have {n} open cases" },
   tooManyOpenBody: { he: "כדי שכל פנייה תקבל תשומת לב אמיתית מעורכי הדין, אפשר להחזיק עד {n} פניות פתוחות בו-זמנית. ברגע שאחת מהן נסגרת או מתחברת לעורך דין — אפשר לפתוח חדשה.", en: "So every case gets real attention from lawyers, you can hold up to {n} open cases at a time. As soon as one closes or connects with a lawyer, you can open another." },
@@ -1269,14 +1248,15 @@ export const strings = {
   helpNeedsSignIn: { he: "צריך להתחבר כדי לשלוח פנייה — כך נדע למי לחזור.", en: "Sign in to send a message — that's how we know who to reply to." },
 
   /*
-   * גיל האירוע החליף את חלון ההתיישנות (10/8/2026).
+   * חלון ההתיישנות בפיד של עורך הדין.
    *
-   * התג הקודם אמר "נותרו להתיישנות 14 חודשים" — קביעה משפטית שאיננו
-   * מוסמכים לקבוע, ושמתעלמת מכלל הגילוי, מהשעיה לקטינים ומכללים
-   * נפרדים לגמרי בפלילי ובמנהלי. עכשיו התג מוסר עובדה, ועורך הדין
-   * מסיק ממנה בעצמו.
+   * הוחלף ב-10/8/2026 בגיל האירוע, והוחזר באותו יום: המספר הזה הוא
+   * חלק מהערך שעורך דין מקבל מאיתנו, ולא קישוט. הוא מוצג רק לעורכי
+   * דין — לא לפונה — ולצד תקציר שאומר במפורש שההערכה הסופית שלהם.
    */
-  incidentAgeYears: { he: "האירוע לפני {n} שנים", en: "Incident {n} years ago" },
+  limitationLeft: { he: "נותרו להתיישנות", en: "Left before limitation" },
+  limitationMonths: { he: "חודשים", en: "months" },
+  limitationSoon: { he: "מתקרב להתיישנות", en: "Limitation approaching" },
 } satisfies Dict;
 
 export type StringKey = keyof typeof strings;

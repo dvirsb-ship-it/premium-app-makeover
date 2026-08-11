@@ -142,7 +142,7 @@ interface CaseDoc {
   /** נכתב כשהלקוח בוחר עו"ד — גלוי רק לעו"ד הנבחר (נאכף בחוקים). */
   clientContact?: { name: string; phone: string; email: string };
   /**
-   * רקע עובדתי מהמיון — מוצג לעורכי דין ולפונה.
+   * הבסיס להערכה הראשונית — מוצג לעורכי דין ולפונה.
    *
    * השדה נקרא `legalBasis` עד 10/8/2026, והשם הזה תיאר את מה שהיה בו:
    * ניתוח משפטי. אחרי שהמנוע הפסיק לפסוק, התוכן הוא עובדות בלבד —
@@ -222,7 +222,7 @@ function agoLabel(ms: number, lang: string = "he"): string {
   return p.d(Math.round(mins / (60 * 24)));
 }
 
-import { monthsSinceIncident } from "./legal";
+import { limitationMonthsLeft } from "./legal";
 
 /* שפת הממשק — נקראת בזמן בניית הפיד; ברירת מחדל עברית כמו כל האפליקציה */
 function docLang(): string {
@@ -232,7 +232,7 @@ function docLang(): string {
 
 function toFeedCase(id: string, d: CaseDoc, myUid: string): FeedCase {
   return {
-    incidentAgeMonths: monthsSinceIncident(d.incidentDate),
+    limitationMonthsLeft: limitationMonthsLeft(d.incidentDate, d.category),
     id,
     title: d.title,
     category: d.category,
