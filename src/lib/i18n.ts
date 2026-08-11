@@ -545,7 +545,14 @@ export const strings = {
   issueCity: { he: "יש להזין עיר — כך נחבר אליך לקוחות קרובים", en: "Please enter a city — this connects you with nearby clients" },
   matchHigh: { he: "התאמה גבוהה", en: "Strong match" },
   matchMedium: { he: "התאמה טובה", en: "Good match" },
-  whyApprovedHeader: { he: "מדוע התיק אושר", en: "Why this case was approved" },
+  /*
+   * "רקע עובדתי" ולא "מדוע התיק אושר" (10/8/2026).
+   *
+   * הכותרת הישנה הצהירה שאנחנו **אישרנו** את התיק לגופו. איננו
+   * מאשרים תיקים — אנחנו ממיינים לתחום, והשדה עצמו מכיל עובדות
+   * שהפונה מסר. הכותרת מתארת עכשיו את מה שיש מתחתיה.
+   */
+  caseContextHeader: { he: "רקע עובדתי", en: "Factual background" },
   incidentDateLabel: { he: "תאריך האירוע", en: "Incident date" },
   damageTypeLabel: { he: "סוג הנזק", en: "Damage type" },
   documentationLabel: { he: "תיעוד", en: "Documentation" },

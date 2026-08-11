@@ -391,7 +391,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   issueCity: "Veuillez saisir une ville — cela permet de vous mettre en relation avec des clients proches",
   matchHigh: "Forte correspondance",
   matchMedium: "Bonne correspondance",
-  whyApprovedHeader: "Pourquoi le dossier a été validé",
+  caseContextHeader: "Contexte factuel",
   incidentDateLabel: "Date de l'incident",
   damageTypeLabel: "Type de préjudice",
   documentationLabel: "Justificatifs",

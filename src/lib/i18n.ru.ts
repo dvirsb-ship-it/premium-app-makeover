@@ -391,7 +391,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   issueCity: "Укажите город — так мы соединим вас с клиентами поблизости",
   matchHigh: "Высокое соответствие",
   matchMedium: "Хорошее соответствие",
-  whyApprovedHeader: "Почему дело одобрено",
+  caseContextHeader: "Фактическая справка",
   incidentDateLabel: "Дата происшествия",
   damageTypeLabel: "Тип ущерба",
   documentationLabel: "Документация",

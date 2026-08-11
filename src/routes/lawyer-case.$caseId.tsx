@@ -150,6 +150,7 @@ function LawyerCaseDetail() {
 
   // פרטי הוולידציה המלאים — הבסיס המשפטי, תאריך, נזק ותיעוד
   const [details, setDetails] = useState<{
+    caseContext?: string;
     legalBasis?: string;
     incidentDate?: string;
     damageType?: string;
@@ -161,7 +162,8 @@ function LawyerCaseDetail() {
       .then(async (raw) => {
         if (raw) {
           setDetails({
-            legalBasis: raw.legalBasis,
+            /* נפילה חזרה לשם הישן — ראו את ההערה בצד הלקוח */
+            caseContext: raw.caseContext ?? raw.legalBasis,
             incidentDate: raw.incidentDate,
             damageType: raw.damageType,
             hasDocumentation: raw.hasDocumentation,
@@ -650,15 +652,15 @@ function LawyerCaseDetail() {
             </p>
           </div>
 
-          {details && (details.legalBasis || details.incidentDate) && (
+          {details && (details.caseContext || details.incidentDate) && (
             <div className="liquid-glass mt-4 rounded-3xl p-5">
               <div className="flex items-center gap-2">
                 <BadgeCheck className="size-4 text-gold" strokeWidth={2.2} />
-                <h3 className="text-sm font-bold text-foreground">{t("whyApprovedHeader")}</h3>
+                <h3 className="text-sm font-bold text-foreground">{t("caseContextHeader")}</h3>
               </div>
-              {details.legalBasis && (
+              {details.caseContext && (
                 <p className="mt-2 text-[14px] leading-relaxed text-muted-foreground">
-                  {details.legalBasis}
+                  {details.caseContext}
                 </p>
               )}
               <dl className="mt-3 grid grid-cols-3 gap-2 text-center">

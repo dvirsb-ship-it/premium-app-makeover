@@ -269,7 +269,7 @@ export interface ValidateResult {
   category: string;
   summary: string;
   /** הבסיס המשפטי לאישור — מוצג לעורכי הדין בדף התיק. */
-  legalBasis: string;
+  caseContext: string;
   /** בדחייה: המלצה מעשית מה כן לעשות. */
   recommendation?: string;
   /** באישור: מה להכין לפגישה — נגזר ממה שהפונה עצמו ספר בראיון. */
@@ -339,7 +339,7 @@ validated=false **אך ורק** בשלושת המקרים האלה:
 2. validated — לפי שלב 2 בלבד.
 3. title — כותרת קצרה ועניינית בעברית (עד 6 מילים).
 4. summary — סיכום **עובדתי** של 2-3 משפטים בעברית, גוף שלישי, בלי פרטים מזהים: מה קרה, מתי, ומה הפונה מבקש. בלי הערכה ובלי ניתוח. מסתיים ב: "הפרטים נמסרו על ידי הפונה ולא נבדקו."
-5. legalBasis — **רקע עובדתי לעורך הדין**, לא ניתוח: באיזה שלב העניין נמצא (למשל "התקבל זימון לחקירה", "נדחתה תביעת ביטוח", "הוגשה בקשה לצו ירושה"), אילו מועדים **הפונה עצמו ציין**, ואיזה תיעוד קיים. **אל תצטט חוקים או סעיפים, אל תמנה עילות או יסודותיהן, ואל תחשב התיישנות.** אם validated=false — משפט אחד למה זה מחוץ לתחומי השירות.
+5. caseContext — **רקע עובדתי לעורך הדין**, לא ניתוח: באיזה שלב העניין נמצא (למשל "התקבל זימון לחקירה", "נדחתה תביעת ביטוח", "הוגשה בקשה לצו ירושה"), אילו מועדים **הפונה עצמו ציין**, ואיזה תיעוד קיים. **אל תצטט חוקים או סעיפים, אל תמנה עילות או יסודותיהן, ואל תחשב התיישנות.** אם validated=false — משפט אחד למה זה מחוץ לתחומי השירות.
 6. recommendation — רק כש-validated=false: לאן כדאי לפנות במקום. כש-validated=true — מחרוזת ריקה.
 6ב. clientChecklist — רק כש-validated=true: 3-6 פריטים קונקרטיים שהפונה צריך להביא לפגישה, **גזורים ממה שהוא עצמו ספר** (למשל "אישורי המחלה מחודשיים אי-הכושר", "הזימון לחקירה שקיבלת", "הסכם הממון אם נחתם", "שומת המס והנימוקים"). כל פריט משפט קצר בגוף שני, בלי הסברים משפטיים. כש-validated=false — מערך ריק.
 7. בשום שדה אין טלפונים, אימיילים, קישורים או שמות מזהים.
@@ -438,7 +438,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         title: "",
         category: "",
         summary: "",
-        legalBasis: "",
+        caseContext: "",
       };
     }
     const c = raw as {
@@ -451,7 +451,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       title?: string;
       category?: string;
       summary?: string;
-      legalBasis?: string;
+      caseContext?: string;
       recommendation?: string;
       images?: { origPath: string }[];
     };
@@ -468,7 +468,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         title: c.title ?? "",
         category: c.category ?? "",
         summary: c.summary ?? "",
-        legalBasis: c.legalBasis ?? "",
+        caseContext: c.caseContext ?? "",
         recommendation: c.recommendation ?? "",
       };
     }
@@ -531,11 +531,11 @@ export const validateCaseFn = createServerFn({ method: "POST" })
              */
             category: { type: "string", enum: [...VALIDATION_CATEGORIES] },
             summary: { type: "string" },
-            legalBasis: { type: "string" },
+            caseContext: { type: "string" },
             recommendation: { type: "string" },
             clientChecklist: { type: "array", items: { type: "string" } },
           },
-          required: ["validated", "title", "category", "summary", "legalBasis", "recommendation"],
+          required: ["validated", "title", "category", "summary", "caseContext", "recommendation"],
         },
       },
     );
@@ -555,7 +555,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       title: result.title,
       category: safeCategory,
       summary: result.summary,
-      legalBasis: result.legalBasis ?? "",
+      caseContext: result.caseContext ?? "",
       recommendation: result.recommendation ?? "",
       status: result.validated ? "matching" : "rejected",
       // הרגע שבו התיק נעשה זמין לעורכי דין — הבסיס למדידת תגובתיות

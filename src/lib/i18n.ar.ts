@@ -391,7 +391,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   issueCity: "يجب إدخال مدينة — هكذا نصلك بعملاء قريبين منك",
   matchHigh: "ملاءمة عالية",
   matchMedium: "ملاءمة جيدة",
-  whyApprovedHeader: "لماذا تم اعتماد الملف",
+  caseContextHeader: "خلفية وقائعية",
   incidentDateLabel: "تاريخ الحادثة",
   damageTypeLabel: "نوع الضرر",
   documentationLabel: "التوثيق",

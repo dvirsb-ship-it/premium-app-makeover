@@ -391,7 +391,7 @@ export const es: Partial<Record<StringKey, string>> = {
   issueCity: "Ingrese una ciudad — así lo conectamos con clientes cercanos",
   matchHigh: "Compatibilidad alta",
   matchMedium: "Buena compatibilidad",
-  whyApprovedHeader: "Por qué se aprobó el caso",
+  caseContextHeader: "Antecedentes de hecho",
   incidentDateLabel: "Fecha del incidente",
   damageTypeLabel: "Tipo de daño",
   documentationLabel: "Documentación",

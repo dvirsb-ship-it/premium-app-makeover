@@ -55,7 +55,7 @@ function CaseDetail() {
   const Arrow = dir === "rtl" ? ArrowLeft : ArrowRight;
 
   // הבסיס המשפטי מהוולידציה — הלקוח רואה על מה התיק אושר
-  const [legalBasis, setLegalBasis] = useState<string>("");
+  const [caseContext, setCaseContext] = useState<string>("");
   // בדחייה: ההמלצה מה כן לעשות
   const [recommendation, setRecommendation] = useState<string>("");
   // רשימת ההכנה שנגזרה מהראיון — התוצר שהלקוח לא קיבל עד היום
@@ -69,7 +69,9 @@ function CaseDetail() {
   useEffect(() => {
     void readCaseRaw(caseId)
       .then(async (raw) => {
-        setLegalBasis(raw?.legalBasis ?? "");
+        /* מסמכים שנוצרו לפני השינוי נושאים את השם הישן — קריאה עם נפילה
+           חזרה, כדי שתיקים קיימים לא יאבדו את הרקע שלהם. */
+        setCaseContext(raw?.caseContext ?? raw?.legalBasis ?? "");
         setRecommendation(raw?.recommendation ?? "");
         setChecklist((raw?.clientChecklist as string[] | undefined) ?? []);
         const imgs = (raw?.images ?? []) as CaseImage[];
@@ -375,7 +377,7 @@ function CaseDetail() {
             </div>
           )}
 
-          {item.status !== "validating" && item.status !== "rejected" && legalBasis && (
+          {item.status !== "validating" && item.status !== "rejected" && caseContext && (
             <div className="liquid-glass mt-3 flex items-start gap-3 rounded-3xl px-4 py-3.5">
               <span className="mt-0.5 grid size-9 shrink-0 place-items-center rounded-full bg-success/12 text-success">
                 <BadgeCheck className="size-4.5" strokeWidth={2.2} aria-hidden />
@@ -383,7 +385,7 @@ function CaseDetail() {
               <div className="min-w-0">
                 <p className="text-[13px] font-bold text-foreground">{t("caseValidatedChip")}</p>
                 <p className="mt-0.5 text-[12px] leading-snug text-muted-foreground">
-                  {legalBasis}
+                  {caseContext}
                 </p>
               </div>
             </div>
@@ -392,9 +394,9 @@ function CaseDetail() {
           {item.status === "rejected" && (
             <div className="liquid-glass mt-3 rounded-3xl p-4">
               <p className="text-[13px] font-bold text-foreground">{t("intakeNotSuitableTitle")}</p>
-              {legalBasis && (
+              {caseContext && (
                 <p className="mt-1.5 text-[12px] leading-relaxed text-muted-foreground">
-                  {legalBasis}
+                  {caseContext}
                 </p>
               )}
               {recommendation && (
