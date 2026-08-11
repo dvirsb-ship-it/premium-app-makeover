@@ -72,12 +72,12 @@ function LawyerCases() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         /* אותו לוח כותרת כמו בבית — ראה את ההנמקה ב-`.masthead` */
-        className="masthead -mx-5 px-5 pb-4 pt-6"
+        className="masthead -mx-5 px-5 pb-4 pt-8"
       >
         <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
           JUSTASK · PRO
         </p>
-        <h1 className="mt-1 text-2xl font-bold text-foreground">
+        <h1 className="mt-1 text-2xl font-extrabold text-foreground">
           {t("lawyerActiveTitle")}
         </h1>
         <p className="mt-1 text-[13px] leading-relaxed text-muted-foreground">
@@ -125,7 +125,7 @@ function LawyerCases() {
                 onClick={() =>
                   navigate({ to: "/lawyer-case/$caseId", params: { caseId: c.id } })
                 }
-                className="liquid-glass flex w-full items-stretch gap-3 rounded-[24px] p-3 text-start"
+                className="liquid-glass flex w-full items-stretch gap-3 rounded-[20px] p-3 text-start"
               >
                 <span className="chip-emblem grid size-[72px] shrink-0 place-items-center rounded-2xl">
                   <Icon className="relative z-10 size-7 text-gold-ink" strokeWidth={1.7} aria-hidden />

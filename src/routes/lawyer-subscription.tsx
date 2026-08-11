@@ -74,7 +74,7 @@ function LawyerSubscription() {
         initial={{ opacity: 0, y: 14 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.18, duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-        className="mt-7 rounded-[24px] border border-gold/30 bg-gold/[0.07] p-5 text-center"
+        className="mt-7 rounded-[26px] border border-gold/30 bg-gold/[0.07] p-5 text-center"
       >
         <span className="mx-auto grid size-11 place-items-center rounded-full bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] shadow-[0_10px_28px_-10px_rgba(212,175,55,0.7)]">
           <Check className="size-6 text-[#0F172A]" strokeWidth={3} />
@@ -96,7 +96,7 @@ function LawyerSubscription() {
         <h2 className="rule-gold px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           {t("proNowHeader")}
         </h2>
-        <ul className="liquid-glass mt-3 space-y-3.5 rounded-[24px] p-5">
+        <ul className="liquid-glass mt-3 space-y-3.5 rounded-[26px] p-5">
           {included.map((f, i) => {
             const Icon = f.icon;
             return (
@@ -132,7 +132,7 @@ function LawyerSubscription() {
         <h2 className="rule-gold px-1 text-[12px] font-bold uppercase tracking-[0.14em] text-muted-foreground">
           {t("proLaterHeader")}
         </h2>
-        <p className="mt-3 rounded-[22px] border border-border bg-card p-5 text-[13px] leading-relaxed text-muted-foreground">
+        <p className="mt-3 rounded-[26px] border border-border bg-card p-5 text-[13px] leading-relaxed text-muted-foreground">
           {t("proLaterSub")}
         </p>
 
@@ -144,7 +144,7 @@ function LawyerSubscription() {
           * שנכווה מחברות לידים מניח שהתשובה היא כן. מוטב שיקרא אותה
           * בעצמו לפני שהוא מקליד כרטיס, ולא ימצא אותה בתקנון בדיעבד.
           */}
-        <div className="note-gold mt-3 rounded-[22px] p-5">
+        <div className="note-gold mt-3 rounded-[26px] p-5">
           <p className="text-[13px] font-bold text-foreground">
             {/* סימון על הכותרת בלבד — זו הטענה, וכל השאר הוא ההסבר שלה */}
             <span className="mark-gold">{t("proNoPriorityTitle")}</span>

@@ -127,10 +127,10 @@ function PresentationSettings() {
                 <img
                   src={photoUrl}
                   alt=""
-                  className="size-20 shrink-0 rounded-[22px] object-cover shadow-[0_10px_24px_-12px_oklch(0.21_0.04_265/0.5)]"
+                  className="size-20 shrink-0 rounded-[28%] object-cover shadow-[0_10px_24px_-12px_oklch(0.21_0.04_265/0.5)]"
                 />
               ) : (
-                <span className="chip-navy grid size-20 shrink-0 place-items-center rounded-[22px] text-2xl font-black">
+                <span className="chip-navy grid size-20 shrink-0 place-items-center rounded-[28%] text-2xl font-black">
                   {initials}
                 </span>
               )}

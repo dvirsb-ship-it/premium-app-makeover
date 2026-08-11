@@ -84,7 +84,7 @@ function Notifications() {
                 transition={{ delay: Math.min(i, 8) * 0.05, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 whileTap={{ scale: 0.98 }}
                 className={cn(
-                  "liquid-glass relative flex w-full items-start gap-3 rounded-[22px] px-4 py-3.5 text-start",
+                  "liquid-glass relative flex w-full items-start gap-3 rounded-[20px] px-4 py-3.5 text-start",
                   !n.read && "border border-gold/35",
                 )}
               >

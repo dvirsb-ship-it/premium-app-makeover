@@ -35,7 +35,7 @@ export function SubmittedModal({
         transition={{ type: "spring", stiffness: 260, damping: 24 }}
         onClick={(e) => e.stopPropagation()}
         /* אטום בכוונה: זו הודעה, לא רקע. הזכוכית שייכת למשטח שמאחוריה. */
-        className="relative w-full max-w-sm rounded-[32px] border border-border bg-card p-7 text-center shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
+        className="relative w-full max-w-sm rounded-[28px] border border-border bg-card p-7 text-center shadow-[0_32px_80px_-20px_rgba(15,23,42,0.55)]"
       >
         <button
           type="button"

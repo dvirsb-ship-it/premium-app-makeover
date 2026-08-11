@@ -195,7 +195,7 @@ function LawyersLanding() {
               const Icon = s.icon;
               return (
                 <Reveal key={s.key} delay={i * 0.14}>
-                  <li className="liquid-glass h-full rounded-[22px] p-5">
+                  <li className="liquid-glass h-full rounded-[26px] p-5">
                     <span className="mx-auto grid size-10 place-items-center rounded-full bg-gold/12 ring-1 ring-gold/25">
                       <Icon className="size-4.5 text-gold-ink" strokeWidth={1.9} aria-hidden />
                     </span>
@@ -257,7 +257,7 @@ function LawyersLanding() {
 
         {/* ---------- סיום ---------- */}
         <Reveal>
-          <section className="mt-16 rounded-[28px] border border-gold/25 bg-gold/[0.05] px-6 py-12">
+          <section className="mt-16 rounded-[26px] border border-gold/25 bg-gold/[0.05] px-6 py-12">
             <ShieldCheck className="mx-auto size-8 text-gold" strokeWidth={1.8} aria-hidden />
             <h2 className="mt-4 text-[1.7rem] font-black tracking-tight">{t("lpFinalTitle")}</h2>
             <p className="mx-auto mt-3 max-w-sm text-[14px] leading-relaxed text-muted-foreground">

@@ -155,13 +155,13 @@ function LawyerFeed() {
          * אותו לוח כותרת בדיוק כמו בבית של הלקוח — קו אחד לשני הצדדים.
          * ההנמקה המלאה, כולל למה אין כאן `sticky`, נמצאת ב-`.masthead`.
          */
-        className="masthead -mx-5 flex items-center justify-between px-5 pb-4 pt-6"
+        className="masthead -mx-5 flex items-center justify-between px-5 pb-4 pt-8"
       >
         <div>
           <p className="eyebrow-live text-xs font-medium tracking-[0.22em]">
             JUSTASK · PRO
           </p>
-          <h1 className="mt-1 text-2xl font-bold text-foreground">
+          <h1 className="mt-1 text-2xl font-extrabold text-foreground">
             {t("newLeads")}
           </h1>
         </div>
@@ -424,7 +424,7 @@ function LawyerFeed() {
               ease: [0.22, 1, 0.36, 1],
             }}
             whileTap={{ scale: 0.98 }}
-            className="liquid-glass relative flex w-full items-stretch gap-3 overflow-hidden rounded-[24px] p-3 text-start"
+            className="liquid-glass relative flex w-full items-stretch gap-3 overflow-hidden rounded-[20px] p-3 text-start"
           >
             {/*
               * סמל התחום במקום תמונת סטוק. התמונות היו כמעט זהות בכל

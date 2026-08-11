@@ -287,7 +287,7 @@ function ClientHome() {
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
-                  "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[30px] text-start",
+                  "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[26px] text-start",
                   active.status === "has_interest" && "glass-warm",
                   active.status === "connected" && "glass-lit",
                 )}
@@ -357,8 +357,8 @@ function ClientHome() {
             <Rise>
               {/* "עוד לא שיתפת מקרה" מול "לא הצלחנו לטעון" — לא אותו דבר */}
               <div className={casesError
-                ? "rounded-[30px] border border-destructive/30 bg-destructive/[0.05] p-6 text-center"
-                : "liquid-glass rounded-[30px] p-6 text-center"}>
+                ? "rounded-[26px] border border-destructive/30 bg-destructive/[0.05] p-6 text-center"
+                : "liquid-glass rounded-[26px] p-6 text-center"}>
                 <span className="chip-emblem mx-auto grid size-14 place-items-center">
                   <Scale className="relative z-10 size-6 text-gold-ink" strokeWidth={2} />
                 </span>
@@ -381,7 +381,7 @@ function ClientHome() {
             */}
           {atCaseLimit ? (
             <Rise className="mt-3">
-              <div className="rounded-[22px] border border-gold/35 bg-gold/[0.07] p-4 text-center">
+              <div className="rounded-[26px] border border-gold/35 bg-gold/[0.07] p-4 text-center">
                 <p className="text-[13.5px] font-bold text-foreground">
                   {t("tooManyOpenTitle").replace("{n}", String(MAX_OPEN_CASES))}
                 </p>
@@ -424,7 +424,7 @@ function ClientHome() {
           <Rise className="mt-3">
             <Pressable
               onClick={() => navigate({ to: "/settings/help" })}
-              className="liquid-glass glass-flat tap flex w-full items-center gap-3 rounded-[22px] px-4 py-3.5"
+              className="liquid-glass glass-flat tap flex w-full items-center gap-3 rounded-[20px] px-4 py-3.5"
             >
               <span className="chip-emblem grid size-10 shrink-0 place-items-center">
                 <LifeBuoy className="relative z-10 size-4 text-gold-ink" strokeWidth={1.9} aria-hidden />

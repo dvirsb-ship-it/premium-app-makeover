@@ -41,7 +41,7 @@ export function HandshakeMoment({
             initial={{ scale: 0.7, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
-            className="relative grid size-24 place-items-center rounded-[28px] liquid-glass ring-1 ring-gold/40"
+            className="relative grid size-24 place-items-center rounded-[28%] liquid-glass ring-1 ring-gold/40"
           >
             <Check className="size-12 text-gold" strokeWidth={2.5} />
           </motion.div>

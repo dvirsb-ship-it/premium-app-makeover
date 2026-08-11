@@ -123,7 +123,7 @@ function LawyerProfile() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-        className="relative mt-5 overflow-hidden rounded-[28px] bg-navy p-5 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.55)]"
+        className="relative mt-5 overflow-hidden rounded-[26px] bg-navy p-5 shadow-[0_24px_60px_-24px_rgba(15,23,42,0.55)]"
       >
         {/* שטיפת זהב עדינה מלמעלה — עומק, לא קישוט */}
         <span
@@ -138,10 +138,10 @@ function LawyerProfile() {
             <img
               src={lawyer.photoUrl}
               alt=""
-              className="size-[74px] shrink-0 rounded-[22px] object-cover shadow-[0_12px_28px_-10px_rgba(212,175,55,0.55)] ring-1 ring-gold/40"
+              className="size-[74px] shrink-0 rounded-[28%] object-cover shadow-[0_12px_28px_-10px_rgba(212,175,55,0.55)] ring-1 ring-gold/40"
             />
           ) : (
-            <div className="grid size-[74px] shrink-0 place-items-center rounded-[22px] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[26px] font-black text-[#0F172A] shadow-[0_12px_28px_-10px_rgba(212,175,55,0.7)]">
+            <div className="grid size-[74px] shrink-0 place-items-center rounded-[28%] bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[26px] font-black text-[#0F172A] shadow-[0_12px_28px_-10px_rgba(212,175,55,0.7)]">
               {lawyer.initials || lawyer.name.slice(0, 2)}
             </div>
           )}
@@ -202,7 +202,7 @@ function LawyerProfile() {
                 duration: 0.6,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="liquid-glass flex flex-col items-center rounded-[24px] px-2 py-4 text-center"
+              className="liquid-glass flex flex-col items-center rounded-[20px] px-2 py-4 text-center"
             >
               <span className="grid size-10 place-items-center rounded-2xl bg-gold/12 ring-1 ring-gold/25">
                 <Icon className="size-4 text-gold" strokeWidth={2} />
@@ -222,7 +222,7 @@ function LawyerProfile() {
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="liquid-glass mt-3 rounded-[24px] p-4"
+        className="liquid-glass mt-3 rounded-[26px] p-4"
       >
         <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-gold">
           {t("expertiseHeader")}
