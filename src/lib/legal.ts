@@ -8,36 +8,46 @@
  * הקובץ טהור בכוונה: אין כאן firebase, אין React.
  */
 
-/* ---------- התיישנות ---------- */
+/* ---------- גיל האירוע ---------- */
 
 /**
- * תקופות ההתיישנות לפי קטגוריה, בשנים.
- * ברירת המחדל היא 7 שנים לפי חוק ההתיישנות; תביעת תגמולי ביטוח מתיישנת
- * בתוך 3 שנים לפי חוק חוזה הביטוח.
- */
-export const LIMITATION_YEARS: Record<string, number> = { "ביטוח": 3 };
-export const DEFAULT_LIMITATION_YEARS = 7;
-
-/**
- * חודשים שנותרו עד ההתיישנות, או undefined כשאי אפשר לדעת.
+ * כמה חודשים עברו מאז האירוע, או undefined כשאי אפשר לדעת.
  *
- * שמרני בכוונה: שותק כשהתאריך לא נקרא כ-YYYY-MM-DD. מספר שגוי כאן גרוע
- * בהרבה מאי-הצגה — עורך דין עשוי לקבל על סמכו החלטה אם לקחת תיק.
+ * ═══ החליף חישוב התיישנות (10/8/2026) ═══
+ *
+ * קודם ישבה כאן `limitationMonthsLeft`, שהחזיקה טבלת תקופות (7 שנים
+ * כברירת מחדל, 3 בביטוח) והציגה לעורך הדין "נותרו להתיישנות X חודשים".
+ *
+ * זו קביעה משפטית, ואנחנו לא מוסמכים לקבוע אותה. גם לגופה היא הייתה
+ * שגויה לעיתים קרובות: לחוק ההתיישנות יש כלל גילוי, השעיה לקטינים,
+ * השעיה מחמת ליקוי נפשי, וכללים נפרדים לגמרי בפלילי, במנהלי ובמשפחה.
+ * מספר שגוי שעורך דין מסתמך עליו גרוע מאין מספר בכלל.
+ *
+ * מה שנשאר הוא **העובדה**: מתי האירוע קרה. המסקנה המשפטית ממנה היא של
+ * עורך הדין, והוא זה שיודע להחיל עליה את החריגים.
+ *
+ * שמרני בכוונה: שותק כשהתאריך לא נקרא כ-YYYY-MM-DD.
  *
  * @param now מוזרק כדי שאפשר יהיה לבדוק; ברירת המחדל היא הזמן הנוכחי.
  */
-export function limitationMonthsLeft(
+export function monthsSinceIncident(
   incidentDate: string | undefined,
-  category: string,
   now: number = Date.now(),
 ): number | undefined {
   if (!incidentDate || !/^\d{4}-\d{2}-\d{2}$/.test(incidentDate)) return undefined;
   const start = new Date(`${incidentDate}T00:00:00`);
   if (Number.isNaN(start.getTime())) return undefined;
-  const years = LIMITATION_YEARS[category] ?? DEFAULT_LIMITATION_YEARS;
-  const deadline = new Date(start);
-  deadline.setFullYear(deadline.getFullYear() + years);
-  const months = Math.floor((deadline.getTime() - now) / (1000 * 60 * 60 * 24 * 30.44));
+  const end = new Date(now);
+  /*
+   * חודשים קלנדריים ולא חלוקה בחודש ממוצע.
+   *
+   * חישוב לפי 30.44 יום מדווח בחסר באופן שיטתי: אירוע בן ארבע שנים
+   * בדיוק יוצא 47 חודשים ולא 48, ותג שמותנה בסף היה מפספס אותו. כאן
+   * ההפרש הוא בין תאריכים אמיתיים.
+   */
+  let months =
+    (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+  if (end.getDate() < start.getDate()) months -= 1;
   return months < 0 ? 0 : months;
 }
 

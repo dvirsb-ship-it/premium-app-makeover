@@ -487,14 +487,20 @@ function LawyerFeed() {
                     );
                   })()}
                   {/*
-                    * חלון ההתיישנות — מוצג רק כשהוא נסגר (פחות משנה וחצי).
+                    * גיל האירוע — מוצג רק כשהוא ישן (ארבע שנים ומעלה).
                     * תג שמופיע על כל תיק מפסיק להיות סימן ומתחיל להיות רעש.
+                    *
+                    * כאן ישב קודם "נותרו להתיישנות X חודשים" — קביעה משפטית
+                    * שאיננו מוסמכים לקבוע, ושהתעלמה מכלל הגילוי ומההשעיות.
+                    * התג מוסר עכשיו **עובדה**, ועורך הדין מסיק ממנה בעצמו.
                     */}
-                  {typeof f.limitationMonthsLeft === "number" &&
-                    f.limitationMonthsLeft <= 18 && (
+                  {typeof f.incidentAgeMonths === "number" &&
+                    f.incidentAgeMonths >= 48 && (
                       <span className="rounded-full bg-warning-ink/12 px-2 py-0.5 text-[10px] font-bold text-warning-ink">
-                        {t("limitationLeft")} {f.limitationMonthsLeft}{" "}
-                        {t("limitationMonths")}
+                        {t("incidentAgeYears").replace(
+                          "{n}",
+                          String(Math.floor(f.incidentAgeMonths / 12)),
+                        )}
                       </span>
                     )}
                   {/*

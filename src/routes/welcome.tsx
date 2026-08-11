@@ -26,9 +26,9 @@ export const Route = createFileRoute("/welcome")({
   head: () => ({
     meta: [
       { title: "Welcome to JustAsk" },
-      { name: "description", content: "A quick tour of how JustAsk checks your case." },
+      { name: "description", content: "A quick tour of how JustAsk organizes your matter and routes it to lawyers." },
       { property: "og:title", content: "Welcome to JustAsk" },
-      { property: "og:description", content: "A quick tour of how JustAsk checks your case." },
+      { property: "og:description", content: "A quick tour of how JustAsk organizes your matter and routes it to lawyers." },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex" },
     ],

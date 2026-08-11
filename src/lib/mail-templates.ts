@@ -84,7 +84,7 @@ ${bodyHtml}
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;">
 <tr><td dir="rtl" style="padding:18px 24px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:11px;color:${SMALL_PRINT};text-align:right;line-height:1.7;">
 המייל הזה נשלח אליך כי יש לך חשבון ב-JustAsk, והוא נוגע לפעילות בחשבון או בתיק שלך.<br>
-JustAsk — פלטפורמה להתאמה בין נפגעים לעורכי דין. הבדיקה הראשונית אינה ייעוץ משפטי ואינה יוצרת יחסי עו"ד–לקוח.<br>
+JustAsk — פלטפורמה שמחברת אנשים לעורכי דין. איננו עורכי דין, איננו נותנים ייעוץ משפטי, ואין ביננו יחסי עו"ד–לקוח.<br>
 <a href="${unsubscribeUrl}" style="color:${SMALL_PRINT};">להפסיק לקבל מיילים כאלה</a> · © JustAsk
 </td></tr>
 </table>

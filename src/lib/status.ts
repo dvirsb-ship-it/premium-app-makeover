@@ -5,13 +5,13 @@ import { useSettings } from "./settings";
 type StatusLabel = Record<Lang, string> & { tone: "gold" | "navy" | "success" | "muted" };
 
 const LABELS: Record<CaseStatus, StatusLabel> = {
-  validating: { he: "בבדיקה", en: "Reviewing", ru: "На проверке", ar: "قيد المراجعة", es: "En revisión", fr: "En cours d’examen", tone: "muted" },
-  matching: { he: "אושר בבדיקה · מחפשים עורכי דין", en: "Approved · finding lawyers", ru: "Одобрено · ищем адвокатов", ar: "تمت الموافقة · نبحث عن محامين", es: "Aprobado · buscando abogados", fr: "Approuvé · recherche d’avocats", tone: "gold" },
+  validating: { he: "במיון", en: "Sorting", ru: "Сортировка", ar: "قيد الفرز", es: "Clasificando", fr: "Tri en cours", tone: "muted" },
+  matching: { he: "מוינה לתחום · מוצגת לעורכי דין", en: "Sorted · shown to lawyers", ru: "Отнесено к области · показано адвокатам", ar: "صُنّف · يُعرض على المحامين", es: "Clasificada · visible para abogados", fr: "Classée · présentée aux avocats", tone: "gold" },
   has_interest: { he: "יש התעניינות", en: "Interest received", ru: "Есть заинтересованность", ar: "هناك اهتمام", es: "Hay interés", fr: "Intérêt reçu", tone: "navy" },
   connected: { he: "נוצר חיבור", en: "Connected", ru: "Связь установлена", ar: "تم التواصل", es: "Conectado", fr: "Mis en relation", tone: "success" },
   closed: { he: "התיק הסתיים", en: "Case closed", ru: "Дело закрыто", ar: "أُغلق الملف", es: "Caso cerrado", fr: "Dossier clôturé", tone: "muted" },
   withdrawn: { he: "הפנייה נמשכה", en: "Case withdrawn", ru: "Обращение отозвано", ar: "سُحب الطلب", es: "Caso retirado", fr: "Dossier retiré", tone: "muted" },
-  rejected: { he: "לא נמצאה עילה", en: "No cause found", ru: "Оснований не найдено", ar: "لم يُعثر على أساس قانوني", es: "No se encontró fundamento", fr: "Aucun fondement retenu", tone: "muted" },
+  rejected: { he: "מחוץ לתחומי השירות", en: "Outside the service", ru: "Вне рамок сервиса", ar: "خارج نطاق الخدمة", es: "Fuera del servicio", fr: "Hors du service", tone: "muted" },
 };
 
 export const statusMeta = new Proxy(

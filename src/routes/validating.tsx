@@ -87,8 +87,8 @@ function Validating() {
       void notify(raw.clientId, res.validated
         ? {
             type: "case_validated",
-            title: "התיק שלך עבר את הבדיקה המשפטית ✓",
-            body: `"${res.title}" אושר — פתחו את התיק לפרטים ולמצב החיפוש`,
+            title: "הפנייה שלך מוינה לתחום ✓",
+            body: `"${res.title}" נפתח — פתחו את התיק לפרטים ולמצב החיפוש`,
             titleKey: "notifValidatedTitle",
             bodyKey: "notifValidatedBody",
             params: { title: res.title },
@@ -96,7 +96,7 @@ function Validating() {
           }
         : {
             type: "case_rejected",
-            title: "הבדיקה המשפטית הושלמה",
+            title: "המיון הושלם",
             // גוף ההסבר מגיע מה-AI בשפת הראיון — אין נוסח קבוע לתרגם
             body: res.recommendation || res.summary,
             titleKey: "notifCaseRejectedTitle",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   isValidIsraeliId,
-  limitationMonthsLeft,
+  monthsSinceIncident,
   offerExceedsCap,
   categoryHasStatutoryCap,
   PLTD_MAX_PERCENT,
@@ -10,48 +10,37 @@ import {
 /* עוגן זמן קבוע — בדיקה שתלויה בשעון האמיתי נשברת מעצמה בשלב כלשהו */
 const NOW = new Date("2026-07-31T00:00:00").getTime();
 
-describe("limitationMonthsLeft", () => {
-  it("נזיקין — 7 שנים מתאריך האירוע", () => {
-    // אירוע לפני חצי שנה → נותרו כ-78 חודשים (7 שנים פחות חצי)
-    expect(limitationMonthsLeft("2026-01-31", "נזיקין ותאונות", NOW)).toBe(78);
+describe("monthsSinceIncident", () => {
+  it("מחזיר את הזמן שעבר מאז האירוע", () => {
+    // אירוע לפני חצי שנה
+    expect(monthsSinceIncident("2026-01-31", NOW)).toBe(6);
+    expect(monthsSinceIncident("2025-07-31", NOW)).toBe(12);
+    // יום בחודש שטרם הגיע אינו נספר כחודש מלא
+    expect(monthsSinceIncident("2026-01-30", NOW)).toBe(6);
+    expect(monthsSinceIncident("2025-08-01", NOW)).toBe(11);
   });
 
-  it("ביטוח — 3 שנים, לא 7", () => {
-    const insurance = limitationMonthsLeft("2025-07-31", "ביטוח", NOW);
-    const tort = limitationMonthsLeft("2025-07-31", "נזיקין ותאונות", NOW);
-    expect(insurance).toBeLessThan(tort!);
-    expect(insurance).toBe(24);
+  it("אינו תלוי בקטגוריה — זו עובדה ולא כלל משפטי", () => {
+    // הפונקציה הקודמת קיבלה קטגוריה והחזירה 3 שנים לביטוח מול 7 לנזיקין.
+    // גיל האירוע זהה לכולם; המסקנה המשפטית ממנו היא של עורך הדין.
+    expect(monthsSinceIncident("2020-07-31", NOW)).toBe(72);
   });
 
-  it("תיק שהתיישן מחזיר 0 ולא מספר שלילי", () => {
-    expect(limitationMonthsLeft("2010-01-01", "נזיקין ותאונות", NOW)).toBe(0);
-    expect(limitationMonthsLeft("2015-01-01", "ביטוח", NOW)).toBe(0);
+  it("תאריך עתידי מחזיר 0 ולא מספר שלילי", () => {
+    expect(monthsSinceIncident("2030-01-01", NOW)).toBe(0);
   });
 
   it("שותק כשאין תאריך או שהוא לא בפורמט — עדיף כלום ממספר שגוי", () => {
-    expect(limitationMonthsLeft(undefined, "נזיקין ותאונות", NOW)).toBeUndefined();
-    expect(limitationMonthsLeft("", "נזיקין ותאונות", NOW)).toBeUndefined();
-    expect(limitationMonthsLeft("לפני שנתיים", "נזיקין ותאונות", NOW)).toBeUndefined();
-    expect(limitationMonthsLeft("31/07/2025", "נזיקין ותאונות", NOW)).toBeUndefined();
+    expect(monthsSinceIncident(undefined, NOW)).toBeUndefined();
+    expect(monthsSinceIncident("", NOW)).toBeUndefined();
+    expect(monthsSinceIncident("לפני שנתיים", NOW)).toBeUndefined();
+    expect(monthsSinceIncident("31/07/2025", NOW)).toBeUndefined();
   });
 
-  it("קטגוריה לא מוכרת מקבלת את ברירת המחדל של 7 שנים", () => {
-    expect(limitationMonthsLeft("2026-01-31", "משהו אחר", NOW)).toBe(78);
-  });
-
-  it("מעגל כלפי מטה — מוטב להזהיר מוקדם מאשר מאוחר", () => {
-    // החישוב בחודש ממוצע (30.44 יום) + floor, ולכן נוטה לדווח חסר.
-    // בהתיישנות זה הכיוון הבטוח: אזהרה מוקדמת ולא איחור.
-    const exact = limitationMonthsLeft("2026-07-31", "ביטוח", NOW)!;
-    expect(exact).toBeLessThanOrEqual(36);
-    expect(exact).toBeGreaterThanOrEqual(35);
-  });
-
-  it("התג בפיד מופיע רק מתחת ל-18 חודשים", () => {
-    // הסף שמפעיל את תג האזהרה — אירוע לפני 6 שנים בנזיקין
-    const left = limitationMonthsLeft("2020-07-31", "נזיקין ותאונות", NOW)!;
-    expect(left).toBeLessThanOrEqual(18);
-    expect(left).toBeGreaterThan(0);
+  it("סף התג בפיד — 48 חודשים ומעלה", () => {
+    // ארבע שנים בדיוק = 48 בול, וזה מה שהחישוב הקלנדרי מבטיח
+    expect(monthsSinceIncident("2022-07-31", NOW)).toBe(48);
+    expect(monthsSinceIncident("2023-07-31", NOW)).toBe(36);
   });
 });
 
