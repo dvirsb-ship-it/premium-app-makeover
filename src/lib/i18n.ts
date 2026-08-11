@@ -7,7 +7,14 @@ export const strings = {
   // Hero / Landing
   heroTagline: { he: "בדיקה משפטית ראשונית — לפני שפונים לעורך דין", en: "A first legal check — before you hire a lawyer" },
   enter: { he: "כניסה לאפליקציה", en: "Enter the app" },
-  clientCTA: { he: "אני מחפש ייעוץ", en: "I'm seeking advice" },
+  /*
+   * "אני מחפש **עורך דין**" ולא "ייעוץ" (10/8/2026).
+   *
+   * JustAsk אינה נותנת ייעוץ משפטי ואינה רשאית לתת — היא מחברת לעורך
+   * דין, והתקנון אומר את זה במפורש. כפתור שמבטיח ייעוץ סותר את התקנון
+   * של עצמנו במסך הראשון שאדם רואה.
+   */
+  clientCTA: { he: "אני מחפש עורך דין", en: "I'm looking for a lawyer" },
   clientCTASub: { he: "ספרו מה קרה — נבדוק אם יש עילה, ורק אז נחבר", en: "Tell us what happened — we check for grounds, then connect" },
   lawyerCTA: { he: "אני עורך דין", en: "I'm a lawyer" },
   lawyerCTASub: { he: "פניות שכבר עברו סינון משפטי", en: "Leads that already passed a legal screen" },
@@ -41,7 +48,8 @@ export const strings = {
 
   // Auth / sign-up
   authTitle: { he: "יצירת חשבון", en: "Create your account" },
-  authSub: { he: "התחברו בכמה שניות והתחילו לקבל ייעוץ משפטי", en: "Sign in within seconds and start getting legal advice" },
+  /* מה שקורה באמת אחרי ההתחברות — לא הבטחה שאיננו יכולים לקיים */
+  authSub: { he: "התחברו בכמה שניות וספרו מה קרה", en: "Sign in within seconds and tell us what happened" },
   continueGoogle: { he: "המשך עם Google", en: "Continue with Google" },
   continueApple: { he: "המשך עם Apple", en: "Continue with Apple" },
   continueEmail: { he: "המשך עם אימייל", en: "Continue with email" },

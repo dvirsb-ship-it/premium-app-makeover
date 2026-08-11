@@ -8,7 +8,7 @@ import type { StringKey } from "./i18n";
 export const fr: Partial<Record<StringKey, string>> = {
   heroTagline: "Une première analyse juridique — avant de consulter un avocat",
   enter: "Accéder à l'application",
-  clientCTA: "Je cherche un conseil",
+  clientCTA: "Je cherche un avocat",
   clientCTASub: "Racontez-nous ce qui s'est passé — nous vérifions s'il y a un fondement, puis nous vous mettons en relation",
   lawyerCTA: "Je suis avocat",
   lawyerCTASub: "Des demandes déjà passées par un filtrage juridique",
@@ -36,7 +36,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   help: "Aide et assistance",
   logout: "Se déconnecter",
   authTitle: "Créer un compte",
-  authSub: "Connectez-vous en quelques secondes et commencez à recevoir un conseil juridique",
+  authSub: "Connectez-vous en quelques secondes et racontez-nous ce qui s'est passé",
   continueGoogle: "Continuer avec Google",
   continueApple: "Continuer avec Apple",
   continueEmail: "Continuer avec e-mail",

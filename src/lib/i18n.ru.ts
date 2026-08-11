@@ -8,7 +8,7 @@ import type { StringKey } from "./i18n";
 export const ru: Partial<Record<StringKey, string>> = {
   heroTagline: "Первичная юридическая проверка — прежде чем обращаться к адвокату",
   enter: "Войти в приложение",
-  clientCTA: "Мне нужна консультация",
+  clientCTA: "Я ищу адвоката",
   clientCTASub: "Расскажите, что случилось — проверим основания и только тогда соединим",
   lawyerCTA: "Я адвокат",
   lawyerCTASub: "Обращения, уже прошедшие юридический отбор",
@@ -36,7 +36,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   help: "Помощь и поддержка",
   logout: "Выйти",
   authTitle: "Создание аккаунта",
-  authSub: "Войдите за пару секунд и начните получать юридическую помощь",
+  authSub: "Войдите за пару секунд и расскажите, что случилось",
   continueGoogle: "Продолжить с Google",
   continueApple: "Продолжить с Apple",
   continueEmail: "Продолжить с эл. почтой",
