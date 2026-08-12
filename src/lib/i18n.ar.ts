@@ -880,7 +880,5 @@ export const ar: Partial<Record<StringKey, string>> = {
   offerStagedIncomplete: "أكمِل الدرجتين — وإلا ستُعرض النسبة المُدخلة للعميل كنسبة موحّدة طوال الإجراء.",
   offerImpossiblePercent: "لا يمكن أن تتجاوز الحصة من التعويض 100% — تحقّق من الرقم المُدخَل.",
   helpNeedsSignIn: "سجّل الدخول لإرسال رسالة — لنعرف بمن نتواصل.",
-  limitationLeft: "متبقٍّ حتى التقادم",
-  limitationMonths: "أشهر",
-  limitationSoon: "يقترب من التقادم",
+  limitationLeft: "بقي {n} أشهر",
 };

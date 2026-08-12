@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, Check, Clock, Languages, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Calendar, Check, Clock, Hourglass, Languages, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { categoryIcon } from "../lib/category-icons";
 import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
@@ -487,17 +487,6 @@ function LawyerFeed() {
                     );
                   })()}
                   {/*
-                    * חלון ההתיישנות — מוצג רק כשהוא נסגר (פחות משנה וחצי).
-                    * תג שמופיע על כל תיק מפסיק להיות סימן ומתחיל להיות רעש.
-                    */}
-                  {typeof f.limitationMonthsLeft === "number" &&
-                    f.limitationMonthsLeft <= 18 && (
-                      <span className="rounded-full bg-warning-ink/12 px-2 py-0.5 text-[10px] font-bold text-warning-ink">
-                        {t("limitationLeft")} {f.limitationMonthsLeft}{" "}
-                        {t("limitationMonths")}
-                      </span>
-                    )}
-                  {/*
                     * שפת הלקוח — מוצגת רק כשהיא אינה עברית, כי תג על כל
                     * תיק הוא רעש. אם היא גם מחוץ לשפות שסימן, התג מסמן
                     * את זה במפורש: זה ההבדל בין "כדאי לדעת" ל"שים לב".
@@ -532,10 +521,37 @@ function LawyerFeed() {
                   <Users className="size-3" />
                   {f.interestedCount}
                 </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="size-3" />
+                <span className="flex items-center gap-1 whitespace-nowrap">
+                  <Clock className="size-3 shrink-0" />
                   {f.postedAgo}
                 </span>
+                {/*
+                  * חלון ההתיישנות — עבר משורת השבבים לשורת הזמן (12/8/2026).
+                  *
+                  * "נותרו להתיישנות 8 חודשים" הוא חמש מילים על שבב. הוא נשבר
+                  * לשורה שנייה, והכרטיס גדל מול כל שאר הכרטיסים בפיד — דביר
+                  * צילם בדיוק את זה. קיצור השבב לא הספיק: ארבעה שבבים אינם
+                  * נכנסים בשורה גם כשהרביעי קטן.
+                  *
+                  * ההפרדה הנכונה: **שורת השבבים מסווגת** (תחום, שלי, דחוף),
+                  * **ושורת הזמן נושאת עובדות זמן** — כמה זמן עבר, וכמה נותר.
+                  * ההתיישנות היא עובדת זמן, ומקומה כאן.
+                  *
+                  * **ואפס אינו מוצג.** `limitationMonthsLeft` מחזיר 0 כשהמועד
+                  * כבר חלף, ו"נותרו 0 חודשים" הוא משפט חסר מובן שגם נראה
+                  * כתקלה. הסף התחתון הוא חודש אחד.
+                  */}
+                {typeof f.limitationMonthsLeft === "number" &&
+                  f.limitationMonthsLeft > 0 &&
+                  f.limitationMonthsLeft <= 18 && (
+                    <span className="flex items-center gap-1 whitespace-nowrap font-bold text-warning-ink">
+                      <Hourglass className="size-3 shrink-0" strokeWidth={2.2} />
+                      {t("limitationLeft").replace(
+                        "{n}",
+                        String(f.limitationMonthsLeft),
+                      )}
+                    </span>
+                  )}
               </div>
             </div>
           </motion.button>

@@ -880,7 +880,5 @@ export const ru: Partial<Record<StringKey, string>> = {
   offerStagedIncomplete: "Заполните обе ступени — иначе введённый процент будет показан клиенту как единая ставка на всё дело.",
   offerImpossiblePercent: "Доля от компенсации не может превышать 100% — проверьте введённое число.",
   helpNeedsSignIn: "Войдите, чтобы отправить обращение — так мы будем знать, кому ответить.",
-  limitationLeft: "До истечения срока давности",
-  limitationMonths: "месяцев",
-  limitationSoon: "Срок давности истекает",
+  limitationLeft: "осталось {n} мес.",
 };

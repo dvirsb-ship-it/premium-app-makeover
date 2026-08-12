@@ -880,7 +880,5 @@ export const fr: Partial<Record<StringKey, string>> = {
   offerStagedIncomplete: "Renseignez les deux paliers — sinon le pourcentage saisi sera présenté au client comme un taux unique pour toute la procédure.",
   offerImpossiblePercent: "La part de l'indemnisation ne peut pas dépasser 100 % — vérifiez le nombre saisi.",
   helpNeedsSignIn: "Connectez-vous pour envoyer un message — nous saurons ainsi à qui répondre.",
-  limitationLeft: "restants avant la prescription",
-  limitationMonths: "mois",
-  limitationSoon: "Prescription proche",
+  limitationLeft: "{n} mois restants",
 };
