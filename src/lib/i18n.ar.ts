@@ -444,7 +444,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   adminOfficeSub: "توثيقات، اعتراضات، طلبات دعم وأرشيف",
   intakeNotSuitableTitle: "الفحص الأوّلي: لا يبدو أن هناك احتمالًا حاليًا",
   intakeNotSuitableRec: "ما الذي نوصي به بدلًا من ذلك",
-  composerFixPlaceholder: "تريد تصحيح تفصيل أو إضافته؟ اكتب هنا…",
+  composerFixPlaceholder: "تصحيح أو إضافة تفصيل؟",
   timelineHeader: "ما جرى في الملف",
   timelineLawyerHeader: "تحديث التقدّم",
   timelineLawyerSub: "يتلقّى العميل إشعارًا عند كل محطة. هذا ما يوفّر سؤال «ما الذي يجري في ملفي».",

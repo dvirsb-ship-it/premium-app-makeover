@@ -444,7 +444,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   adminOfficeSub: "Проверки, апелляции, поддержка и архив",
   intakeNotSuitableTitle: "Первичная проверка: сейчас шанс не просматривается",
   intakeNotSuitableRec: "Что рекомендуется сделать",
-  composerFixPlaceholder: "Хотите исправить или добавить деталь? Пишите здесь…",
+  composerFixPlaceholder: "Исправить или добавить?",
   timelineHeader: "Что происходит с делом",
   timelineLawyerHeader: "Обновить прогресс",
   timelineLawyerSub: "Клиент получает уведомление о каждом этапе. Это снимает вопрос «что с моим делом».",

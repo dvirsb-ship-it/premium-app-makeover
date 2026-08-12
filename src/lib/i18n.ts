@@ -614,7 +614,12 @@ export const strings = {
   adminOfficeSub: { he: "אימותים, ערעורים, פניות תמיכה וארכיון", en: "Verifications, appeals, support & archive" },
   intakeNotSuitableTitle: { he: "הבדיקה הראשונית: כרגע לא נראה סיכוי", en: "Initial check: no chance identified right now" },
   intakeNotSuitableRec: { he: "מה כן מומלץ לעשות", en: "What we recommend instead" },
-  composerFixPlaceholder: { he: "רוצה לתקן או להוסיף פרט? כתבו כאן…", en: "Want to fix or add a detail? Type here…" },
+  /*
+   * קצר בכוונה. הנוסח הקודם — "רוצה לתקן או להוסיף פרט? כתבו כאן…" —
+   * נחתך באמצע על מסך טלפון, כי ה-textarea חולק את השורה עם שני
+   * כפתורים. placeholder חתוך נראה כתקלה ולא כהזמנה.
+   */
+  composerFixPlaceholder: { he: "לתקן או להוסיף פרט?", en: "Fix or add a detail?" },
 
   // ציר הזמן שאחרי החיבור
   timelineHeader: { he: "מה קרה בתיק", en: "Case progress" },

@@ -444,7 +444,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   adminOfficeSub: "Vérifications, contestations, assistance et archives",
   intakeNotSuitableTitle: "Examen initial : aucune chance identifiée pour l'instant",
   intakeNotSuitableRec: "Ce que nous vous recommandons de faire",
-  composerFixPlaceholder: "Vous voulez corriger ou ajouter un détail ? Écrivez ici…",
+  composerFixPlaceholder: "Corriger ou ajouter ?",
   timelineHeader: "Ce qui s'est passé dans le dossier",
   timelineLawyerHeader: "Mettre à jour l'avancement",
   timelineLawyerSub: "Le client reçoit une notification à chaque étape clé. C'est ce qui évite la question « où en est mon dossier ».",

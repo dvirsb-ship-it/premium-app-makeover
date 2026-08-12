@@ -444,7 +444,7 @@ export const es: Partial<Record<StringKey, string>> = {
   adminOfficeSub: "Verificaciones, apelaciones, consultas de soporte y archivo",
   intakeNotSuitableTitle: "Revisión inicial: por ahora no se ven posibilidades",
   intakeNotSuitableRec: "Qué le recomendamos hacer",
-  composerFixPlaceholder: "¿Quiere corregir o agregar un dato? Escriba aquí…",
+  composerFixPlaceholder: "¿Corregir o añadir algo?",
   timelineHeader: "Qué pasó en el caso",
   timelineLawyerHeader: "Actualizar el avance",
   timelineLawyerSub: "El cliente recibe una notificación en cada hito. Eso evita la pregunta de «qué pasa con mi caso».",
