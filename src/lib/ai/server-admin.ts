@@ -665,6 +665,14 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
 
   for (const id of caseIds) {
     const c = await adminGetDoc(`cases/${id}`);
+    /*
+     * תמונות תיק — **נשאר בכוונה אחרי שההעלאה בוטלה** (12/8/2026).
+     *
+     * המוצר אינו מקבל עוד קבצים, אבל תיקים שנוצרו לפני השינוי עדיין
+     * נושאים את השדה, והקבצים עדיין יושבים ב-Storage. מחיקת חשבון
+     * חייבת לנקות גם אותם — אחרת נשארנו עם תיעוד רפואי של אדם שביקש
+     * להימחק. הקוד הזה יורד רק אחרי שנוודא שאין יותר תיקים כאלה.
+     */
     const images = (c?.images as { origPath?: string; censPath?: string }[] | undefined) ?? [];
     for (const img of images) {
       if (img.origPath) await delFile(img.origPath);

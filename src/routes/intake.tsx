@@ -142,7 +142,7 @@ function Intake() {
         clearDraft();
         return;
       }
-      // תמונות אינן נשמרות (blob מקומי שפג) — משחזרים טקסט בלבד
+      // טיוטות מלפני 12/8 נשאו תמונות; הן נזרקות בשחזור
       if (saved.messages.length > openers.length) {
         setMessages(saved.messages.map((m) => ({ ...m, images: undefined })));
         /*
@@ -274,7 +274,7 @@ function Intake() {
         setNotSuitable(res.notSuitable);
         track("intake_not_suitable");
       }
-      // רק עכשיו התמונות באמת "נשלחו" — התור עבר
+
       setStep((s) => s + 1);
     } catch {
       setTyping(false);
@@ -465,18 +465,6 @@ function Intake() {
                             : "rounded-bl-lg")
                     }
                   >
-                    {m.images?.length ? (
-                      <div className={`flex flex-wrap gap-1.5 ${m.text ? "mb-2" : ""}`}>
-                        {m.images.map((url) => (
-                          <img
-                            key={url}
-                            src={url}
-                            alt=""
-                            className="h-28 w-28 rounded-xl border border-white/15 object-cover"
-                          />
-                        ))}
-                      </div>
-                    ) : null}
                     {m.text}
                   </div>
                 </motion.div>

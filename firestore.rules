@@ -64,14 +64,21 @@ service cloud.firestore {
         || isAdmin()
       );
 
-      // בעל התיק: רק תמונות, בחירת עו"ד ופרטי קשר — לא סטטוס אישור/ולידציה
+      /*
+       * בעל התיק: בחירת עו"ד ופרטי קשר בלבד — לא סטטוס אישור/ולידציה.
+       *
+       * `images` הוסר מהרשימה ב-12/8/2026 יחד עם ביטול העלאת הקבצים.
+       * שום דבר באפליקציה אינו כותב אותו יותר, והרשאה שאיש אינו צריך
+       * היא משטח פתוח: לקוח מוכן היה יכול לכתוב מערך נתיבים משלו.
+       * תיקים ישנים שנושאים את השדה אינם מושפעים — הוא פשוט לא ייקרא.
+       */
       // (תוצאת הוולידציה נכתבת מהשרת ב-Admin SDK; מחיקת חשבון מסמנת rejected)
       // עו"ד מאומת בלבד רשאי להביע עניין (שדות מוגבלים)
       allow update: if signedIn() && (
         (
           resource.data.clientId == request.auth.uid
           && request.resource.data.diff(resource.data).affectedKeys()
-               .hasOnly(['images', 'clientContact', 'chosenLawyerId', 'status'])
+               .hasOnly(['clientContact', 'chosenLawyerId', 'status'])
           && (
             !request.resource.data.diff(resource.data).affectedKeys().hasAny(['status'])
             || request.resource.data.status in ['connected', 'rejected']

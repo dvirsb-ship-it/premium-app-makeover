@@ -10,13 +10,29 @@ import { BrandMark } from "./BrandMark";
 
 const SESSION_KEY = "justask-preloaded";
 
-// Assets to warm up before revealing the app. Keep this list tight — only
-// the media that appears in the very first screens the user sees.
-const IMAGE_URLS = [
-  "/src/assets/welcome/slide-justice.jpg",
-  "/src/assets/welcome/slide-handshake.jpg",
-  "/src/assets/welcome/slide-secure.jpg",
-];
+/*
+ * התמונות שמחממים לפני שחושפים את האפליקציה — רק מה שמופיע במסך הראשון.
+ *
+ * ═══ תוקן ב-12/8/2026 ═══
+ *
+ * כאן ישבו שלושה נתיבים גולמיים: `/src/assets/welcome/slide-*.jpg`.
+ * שני דברים היו שבורים בהם:
+ *
+ *   1. **נתיב `/src/` עובד רק בשרת הפיתוח.** בבנייה Vite מוציא את
+ *      הנכסים ל-`/assets/` עם hash, ולכן שלושתם החזירו 404 בייצור —
+ *      נמדד בדפדפן על האתר החי.
+ *   2. **הן לא מוצגות יותר בכלל.** מסך הפתיחה הוחלף במסך הדלתות, והוא
+ *      משתמש ב-courtroom-deep / door-modern / portal-frame. הקבצים
+ *      האלה נשארו מעיצוב שהוחלף ב-26/7.
+ *
+ * התוצאה: החימום — שזו כל מטרת המסך הזה — לא חימם דבר בייצור, ובמקומו
+ * שלושה 404 בכל טעינה ראשונה. הייבוא מוודא ש-Vite נותן את הנתיב הבנוי.
+ */
+import courtroom from "../assets/welcome/courtroom-deep.webp";
+import doorRight from "../assets/welcome/door-modern.jpg";
+import portalFrame from "../assets/welcome/portal-frame.webp";
+
+const IMAGE_URLS = [courtroom, doorRight, portalFrame];
 
 async function loadImage(url: string): Promise<void> {
   return new Promise((resolve) => {

@@ -109,8 +109,8 @@ export const strings = {
    * מכילים לעיתים פרטים של אנשים אחרים, וההסכמה של הפונה אינה מכסה
    * אותם.
    */
-  term5: { he: "תיאור המקרה והמסמכים שאצרף יעובדו ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description and documents I attach will be processed by a Google AI service on servers in the European Union, for the initial check only. ID number, phone and email are stripped automatically before processing." },
-  term6: { he: "אצרף מסמכים הנוגעים אליי. אם מסמך כולל פרטים של אדם אחר — אשחיר אותם או אצרף רק את החלק הרלוונטי.", en: "I'll attach documents that concern me. If a document includes another person's details, I'll redact them or attach only the relevant part." },
+  term5: { he: "תיאור המקרה שאמסור יעובד ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description I provide will be processed by a Google AI service on servers in the European Union, for the initial check only. ID number, phone and email are stripped automatically before processing." },
+  term6: { he: "אם אציין שקיים בידי תיעוד — הוא באמת קיים, ואביא אותו לעורך הדין שאבחר.", en: "If I state that I have documentation — it genuinely exists, and I will bring it to the lawyer I choose." },
   agreeText: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I've read and agree to the above" },
   confirmContinue: { he: "אני מאשר/ת וממשיך/ה", en: "I agree and continue" },
 
@@ -167,8 +167,8 @@ export const strings = {
   },
   tipDatesTitle: { he: "הוסיפו תאריכים מדויקים", en: "Add precise dates" },
   tipDatesBody: { he: "מתי זה קרה? מתי פניתם לגורמים אחרים? תאריכים עוזרים לנו לבדוק מועדים ולסווג את המקרה נכון.", en: "When did it happen? When did you contact others? Dates help us check deadlines and classify your case correctly." },
-  tipPhotosTitle: { he: "צרפו תמונות ומסמכים", en: "Attach photos and documents" },
-  tipPhotosBody: { he: "צילומי מסך, תמונות של פגיעות, חוזים, הודעות וואטסאפ — כל תיעוד מחזק את הבדיקה ומשפר את ההתאמה.", en: "Screenshots, injury photos, contracts, WhatsApp messages — any evidence strengthens the check and improves matching." },
+  tipPhotosTitle: { he: "דעו מה קיים אצלכם", en: "Know what you have" },
+  tipPhotosBody: { he: "מסמכים רפואיים, תמונות מהמקום, התכתבויות, קבלות, עדים או מסמך רשמי. אתם לא מעלים לכאן כלום — רק אומרים מה קיים, ומביאים אותו לפגישה עם עורך הדין.", en: "Medical records, photos of the scene, correspondence, receipts, witnesses or an official document. You upload nothing here — you just say what exists, and bring it to the meeting with the lawyer." },
   tipDetailsTitle: { he: "כמה שיותר פרטים", en: "As many details as possible" },
   tipDetailsBody: {
     he: "שמות של גורמים מעורבים, סכומים, מקומות ותוצאות. ככל שיש יותר מידע — כך הבדיקה מדויקת יותר וההתאמה איכותית יותר.",
@@ -455,7 +455,7 @@ export const strings = {
     en: "Your privacy is the foundation of JustAsk. What you share is encrypted, kept in a secured region, and shared only with lawyers you pick.",
   },
   privacyEnc: { he: "הצפנה במעבר ובאחסון", en: "Encrypted in transit and at rest" },
-  privacyEncSub: { he: "כל שיחה, מסמך ותמונה מוצפנים בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — הבדיקה מחייבת שהמערכת תוכל לקרוא את התוכן.", en: "Every conversation, document and image is encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — the check requires the system to read the content." },
+  privacyEncSub: { he: "כל שיחה מוצפנת בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — הבדיקה מחייבת שהמערכת תוכל לקרוא את התוכן. מסמכים אינם נשלחים אלינו כלל.", en: "Every conversation is encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — the check requires the system to read the content. Documents are never sent to us at all." },
   privacyControl: { he: "אתם בשליטה", en: "You're in control" },
   privacyControlSub: { he: "פרטי הקשר נחשפים רק לאחר בחירתכם בעורך דין ספציפי.", en: "Contact details are revealed only after you pick a specific lawyer." },
   privacyRls: { he: "בידוד בין משתמשים", en: "User isolation" },
@@ -496,10 +496,7 @@ export const strings = {
   },
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
   termsSection7Title: { he: "7. עיבוד המידע שלך", en: "7. Processing your information" },
-  termsSection7Body: {
-    he: "תיאור המקרה והמסמכים שתצרפו מעובדים ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני השליחה. התיקים והקבצים עצמם נשמרים בשרתי גוגל בישראל. השימוש בשירות מהווה הסכמה לעיבוד ולהעברה כמתואר כאן. בצירוף מסמכים יש להימנע מהעלאת פרטיהם של אנשים אחרים שאינם נוגעים לעניין.",
-    en: "Your case description and attached documents are processed by a Google AI service, on servers in the European Union, for the sorting only — not to train the model and not for advertising. Direct identifiers (ID number, phone, email) are stripped automatically before anything is sent. Cases and files themselves are stored on Google servers in Israel. Using the service constitutes consent to the processing and transfer described here. When attaching documents, avoid uploading other people's details that are not relevant to the matter.",
-  },
+  termsSection7Body: { he: "תיאור המקרה שתמסרו מעובד ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני העיבוד.\n\nהפלטפורמה אינה מקבלת קבצים ואינה מאחסנת מסמכים. תיעוד שברשותכם נשאר אצלכם, ואתם מביאים אותו ישירות לעורך הדין שתבחרו.", en: "The case description you provide is processed by a Google AI service on servers in the European Union, for the initial check only — not for model training and not for publication. Direct identifiers (ID number, phone, email) are stripped automatically before processing.\n\nThe platform does not accept files and does not store documents. Any documentation you hold stays with you, and you bring it directly to the lawyer you choose." },
   termsSection6Body: {
     he: "עד ליצירת חיבור רשמי בין לקוח לעורך דין, התקשורת מתקיימת דרך הפלטפורמה בלבד ופרטי הקשר המלאים אינם נחשפים. שיתוף פרטי קשר, שמות מלאים או פרטי משרד בתוכן חופשי במטרה לעקוף את הפלטפורמה מהווה הפרת תנאים ועלול להוביל להשעיית החשבון.",
     en: "Until an official client–lawyer connection is made, communication takes place exclusively through the platform and full contact details are not disclosed. Sharing contact details, full names or firm details in free-text content in order to bypass the platform constitutes a breach of these terms and may lead to account suspension.",
@@ -657,8 +654,6 @@ export const strings = {
   whoSeesConfidential: { he: "כל אחד מהם חתם על התחייבות לשמור על סודיות המידע, גם אם לא תבחרו בו.", en: "Each of them has signed an undertaking to keep it confidential, even if you don't choose them." },
   whoSeesDocs: { he: "התיעוד שצירפתם נפתח רק למי שהגיש הצעה — לא לכל מי שרואה את התיק.", en: "The documentation you attached opens only to those who submitted an offer — not to everyone who can see the case." },
   whoSeesContact: { he: "פרטי הקשר שלכם נחשפים רק לעורך הדין שתבחרו, ורק ברגע הבחירה.", en: "Your contact details are revealed only to the lawyer you choose, and only at the moment you choose." },
-  imagesAfterInterest: { he: "תיעוד מצורף — נפתח לאחר הבעת עניין", en: "Attached documentation — available after you express interest" },
-  imagesAfterInterestWhy: { he: "התיעוד הוא של אדם שנפגע. הוא נפתח למי שהביע עניין בתיק, ולא לכל מי שגולש בלוח. התיאור והתזכיר מספיקים כדי להחליט.", en: "The documents belong to an injured person. They open to whoever expressed interest, not to everyone browsing the feed. The description and memo are enough to decide." },
   conflictTitle: { he: "בדיקת ניגוד עניינים", en: "Conflict check" },
   conflictBody: { he: "אשרו לפני ההגשה: אינכם מייצגים את הצד שכנגד בעניין זה, אין לכם או למשרדכם ניגוד עניינים בתיק, ולא ייצגתם בו צד אחר בעבר.", en: "Confirm before submitting: you do not represent the opposing party in this matter, neither you nor your firm has a conflict in this case, and you have not previously acted for another party in it." },
   conflictAgree: { he: "בדקתי — אין ניגוד עניינים", en: "I've checked — no conflict" },
@@ -818,20 +813,14 @@ export const strings = {
   a11yLastUpdated: { he: "עודכן לאחרונה: יולי 2026", en: "Last updated: July 2026" },
 
   // צירוף תמונות + צנזור אוטומטי
-  attachImageAria: { he: "צירוף תמונה", en: "Attach image" },
   imageCensoring: { he: "מסתיר פרטים מזהים…", en: "Hiding identifying details…" },
   imageAttachedOne: { he: "התמונה צורפה. פרטים מזהים יוסתרו מעורכי הדין עד יצירת חיבור.", en: "Image attached. Identifying details are hidden from lawyers until you connect." },
   imageReadyToSend: { he: "מוכנה לשליחה — לחצו על החץ", en: "Ready to send — tap the arrow" },
-  imageCensorFailed: { he: "צירוף התמונה נכשל. נסו שוב.", en: "Attaching the image failed. Try again." },
-  imageLimitMsg: { he: "אפשר לצרף עד 3 תמונות לתיק.", en: "Up to 3 images per case." },
   imageRegionsHidden: { he: "אזורים הוסתרו", en: "areas hidden" },
   imageNoRegions: { he: "לא נמצאו פרטים מזהים", en: "no identifying details found" },
   removeImageAria: { he: "הסרת תמונה", en: "Remove image" },
   caseImagesHeader: { he: "התמונות שצירפת", en: "Your attached images" },
   caseImagesSub: { he: "עורכי הדין רואים גרסה עם פרטים מוסתרים; המקור נחשף רק לעו״ד שתבחרו.", en: "Lawyers see a redacted version; the original is revealed only to the lawyer you choose." },
-  lawyerImagesHeader: { he: "תיעוד מצולם", en: "Photo documentation" },
-  lawyerImagesNote: { he: "פרטים מזהים הוסתרו אוטומטית. המקור נחשף לאחר יצירת החיבור.", en: "Identifying details are hidden automatically. Originals are revealed after connecting." },
-  lawyerImagesOriginalsNote: { he: "החיבור נוצר — אלו תמונות המקור.", en: "You're connected — these are the originals." },
   resumeValidation: { he: "המשך את הבדיקה הראשונית", en: "Resume the initial check" },
   deleteAccountBtn: { he: "מחיקת החשבון והנתונים", en: "Delete my account and data" },
   deleteConfirmTitle: { he: "למחוק את החשבון?", en: "Delete your account?" },
@@ -1070,7 +1059,7 @@ export const strings = {
   archiveBadge: { he: "הסתיים", en: "Closed" },
 
   privacyAi: { he: "ניתוח ע״י בינה מלאכותית", en: "Analysis by AI" },
-  privacyAiSub: { he: "הבדיקה הראשונית נעשית ע״י מנוע Gemini של גוגל. לפני השליחה מוסרים אוטומטית מזהים ישירים שכתבתם — מספר תעודת זהות, טלפון ודוא״ל — והם אינם יוצאים מהמערכת כלל. תיאור המקרה עצמו והתמונות כן נשלחים, לצורך הבדיקה בלבד.", en: "The initial check is performed by Google's Gemini. Direct identifiers you write — ID number, phone and email — are stripped automatically before anything is sent, and never leave the system. The case description and images are sent, for the check only." },
+  privacyAiSub: { he: "הבדיקה הראשונית נעשית ע״י מנוע Gemini של גוגל. לפני השליחה מוסרים אוטומטית מזהים ישירים שכתבתם — מספר תעודת זהות, טלפון ודוא״ל — והם אינם יוצאים מהמערכת כלל. תיאור המקרה עצמו כן נשלח, לצורך הבדיקה בלבד. קבצים אינם נשלחים כי איננו מקבלים אותם.", en: "The initial check is performed by Google's Gemini. Direct identifiers you write — ID number, phone and email — are stripped automatically before anything is sent, and never leave the system. The case description itself is sent, for the check only. No files are sent, because we don't accept them." },
 
   registryGateTitle: {
     he: "לפני האישור — בדיקה מול פנקס הלשכה",
@@ -1224,7 +1213,6 @@ export const strings = {
   deleteScheduledBody: { he: "החשבון וכל התוכן יימחקו אוטומטית בעוד {n} ימים. אם תתחברו שוב לפני כן — המחיקה תבוטל.", en: "Your account and all its content will be deleted automatically in {n} days. Sign in again before then and the deletion is cancelled." },
   noDocsTitle: { he: "רגע לפני ששולחים — באמת אין אצלכם שום תיעוד?", en: "One moment — is there really no documentation?" },
   noDocsBody: { he: "עורך הדין רואה מה קיים אצלכם: מסמכים רפואיים, תמונות מהמקום, התכתבויות, קבלות, עדים או מסמך רשמי. אתם לא מעלים כלום לכאן — רק אומרים מה יש, ותביאו אותו לפגישה. אפשר גם לשלוח בלי, וזה בסדר גמור.", en: "The lawyer sees what you have: medical records, photos of the scene, correspondence, receipts, witnesses or an official document. You upload nothing here — you just say what exists, and bring it to the meeting. Sending without is perfectly fine too." },
-  noDocsAttach: { he: "צירוף תמונה או מסמך", en: "Attach a photo or document" },
   noDocsSendAnyway: { he: "שליחה בכל זאת ←", en: "Send anyway →" },
   greetMorning: { he: "בוקר טוב", en: "Good morning" },
   greetAfternoon: { he: "צהריים טובים", en: "Good afternoon" },
