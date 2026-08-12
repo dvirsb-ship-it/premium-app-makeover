@@ -13,14 +13,12 @@ import { useAppStore } from "../lib/store";
 import {
   avgRating,
   avgResponseLabel,
-  caseImageUrl,
   readMyRating,
   watchMilestones,
   type CaseMilestone,
   readCaseLawyerContact,
   readCaseRaw,
   readLawyerStats,
-  type CaseImage,
   type LawyerContactDoc,
   removeStuckCase,
   withdrawCase,
@@ -65,20 +63,14 @@ function CaseDetail() {
   /* כשל אינו 'אין התקדמות' — לא מאפסים ציר זמן שכבר נטען */
   useEffect(() => watchMilestones(caseId, setMilestones, () => {}), [caseId]);
   // תמונות המקור — ללקוח בלבד (עו"ד רואה גרסה מצונזרת)
-  const [imageUrls, setImageUrls] = useState<string[]>([]);
   useEffect(() => {
     void readCaseRaw(caseId)
-      .then(async (raw) => {
+      .then((raw) => {
         /* מסמכים שנוצרו לפני השינוי נושאים את השם הישן — קריאה עם נפילה
            חזרה, כדי שתיקים קיימים לא יאבדו את הרקע שלהם. */
         setCaseContext(raw?.caseContext ?? raw?.legalBasis ?? "");
         setRecommendation(raw?.recommendation ?? "");
         setChecklist((raw?.clientChecklist as string[] | undefined) ?? []);
-        const imgs = (raw?.images ?? []) as CaseImage[];
-        const urls = await Promise.all(
-          imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
-        );
-        setImageUrls(urls.filter(Boolean));
       })
       .catch(() => {});
   }, [caseId]);
@@ -465,26 +457,6 @@ function CaseDetail() {
                   </li>
                 ))}
               </ul>
-            </div>
-          )}
-
-          {imageUrls.length > 0 && (
-            <div className="liquid-glass mt-3 rounded-3xl p-4">
-              <p className="text-[13px] font-bold text-foreground">{t("caseImagesHeader")}</p>
-              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                {t("caseImagesSub")}
-              </p>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                {imageUrls.map((url) => (
-                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                    <img
-                      src={url}
-                      alt=""
-                      className="h-24 w-24 rounded-2xl border border-border object-cover"
-                    />
-                  </a>
-                ))}
-              </div>
             </div>
           )}
 

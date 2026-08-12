@@ -64,75 +64,21 @@ service firebase.storage {
       allow read: if request.auth != null && request.auth.uid == uid;
     }
 
-    function caseData(caseId) {
-      return firestore.get(/databases/(default)/documents/cases/$(caseId)).data;
-    }
-
     /*
-     * עו"ד שאושר בתור האימות. מקביל ל-isApprovedLawyer בחוקי Firestore:
-     * "מחובר" אינו מספיק — התמונות המצונזרות הן עדיין תיעוד של אירוע
-     * שקרה לאדם אמיתי.
+     * ═══ תמונות התיק הוסרו מהמוצר (12/8/2026) ═══
+     *
+     * כאן ישבו שלושה כללים: `caseData()`, `isApprovedLawyer()`,
+     * ו-`case-uploads/{caseId}` על שתי גרסאותיו — המקור והמצונזרת.
+     *
+     * הפלטפורמה אינה מקבלת עוד קבצים מהפונה. במקום זה הוא **מצהיר**
+     * איזה תיעוד קיים בידיו, ועורך הדין רואה סימני וי — אותו אות, בלי
+     * שאיש כאן יחזיק מסמך רפואי של אדם פגוע.
+     *
+     * זה גם מסיר את הפער שתיעדנו: הכלל שצמצם קריאה למי שהביע עניין
+     * **לא היה מכוסה במבחנים**, כי אמולטור ה-Storage אינו קורא
+     * מ-Firestore. אין כלל — אין פער.
      */
-    function isApprovedLawyer() {
-      return request.auth != null
-        && firestore.get(/databases/(default)/documents/verifications/$(request.auth.uid)).data.status == 'approved';
-    }
 
-    function validImage() {
-      return request.resource.size < 4 * 1024 * 1024
-        && request.resource.contentType.matches('image/.*');
-    }
-
-    // תמונות מקור של תיק — הלקוח מעלה; קריאה ללקוח, לעו"ד הנבחר ולאדמין בלבד
-    match /case-uploads/{caseId}/orig/{img} {
-      allow write: if request.auth != null && validImage()
-        && caseData(caseId).clientId == request.auth.uid;
-      allow read: if request.auth != null && (
-        caseData(caseId).clientId == request.auth.uid
-        || caseData(caseId).chosenLawyerId == request.auth.uid
-        || isAdmin()
-      );
-    }
-
-    /*
-     * הגרסה המצונזרת (פרטים מזהים הושחרו) — הלקוח מעלה.
-     *
-     * הקריאה הייתה פתוחה לכל משתמש מחובר, כלומר גם ללקוח אקראי שיודע
-     * לנחש מזהה תיק. צנזור אינו אנונימיזציה: זו עדיין תמונת פציעה או
-     * זירת תאונה. הקריאה מוגבלת למי שהתיק נוגע לו.
-     *
-     * ═══ צומצם ל**מי שהביע עניין בתיק הזה** (11/8/2026) ═══
-     *
-     * `isApprovedLawyer()` פירושו היה **כל** עורך דין מאושר במערכת, על
-     * **כל** תיק — גם מי שאינו בתחום ומעולם לא נגע בו. עשרות אנשים יכלו
-     * לראות תמונת פציעה של אדם שלא ביקש דבר מהם.
-     *
-     * עכשיו נדרשת חברות ב-`interestedIds` של אותו תיק. זו קבוצה סגורה
-     * (עד `MAX_OFFERS_PER_CASE`), מזוהה, ומתועדת — ולכל אחד מהם יש
-     * התחייבות סודיות חתומה והצהרת היעדר ניגוד עניינים על התיק הזה.
-     *
-     * ⚠️ **אינו מכוסה בבדיקות, ובמודע.** אמולטור ה-Storage בסביבת הבדיקה
-     * אינו קורא מ-Firestore, ולכן כל כלל שנשען על `caseData()` נכשל שם
-     * מסיבה טכנית. זו מגבלה קיימת ולא חדשה — גם לכללי `orig` ו-`cens`
-     * הקודמים לא היו בדיקות. ניסיון לכתוב אותן ייצר שתי בדיקות שעוברות
-     * כי **הכל** נחסם, כלומר ביטחון-שווא, והוסרו.
-     * **לכן: שינוי בכלל הזה מחייב בדיקה ידנית מול המערכת החיה.**
-     *
-     * **החלטה מודעת:** עורך דין מחליט אם להביע עניין בלי לראות תמונות.
-     * זה נכון גם מוצרית — התיאור והתזכיר המשפטי מספיקים כדי להחליט;
-     * תמונות הן ראיה לעבודה על התיק, לא כלי עזר לגלישה בלוח.
-     */
-    match /case-uploads/{caseId}/cens/{img} {
-      allow write: if request.auth != null && validImage()
-        && caseData(caseId).clientId == request.auth.uid;
-      allow read: if request.auth != null && (
-        caseData(caseId).clientId == request.auth.uid
-        || caseData(caseId).chosenLawyerId == request.auth.uid
-        || isAdmin()
-        || (isApprovedLawyer()
-            && request.auth.uid in caseData(caseId).interestedIds)
-      );
-    }
 
     // ברירת מחדל — הכל חסום
     match /{allPaths=**} {

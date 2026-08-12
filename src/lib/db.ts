@@ -129,6 +129,16 @@ interface CaseDoc {
   incidentDate?: string;
   damageType?: "body" | "financial" | "both";
   hasDocumentation?: boolean;
+  /** סוגי התיעוד שהפונה הצהיר שקיימים בידיו. ראו DOC_KINDS. */
+  documents?: string[];
+  /**
+   * הבקשה המפורשת של הלקוח לקבל הצעות שכר טרחה, וחותמת הזמן שלה.
+   *
+   * זה השדה שעונה על השאלה "מי יזם את הפנייה". בלעדיו התיק אינו אמור
+   * להיווצר; חסר בתיקים שנוצרו לפני 12/8/2026.
+   */
+  offersRequestedAt?: number;
+  offersRequestVersion?: number;
   status: CaseStatus | "rejected";
   createdAt: number; // epoch ms — תואם ל-Case.createdAt הקיים
   location?: string;
@@ -161,7 +171,6 @@ interface CaseDoc {
   /** הצעות עו"ד שנשלחו עם הבעת העניין, לפי uid. */
   offers?: Record<string, CaseOffer>;
   /** תמונות שצורפו בקליטה — מקור ללקוח, גרסה מצונזרת לעורכי הדין. */
-  images?: CaseImage[];
   /** הרגע שבו התיק נעשה זמין לעורכי דין (נכתב מהשרת בסיום הוולידציה). */
   validatedAt?: number;
   /** רשימת ההכנה שנגזרה מהראיון — מוצגת ללקוח. */
@@ -174,16 +183,6 @@ interface CaseDoc {
   notifiedLawyers?: number;
 }
 
-export interface CaseImage {
-  id: string;
-  /** נתיב המקור ב-Storage — קריא ללקוח, לאדמין ולעו"ד הנבחר בלבד (חוקי Storage). */
-  origPath: string;
-  /** נתיב הגרסה המצונזרת — קריא לכל משתמש מחובר. */
-  censPath: string;
-  /** כמה אזורים רגישים הוסתרו. */
-  regions: number;
-  at: number;
-}
 
 /* הכללים המשפטיים חיים ב-legal.ts (טהור, נבדק) — כאן רק ייצוא-מחדש */
 export { PLTD_MAX_PERCENT, categoryHasStatutoryCap, categoryForbidsContingency } from "./legal";
@@ -403,10 +402,20 @@ export interface NewCaseInput {
   incidentDate?: string;
   damageType?: "body" | "financial" | "both";
   hasDocumentation?: boolean;
+  documents?: string[];
   city?: string;
   /** שפת הממשק שבה נערך הראיון. חסר = עברית (תיקים מלפני השדה). */
   clientLang?: string;
 }
+
+/**
+ * גרסת נוסח הבקשה שהלקוח אישר.
+ *
+ * מספר ולא תאריך: אם הנוסח ישתנה, נדע בדיוק איזה נוסח כל אדם ראה —
+ * ולא נצטרך לשחזר אותו מהיסטוריית הקוד. אותו מנגנון בדיוק כמו
+ * UNDERTAKING_VERSION בצד עורך הדין.
+ */
+export const OFFERS_REQUEST_VERSION = 1;
 
 /** יצירת תיק חדש במצב ולידציה. מחזיר את מזהה התיק. */
 export async function createCase(input: NewCaseInput): Promise<string> {
@@ -426,6 +435,13 @@ export async function createCase(input: NewCaseInput): Promise<string> {
     incidentDate: input.incidentDate ?? "",
     damageType: input.damageType ?? "body",
     hasDocumentation: input.hasDocumentation ?? false,
+    documents: input.documents ?? [],
+    /*
+     * הבקשה המפורשת של הלקוח לקבל הצעות. נכתבת עם התיק ולא אחריו —
+     * תיק בלי החותמת הזו לא אמור להיווצר בכלל.
+     */
+    offersRequestedAt: Date.now(),
+    offersRequestVersion: OFFERS_REQUEST_VERSION,
     status: "validating",
     createdAt: Date.now(),
     location: input.city ?? "",
@@ -435,33 +451,6 @@ export async function createCase(input: NewCaseInput): Promise<string> {
   return ref.id;
 }
 
-/**
- * העלאת תמונות התיק אחרי היצירה: מקור + גרסה מצונזרת לכל תמונה,
- * ורישום הנתיבים במסמך התיק. נכשלה תמונה — התיק ממשיך בלעדיה.
- */
-export async function uploadCaseImages(
-  caseId: string,
-  images: { id: string; origBlob: Blob; censBlob: Blob; regionCount: number }[],
-): Promise<CaseImage[]> {
-  const meta = { contentType: "image/jpeg" };
-  const uploaded: CaseImage[] = [];
-  for (const img of images) {
-    const origPath = `case-uploads/${caseId}/orig/${img.id}.jpg`;
-    const censPath = `case-uploads/${caseId}/cens/${img.id}.jpg`;
-    await uploadBytes(storageRef(fbStorage(), origPath), img.origBlob, meta);
-    await uploadBytes(storageRef(fbStorage(), censPath), img.censBlob, meta);
-    uploaded.push({ id: img.id, origPath, censPath, regions: img.regionCount, at: Date.now() });
-  }
-  if (uploaded.length) {
-    await updateDoc(doc(fbDb(), "cases", caseId), { images: uploaded });
-  }
-  return uploaded;
-}
-
-/** URL הורדה לתמונה לפי נתיב — הפעולה נכשלת אם חוקי ה-Storage חוסמים. */
-export function caseImageUrl(path: string): Promise<string> {
-  return getDownloadURL(storageRef(fbStorage(), path));
-}
 
 export async function readCaseRaw(caseId: string) {
   const snap = await getDoc(doc(fbDb(), "cases", caseId));

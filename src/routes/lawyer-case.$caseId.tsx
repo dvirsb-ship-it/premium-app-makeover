@@ -12,7 +12,6 @@ import { useAppStore } from "../lib/store";
 import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import {
-  caseImageUrl,
   categoryHasStatutoryCap,
   categoryForbidsContingency,
   markMilestone,
@@ -25,7 +24,6 @@ import {
   PLTD_MAX_PERCENT,
   readCaseRaw,
   submitAppeal,
-  type CaseImage,
   type ExpensesTerm,
   type FeeModel,
   readLawyerStats,
@@ -111,9 +109,6 @@ function LawyerCaseDetail() {
     approvedAt,
   });
 
-  // תמונות התיק: עד החיבור — הגרסה המצונזרת בלבד; אחרי החיבור — המקור
-  const [imgUrls, setImgUrls] = useState<string[]>([]);
-  const [imgOriginals, setImgOriginals] = useState(false);
 
   // תיק שכבר חובר אליי לא מופיע בפיד — נטען ישירות כדי להציג את פרטי הלקוח
   const [connected, setConnected] = useState<ConnectedCase | null>(null);
@@ -136,12 +131,6 @@ function LawyerCaseDetail() {
             summary: raw.summary,
             clientContact: raw.clientContact,
           });
-          const imgs = (raw.images ?? []) as CaseImage[];
-          const urls = await Promise.all(
-            imgs.map((im) => caseImageUrl(im.origPath).catch(() => "")),
-          );
-          setImgUrls(urls.filter(Boolean));
-          setImgOriginals(true);
         }
         setDirectLoad("done");
       })
@@ -155,6 +144,7 @@ function LawyerCaseDetail() {
     incidentDate?: string;
     damageType?: string;
     hasDocumentation?: boolean;
+    documents?: string[];
   } | null>(null);
   useEffect(() => {
     if (!item) return;
@@ -167,13 +157,8 @@ function LawyerCaseDetail() {
             incidentDate: raw.incidentDate,
             damageType: raw.damageType,
             hasDocumentation: raw.hasDocumentation,
+            documents: raw.documents,
           });
-          // עד החיבור נטענת הגרסה המצונזרת בלבד — המקור חסום בחוקי Storage
-          const imgs = (raw.images ?? []) as CaseImage[];
-          const urls = await Promise.all(
-            imgs.map((im) => caseImageUrl(im.censPath).catch(() => "")),
-          );
-          setImgUrls(urls.filter(Boolean));
         }
       })
       .catch(() => {});
@@ -374,34 +359,33 @@ function LawyerCaseDetail() {
               * אין תמונות = אין הרשאה, לא תקלה.
               *
               * מאז שחוקי ה-Storage צומצמו למי שהביע עניין בתיק הזה,
-              * `imgUrls` חוזר ריק לעורך דין שטרם הביע עניין. בלי ההסבר
               * הזה החלק הזה פשוט נעלם מהמסך, והוא היה נראה כמו תיק בלי
               * תיעוד — כלומר מידע שגוי על התיק.
               */}
-            {imgUrls.length === 0 && details?.hasDocumentation && (
-              <div className="note-gold mt-4 rounded-3xl">
-                <p className="text-[13px] font-bold text-foreground">
-                  {t("imagesAfterInterest")}
-                </p>
-                <p className="mt-1 text-[11.5px] leading-relaxed text-muted-foreground">
-                  {t("imagesAfterInterestWhy")}
-                </p>
-              </div>
-            )}
-
-            {imgUrls.length > 0 && (
-              <div className="liquid-glass mt-4 rounded-3xl p-4">
-                <p className="text-[13px] font-bold text-foreground">{t("lawyerImagesHeader")}</p>
-                <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                  {imgOriginals ? t("lawyerImagesOriginalsNote") : t("lawyerImagesNote")}
-                </p>
-                <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                  {imgUrls.map((url) => (
-                    <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                      <img src={url} alt="" className="h-24 w-24 rounded-2xl border border-border object-cover" />
-                    </a>
+            {/*
+              * סימני התיעוד — מה שהחליף את העלאת הקבצים (12/8/2026).
+              *
+              * עורך הדין מקבל את אותו אות שנתנה לו התמונה — "יש כאן על
+              * מה לעבוד" — בלי שאיש מאיתנו מחזיק מסמך רפואי של אדם
+              * פגוע. השורה התחתונה אומרת במפורש שזו הצהרה ולא אימות,
+              * כדי שאיש לא יסתמך עליה כאילו ראינו את המסמך.
+              */}
+            {(details?.documents?.length ?? 0) > 0 && (
+              <div className="liquid-glass mt-4 rounded-[26px] p-4">
+                <p className="text-[13px] font-bold text-foreground">{t("docsHeader")}</p>
+                <ul className="mt-2.5 grid gap-1.5">
+                  {details!.documents!.map((k) => (
+                    <li key={k} className="flex items-center gap-2">
+                      <Check className="size-4 shrink-0 text-[color:var(--success-ink)]" strokeWidth={3} aria-hidden />
+                      <span className="text-[13px] text-foreground">
+                        {t(`doc${k.charAt(0).toUpperCase()}${k.slice(1)}` as never)}
+                      </span>
+                    </li>
                   ))}
-                </div>
+                </ul>
+                <p className="mt-2.5 text-[11px] leading-snug text-muted-foreground">
+                  {t("docsNote")}
+                </p>
               </div>
             )}
 
@@ -701,22 +685,6 @@ function LawyerCaseDetail() {
                   {memo}
                 </p>
               )}
-            </div>
-          )}
-
-          {imgUrls.length > 0 && (
-            <div className="liquid-glass mt-4 rounded-3xl p-4">
-              <p className="text-[13px] font-bold text-foreground">{t("lawyerImagesHeader")}</p>
-              <p className="mt-0.5 text-[11px] leading-snug text-muted-foreground">
-                {t("lawyerImagesNote")}
-              </p>
-              <div className="mt-3 flex gap-2 overflow-x-auto pb-1">
-                {imgUrls.map((url) => (
-                  <a key={url} href={url} target="_blank" rel="noopener noreferrer" className="shrink-0">
-                    <img src={url} alt="" className="h-24 w-24 rounded-2xl border border-border object-cover" />
-                  </a>
-                ))}
-              </div>
             </div>
           )}
 

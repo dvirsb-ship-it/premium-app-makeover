@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ArrowUp, ImagePlus, Loader2, ShieldCheck, Sparkles, X } from "lucide-react";
+import { ArrowUp, Loader2, ShieldCheck, Sparkles } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { useT } from "../lib/i18n";
@@ -11,15 +11,13 @@ import { useRequireAuth } from "../lib/require-auth";
 import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import {
-  detectSensitiveRegionsFn,
   intakeTurn,
   type IntakeNotSuitable,
   type IntakeReady,
 } from "../lib/ai/intake.functions";
-import { createCase, uploadCaseImages } from "../lib/db";
+import { createCase } from "../lib/db";
 import { identify, initAnalytics, track } from "../lib/analytics";
 import { fbAuth } from "../lib/firebase";
-import { censorImage, prepareImage, type PendingImage } from "../lib/image-censor";
 import { Scale } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -84,6 +82,13 @@ function Intake() {
    */
   const [confirmNoDocs, setConfirmNoDocs] = useState(false);
   /*
+   * הבקשה המפורשת לקבל הצעות — חוסמת את השליחה (12/8/2026).
+   *
+   * לא נשמרת בטיוטה בכוונה: אם אדם חזר למסך יום אחרי, הוא צריך לבקש
+   * שוב. אישור שנשמר מהפעם הקודמת אינו בקשה, הוא זיכרון.
+   */
+  const [requestedOffers, setRequestedOffers] = useState(false);
+  /*
    * "התחלת שיחה חדשה" מוחק את כל מה שהפונה סיפר, והוא יושב ברוחב מלא
    * ישירות מעל שדה הקלט — בדיוק איפה שאגודל נוח. דביר איבד כך שיחה
    * שלמה ב-6/8/2026, באמצע ראיון.
@@ -93,60 +98,8 @@ function Intake() {
    * מתחמש ל-5 שניות ואז חוזר לעצמו.
    */
   const [restartArmed, setRestartArmed] = useState(false);
-  // תמונות שממתינות לצירוף להודעה הבאה
-  const [pendingImages, setPendingImages] = useState<PendingImage[]>([]);
-  // כל התמונות שכבר נשלחו בשיחה — הן שיעלו ל-Storage כשייווצר התיק
-  const sentImages = useRef<PendingImage[]>([]);
-  const [censoring, setCensoring] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const readyData = useRef<IntakeReady | null>(null);
-
-  const MAX_IMAGES = 3;
-
-  async function attachImages(files: FileList | null) {
-    if (!files?.length || censoring) return;
-    const used = pendingImages.length + sentImages.current.length;
-    const room = MAX_IMAGES - used;
-    if (room <= 0) {
-      pushAssistant(t("imageLimitMsg"));
-      return;
-    }
-    setCensoring(true);
-    try {
-      const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
-      for (const file of Array.from(files).slice(0, room)) {
-        const prepared = await prepareImage(file);
-        const { regions, description } = await detectSensitiveRegionsFn({
-          data: { imageBase64: prepared.base64, mimeType: "image/jpeg", idToken },
-        });
-        const censBlob = await censorImage(prepared, regions);
-        const img: PendingImage = {
-          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          origBlob: prepared.origBlob,
-          censBlob,
-          previewUrl: URL.createObjectURL(censBlob),
-          regionCount: regions.length,
-          description,
-        };
-        setPendingImages((prev) => [...prev, img]);
-        haptic("success");
-      }
-    } catch {
-      pushAssistant(t("imageCensorFailed"));
-    } finally {
-      setCensoring(false);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-    }
-  }
-
-  function removeImage(id: string) {
-    setPendingImages((prev) => {
-      const img = prev.find((p) => p.id === id);
-      if (img) URL.revokeObjectURL(img.previewUrl);
-      return prev.filter((p) => p.id !== id);
-    });
-  }
 
   function pushAssistant(text: string) {
     setMessages((prev) => [
@@ -269,9 +222,7 @@ function Intake() {
 
   async function send() {
     const text = input.trim();
-    const attached = pendingImages;
-    // אפשר לשלוח תמונה גם בלי טקסט
-    if ((!text && !attached.length) || typing || censoring) return;
+    if (!text || typing) return;
 
     if (!firstMsgSent.current) {
       firstMsgSent.current = true;
@@ -285,31 +236,14 @@ function Intake() {
       readyData.current = null;
     }
 
-    // ה-AI לא מקבל את הקובץ עצמו בכל תור — התיאור העובדתי נשמר על ההודעה
-    // ונשלח כטקסט, כך שהוא "רואה" את התמונה גם בתורות הבאים
-    const aiNote = attached
-      .map((img) => img.description)
-      .filter(Boolean)
-      .map((d) => `[המשתמש צירף תמונה: ${d}]`)
-      .join("\n");
-
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
       from: "user",
       text,
-      images: attached.map((i) => i.previewUrl),
-      aiNote: aiNote || undefined,
     };
     const history = [...messages, userMsg];
     setMessages(history);
     setInput("");
-    /*
-     * התמונות יוצאות מ"ממתינות" רק אחרי שהתור הצליח. כשהן זזו לפני
-     * הקריאה, כישלון רשת עשה שני נזקים: המכסה (3 תמונות) נשרפה על
-     * תמונות שנעלמו מהמסך, וביצירת התיק הן הועלו בכל זאת — תמונות
-     * שה-AI מעולם לא ראה והמשתמש בטוח שנזרקו.
-     */
-    if (attached.length) setPendingImages([]);
     setTyping(true);
     haptic("light");
 
@@ -341,9 +275,6 @@ function Intake() {
         track("intake_not_suitable");
       }
       // רק עכשיו התמונות באמת "נשלחו" — התור עבר
-      if (attached.length) {
-        sentImages.current = [...sentImages.current, ...attached];
-      }
       setStep((s) => s + 1);
     } catch {
       setTyping(false);
@@ -351,20 +282,22 @@ function Intake() {
         ...prev,
         { id: `e-${Date.now()}`, from: "assistant", text: t("intakeError") },
       ]);
-      // מחזירים את ההודעה למגירה כדי שאפשר יהיה לשלוח שוב — כולל התמונות
+      // מחזירים את ההודעה למגירה כדי שאפשר יהיה לשלוח שוב
       setInput(text);
-      if (attached.length) setPendingImages((prev) => [...attached, ...prev]);
       setMessages((prev) => prev.filter((m) => m.id !== userMsg.id));
     }
   }
 
   async function submit() {
     const noDocs =
-      sentImages.current.length === 0 && !readyData.current?.has_documentation;
+      (readyData.current?.documents?.length ?? 0) === 0 &&
+      !readyData.current?.has_documentation;
     if (noDocs && !confirmNoDocs) {
       setConfirmNoDocs(true);
       return;
     }
+    // בלי הבקשה המפורשת אין תיק — הכפתור חסום ממילא, וזו החגורה השנייה
+    if (!requestedOffers) return;
     if (submitting) return;
     const uid = user?.uid;
     if (!uid) {
@@ -385,17 +318,15 @@ function Intake() {
         clientLang: lang,
         incidentDate: data?.incident_date,
         damageType: data?.damage_type,
-        hasDocumentation: data?.has_documentation || sentImages.current.length > 0,
+        /*
+         * נגזר מהרשימה ולא נשאל בנפרד. הבוליאני נשאר בשדה כי מסכי
+         * הלקוח ועורך הדין נשענים עליו, אבל **מקורו אחד** — מה שהפונה
+         * הצהיר שקיים אצלו.
+         */
+        documents: data?.documents ?? [],
+        hasDocumentation: (data?.documents?.length ?? 0) > 0 || !!data?.has_documentation,
         city: data?.city,
       });
-      // התמונות אינן חוסמות: נכשלה העלאה — התיק ממשיך בלעדיה
-      if (sentImages.current.length) {
-        try {
-          await uploadCaseImages(caseId, sentImages.current);
-        } catch {
-          /* ignore */
-        }
-      }
       try {
         sessionStorage.setItem("justask-active-case", caseId);
       } catch {
@@ -658,17 +589,38 @@ function Intake() {
                   <p className="mt-1 text-[12.5px] leading-relaxed text-muted-foreground">
                     {t("noDocsBody")}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setConfirmNoDocs(false);
-                      fileInputRef.current?.click();
-                    }}
-                    className="btn-gold mt-3 w-full rounded-xl py-3 text-[14px] font-bold"
-                  >
-                    {t("noDocsAttach")}
-                  </button>
                 </motion.div>
+              )}
+
+              {/*
+                * הבקשה המפורשת — תיבה משלה, ברגע שלפני השליחה.
+                *
+                * **לא** מוטמעת בתנאי השימוש בכוונה. ההבדל בין "אישרתי
+                * תקנון" לבין "ביקשתי הצעות" הוא בדיוק מה שיישאל, ותיבה
+                * שיושבת לבד ברגע הנכון היא הראיה לכך שהיא נקראה.
+                */}
+              {ready && !notSuitable && (
+                <motion.label
+                  key="offers-request"
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="note-gold mb-3 flex cursor-pointer items-start gap-3 rounded-2xl"
+                >
+                  <input
+                    type="checkbox"
+                    checked={requestedOffers}
+                    onChange={(e) => setRequestedOffers(e.target.checked)}
+                    className="mt-0.5 size-[18px] shrink-0 accent-[var(--gold-ink)]"
+                  />
+                  <span className="min-w-0">
+                    <span className="block text-[12.5px] font-bold leading-relaxed text-foreground">
+                      {t("offersRequestLabel")}
+                    </span>
+                    <span className="mt-1 block text-[11.5px] leading-relaxed text-muted-foreground">
+                      {t("offersRequestWhy")}
+                    </span>
+                  </span>
+                </motion.label>
               )}
 
               {ready && !notSuitable && (
@@ -681,7 +633,7 @@ function Intake() {
                   whileTap={{ scale: 0.98 }}
                   transition={{ type: "spring", stiffness: 260, damping: 22 }}
                   onClick={submit}
-                  disabled={submitting}
+                  disabled={submitting || !requestedOffers}
                   className="btn-gold relative mb-3 w-full overflow-hidden rounded-2xl py-4 text-base font-bold disabled:opacity-60"
                 >
                   <motion.span
@@ -715,8 +667,6 @@ function Intake() {
                   }
                   track("intake_restarted");
                   clearDraft();
-                  sentImages.current = [];
-                  setPendingImages([]);
                   setMessages(openers);
                   setStep(0);
                   setInput("");
@@ -732,77 +682,12 @@ function Intake() {
               </button>
             )}
 
-            {/* תמונות שצורפו — תצוגה של הגרסה המצונזרת, כפי שעו"ד יראה */}
-            <AnimatePresence>
-              {(pendingImages.length > 0 || censoring) && (
-                <motion.div
-                  key="image-strip"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  className="mb-2 flex items-center gap-2 overflow-x-auto px-1 pb-1"
-                >
-                  {pendingImages.map((img) => (
-                    <div key={img.id} className="relative shrink-0">
-                      <img
-                        src={img.previewUrl}
-                        alt=""
-                        className="h-16 w-16 rounded-2xl border border-border object-cover"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => removeImage(img.id)}
-                        aria-label={t("removeImageAria")}
-                        className="absolute -end-1.5 -top-1.5 grid size-5 place-items-center rounded-full bg-background text-foreground shadow"
-                      >
-                        <X className="size-3" />
-                      </button>
-                      <span className="absolute inset-x-0 bottom-0 rounded-b-2xl bg-black/60 px-1 py-0.5 text-center text-[9px] font-semibold text-white">
-                        {img.regionCount > 0
-                          ? `${img.regionCount} ${t("imageRegionsHidden")}`
-                          : t("imageNoRegions")}
-                      </span>
-                    </div>
-                  ))}
-                  {censoring && (
-                    <div className="flex shrink-0 items-center gap-2 rounded-2xl border border-border px-3 py-2 text-[11px] text-muted-foreground">
-                      <Loader2 className="size-3.5 animate-spin text-gold" />
-                      {t("imageCensoring")}
-                    </div>
-                  )}
-                  {!censoring && pendingImages.length > 0 && (
-                    <span className="shrink-0 self-center text-[11px] font-semibold text-gold">
-                      {t("imageReadyToSend")}
-                    </span>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* המקלדת נשארת תמיד — אפשר לתקן פרטים גם אחרי הסיכום */}
             <motion.div
               key="composer"
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               className="liquid-glass flex items-end gap-2 rounded-[28px] p-1.5 pe-2 ps-2 shadow-luxe"
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                multiple
-                hidden
-                onChange={(e) => void attachImages(e.target.files)}
-              />
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={censoring || pendingImages.length >= MAX_IMAGES}
-                aria-label={t("attachImageAria")}
-                className="grid size-11 shrink-0 place-items-center self-end rounded-full text-muted-foreground transition hover:text-gold disabled:opacity-40"
-              >
-                <ImagePlus className="size-5" />
-              </button>
               <textarea
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
@@ -820,7 +705,7 @@ function Intake() {
                 type="button"
                 whileTap={{ scale: 0.9 }}
                 onClick={send}
-                disabled={(!input.trim() && !pendingImages.length) || censoring}
+                disabled={!input.trim()}
                 className="chip-gold grid size-11 shrink-0 place-items-center self-end rounded-full transition disabled:opacity-40 disabled:shadow-none"
                 aria-label={t("sendAria")}
               >

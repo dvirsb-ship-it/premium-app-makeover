@@ -175,11 +175,23 @@ export interface IntakeTurnInput {
   idToken: string;
 }
 
+/** סוגי התיעוד שהפונה מצהיר עליהם. רשימה סגורה — ראו את הפרומפט. */
+export const DOC_KINDS = ["medical","scene","messages","financial","witnesses","official"] as const;
+export type DocKind = (typeof DOC_KINDS)[number];
+
 export interface IntakeReady {
   description: string;
   incident_date: string;
   damage_type: "body" | "financial" | "both";
-  has_documentation: boolean;
+  /**
+   * מה קיים בידי הפונה, לפי הצהרתו.
+   *
+   * החליף את `has_documentation` הבוליאני ואת העלאת הקבצים (12/8/2026):
+   * עורך הדין מקבל את אותו אות בלי שנחזיק מסמך רפואי של אדם פגוע.
+   */
+  documents?: DocKind[];
+  /** @deprecated שיחות שנפתחו לפני השינוי. נגזר מ-documents. */
+  has_documentation?: boolean;
   city?: string;
 }
 
@@ -422,12 +434,12 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       incidentDate?: string;
       damageType?: string;
       hasDocumentation?: boolean;
+      documents?: string[];
       title?: string;
       category?: string;
       summary?: string;
       caseContext?: string;
       recommendation?: string;
-      images?: { origPath: string }[];
     };
     if (c.clientId !== uid) throw new Error("forbidden");
 
@@ -455,25 +467,18 @@ export const validateCaseFn = createServerFn({ method: "POST" })
 תיאור המקרה: ${redactForAi(c.description)}
 תאריך האירוע: ${c.incidentDate || "לא צוין"}
 סוג הנזק: ${c.damageType || "לא צוין"}
-תיעוד קיים: ${c.hasDocumentation ? "כן" : "לא"}`;
+תיעוד שהפונה מצהיר שקיים בידיו: ${(c.documents ?? []).join(", ") || "לא צוין"}`;
 
-    // התמונות שצורפו — ראיות עבור התזכיר (עד 3, המקור המלא)
-    const imageParts: GeminiPart[] = [];
-    for (const img of (c.images ?? []).slice(0, 3)) {
-      const b64 = await downloadImageBase64(img.origPath);
-      if (b64) imageParts.push({ inline_data: { mime_type: "image/jpeg", data: b64 } });
-    }
-
-    // שלב 1: תזכיר משפטי מעמיק — עילות, התיישנות, טענות נגד, מסלול
+    /*
+     * התמונות ירדו מהמוצר (12/8/2026).
+     *
+     * עד כה נשלחו לכאן עד שלוש תמונות מקור של הפונה כראיות לתזכיר.
+     * הפלטפורמה אינה מקבלת עוד קבצים — במקומן מגיעה **הצהרה** על מה
+     * שקיים בידיו, והתזכיר נכתב מהעובדות שנמסרו בשיחה.
+     */
     const memo = await generateDeep(
-      [{ role: "user", parts: [...imageParts, { text: caseText }] }],
-      {
-        system: imageParts.length
-          ? `${MEMO_SYSTEM}\n\nמצורפות תמונות שהפונה העלה כתיעוד — התייחס אליהן בסעיפי העובדות, הנזק והראיות.`
-          : MEMO_SYSTEM,
-        temperature: 0.2,
-        maxTokens: 8000,
-      },
+      [{ role: "user", parts: [{ text: caseText }] }],
+      { system: MEMO_SYSTEM, temperature: 0.2, maxTokens: 8000 },
     );
 
     // שלב 2: שופט מבקר את התזכיר ומכריע סופית ב-JSON
@@ -664,62 +669,6 @@ export interface DetectRegionsInput {
   mimeType: string;
   idToken: string;
 }
-
-/** מזהה אזורים רגישים בתמונה. ההשחרה עצמה נעשית בצד הלקוח על canvas. */
-export const detectSensitiveRegionsFn = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as DetectRegionsInput)
-  .handler(async ({ data }): Promise<{ regions: SensitiveRegion[]; description: string }> => {
-    const { requireUser, enforceDailyCap, withErrorLog } = await import("./server-admin");
-    return withErrorLog("detectSensitiveRegions", async () => {
-    const uid = await requireUser(data.idToken);
-    await enforceDailyCap(uid, "detectRegions");
-
-    const text = await generate(
-      [
-        {
-          role: "user",
-          parts: [
-            { inline_data: { mime_type: data.mimeType, data: data.imageBase64 } },
-            { text: "אתר את כל האזורים הרגישים בתמונה, וכתוב תיאור עובדתי קצר של מה שרואים." },
-          ],
-        },
-      ],
-      {
-        system: CENSOR_SYSTEM,
-        temperature: 0.1,
-        maxTokens: 6000,
-        json: true,
-        schema: {
-          type: "object",
-          properties: {
-            regions: {
-              type: "array",
-              items: {
-                type: "object",
-                properties: {
-                  box_2d: { type: "array", items: { type: "integer" } },
-                  label: { type: "string" },
-                },
-                required: ["box_2d", "label"],
-              },
-            },
-            description: { type: "string" },
-          },
-          required: ["regions", "description"],
-        },
-      },
-    );
-    const parsed = JSON.parse(text) as { regions?: SensitiveRegion[]; description?: string };
-    // סינון הגנתי: רק תיבות חוקיות בגבולות 0-1000
-    const regions = (parsed.regions ?? []).filter(
-      (r) =>
-        Array.isArray(r.box_2d) &&
-        r.box_2d.length === 4 &&
-        r.box_2d.every((n) => typeof n === "number" && n >= 0 && n <= 1000),
-    );
-    return { regions, description: parsed.description ?? "" };
-    });
-  });
 
 /* ---------- התראת דחיפה על הבעת עניין ---------- */
 

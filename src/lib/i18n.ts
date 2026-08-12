@@ -120,6 +120,34 @@ export const strings = {
   secureBadge: { he: "מאובטח", en: "Secure" },
   opener1: { he: "שלום 👋 אני העוזר המשפטי של JustAsk. אני כאן כדי לשמוע על המקרה שלך ולבדוק התאמה ראשונית.", en: "Hi 👋 I'm the JustAsk legal assistant. I'm here to hear about your case and check an initial match." },
   opener2: { he: "ספר/י לי בחופשיות מה קרה — אני אשאל שאלות תוך כדי.", en: "Tell me freely what happened — I'll ask questions along the way." },
+  /*
+   * ═══ הבקשה המפורשת (12/8/2026) ═══
+   *
+   * זו אינה עוד תיבת סימון בתקנון. היא יושבת לבדה, ברגע שלפני
+   * השליחה, ובניסוח של **בקשה** ולא של הסכמה.
+   *
+   * ההבדל אינו סמנטי: "אני משתף את המקרה שלי" מתאר אדם שמפרסם
+   * מידע, ומי שמגיב לו יוזם פנייה אליו. **"אני מבקש לקבל הצעות"**
+   * מתאר אדם שביקש — ומי שעונה לו משיב לבקשה. זהו כיוון הפעולה
+   * שכללי האתיקה שואלים עליו, והוא מתועד כאן עם חותמת זמן.
+   *
+   * חשוב לדעת מה זה **לא** עושה: תיבת סימון אינה מרפאה איסור.
+   * לקוח אינו יכול לוותר בשם עורך הדין על כלל שחל עליו. מה שהיא
+   * עושה הוא לבסס את התיאור העובדתי — שהפנייה באה מהלקוח.
+   */
+  /* ── סימני התיעוד (12/8/2026) ──────────────────────────────
+     החליפו את העלאת הקבצים. עורך הדין מקבל את אותו אות — מה קיים
+     בתיק — בלי שאיש מאיתנו מחזיק מסמך רפואי של אדם פגוע. */
+  docsHeader: { he: "תיעוד שקיים אצל הפונה", en: "Documentation the client has" },
+  docsNote: { he: "לפי הצהרת הפונה. המסמכים עצמם אינם נשמרים אצלנו — הוא יביא אותם לפגישה.", en: "As stated by the client. The documents themselves are not stored with us — they'll bring them to the meeting." },
+  docMedical: { he: "מסמכים רפואיים", en: "Medical records" },
+  docScene: { he: "תמונות מהמקום", en: "Photos of the scene" },
+  docMessages: { he: "התכתבויות", en: "Correspondence" },
+  docFinancial: { he: "קבלות ואישורים כספיים", en: "Receipts and financial records" },
+  docWitnesses: { he: "עדים", en: "Witnesses" },
+  docOfficial: { he: "מסמך רשמי", en: "An official document" },
+  offersRequestLabel: { he: "אני מבקש לקבל הצעות שכר טרחה מעורכי דין בתחום, ומבין שהפנייה שלי תוצג להם בעילום שם לצורך כך.", en: "I am requesting fee proposals from lawyers in this field, and understand my matter will be shown to them anonymously for that purpose." },
+  offersRequestWhy: { he: "בלי הבקשה הזאת הפנייה לא תוצג לאיש. אתם יוזמים, ואתם בוחרים אם ולמי לענות.", en: "Without this request your matter is shown to no one. You initiate, and you choose whether and whom to answer." },
   submitForMatch: { he: "שליחה לבדיקת התאמה", en: "Send for matching" },
   composerPlaceholder: { he: "כתוב/י כאן…", en: "Type here…" },
   sendAria: { he: "שליחה", en: "Send" },
@@ -1194,10 +1222,10 @@ export const strings = {
   deleteCancelled: { he: "המחיקה בוטלה — החשבון שלכם פעיל", en: "Deletion cancelled — your account is active" },
   deleteScheduledTitle: { he: "המחיקה נקבעה", en: "Deletion scheduled" },
   deleteScheduledBody: { he: "החשבון וכל התוכן יימחקו אוטומטית בעוד {n} ימים. אם תתחברו שוב לפני כן — המחיקה תבוטל.", en: "Your account and all its content will be deleted automatically in {n} days. Sign in again before then and the deletion is cancelled." },
-  noDocsTitle: { he: "רגע לפני ששולחים — יש לכם תמונה או מסמך?", en: "One moment — do you have a photo or document?" },
-  noDocsBody: { he: "עורכי הדין רואים על הפנייה אם צורף תיעוד. תמונות מהמקום, מסמכים רפואיים או קבלות נותנים להם תמונה מלאה יותר — ולתזכיר בסיס רחב יותר. אפשר לשלוח גם בלי, וזה בסדר גמור.", en: "Lawyers see whether documents were attached. Photos from the scene, medical records or receipts give them a fuller picture — and the memo a broader base. You can send without, and that's perfectly fine." },
+  noDocsTitle: { he: "רגע לפני ששולחים — באמת אין אצלכם שום תיעוד?", en: "One moment — is there really no documentation?" },
+  noDocsBody: { he: "עורך הדין רואה מה קיים אצלכם: מסמכים רפואיים, תמונות מהמקום, התכתבויות, קבלות, עדים או מסמך רשמי. אתם לא מעלים כלום לכאן — רק אומרים מה יש, ותביאו אותו לפגישה. אפשר גם לשלוח בלי, וזה בסדר גמור.", en: "The lawyer sees what you have: medical records, photos of the scene, correspondence, receipts, witnesses or an official document. You upload nothing here — you just say what exists, and bring it to the meeting. Sending without is perfectly fine too." },
   noDocsAttach: { he: "צירוף תמונה או מסמך", en: "Attach a photo or document" },
-  noDocsSendAnyway: { he: "שליחה בלי תיעוד ←", en: "Send without documentation →" },
+  noDocsSendAnyway: { he: "שליחה בכל זאת ←", en: "Send anyway →" },
   greetMorning: { he: "בוקר טוב", en: "Good morning" },
   greetAfternoon: { he: "צהריים טובים", en: "Good afternoon" },
   greetEvening: { he: "ערב טוב", en: "Good evening" },
