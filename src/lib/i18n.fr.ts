@@ -491,6 +491,8 @@ export const fr: Partial<Record<StringKey, string>> = {
   undertake6: "Je sais que JustAsk n'est pas partie à la convention d'honoraires, n'en perçoit aucune part et n'accorde aucune priorité payante. La représentation et la responsabilité professionnelle m'incombent seul(e).",
   undertakeAgree: "J'ai lu et je m'engage à ce qui précède",
   undertakeRequired: "Veuillez confirmer l'engagement professionnel avant l'envoi",
+  docScanTitle: "Ce qu'il advient de vos documents",
+  docScanNote: "Les documents sont lus avec une assistance automatique et recoupés avec les informations que vous avez saisies, afin de détecter une faute de frappe ou un fichier envoyé par erreur. La décision elle-même est toujours humaine, et la vidéo selfie est supprimée dès qu'elle est prise.",
   presentationTitle: "Comment on vous voit",
   presentationSub: "Photo et une ligne — c'est ce que le client voit sur votre offre",
   photoLabel: "Photo de profil",

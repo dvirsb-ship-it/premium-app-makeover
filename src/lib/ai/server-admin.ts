@@ -715,6 +715,23 @@ export async function purgeAccount(uid: string, dryRun = false): Promise<PurgeRe
 
   await del(`lawyerProfiles/${uid}`);
   await del(`lawyerContacts/${uid}`);
+
+  /*
+   * קבצי האימות — **תוקן 16/8/2026.**
+   *
+   * תעודת הלשכה ותעודת הבוגר יושבות ב-Storage תחת verifications/{uid}/,
+   * ומחיקת מסמך ה-Firestore לבדה השאירה אותן שם לנצח. אלה מסמכי זהות
+   * אישיים עם מספר רישיון ותמונה: מחיקת חשבון שמשאירה אותם אינה מחיקה,
+   * והתקנון מבטיח אחרת.
+   *
+   * הסרטון כבר נמחק עם ההכרעה, אבל אנחנו עוברים על כל הקבצים ולא רק על
+   * השניים הידועים — כדי שסוג קובץ שיתווסף בעתיד לא ידלוף בשקט. מחיקה
+   * חוזרת בטוחה: adminDeleteStorage מחזיר true גם על 404.
+   */
+  const ver = await adminGetDoc(`verifications/${uid}`);
+  for (const p of Object.values((ver?.files ?? {}) as Record<string, unknown>)) {
+    if (typeof p === "string" && p) await delFile(p);
+  }
   await del(`verifications/${uid}`);
   await del(`lawyerStats/${uid}`);
   await del(`usage/${uid}`);

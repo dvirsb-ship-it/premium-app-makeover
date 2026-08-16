@@ -673,6 +673,8 @@ export const strings = {
   undertake6: { he: "ידוע לי ש-JustAsk אינה צד להסכם שכר הטרחה, אינה נוטלת חלק בו, ואינה מקנה עדיפות בתמורה לתשלום. הייצוג והאחריות המקצועית הם שלי בלבד.", en: "I understand JustAsk is not a party to the fee agreement, takes no share of it, and grants no paid priority. Representation and professional responsibility are mine alone." },
   undertakeAgree: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I have read and undertake the above" },
   undertakeRequired: { he: "יש לאשר את ההתחייבות המקצועית לפני השליחה", en: "Please confirm the professional undertaking before submitting" },
+  docScanTitle: { he: "מה קורה עם המסמכים שלך", en: "What happens to your documents" },
+  docScanNote: { he: "המסמכים נקראים בסיוע אוטומטי ומוצלבים מול הפרטים שהקלדת — כדי לתפוס טעות הקלדה או קובץ שהועלה בשוגג. ההחלטה עצמה אנושית תמיד, וסרטון הפנים נמחק ברגע שהיא מתקבלת.", en: "Your documents are read with automated assistance and cross-checked against the details you entered — to catch a typo or a file uploaded by mistake. The decision itself is always human, and the selfie video is deleted the moment it is made." },
   presentationTitle: { he: "איך אתם מוצגים", en: "How you appear" },
   presentationSub: { he: "תמונה ומשפט קצר — זה מה שהלקוח רואה בהצעה", en: "Photo and a short line — what clients see on your offer" },
   photoLabel: { he: "תמונת פרופיל", en: "Profile photo" },

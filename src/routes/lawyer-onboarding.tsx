@@ -1216,8 +1216,41 @@ function ReviewStep({
           ]}
         />
       </div>
+      <DocScanNotice />
       <UndertakingBlock checked={undertook} onChange={setUndertook} />
     </div>
+  );
+}
+
+/*
+ * גילוי ההצלבה האוטומטית (16/8/2026).
+ *
+ * לפני הבדיקה האנושית, תעודת הלשכה ותעודת הבוגר נקראות בסיוע אוטומטי
+ * ומוצלבות מול מה שהוקלד. המסך אמר קודם "בדיקה אנושית" בלבד, וזה תיאר
+ * נכון את ההכרעה אבל לא את הקריאה שקודמת לה. מסמך זהות שעובר לשירות
+ * חיצוני נאמר במפורש, לא בהערת שוליים.
+ *
+ * שקוף בכוונה ולא מבהיל: נייר שקוע ולא התראה. זו עובדה על התהליך,
+ * ולא אזהרה.
+ */
+function DocScanNotice() {
+  const t = useT();
+  return (
+    <section className="recessed mt-4 rounded-2xl bg-[var(--recess-fill)] px-4 py-3">
+      <div className="flex items-center gap-2">
+        <ShieldCheck
+          className="size-4 shrink-0 text-muted-foreground"
+          strokeWidth={2.2}
+          aria-hidden
+        />
+        <h3 className="text-[12.5px] font-bold text-foreground">{t("docScanTitle")}</h3>
+      </div>
+      {/* /75 ולא muted: על נייר שקוע muted יורד ל-4.89 — עובר בקושי.
+          זה גילוי, והדבר האחרון שאמור להיות קשה לקריאה. /75 נותן 7.29. */}
+      <p className="mt-1.5 text-[12px] leading-relaxed text-foreground/75">
+        {t("docScanNote")}
+      </p>
+    </section>
   );
 }
 
