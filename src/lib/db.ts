@@ -1139,14 +1139,18 @@ export function watchServerErrors(
   // "אין תקלות. הכול עובד" כשהמאזין עצמו נדחה זו בדיוק ההטעיה שהיומן בא למנוע
   onError?: (err: unknown) => void,
 ): () => void {
+  /*
+   * שלושים האחרונות מהשאילתה, ולא מהזיכרון (18/8/2026).
+   *
+   * זה ירד את **כל** האוסף ואז חתך ל-30. serverErrors הוא אוסף גלובלי
+   * שגדל עם כל שגיאה של כל משתמש ואינו נמחק — כלומר בכל פתיחת מסך
+   * האדמין נקראו כל השגיאות שנרשמו אי פעם, כדי להציג שלושים. מיון על
+   * שדה בודד מאונדקס אוטומטית, ולכן אין צורך באינדקס חדש.
+   */
   return onSnapshot(
-    collection(fbDb(), "serverErrors"),
+    query(collection(fbDb(), "serverErrors"), orderBy("at", "desc"), limit(30)),
     (snap) => {
-      const rows = snap.docs
-        .map((d) => ({ id: d.id, ...(d.data() as Omit<ServerErrorDoc, "id">) }))
-        .sort((a, b) => b.at - a.at)
-        .slice(0, 30);
-      cb(rows);
+      cb(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<ServerErrorDoc, "id">) })));
     },
     (err) => {
       cb([]);
