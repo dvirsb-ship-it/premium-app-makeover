@@ -132,7 +132,7 @@ function Profile() {
               {/* בורר שפה — שש שפות, כל אחת בשמה שלה */}
               <div className="p-4">
                 <div className="flex items-center gap-3">
-                  <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold text-sm font-black">
+                  <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold-ink text-sm font-black">
                     {lang === "he" ? "עב" : lang.toUpperCase()}
                   </span>
                   <div className="min-w-0 flex-1 text-start">

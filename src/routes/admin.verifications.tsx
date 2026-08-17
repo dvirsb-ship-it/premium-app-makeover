@@ -540,7 +540,7 @@ function VerificationQueue() {
                     * ואי־הצגה היא המידע: לא נרשמה בדיקה.
                     */}
                   {rec.status === "approved" && rec.registryCheckedAt && (
-                    <p className="mt-3 rounded-xl bg-success/10 px-3 py-2 text-[11.5px] font-semibold leading-relaxed text-success">
+                    <p className="mt-3 rounded-xl bg-success/10 px-3 py-2 text-[11.5px] font-semibold leading-relaxed text-success-ink">
                       {t("registryCheckedOn")}{" "}
                       {new Date(rec.registryCheckedAt).toLocaleDateString("he-IL")}
                       {rec.registryCheckedBy ? ` · ${rec.registryCheckedBy}` : ""}
@@ -691,7 +691,7 @@ function VerificationQueue() {
                       {l.fullName}
                     </p>
                     {l.launchNotifiedAt ? (
-                      <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                      <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success-ink">
                         קיבל הודעת השקה
                       </span>
                     ) : null}
@@ -736,12 +736,12 @@ function VerificationQueue() {
                       disabled={!canAct} onClick={() =>
                         void markTicketHandled(tk.id).catch(() => toast.error(t("authErrGeneric")))
                       }
-                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold-ink transition active:scale-95"
                     >
                       {t("ticketMarkHandled")}
                     </button>
                   ) : (
-                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success-ink">
                       {t("ticketHandled")}
                     </span>
                   )}
@@ -901,7 +901,7 @@ function VerificationQueue() {
                     <p className="mt-0.5 text-[11px] text-muted-foreground">{dateFmt(e.at)}</p>
                   </div>
                   {e.handled ? (
-                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success-ink">
                       {t("errorHandled")}
                     </span>
                   ) : (
@@ -910,7 +910,7 @@ function VerificationQueue() {
                       disabled={!canAct} onClick={() =>
                         void markServerErrorHandled(e.id).catch(() => toast.error(t("authErrGeneric")))
                       }
-                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                      className="shrink-0 rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold-ink transition active:scale-95"
                     >
                       {t("errorMarkHandled")}
                     </button>
@@ -963,13 +963,13 @@ function VerificationQueue() {
                         disabled={!canAct} onClick={() =>
                           void markDeletionDone(d.id, d.userId).catch(() => toast.error(t("authErrGeneric")))
                         }
-                        className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                        className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold-ink transition active:scale-95"
                       >
                         {t("deletionMarkDone")}
                       </button>
                     </div>
                   ) : (
-                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                    <span className="shrink-0 rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success-ink">
                       {t("deletionDone")}
                     </span>
                   )}

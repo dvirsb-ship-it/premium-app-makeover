@@ -816,7 +816,7 @@ function LawyerChoiceCard({
           )}
 
           {offer.noWinNoFee && (
-            <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success">
+            <p className="mt-1.5 inline-flex items-center gap-1.5 rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success-ink">
               <Check className="size-3" strokeWidth={3} />
               {t("offerNoWinBadge")}
             </p>

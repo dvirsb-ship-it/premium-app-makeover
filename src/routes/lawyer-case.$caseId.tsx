@@ -342,7 +342,7 @@ function LawyerCaseDetail() {
         <Page className="flex min-h-screen flex-col">
           <TopBar title={t("leadDetailsTitle")} subtitle={connected.category} />
           <div className="flex-1 px-5 pt-6">
-            <span className="rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success">
+            <span className="rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success-ink">
               {t("connectedWithLawyer")}
             </span>
             <h2 className="mt-4 text-xl font-black leading-snug text-foreground">
@@ -418,7 +418,7 @@ function LawyerCaseDetail() {
                         {t(`ms_${k}` as never)}
                       </span>
                       {done ? (
-                        <span className="rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success">
+                        <span className="rounded-full bg-success/15 px-3 py-1 text-[11px] font-bold text-success-ink">
                           {t("msMarked")}
                         </span>
                       ) : k === "closed" && confirmClose ? (
@@ -442,7 +442,7 @@ function LawyerCaseDetail() {
                         <button
                           type="button"
                           onClick={() => mark(k)}
-                          className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold transition active:scale-95"
+                          className="rounded-full bg-gold/15 px-3 py-1 text-[11px] font-bold text-gold-ink transition active:scale-95"
                         >
                           {t("msMarkBtn")}
                         </button>
@@ -556,7 +556,7 @@ function LawyerCaseDetail() {
 
         <div className="flex-1 px-5 pt-6">
           <div className="flex items-center gap-2">
-            <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold">
+            <span className="rounded-full bg-gold/15 px-2.5 py-1 text-[11px] font-bold text-gold-ink">
               {item.category}
             </span>
             {item.urgency === urgentSeed && (
@@ -751,7 +751,7 @@ function LawyerCaseDetail() {
                 key="done"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-success/12 py-4 text-sm font-bold text-success"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-success/12 py-4 text-sm font-bold text-success-ink"
               >
                 <Check className="size-5" strokeWidth={3} />
                 {t("interestSent")}

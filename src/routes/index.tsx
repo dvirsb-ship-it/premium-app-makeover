@@ -295,7 +295,7 @@ function ClientHome() {
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-3">
                     <span
-                      className={`tone-pill rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
+                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
                     >
                       {activeMeta!.label}
                     </span>

@@ -136,7 +136,7 @@ function LawyerCases() {
                       <span className="text-[11px] font-semibold uppercase tracking-wider text-gold">
                         {c.category}
                       </span>
-                      <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
+                      <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success-ink">
                         {t("lawyerActiveBadge")}
                       </span>
                     </div>

@@ -136,7 +136,7 @@ function LawyersLanding() {
                   <span className="rounded-full bg-warning-ink/12 px-2 py-0.5 text-[10px] font-bold text-warning-ink">
                     {t("lpCardUrgent")}
                   </span>
-                  <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success">
+                  <span className="rounded-full bg-success/15 px-2 py-0.5 text-[10px] font-bold text-success-ink">
                     {t("lpCardMatch")}
                   </span>
                 </div>

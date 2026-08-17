@@ -375,7 +375,7 @@ function Intake() {
             title={t("intakeTitle")}
             subtitle={t("intakeSubtitle")}
             right={
-              <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-success">
+              <span className="inline-flex items-center gap-1 rounded-full border border-success/30 bg-success/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-success-ink">
                 <ShieldCheck className="size-3" />
                 {t("secureBadge")}
               </span>

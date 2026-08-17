@@ -456,7 +456,7 @@ function LawyerFeed() {
                     {f.category}
                   </span>
                   {f.urgency === urgentLabel && (
-                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold">
+                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold-ink">
                       {t("urgent")}
                     </span>
                   )}
