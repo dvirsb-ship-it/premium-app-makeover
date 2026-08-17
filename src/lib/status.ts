@@ -34,10 +34,24 @@ export function useStatusMeta() {
   return (s: CaseStatus) => ({ label: LABELS[s][lang], tone: LABELS[s].tone });
 }
 
+/*
+ * צבע הטקסט הוא ה-ink ולא צבע המשטח — נמדד ותוקן 17/8/2026.
+ *
+ * `text-gold` על `bg-gold/15` נתן **1.94:1** במצב בהיר, ו-`text-success`
+ * על `bg-success/12` נתן **2.24:1**. אלה שני הצ׳יפים המרכזיים של הלקוח
+ * ("עברה את הבדיקה" ו"נוצר חיבור") — כלומר הסטטוס של התיק שלו היה כמעט
+ * בלתי קריא על נייר. בכהה שניהם עברו, ולכן זה לא נראה בעין: העבודה
+ * נעשתה במצב כהה.
+ *
+ * זו אותה טעות ש-`--gold-ink` נוצר כדי למנוע: `--gold` הוא צבע שממלא,
+ * לא צבע שכותב. הטוקנים של ה-ink כבר מוגדרים בשני המצבים בנפרד, ולכן
+ * אין צורך בגרסת `dark:` — הם מתהפכים לבד. אחרי: 5.00 / 8.45 לזהב,
+ * 4.90 / 5.93 להצלחה.
+ */
 export const toneClasses: Record<string, string> = {
-  gold: "bg-gold/15 text-gold",
+  gold: "bg-gold/15 text-gold-ink",
   navy: "bg-primary/10 text-primary",
-  success: "bg-success/12 text-success",
+  success: "bg-success/12 text-success-ink",
   muted: "bg-muted text-muted-foreground",
 };
 

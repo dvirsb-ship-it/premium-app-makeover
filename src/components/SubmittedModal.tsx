@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { Check, X } from "lucide-react";
 import type { StringKey } from "../lib/i18n";
 import { useT } from "../lib/i18n";
+import { useDialog } from "../lib/use-dialog";
 
 /**
  * אישור הקליטה — מוצג *מעל* האפליקציה ולא כמסך נפרד.
@@ -16,19 +17,26 @@ export function SubmittedModal({
   onViewCase?: () => void;
 }) {
   const t = useT();
+  const dialogRef = useDialog<HTMLDivElement>(onClose);
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={t("submittedTitle")}
       className="fixed inset-0 z-50 grid place-items-center bg-[#0F172A]/55 px-5 backdrop-blur-md"
       onClick={onClose}
     >
+      {/*
+        role="dialog" יושב על הלוח ולא על הרקע (17/8/2026). כשהוא ישב על
+        הרקע, שכבת ההחשכה עצמה הייתה הדיאלוג — ולכן כל מה שבתוכה, כולל
+        אזור הלחיצה-לסגירה, נספר כתוכן שלו.
+      */}
       <motion.div
+        ref={dialogRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={t("submittedTitle")}
         initial={{ opacity: 0, y: 24, scale: 0.96 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: 12, scale: 0.98 }}

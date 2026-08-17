@@ -1000,7 +1000,7 @@ function VerificationQueue() {
                   className={cn(
                     "shrink-0 rounded-full px-2.5 py-1 text-[10px] font-bold",
                     c.status === "connected" && "bg-success/15 text-success",
-                    c.status === "rejected" && "bg-destructive/15 text-destructive",
+                    c.status === "rejected" && "bg-destructive/15 text-destructive-ink",
                     (c.status === "matching" || c.status === "has_interest") && "bg-gold/15 text-gold",
                     c.status === "validating" && "bg-white/10 text-muted-foreground",
                   )}

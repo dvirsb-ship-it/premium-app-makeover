@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "motion/react";
 import { Bell, X } from "lucide-react";
 import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
+import { useDialog } from "../lib/use-dialog";
 
 /**
  * מסך ההסבר שלפני בקשת ההרשאה של המערכת.
@@ -30,6 +31,7 @@ export function PushPrimer({
   onDismiss: () => void;
 }) {
   const t = useT();
+  const dialogRef = useDialog<HTMLDivElement>(onDismiss, open);
   const titleKey: StringKey = role === "lawyer" ? "primerLawyerTitle" : "primerClientTitle";
   const bodyKey: StringKey = role === "lawyer" ? "primerLawyerBody" : "primerClientBody";
 
@@ -43,12 +45,14 @@ export function PushPrimer({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.25 }}
           className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 p-4 backdrop-blur-sm sm:items-center"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="primer-title"
           onClick={onDismiss}
         >
+          {/* role="dialog" על הלוח ולא על שכבת ההחשכה — ראה SubmittedModal */}
           <motion.div
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="primer-title"
             initial={{ opacity: 0, y: 40, scale: 0.97 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.98 }}

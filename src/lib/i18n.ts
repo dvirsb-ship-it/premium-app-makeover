@@ -808,6 +808,9 @@ export const strings = {
   // הצהרת נגישות (ת"י 5568 / WCAG 2.0 AA)
   accessibility: { he: "נגישות", en: "Accessibility" },
   skipToContent: { he: "דלג לתוכן", en: "Skip to content" },
+  stepDone: { he: "הושלם", en: "Completed" },
+  stepCurrent: { he: "עכשיו", en: "In progress" },
+  stepPending: { he: "ממתין", en: "Pending" },
   composerAria: { he: "תיבת ההודעה", en: "Message box" },
   rateNoteAria: { he: "הערה לדירוג (רשות)", en: "Rating note (optional)" },
   deleteReasonAria: { he: "סיבת מחיקת החשבון (רשות)", en: "Reason for deleting your account (optional)" },

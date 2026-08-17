@@ -644,6 +644,16 @@ function ClientJourney({ active }: { active?: Case }) {
                   )}
                 >
                   {t(s.key)}
+                  {/*
+                    מצב השלב היה ויזואלי בלבד (17/8/2026): וי מול מספר,
+                    ועיגול המחוון מסומן aria-hidden. קורא מסך קיבל שלושה
+                    שמות שלבים בלי לדעת איפה התיק עומד — WCAG 1.3.1.
+                    מילה נסתרת פותרת בלי לגעת בעיצוב.
+                  */}
+                  <span className="sr-only">
+                    {" · "}
+                    {done ? t("stepDone") : current ? t("stepCurrent") : t("stepPending")}
+                  </span>
                 </p>
                 {s.note && (
                   <p className="mt-1 text-[12px] font-bold text-gold-ink dark:text-gold">{s.note}</p>

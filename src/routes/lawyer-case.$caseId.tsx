@@ -433,7 +433,7 @@ function LawyerCaseDetail() {
                           <button
                             type="button"
                             onClick={() => mark(k)}
-                            className="rounded-full bg-destructive/20 px-3 py-1 text-[11px] font-bold text-destructive transition active:scale-95"
+                            className="rounded-full bg-destructive/20 px-3 py-1 text-[11px] font-bold text-destructive-ink transition active:scale-95"
                           >
                             {t("msCloseConfirm")}
                           </button>
@@ -560,7 +560,7 @@ function LawyerCaseDetail() {
               {item.category}
             </span>
             {item.urgency === urgentSeed && (
-              <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive">
+              <span className="rounded-full bg-destructive/15 px-2.5 py-1 text-[11px] font-bold text-destructive-ink">
                 {t("urgent")}
               </span>
             )}
