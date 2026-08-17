@@ -764,6 +764,12 @@ export async function adminDeleteCase(caseId: string): Promise<void> {
  * המסמך לבדה משאירה תזכיר, אבני דרך, חשיפות קשר והתראות יתומים —
  * לכן הרשימה כאן משקפת אחד-לאחד את הבלוק הפר-תיקי של purgeAccount.
  * אם purgeAccount לומד תת-אוסף חדש, גם הפונקציה הזו חייבת.
+ *
+ * הקבצים נוספו ב-17/8/2026: ההערה למעלה טענה התאמה אחד-לאחד, אבל
+ * `purgeAccount` מוחק גם את תמונות התיק מ-Storage וכאן זה נשמט. תיק
+ * שנוצר לפני ביטול ההעלאות עדיין נושא אותן, וזה בדיוק סוג התיק
+ * שהפונקציה הזו נבנתה כדי לנקות — כלומר המחיקה הייתה משאירה מסמך
+ * רפואי באחסון בלי מסמך תיק שמצביע עליו.
  */
 export async function adminPurgeCase(
   caseId: string,
@@ -777,6 +783,12 @@ export async function adminPurgeCase(
     await adminDelete(path);
     deleted++;
   };
+
+  const images = (c.images as { origPath?: string; censPath?: string }[] | undefined) ?? [];
+  for (const img of images) {
+    if (img.origPath) { await adminDeleteStorage(img.origPath); deleted++; }
+    if (img.censPath) { await adminDeleteStorage(img.censPath); deleted++; }
+  }
 
   await del(`cases/${id}/memo/full`);
   for (const k of ["met", "demandSent", "filed", "closed"]) {
