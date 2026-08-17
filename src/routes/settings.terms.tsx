@@ -23,8 +23,8 @@ const sections: { title: StringKey; body: StringKey }[] = [
   { title: "termsSection2Title", body: "termsSection2Body" },
   { title: "termsSection3Title", body: "termsSection3Body" },
   { title: "termsSection4Title", body: "termsSection4Body" },
-  { title: "termsSection6Title", body: "termsSection6Body" },
   { title: "termsSection5Title", body: "termsSection5Body" },
+  { title: "termsSection6Title", body: "termsSection6Body" },
   { title: "termsSection7Title", body: "termsSection7Body" },
   /*
    * סעיף 8 — חובת היידוע (17/8/2026). תיקון 13 לחוק הגנת הפרטיות,
