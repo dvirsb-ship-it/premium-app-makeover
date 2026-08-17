@@ -52,17 +52,20 @@ service firebase.storage {
       allow read: if request.auth != null;
     }
 
-    // מסמכי תיק שהלקוח מעלה — רק בעל החשבון
-    match /case-files/{uid}/{fileName=**} {
-      allow write: if request.auth != null
-        && request.auth.uid == uid
-        && request.resource.size < 15 * 1024 * 1024
-        && (
-          request.resource.contentType.matches('image/.*')
-          || request.resource.contentType == 'application/pdf'
-        );
-      allow read: if request.auth != null && request.auth.uid == uid;
-    }
+    /*
+     * ═══ case-files — נסגר 18/8/2026 ═══
+     *
+     * זה היה הנתיב שהלקוח העלה אליו מסמכי תיק. ההעלאות בוטלו ב-12/8
+     * יחד עם `case-uploads`, אבל הנתיב הזה נשכח: **אף שורת קוד
+     * באפליקציה אינה כותבת אליו יותר**, והכלל נשאר פתוח.
+     *
+     * מה שהוא הותיר: כל בעל חשבון גוגל יכול היה לאחסן קבצים של עד
+     * 15MB, ללא הגבלת כמות, בדלי שאנחנו משלמים עליו. לא דליפה —
+     * הקריאה הייתה של הבעלים בלבד — אלא אחסון חינם על חשבוננו.
+     *
+     * זו אותה מסקנה שכבר כתובה כאן על התמונות: הרשאה שאיש אינו צריך
+     * היא משטח פתוח. אין כלל — אין משטח.
+     */
 
     /*
      * ═══ תמונות התיק הוסרו מהמוצר (12/8/2026) ═══

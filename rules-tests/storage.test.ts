@@ -147,10 +147,20 @@ describe("סוגי קבצים שמותר להעלות", () => {
     );
   });
 
-  it("קובץ תיק של הלקוח — HTML נדחה גם כאן", async () => {
+  /*
+   * הנתיב נסגר לגמרי ב-18/8/2026 — הוא נשכח כשההעלאות בוטלו ב-12/8.
+   * קודם נבדק רק שסוג קובץ מסוכן נדחה; עכשיו גם PDF תקין נדחה, כלומר
+   * הדלת סגורה ולא רק מסוננת.
+   */
+  it("קובץ תיק של הלקוח — הנתיב סגור, לא מסונן", async () => {
     await assertFails(
       uploadBytes(ref(storageAs("client1"), "case-files/client1/doc.html"), bytes(0.001), {
         contentType: "text/html",
+      }),
+    );
+    await assertFails(
+      uploadBytes(ref(storageAs("client1"), "case-files/client1/doc.pdf"), bytes(0.01), {
+        contentType: "application/pdf",
       }),
     );
   });
