@@ -834,7 +834,7 @@ export const strings = {
   a11ySection4Body: { he: "אם נתקלת בקושי נגישות באפליקציה, נשמח לדעת ולתקן: justask.adv@gmail.com. אנא ציינו את הדף, הפעולה והקושי — נחזור אליכם בהקדם.", en: "If you hit an accessibility issue, email justask.adv@gmail.com with the page, the action and the difficulty — we will get back to you promptly." },
   a11ySection5Title: { he: "רכז הנגישות ודפדפנים שנבדקו", en: "Accessibility coordinator and browsers tested" },
   a11ySection5Body: { he: "רכז הנגישות: דביר, מפעיל השירות — justask.adv@gmail.com. אפשר לפנות בכל שאלה, בקשה או תלונה בנושא נגישות, ונחזור אליכם. האפליקציה נבדקה בדפדפני Chrome ו-Safari בגרסאותיהם העדכניות, במחשב ובמכשיר נייד.", en: "Accessibility coordinator: Dvir, the service operator — justask.adv@gmail.com. You are welcome to raise any accessibility question, request or complaint, and we will get back to you. The app was tested on current versions of Chrome and Safari, on desktop and on mobile." },
-  a11yLastUpdated: { he: "עודכן לאחרונה: 16 באוגוסט 2026", en: "Last updated: 16 August 2026" },
+  a11yLastUpdated: { he: "עודכן לאחרונה: 17 באוגוסט 2026", en: "Last updated: 17 August 2026" },
 
   // צירוף תמונות + צנזור אוטומטי
   imageCensoring: { he: "מסתיר פרטים מזהים…", en: "Hiding identifying details…" },
