@@ -119,7 +119,7 @@ export const strings = {
   intakeTitle: { he: "שיתוף הסיפור", en: "Share your story" },
   intakeSubtitle: { he: "שיחה מאובטחת", en: "Secure conversation" },
   secureBadge: { he: "מאובטח", en: "Secure" },
-  opener1: { he: "שלום 👋 אני העוזר המשפטי של JustAsk. אני כאן כדי לשמוע על המקרה שלך ולבדוק התאמה ראשונית.", en: "Hi 👋 I'm the JustAsk legal assistant. I'm here to hear about your case and check an initial match." },
+  opener1: { he: "שלום 👋 אני עוזר הקליטה של JustAsk. אני כאן כדי לשמוע על המקרה שלך ולבדוק התאמה ראשונית.", en: "Hi 👋 I'm the JustAsk intake assistant. I'm here to hear about your case and check an initial match." },
   opener2: { he: "ספר/י לי בחופשיות מה קרה — אני אשאל שאלות תוך כדי.", en: "Tell me freely what happened — I'll ask questions along the way." },
   /*
    * ═══ הבקשה המפורשת (12/8/2026) ═══

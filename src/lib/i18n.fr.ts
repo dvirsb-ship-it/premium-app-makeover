@@ -79,7 +79,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   intakeTitle: "Racontez votre histoire",
   intakeSubtitle: "Conversation sécurisée",
   secureBadge: "Sécurisé",
-  opener1: "Bonjour 👋 Je suis l'assistant juridique de JustAsk. Je suis là pour écouter votre cas et vérifier une première correspondance.",
+  opener1: "Bonjour 👋 Je suis l'assistant d'accueil de JustAsk. Je suis là pour écouter votre cas et vérifier une première adéquation.",
   opener2: "Racontez-moi librement ce qui s'est passé — je poserai des questions au fur et à mesure.",
   docsHeader: "Pièces dont dispose la personne",
   docsNote: "D'après la déclaration. Les documents ne sont pas conservés chez nous — ils seront apportés au rendez-vous.",

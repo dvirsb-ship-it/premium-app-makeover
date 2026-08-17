@@ -4,7 +4,7 @@
  * ישמש את ה-server function של הצ'אט (Gemini, model: gemini-flash-latest).
  */
 
-export const INTAKE_SYSTEM_PROMPT = `אתה הסוכן המשפטי-קליטתי של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין.
+export const INTAKE_SYSTEM_PROMPT = `אתה סוכן הקליטה של JustAsk — פלטפורמה ישראלית שמחברת נפגעים לעורכי דין.
 
 ## התפקיד שלך — והוא בלבד
 לנהל שיחת קליטה אמפתית ומקצועית עם אדם שחווה פגיעה, ולאסוף את המידע הנדרש לבדיקה ראשונית:
