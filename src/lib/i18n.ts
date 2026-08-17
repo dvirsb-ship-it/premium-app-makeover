@@ -811,6 +811,12 @@ export const strings = {
   // הצהרת נגישות (ת"י 5568 / WCAG 2.0 AA)
   accessibility: { he: "נגישות", en: "Accessibility" },
   skipToContent: { he: "דלג לתוכן", en: "Skip to content" },
+  errBoundaryTitle: { he: "הדף הזה לא נטען", en: "This page didn't load" },
+  errBoundaryBody: { he: "משהו השתבש אצלנו. אפשר לנסות שוב או לחזור למסך הבית.", en: "Something went wrong on our end. You can try again or head back home." },
+  errTryAgain: { he: "לנסות שוב", en: "Try again" },
+  errGoHome: { he: "למסך הבית", en: "Go home" },
+  notFoundTitle: { he: "הדף לא נמצא", en: "Page not found" },
+  notFoundBody: { he: "הדף הזה לא קיים או שהוא עבר. בוא נחזיר אותך למסלול.", en: "This page doesn't exist or has moved. Let's get you back on track." },
   adminMaintTitle: { he: "תחזוקה — מחיקת תיק", en: "Maintenance — delete a case" },
   adminMaintSub: { he: "מוחק תיק לצמיתות — כולל תזכיר, אבני דרך, חשיפות קשר והתראות. לתיקי דמו ובדיקה בלבד.", en: "Permanently deletes a case — memo, milestones, contact reveals and notifications included. Demo and test cases only." },
   adminMaintPh: { he: "מזהה התיק (מכתובת מסך התיק)", en: "Case ID (from the case screen URL)" },

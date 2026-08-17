@@ -14,7 +14,8 @@ import appCss from "../styles.css?url";
 import { SkipToContent } from "../components/SkipToContent";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStoreProvider } from "../lib/store";
-import { SettingsProvider } from "../lib/settings";
+import { SettingsProvider, LANGS, type Lang } from "../lib/settings";
+import { translate } from "../lib/i18n";
 import { Toaster } from "../components/ui/sonner";
 import { Splash } from "../components/Splash";
 import { BottomNav } from "../components/BottomNav";
@@ -23,23 +24,43 @@ import handshakeAsset from "../../public/videos/handshake.mp4.asset.json";
 import dealAsset from "../../public/videos/deal.mp4.asset.json";
 import lawAmbientAsset from "../../public/videos/law-ambient.mp4.asset.json";
 
+/*
+ * שפת מסכי הכשל — נקראת מ-<html> ולא מהספקים (18/8/2026).
+ *
+ * ErrorComponent ו-NotFoundComponent רשומים על ה-route, כלומר הם
+ * מרונדרים **במקום** RootComponent — ו-SettingsProvider יושב בתוכו.
+ * useT() אינו קיים שם. את השפה כותב settings.tsx על documentElement,
+ * וה-SSR מגיש "he", ולכן זו הקריאה היחידה שאפשר לסמוך עליה בדיוק
+ * ברגע שהכל נשבר.
+ *
+ * עד עכשיו שני המסכים היו באנגלית קשיחה. אפליקציה עברית שנשברת
+ * ועונה "This page didn't load" מאבדת את האדם בדיוק כשהוא הכי צריך
+ * להבין מה קרה.
+ */
+function shellLang(): Lang {
+  if (typeof document === "undefined") return "he";
+  const l = document.documentElement.getAttribute("lang");
+  return (LANGS as readonly string[]).includes(l ?? "") ? (l as Lang) : "he";
+}
+
 function NotFoundComponent() {
+  const lang = shellLang();
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#04060b] px-6">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_50%_at_50%_35%,rgba(212,175,55,0.20),transparent_65%)]" />
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_120%_at_50%_60%,transparent_30%,rgba(2,4,8,0.9)_100%)]" />
       <div className="liquid-glass relative z-10 mx-auto w-full max-w-sm rounded-3xl px-6 py-10 text-center ring-1 ring-white/10">
         <div className="mx-auto mb-4 text-[80px] font-black leading-none tracking-tight text-transparent" style={{ backgroundImage: "linear-gradient(180deg,#F1E4C3, #B8912B)", WebkitBackgroundClip: "text", backgroundClip: "text" }}>404</div>
-        <h2 className="text-xl font-bold text-white">Page not found</h2>
+        <h2 className="text-xl font-bold text-white">{translate("notFoundTitle", lang)}</h2>
         <p className="mt-2 text-sm text-white/60">
-          This page doesn't exist or has moved. Let's get you back on track.
+          {translate("notFoundBody", lang)}
         </p>
         <div className="mt-7">
           <Link
             to="/"
             className="btn-gold inline-flex min-h-11 w-full items-center justify-center rounded-2xl py-3 text-sm font-bold"
           >
-            Go home
+            {translate("errGoHome", lang)}
           </Link>
         </div>
       </div>
@@ -49,6 +70,7 @@ function NotFoundComponent() {
 
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
+  const lang = shellLang();
   const router = useRouter();
   useEffect(() => {
     reportLovableError(error, { boundary: "tanstack_root_error_component" });
@@ -58,10 +80,10 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
         <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
+          {translate("errBoundaryTitle", lang)}
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
+          {translate("errBoundaryBody", lang)}
         </p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
@@ -71,13 +93,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {translate("errTryAgain", lang)}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {translate("errGoHome", lang)}
           </a>
         </div>
       </div>

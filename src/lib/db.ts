@@ -1568,13 +1568,24 @@ export function watchNotifications(
    */
   onError?: (err: unknown) => void,
 ): () => void {
-  const q = query(collection(fbDb(), "notifications"), where("userId", "==", uid));
+  /*
+   * חמישים האחרונות, ולא הכל (18/8/2026).
+   *
+   * זה היה מאזין חי על **כל** ההתראות של המשתמש, בלי תקרה ובלי שדבר
+   * מוחק אותן אי פעם. מי שיצבור 500 קרא 500 מסמכים בכל פתיחת אפליקציה,
+   * ושוב בכל שינוי — עלות שגדלה קווית ולעולם אינה מתאפסת.
+   *
+   * המיון עבר לשאילתה: קודם הוא נעשה בזיכרון, מה שחייב להוריד את הכל
+   * רק כדי לדעת מה החדש. הבאדג' אינו נפגע — הוא מציג "9+" מעל תשע.
+   */
+  const q = query(
+    collection(fbDb(), "notifications"),
+    where("userId", "==", uid),
+    orderBy("createdAt", "desc"),
+    limit(50),
+  );
   return onSnapshot(q, (snap) => {
-    cb(
-      snap.docs
-        .map((d) => ({ id: d.id, ...(d.data() as Omit<AppNotification, "id">) }))
-        .sort((a, b) => b.createdAt - a.createdAt),
-    );
+    cb(snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<AppNotification, "id">) })));
   }, (err) => onError?.(err));
 }
 
