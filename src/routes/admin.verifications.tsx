@@ -21,7 +21,7 @@ import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useAppStore } from "../lib/store";
 import { isAdminUser, isSuperAdmin } from "../lib/admin";
 import { fbAuth } from "../lib/firebase";
-import { checkVerificationDocsFn, notifyVerificationFn, type DocCheckResult } from "../lib/ai/intake.functions";
+import { adminDeleteCaseFn, checkVerificationDocsFn, notifyVerificationFn, type DocCheckResult } from "../lib/ai/intake.functions";
 import { cn } from "../lib/utils";
 import {
   updateVerification,
@@ -1157,8 +1157,69 @@ function VerificationQueue() {
         )}
       </AnimatePresence>
 
+      <MaintenanceCard />
       </div>
     </AppShell>
+  );
+}
+
+/*
+ * מחיקת תיק דמו (17/8/2026). חשבון הבדיקה צבר תיקים כפולים שהצ'ק-ליסט
+ * של החנויות דורש למחוק, ולא היה שום מסלול מחיקה: כללי הלקוח מתירים
+ * מחיקה רק לתיק שנתקע בבדיקה, ומחיקת חשבון מוחקת הכול. שתי לחיצות
+ * במקום דו-שיח אישור — הכפתור עצמו הופך לשאלה.
+ */
+function MaintenanceCard() {
+  const t = useT();
+  const [caseId, setCaseId] = useState("");
+  const [arming, setArming] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState("");
+
+  async function run() {
+    if (!arming) { setArming(true); return; }
+    setArming(false);
+    setBusy(true);
+    setResult("");
+    try {
+      const idToken = await fbAuth().currentUser?.getIdToken();
+      if (!idToken) throw new Error("no token");
+      const res = await adminDeleteCaseFn({ data: { idToken, caseId: caseId.trim() } });
+      setResult(res.existed ? t("adminMaintDone").replace("{n}", String(res.deleted)) : t("adminMaintMissing"));
+      if (res.existed) setCaseId("");
+    } catch {
+      setResult(t("adminMaintErr"));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="liquid-glass mt-6 rounded-3xl p-4">
+      <h3 className="text-sm font-bold text-foreground">{t("adminMaintTitle")}</h3>
+      <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{t("adminMaintSub")}</p>
+      <div className="mt-3 flex gap-2">
+        <input
+          value={caseId}
+          onChange={(e) => { setCaseId(e.target.value); setArming(false); }}
+          placeholder={t("adminMaintPh")}
+          aria-label={t("adminMaintPh")}
+          dir="ltr"
+          className="min-w-0 flex-1 rounded-2xl border border-border bg-background/60 px-3 py-2.5 font-mono text-[12px] text-foreground placeholder:text-muted-foreground/60"
+        />
+        <button
+          type="button"
+          onClick={() => void run()}
+          disabled={busy || !caseId.trim()}
+          className={`shrink-0 rounded-2xl px-4 py-2.5 text-[13px] font-bold transition disabled:opacity-40 ${
+            arming ? "bg-destructive text-destructive-foreground" : "bg-destructive/10 text-destructive-ink"
+          }`}
+        >
+          {busy ? "…" : arming ? t("adminMaintConfirm") : t("adminMaintBtn")}
+        </button>
+      </div>
+      {result && <p className="mt-2 text-[12px] font-semibold text-foreground/80">{result}</p>}
+    </section>
   );
 }
 

@@ -756,6 +756,42 @@ export async function adminDeleteCase(caseId: string): Promise<void> {
   await adminDelete(`cases/${encodeURIComponent(caseId)}`);
 }
 
+/**
+ * מחיקה מלאה של תיק בודד — תת-האוספים, ההתראות, והמסמך עצמו.
+ *
+ * נבנה לניקוי תיקי דמו ובדיקה (17/8/2026): חשבון הבדיקה צבר תיקים
+ * כמעט זהים שהצ'ק-ליסט של החנויות דורש למחוק לפני ביקורת. מחיקת
+ * המסמך לבדה משאירה תזכיר, אבני דרך, חשיפות קשר והתראות יתומים —
+ * לכן הרשימה כאן משקפת אחד-לאחד את הבלוק הפר-תיקי של purgeAccount.
+ * אם purgeAccount לומד תת-אוסף חדש, גם הפונקציה הזו חייבת.
+ */
+export async function adminPurgeCase(
+  caseId: string,
+): Promise<{ existed: boolean; deleted: number }> {
+  const id = encodeURIComponent(caseId);
+  const c = await adminGetDoc(`cases/${id}`);
+  if (!c) return { existed: false, deleted: 0 };
+
+  let deleted = 0;
+  const del = async (path: string) => {
+    await adminDelete(path);
+    deleted++;
+  };
+
+  await del(`cases/${id}/memo/full`);
+  for (const k of ["met", "demandSent", "filed", "closed"]) {
+    await del(`cases/${id}/milestones/${k}`);
+  }
+  for (const lid of (c.interestedIds as string[] | undefined) ?? []) {
+    await del(`cases/${id}/contacts/${encodeURIComponent(lid)}`);
+  }
+  for (const nid of await adminQueryIds("notifications", "caseId", caseId)) {
+    await del(`notifications/${nid}`);
+  }
+  await del(`cases/${id}`);
+  return { existed: true, deleted };
+}
+
 export { MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED } from "../limits";
 import { MAX_OPEN_CASES } from "../limits";
 

@@ -1073,3 +1073,22 @@ export const purgeAccountFn = createServerFn({ method: "POST" })
       return purgeAccount(data.targetUid, data.dryRun === true);
     });
   });
+
+/**
+ * מחיקת תיק בודד לצמיתות — כלי תחזוקה לאדמין (17/8/2026).
+ * נועד לתיקי דמו ובדיקה; אותו שער בדיוק כמו שאר פעולות האדמין.
+ */
+export const adminDeleteCaseFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { idToken: string; caseId: string })
+  .handler(async ({ data }): Promise<{ existed: boolean; deleted: number }> => {
+    const { requireIdentity, adminPurgeCase, withErrorLog } = await import("./server-admin");
+    return withErrorLog("adminDeleteCase", async () => {
+      const me = await requireIdentity(data.idToken);
+      if (!["justask.adv@gmail.com", "dvirsb@gmail.com"].includes(me.email)) {
+        throw new Error("forbidden");
+      }
+      const caseId = String(data.caseId ?? "").trim();
+      if (!caseId) throw new Error("empty caseId");
+      return adminPurgeCase(caseId);
+    });
+  });
