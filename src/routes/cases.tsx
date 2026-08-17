@@ -121,11 +121,26 @@ function Cases() {
                     <h3 className="mt-3 text-base font-bold leading-snug text-foreground">
                       {c.title || t("homeCaseUntitled")}
                     </h3>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {/* בזמן הוולידציה אין עדיין קטגוריה — בלי נקודה יתומה */}
-                      {c.category ? `${c.category} · ` : ""}
-                      {timeAgo(c.createdAt)}
-                    </p>
+                    {/*
+                      * התחום הוא **סיווג**, ולכן שבב דיו — אותו כלל שכבר
+                      * נאכף בפיד עורך הדין (lawyer.tsx). כאן הוא היה טקסט
+                      * אפור נספח לחותמת הזמן, כלומר אותה עובדה בדיוק נראתה
+                      * כמו מלל אצל הלקוח וכמו עובדה מוטבעת אצל עורך הדין.
+                      * זה ההבדל שדביר זיהה בין שני הצדדים (17/8/2026).
+                      *
+                      * בזמן הוולידציה אין עדיין קטגוריה — ואז אין שבב ואין
+                      * נקודה יתומה, רק הזמן.
+                      */}
+                    <div className="mt-2.5 flex flex-wrap items-center gap-2">
+                      {c.category && (
+                        <span className="chip-navy rounded-full px-2.5 py-1 text-[10.5px] font-bold">
+                          {c.category}
+                        </span>
+                      )}
+                      <span className="text-xs text-muted-foreground">
+                        {timeAgo(c.createdAt)}
+                      </span>
+                    </div>
                     {/*
                       * הבדיקה רצה עכשיו — 10-15 שניות של עבודת AI אמיתית.
                       * בלי השורה הזו הכרטיס נראה ריק ושבור; איתה הוא נראה
