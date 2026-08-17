@@ -113,6 +113,7 @@ function Profile() {
                   type="button"
                   role="switch"
                   aria-checked={theme === "dark"}
+                  aria-label={t("darkMode")}
                   onClick={toggleTheme}
                   className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
                     theme === "dark" ? "bg-gold" : "bg-muted"

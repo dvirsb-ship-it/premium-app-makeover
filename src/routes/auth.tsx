@@ -274,7 +274,7 @@ function Auth() {
       <Page className="relative z-10 flex min-h-screen flex-col">
         <TopBar title={t("authTitle")} subtitle={t("authSub")} />
 
-        <main className="flex flex-1 flex-col justify-center px-6 py-8">
+        <div className="flex flex-1 flex-col justify-center px-6 py-8">
           <Stagger className="w-full space-y-4">
             <Rise className="mb-2 flex flex-col items-center text-center">
               <BrandMark size={72} />
@@ -542,7 +542,7 @@ function Auth() {
               </div>
             </Rise>
           </Stagger>
-        </main>
+        </div>
 
         {/* עוגן ל-reCAPTCHA השקוף של אימות הטלפון */}
         <div id="auth-recaptcha-anchor" />

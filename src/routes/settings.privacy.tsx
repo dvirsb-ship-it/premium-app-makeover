@@ -131,6 +131,7 @@ function PrivacySettings() {
                     onChange={(e) => setReason(e.target.value)}
                     rows={2}
                     placeholder={t("deleteReasonPh")}
+                    aria-label={t("deleteReasonAria")}
                     className="mt-3 w-full resize-none rounded-2xl border border-border bg-background/50 p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
                   />
                   <div className="mt-3 flex gap-2">

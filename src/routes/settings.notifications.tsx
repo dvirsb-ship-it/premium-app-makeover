@@ -40,12 +40,28 @@ const topics: { key: "caseUpdates" | "lawyerInterest"; icon: typeof Bell; title:
   { key: "lawyerInterest", icon: Sparkles, title: "notifLawyerInterest", sub: "notifLawyerInterestSub" },
 ];
 
-function Switch({ on, onToggle, busy }: { on: boolean; onToggle: () => void; busy?: boolean }) {
+/*
+ * label חובה ולא אופציונלי (16/8/2026): המתג ישב ליד כותרת גלויה אבל
+ * לא היה קשור אליה, וקורא מסך הכריז "מתג, פועל" בלי לומר של מה. WCAG
+ * 4.1.2. הפיכת ה-prop לחובה מונעת את החזרה של זה במתג הבא.
+ */
+function Switch({
+  on,
+  onToggle,
+  busy,
+  label,
+}: {
+  on: boolean;
+  onToggle: () => void;
+  busy?: boolean;
+  label: string;
+}) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={on}
+      aria-label={label}
       disabled={busy}
       onClick={onToggle}
       className={`relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50 ${on ? "bg-gold" : "bg-muted"}`}
@@ -139,7 +155,7 @@ function NotificationsSettings() {
                       <p className="text-sm font-bold text-foreground">{t(row.title)}</p>
                       <p className="text-xs text-muted-foreground">{t(row.sub)}</p>
                     </div>
-                    <Switch on={prefs[row.key]} onToggle={() => toggleTopic(row.key)} />
+                    <Switch on={prefs[row.key]} onToggle={() => toggleTopic(row.key)} label={t(row.title)} />
                   </div>
                 );
               })}
@@ -167,7 +183,7 @@ function NotificationsSettings() {
                   {/* support === null עד שהדפדפן נבדק — אותו טקסט בשרת ובלקוח */}
                 </div>
                 {support === "ready" && (
-                  <Switch on={pushOn} onToggle={() => void togglePush()} busy={pushBusy} />
+                  <Switch on={pushOn} onToggle={() => void togglePush()} busy={pushBusy} label={t("notifPush")} />
                 )}
               </div>
             </div>

@@ -687,6 +687,7 @@ function Intake() {
                 }}
                 rows={1}
                 placeholder={ready || notSuitable ? t("composerFixPlaceholder") : t("composerPlaceholder")}
+                aria-label={t("composerAria")}
                 className="max-h-32 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
               />
               <motion.button

@@ -1150,3 +1150,37 @@ html.welcome-snap {
 @media (prefers-reduced-motion: reduce) {
   .eyebrow-live { animation: none; }
 }
+
+/*
+ * ═══ "דלג לתוכן" — WCAG 2.4.1, רמה A (16/8/2026) ═══
+ *
+ * נכתב ידנית ולא כ-sr-only + focus:not-sr-only. הצירוף ההוא נראה נכון
+ * אבל לא עבד: המחלקות של focus: לא נוצרו, והאלמנט נשאר חתוך ב-
+ * clip-path: inset(50%) גם כשהיה ממוקד — כלומר מי שמנווט במקלדת קיבל
+ * פוקוס על משהו בלתי נראה. גרוע יותר מלא לשים כלום.
+ *
+ * ‎clip-path‎ ולא ‎display: none‎: אלמנט מוסתר ב-display אינו ממוקד
+ * כלל, והקישור היה יוצא מסדר הטאב ומפסיק להתקיים.
+ */
+.skip-link {
+  position: absolute;
+  inset-inline-start: 1rem;
+  top: 0;
+  z-index: 100;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-end-start-radius: 1rem;
+  border-end-end-radius: 1rem;
+  background: var(--gold);
+  padding: 0.75rem 1.25rem;
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+}
+.skip-link:focus {
+  position: fixed;
+  clip-path: none;
+  box-shadow: 0 8px 24px -6px oklch(0 0 0 / 0.35);
+  outline: 3px solid #0f172a;
+  outline-offset: 2px;
+}

@@ -95,6 +95,7 @@ function HelpSettings() {
                 value={msg}
                 onChange={(e) => setMsg(e.target.value)}
                 placeholder={t("helpMessagePh")}
+                aria-label={t("helpMessageAria")}
                 rows={5}
                 className="mt-4 w-full resize-none rounded-2xl border border-border bg-background/50 p-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-gold/50"
               />

@@ -268,7 +268,7 @@ function VerificationQueue() {
         ) : null;
       })()}
 
-      <main className="mt-5 flex-1 pb-10">
+      <div className="mt-5 flex-1 pb-10">
         {/*
           * מוצג *מעל* המונה והרשימות: כשהטעינה נכשלה, כל "אין X" שמתחת
           * אינו אמת אלא היעדר נתונים. בלי השורה הזו המשרד נראה שקט בדיוק
@@ -1157,7 +1157,7 @@ function VerificationQueue() {
         )}
       </AnimatePresence>
 
-      </main>
+      </div>
     </AppShell>
   );
 }

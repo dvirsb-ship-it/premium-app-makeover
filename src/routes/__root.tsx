@@ -8,8 +8,10 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { MotionConfig } from "motion/react";
 
 import appCss from "../styles.css?url";
+import { SkipToContent } from "../components/SkipToContent";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { AppStoreProvider } from "../lib/store";
 import { SettingsProvider } from "../lib/settings";
@@ -180,22 +182,38 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <SettingsProvider>
-        <AppStoreProvider>
-          <Splash
-            videoUrls={[handshakeAsset.url, dealAsset.url, lawAmbientAsset.url]}
-          >
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            {/*
-              תפריט הניווט מרונדר כאן פעם אחת, ולא בכל מסך בנפרד.
-              כשכל מסך רינדר אותו בעצמו הוא נשכח — במסך הבית של הלקוח
-              ובמסכי פרטי התיק — והתוצאה הייתה חוויה שונה בין הצדדים.
-            */}
-            <BottomNav />
-          </Splash>
-          <GlobalHaptics />
-          <Toaster />
-        </AppStoreProvider>
+        {/*
+          reducedMotion="user" — framer מצייר בסגנון inline מ-JS, ולכן
+          בלוק ה-@media ב-CSS מעולם לא עצר אותו. 319 אנימציות התעלמו
+          מבקשת המשתמש להפחית תנועה עד שהשורה הזו נוספה (16/8/2026).
+        */}
+        <MotionConfig reducedMotion="user">
+          <AppStoreProvider>
+            <SkipToContent />
+            <Splash
+              videoUrls={[handshakeAsset.url, dealAsset.url, lawAmbientAsset.url]}
+            >
+              {/*
+                <main> יחיד לכל האפליקציה — גם ציון הדרך שקורא מסך קופץ
+                אליו, וגם היעד של "דלג לתוכן". מסכים בודדים לא מרנדרים
+                <main> משלהם; שניים שכן עשו זאת הוסבו ל-div כדי שלא יהיו
+                שני ראשיים באותו עמוד.
+              */}
+              <main id="main-content" tabIndex={-1} className="outline-none">
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+              </main>
+              {/*
+                תפריט הניווט מרונדר כאן פעם אחת, ולא בכל מסך בנפרד.
+                כשכל מסך רינדר אותו בעצמו הוא נשכח — במסך הבית של הלקוח
+                ובמסכי פרטי התיק — והתוצאה הייתה חוויה שונה בין הצדדים.
+              */}
+              <BottomNav />
+            </Splash>
+            <GlobalHaptics />
+            <Toaster />
+          </AppStoreProvider>
+        </MotionConfig>
       </SettingsProvider>
     </QueryClientProvider>
   );

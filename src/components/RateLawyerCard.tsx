@@ -85,6 +85,7 @@ export function RateLawyerCard({
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder={t("ratePlaceholder")}
+            aria-label={t("rateNoteAria")}
             maxLength={500}
             rows={3}
             className="mt-4 w-full resize-none rounded-2xl border border-border bg-card px-4 py-3 text-[13.5px] text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gold/70"

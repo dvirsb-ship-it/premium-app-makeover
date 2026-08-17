@@ -182,6 +182,7 @@ function PresentationSettings() {
               onChange={(e) => setBio(e.target.value.slice(0, BIO_MAX_CHARS))}
               rows={4}
               placeholder={t("bioPlaceholder")}
+              aria-label={t("bioAria")}
               className="mt-3 w-full resize-none rounded-2xl border border-border bg-background/60 p-3 text-[14px] leading-relaxed text-foreground outline-none focus:border-gold/60"
             />
             {/* מונה ולא שגיאה: לומר "ארוך מדי" אחרי שכתב זה לבזבז לו את הזמן */}

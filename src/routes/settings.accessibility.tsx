@@ -24,6 +24,7 @@ const sections: { title: StringKey; body: StringKey }[] = [
   { title: "a11ySection2Title", body: "a11ySection2Body" },
   { title: "a11ySection3Title", body: "a11ySection3Body" },
   { title: "a11ySection4Title", body: "a11ySection4Body" },
+  { title: "a11ySection5Title", body: "a11ySection5Body" },
 ];
 
 function AccessibilitySettings() {

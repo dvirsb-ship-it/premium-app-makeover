@@ -399,6 +399,7 @@ function LawyerCaseDetail() {
                 value={msNote}
                 onChange={(e) => setMsNote(e.target.value)}
                 placeholder={t("msNotePh")}
+                aria-label={t("msNoteAria")}
               />
               {confirmClose && (
                 <p className="mt-3 rounded-2xl border border-destructive/30 bg-destructive/10 px-3.5 py-2.5 text-[11.5px] leading-relaxed text-foreground">
@@ -708,6 +709,7 @@ function LawyerCaseDetail() {
                     onChange={(e) => setAppealReason(e.target.value)}
                     rows={3}
                     placeholder={t("appealPlaceholder")}
+                    aria-label={t("appealReasonAria")}
                     className={`${offerInputCls} mt-2 resize-none`}
                   />
                   <div className="mt-3 flex gap-2">
@@ -994,6 +996,7 @@ function LawyerCaseDetail() {
                       value={expensesEstimate}
                       onChange={(e) => setExpensesEstimate(e.target.value)}
                       placeholder={t("offerExpensesPh")}
+                      aria-label={t("expensesEstimateAria")}
                     />
                   )}
                 </div>
