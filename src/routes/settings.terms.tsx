@@ -26,6 +26,13 @@ const sections: { title: StringKey; body: StringKey }[] = [
   { title: "termsSection6Title", body: "termsSection6Body" },
   { title: "termsSection5Title", body: "termsSection5Body" },
   { title: "termsSection7Title", body: "termsSection7Body" },
+  /*
+   * סעיף 8 — חובת היידוע (17/8/2026). תיקון 13 לחוק הגנת הפרטיות,
+   * בתוקף מ-14/8/2025, מחייב לומר בעת איסוף מידע: שהמסירה מרצון ומה
+   * קורה בלעדיה, לאילו מטרות, למי המידע מועבר, ושקיימת זכות עיון
+   * ותיקון. עד עכשיו אף אחד מאלה לא נאמר בשום מקום.
+   */
+  { title: "termsSection8Title", body: "termsSection8Body" },
 ];
 
 function TermsSettings() {
