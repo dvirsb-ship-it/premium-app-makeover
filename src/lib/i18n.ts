@@ -782,7 +782,7 @@ export const strings = {
   expensesClient: { he: "על הלקוח", en: "Client pays" },
   offerExpensesPh: { he: "הערכה, למשל: כ-3,000₪ אגרה וחוות דעת", en: "Estimate, e.g. about ₪3,000 in fees and opinions" },
   offerExpensesShort: { he: "הוצאות", en: "Expenses" },
-  offerOfAward: { he: "מהפיצוי שייתקבל", en: "of the award" },
+  offerOfAward: { he: "מהפיצוי שיתקבל", en: "of the award" },
   offerPerHour: { he: "לשעת עבודה", en: "per hour" },
   offerFixedTotal: { he: "סכום כולל", en: "total" },
   offerNonBinding: { he: "ההצעה היא הערכה ראשונית בלבד ואינה מחייבת. המחייב הוא הסכם שכר טרחה חתום. ודאו שההצעה עומדת בכללי לשכת עורכי הדין החלים על התיק.", en: "This is a preliminary, non-binding estimate. Only a signed fee agreement is binding. Make sure it complies with the Bar rules that apply to this case." },
