@@ -111,6 +111,7 @@ export const strings = {
    */
   term5: { he: "תיאור המקרה שאמסור יעובד ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך הבדיקה הראשונית בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description I provide will be processed by a Google AI service on servers in the European Union, for the initial check only. ID number, phone and email are stripped automatically before processing." },
   term6: { he: "אם אציין שקיים בידי תיעוד — הוא באמת קיים, ואביא אותו לעורך הדין שאבחר.", en: "If I state that I have documentation — it genuinely exists, and I will bring it to the lawyer I choose." },
+  term7: { he: "מלאו לי 18 שנים, או שאני הורה או אפוטרופוס הפונה בשם קטין.", en: "I am 18 or older, or a parent or legal guardian applying on behalf of a minor." },
   agreeText: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I've read and agree to the above" },
   confirmContinue: { he: "אני מאשר/ת וממשיך/ה", en: "I agree and continue" },
 
@@ -469,8 +470,8 @@ export const strings = {
   termsSub: { he: "השימוש בשירות כפוף לתנאים הבאים", en: "Use of the service is subject to the following terms" },
   termsSection1Title: { he: "1. אודות השירות", en: "1. About the service" },
   termsSection1Body: {
-    he: "JustAsk מהווה פלטפורמת חיבור בין נפגעים לעורכי דין. השירות אינו תחליף לייעוץ משפטי מקצועי ואינו יוצר יחסי עו״ד–לקוח.",
-    en: "JustAsk is a matching platform between people and lawyers. The service is not a substitute for professional legal advice and does not create an attorney-client relationship.",
+    he: "JustAsk מהווה פלטפורמת חיבור בין נפגעים לעורכי דין. השירות אינו תחליף לייעוץ משפטי מקצועי ואינו יוצר יחסי עו״ד–לקוח. השירות מיועד לבני 18 ומעלה; פנייה בעניינו של קטין תוגש בידי הורה או אפוטרופוס.",
+    en: "JustAsk is a matching platform between people and lawyers. The service is not a substitute for professional legal advice and does not create an attorney-client relationship. The service is intended for ages 18 and up; a matter concerning a minor must be submitted by a parent or legal guardian.",
   },
   termsSection2Title: { he: "2. אמינות המידע", en: "2. Accuracy of information" },
   termsSection2Body: {

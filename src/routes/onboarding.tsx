@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Check, Cpu, FileCheck2, Lock, ScrollText, Sparkles, UserRound } from "lucide-react";
+import { Check, Cpu, FileCheck2, Lock, ScrollText, Sparkles, UserCheck, UserRound } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -34,6 +34,14 @@ const terms: { icon: typeof FileCheck2; key: StringKey }[] = [
   { icon: Sparkles, key: "term4" },
   { icon: Cpu, key: "term5" },
   { icon: UserRound, key: "term6" },
+  /*
+   * סעיף הגיל (17/8/2026) — היה חסר לגמרי: שירות שאוסף תיאורי פגיעה
+   * ומידע רפואי, בלי שום דרישת בגירות. הנוסח מכניס את ההורה במקום
+   * לחסום אותו: ילד שנפגע הוא בדיוק המקרה שבו ההורה פונה, וזה מסלול
+   * מותר — ההורה הוא המשתמש, והקטין הוא נשוא הפנייה.
+   * שינוי כאן מחייב הקפצת TERMS_VERSION ב-db.ts.
+   */
+  { icon: UserCheck, key: "term7" },
 ];
 
 function Onboarding() {

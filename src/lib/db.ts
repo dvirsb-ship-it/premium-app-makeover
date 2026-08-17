@@ -81,11 +81,21 @@ export async function readUserGate(
   };
 }
 
+/**
+ * גרסת נוסח ההצהרה שבמסך הפתיחה. מוקפצת בכל שינוי ברשימת הסעיפים,
+ * כדי שאפשר יהיה לדעת בדיוק איזה נוסח כל משתמש אישר — אותו עיקרון
+ * כמו OFFERS_REQUEST_VERSION.
+ *
+ * 1 — ששת הסעיפים המקוריים.
+ * 2 — נוסף סעיף הגיל (מלאו לי 18 / הורה או אפוטרופוס). 17/8/2026.
+ */
+export const TERMS_VERSION = 2;
+
 /** חותם שהמשתמש אישר את התנאים. נכתב פעם אחת, בסיום מסך הפתיחה. */
 export async function markUserOnboarded(uid: string): Promise<void> {
   await setDoc(
     doc(fbDb(), "users", uid),
-    { onboardedAt: serverTimestamp() },
+    { onboardedAt: serverTimestamp(), termsVersion: TERMS_VERSION },
     { merge: true },
   );
 }
