@@ -884,3 +884,111 @@ describe("משיכת פנייה ע\"י הפונה", () => {
     );
   });
 });
+
+/* ---------- פרצה 6: התזכיר חי מחוץ לחלון של התיק ---------- */
+
+/*
+ * שמונה בלוקי חוקים לא נגעו בהם בדיקות עד 18/8/2026, וביניהם השניים
+ * שנושאים את המידע הרגיש ביותר: התזכיר ופרטי הקשר. הקבוצה הזו סוגרת
+ * את שניהם, ואת הסיבה שהפער נוצר מלכתחילה — **תת-אוסף אינו יורש את
+ * חוקי האב ב-Firestore.** חסימת מסמך התיק אינה חוסמת מה שמתחתיו.
+ */
+describe("תת-אוספים של תיק", () => {
+  async function seedMemo(
+    caseId: string,
+    status: string,
+    chosenLawyerId: string | null = null,
+  ) {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `cases/${caseId}`), {
+        clientId: "client1",
+        status,
+        ...(chosenLawyerId ? { chosenLawyerId } : {}),
+        interestedIds: [],
+        createdAt: Date.now(),
+      });
+      await setDoc(doc(db, `cases/${caseId}/memo/full`), { text: "פרטים רפואיים" });
+    });
+  }
+
+  it("עו״ד מאושר קורא תזכיר של תיק שנמצא בפיד", async () => {
+    await seedMemo("mFeed", "matching");
+    await assertSucceeds(getDoc(doc(as("lawyerOk"), "cases/mFeed/memo/full")));
+  });
+
+  it("הנבחר ממשיך לקרוא אחרי החיבור", async () => {
+    await seedMemo("mMine", "connected", "lawyerOk");
+    await assertSucceeds(getDoc(doc(as("lawyerOk"), "cases/mMine/memo/full")));
+  });
+
+  it("עו״ד אחר אינו קורא תזכיר של תיק שחובר למישהו", async () => {
+    await seedMemo("mTaken", "connected", "lawyerOther");
+    await assertFails(getDoc(doc(as("lawyerOk"), "cases/mTaken/memo/full")));
+  });
+
+  it("תיק סגור אינו נקרא יותר", async () => {
+    await seedMemo("mClosed", "closed");
+    await assertFails(getDoc(doc(as("lawyerOk"), "cases/mClosed/memo/full")));
+  });
+
+  it("תיק שנדחה אינו נקרא", async () => {
+    await seedMemo("mRejected", "rejected");
+    await assertFails(getDoc(doc(as("lawyerOk"), "cases/mRejected/memo/full")));
+  });
+
+  it("עו״ד שטרם אושר אינו קורא תזכיר כלל", async () => {
+    await seedMemo("mFeed2", "matching");
+    await assertFails(getDoc(doc(as("lawyerPending"), "cases/mFeed2/memo/full")));
+  });
+
+  it("הלקוח עצמו אינו קורא את התזכיר — הוא נכתב לעורך הדין", async () => {
+    await seedMemo("mFeed3", "matching");
+    await assertFails(getDoc(doc(as("client1"), "cases/mFeed3/memo/full")));
+  });
+
+  it("איש אינו כותב תזכיר מהדפדפן", async () => {
+    await seedMemo("mFeed4", "matching");
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "cases/mFeed4/memo/full"), { text: "מזויף" }),
+    );
+  });
+
+  /* ---------- פרטי הקשר של עורך הדין על התיק ---------- */
+
+  async function seedContact(caseId: string, chosenLawyerId: string | null) {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      const db = ctx.firestore();
+      await setDoc(doc(db, `cases/${caseId}`), {
+        clientId: "client1",
+        status: chosenLawyerId ? "connected" : "has_interest",
+        ...(chosenLawyerId ? { chosenLawyerId } : {}),
+        interestedIds: ["lawyerOk"],
+        createdAt: Date.now(),
+      });
+      await setDoc(doc(db, `cases/${caseId}/contacts/lawyerOk`), { phone: "050" });
+    });
+  }
+
+  it("הלקוח קורא פרטי קשר רק של מי שבחר", async () => {
+    await seedContact("kMine", "lawyerOk");
+    await assertSucceeds(getDoc(doc(as("client1"), "cases/kMine/contacts/lawyerOk")));
+  });
+
+  it("הלקוח אינו קורא פרטי קשר לפני שבחר", async () => {
+    await seedContact("kOpen", null);
+    await assertFails(getDoc(doc(as("client1"), "cases/kOpen/contacts/lawyerOk")));
+  });
+
+  it("עו״ד אינו קורא את פרטי הקשר של עו״ד אחר", async () => {
+    await seedContact("kOther", "lawyerOk");
+    await assertFails(getDoc(doc(as("lawyerOther"), "cases/kOther/contacts/lawyerOk")));
+  });
+
+  it("עו״ד אינו כותב פרטי קשר בשם עמית", async () => {
+    await seedContact("kSpoof", null);
+    await assertFails(
+      setDoc(doc(as("lawyerOther"), "cases/kSpoof/contacts/lawyerOk"), { phone: "052" }),
+    );
+  });
+});

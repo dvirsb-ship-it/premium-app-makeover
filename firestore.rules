@@ -156,13 +156,30 @@ service cloud.firestore {
       );
 
       allow delete: if false;
-
       /*
-       * התזכיר המשפטי המלא — עבודה שנועדה לעורכי דין מאומתים.
-       * נכתב מהשרת (עוקף חוקים); בעתיד תיווסף כאן בדיקת מנוי Pro.
+       * התזכיר — הפרטים הרפואיים והנפשיים של הפונה, בשלמותם.
+       *
+       * עד 18/8/2026 התנאי היה `isApprovedLawyer()` בלבד, בלי שום תלות
+       * בסטטוס התיק. מסמך התיק עצמו כן מוגבל ל-matching/has_interest,
+       * אבל **תת-אוסף אינו יורש את חוקי האב ב-Firestore** — כל נתיב
+       * נבדק לעצמו. כלומר עורך דין שראה תיק בפיד ורשם את המזהה יכול
+       * היה לקרוא את התזכיר גם אחרי שהתיק חובר לעורך דין אחר, נסגר או
+       * נדחה — בסתירה להתחייבות שהוא עצמו חותם עליה: "כל פנייה שאראה,
+       * גם כזו שלא איבחר בה, היא מידע חסוי".
+       *
+       * עכשיו: בפיד, או שהוא הנבחר. הנבחר ממשיך לקרוא כי הוא עובד על
+       * התיק. לשימוש דרך הממשק אין שינוי — כל תיק שהוא רשאי לפתוח
+       * עומד גם בתנאי הזה.
        */
       match /memo/{docId} {
-        allow read: if isApprovedLawyer() || isAdmin();
+        allow read: if isAdmin() || (
+          isApprovedLawyer() && (
+            get(/databases/$(database)/documents/cases/$(caseId)).data.status
+              in ['matching', 'has_interest']
+            || get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId
+              == request.auth.uid
+          )
+        );
         allow write: if false;
       }
 
