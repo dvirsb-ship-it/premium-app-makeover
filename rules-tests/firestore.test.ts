@@ -992,3 +992,103 @@ describe("תת-אוספים של תיק", () => {
     );
   });
 });
+
+/* ---------- ששת הבלוקים שנשארו בלי כיסוי ---------- */
+
+/*
+ * לא פרצות ידועות — כיסוי. כל אחד מהם נקרא ידנית ב-18/8/2026 ונמצא
+ * תקין; הבדיקות כאן מקבעות את ההתנהגות כדי ששינוי עתידי לא יפתח
+ * אותה בשקט, כפי שקרה לתזכיר.
+ */
+describe("אוספים ללא כיסוי קודם", () => {
+  it("lawyerProfiles — הבעלים כותב, אחר לא", async () => {
+    await assertSucceeds(setDoc(doc(as("lawyerOk"), "lawyerProfiles/lawyerOk"), { bio: "שלי" }));
+    await assertFails(setDoc(doc(as("lawyerOther"), "lawyerProfiles/lawyerOk"), { bio: "גנוב" }));
+  });
+
+  /*
+   * הפרופיל אינו דורש אימות — כל מחובר יכול לכתוב פרופיל על ה-uid
+   * שלו. היום זה בלתי מזיק: אין מסך שמפרט פרופילים, והם נקראים לפי
+   * uid של עורך דין שכבר הגיש הצעה. **זה משתנה ברגע שיהיה מדריך** —
+   * ואז יידרש כאן isApprovedLawyer(). הבדיקה מתעדת את המצב הנוכחי
+   * כדי שהמעבר יהיה החלטה ולא הפתעה.
+   */
+  it("lawyerProfiles — כרגע גם לקוח יכול לכתוב פרופיל על עצמו", async () => {
+    await assertSucceeds(setDoc(doc(as("client1"), "lawyerProfiles/client1"), { bio: "אני" }));
+  });
+
+  it("lawyerContacts — רק הבעלים והאדמין קוראים", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "lawyerContacts/lawyerOk"), { phone: "050" });
+    });
+    await assertSucceeds(getDoc(doc(as("lawyerOk"), "lawyerContacts/lawyerOk")));
+    await assertSucceeds(getDoc(doc(as("admin", SUPER), "lawyerContacts/lawyerOk")));
+    await assertFails(getDoc(doc(as("lawyerOther"), "lawyerContacts/lawyerOk")));
+    await assertFails(getDoc(doc(as("client1"), "lawyerContacts/lawyerOk")));
+  });
+
+  it("lawyerLeads — איש אינו כותב, רק אדמין קורא", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "lawyerLeads/l1"), { email: "a@b.c" });
+    });
+    await assertSucceeds(getDoc(doc(as("admin", SUPER), "lawyerLeads/l1")));
+    await assertFails(getDoc(doc(as("lawyerOk"), "lawyerLeads/l1")));
+    await assertFails(setDoc(doc(as("lawyerOk"), "lawyerLeads/l2"), { email: "x@y.z" }));
+  });
+
+  it("system — אדמין קורא, איש אינו כותב", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "system/config"), { v: 1 });
+    });
+    await assertSucceeds(getDoc(doc(as("admin", SUPER), "system/config")));
+    await assertFails(getDoc(doc(as("lawyerOk"), "system/config")));
+    await assertFails(setDoc(doc(as("admin", SUPER), "system/config"), { v: 2 }));
+  });
+
+  it("appeals — מגיש בשמו בלבד, ורק אדמין-על מכריע", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "appeals/a1"), { lawyerId: "lawyerOk", status: "open" }),
+    );
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "appeals/a2"), { lawyerId: "lawyerOther", status: "open" }),
+    );
+    // הצופה (VIEWER) הוא אדמין אך לא אדמין-על — אינו מכריע
+    await assertFails(
+      updateDoc(doc(as("viewer", VIEWER), "appeals/a1"), { status: "accepted" }),
+    );
+    await assertSucceeds(
+      updateDoc(doc(as("admin", SUPER), "appeals/a1"), { status: "accepted", reviewedAt: Date.now() }),
+    );
+  });
+
+  it("milestones — הנבחר מסמן בחותמת אמת, ואינו מתארך אחורה", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "cases/msCase"), {
+        clientId: "client1",
+        chosenLawyerId: "lawyerOk",
+        status: "connected",
+        interestedIds: [],
+        createdAt: Date.now(),
+      });
+    });
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "cases/msCase/milestones/met"), { key: "met", at: Date.now() }),
+    );
+    // חותמת ישנה בשבוע — נדחית
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "cases/msCase/milestones/filed"), {
+        key: "filed",
+        at: Date.now() - 7 * 24 * 60 * 60 * 1000,
+      }),
+    );
+    // עו״ד שאינו הנבחר
+    await assertFails(
+      setDoc(doc(as("lawyerOther"), "cases/msCase/milestones/closed"), {
+        key: "closed",
+        at: Date.now(),
+      }),
+    );
+    // אבן דרך שסומנה אינה נמחקת
+    await assertFails(updateDoc(doc(as("lawyerOk"), "cases/msCase/milestones/met"), { at: 1 }));
+  });
+});
