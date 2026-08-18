@@ -88,3 +88,24 @@ env:
     secret: CRON_SECRET
     availability:
       - RUNTIME
+
+  # ── Sentry — שגיאות שקורות אצל המשתמש, לא אצלנו (18/8/2026) ──
+  #
+  # הקוד ב-router.tsx כבר קרא ל-Sentry.init אבל היה עטוף ב-if (dsn),
+  # והמשתנה מעולם לא הוגדר בייצור — כלומר המנגנון היה מותקן ומנותק.
+  # מכאן שגיאת דפדפן אצל אדם אמיתי מגיעה אלינו במקום להיעלם איתו.
+  #
+  # ה-DSN אינו סוד: הוא נשלח לדפדפן של כל משתמש ממילא, ולכן value
+  # ולא secret. הוא מזהה לאן לשלוח, לא מרשה לקרוא.
+  #
+  # BUILD ולא RUNTIME — Vite מטמיע משתני VITE_ בזמן הבנייה.
+  - variable: VITE_SENTRY_DSN
+    value: https://bac862da7c4e8dca581c141d052a0943@o4511932239380480.ingest.de.sentry.io/4511932291547216
+    availability:
+      - BUILD
+
+  # מפריד בין שגיאות מהייצור לבין רעש מפיתוח מקומי
+  - variable: VITE_SENTRY_ENVIRONMENT
+    value: production
+    availability:
+      - BUILD
