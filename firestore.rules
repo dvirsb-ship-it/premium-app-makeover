@@ -336,9 +336,20 @@ service cloud.firestore {
 
     // ערעורי ולידציה — עו"ד פותח וקורא את שלו; האדמין קורא הכל ומכריע
     match /appeals/{id} {
-      allow create: if isLawyer()
+      /*
+       * המזהה חייב להיות lawyerId_caseId — ערעור אחד לעורך דין לתיק
+       * (18/8/2026). חוקי Firestore אינם יודעים לספור מסמכים, אבל הם
+       * כן אוכפים את **צורת המזהה**, וזה מספיק: אי אפשר לפתוח שני
+       * ערעורים על אותה החלטה, ולכן אי אפשר להציף את תור האדמין
+       * בהגשה חוזרת. הגשה נוספת דורסת את הקיימת.
+       *
+       * update מותר לעורך הדין רק כשהוא עצמו כותב ערעור פתוח מחדש;
+       * ההכרעה נשארת בלעדית לאדמין-על בכלל שמתחת.
+       */
+      allow create, update: if isLawyer()
         && request.resource.data.lawyerId == request.auth.uid
-        && request.resource.data.status == 'open';
+        && request.resource.data.status == 'open'
+        && id == request.auth.uid + '_' + request.resource.data.caseId;
       allow read: if signedIn()
         && (resource.data.lawyerId == request.auth.uid || isAdmin());
       allow update: if isSuperAdmin()

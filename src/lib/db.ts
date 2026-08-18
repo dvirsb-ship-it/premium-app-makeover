@@ -570,7 +570,19 @@ export async function submitAppeal(input: {
   lawyerName: string;
   reason: string;
 }): Promise<void> {
-  await addDoc(collection(fbDb(), "appeals"), {
+  /*
+   * מזהה דטרמיניסטי: ערעור אחד לעורך דין לתיק (18/8/2026).
+   *
+   * קודם זה היה addDoc עם מזהה אוטומטי, כלומר אפשר היה להגיש את אותו
+   * ערעור אלף פעמים ולהציף את תור האדמין. חוקי Firestore אינם יודעים
+   * לספור מסמכים, אבל הם כן יודעים לאכוף **מה יהיה המזהה** — ולכן
+   * הגבול נובע מהצורה ולא מספירה.
+   *
+   * וזה גם נכון סמנטית: מערערים על החלטה אחת בתיק אחד, פעם אחת.
+   * הגשה חוזרת מעדכנת את אותו ערעור במקום לפתוח חדש.
+   */
+  const id = `${input.lawyerId}_${input.caseId}`;
+  await setDoc(doc(fbDb(), "appeals", id), {
     ...input,
     status: "open",
     createdAt: Date.now(),

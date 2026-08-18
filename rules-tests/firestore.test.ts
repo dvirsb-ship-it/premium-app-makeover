@@ -1046,18 +1046,25 @@ describe("אוספים ללא כיסוי קודם", () => {
   });
 
   it("appeals — מגיש בשמו בלבד, ורק אדמין-על מכריע", async () => {
+    // המזהה חייב להיות lawyerId_caseId מאז 18/8/2026 — ראו describe("תקרות")
     await assertSucceeds(
-      setDoc(doc(as("lawyerOk"), "appeals/a1"), { lawyerId: "lawyerOk", status: "open" }),
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOk_ca"), {
+        lawyerId: "lawyerOk", caseId: "ca", status: "open",
+      }),
     );
     await assertFails(
-      setDoc(doc(as("lawyerOk"), "appeals/a2"), { lawyerId: "lawyerOther", status: "open" }),
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOther_ca"), {
+        lawyerId: "lawyerOther", caseId: "ca", status: "open",
+      }),
     );
     // הצופה (VIEWER) הוא אדמין אך לא אדמין-על — אינו מכריע
     await assertFails(
-      updateDoc(doc(as("viewer", VIEWER), "appeals/a1"), { status: "accepted" }),
+      updateDoc(doc(as("viewer", VIEWER), "appeals/lawyerOk_ca"), { status: "accepted" }),
     );
     await assertSucceeds(
-      updateDoc(doc(as("admin", SUPER), "appeals/a1"), { status: "accepted", reviewedAt: Date.now() }),
+      updateDoc(doc(as("admin", SUPER), "appeals/lawyerOk_ca"), {
+        status: "accepted", reviewedAt: Date.now(),
+      }),
     );
   });
 
@@ -1090,5 +1097,82 @@ describe("אוספים ללא כיסוי קודם", () => {
     );
     // אבן דרך שסומנה אינה נמחקת
     await assertFails(updateDoc(doc(as("lawyerOk"), "cases/msCase/milestones/met"), { at: 1 }));
+  });
+});
+
+/* ---------- תקרות: מה יכול להציף אותנו ---------- */
+
+/*
+ * מיפוי משטח ההצפה (18/8/2026). חוקי Firestore אינם יודעים לספור
+ * מסמכים, ולכן תקרה שנאכפת בחוקים חייבת לנבוע מ**צורת המזהה**.
+ * הערעורים הם המקרה שבו זה גם נכון סמנטית.
+ */
+describe("תקרות", () => {
+  it("ערעור — מזהה חייב להיות lawyerId_caseId", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOk_c1"), {
+        lawyerId: "lawyerOk", caseId: "c1", status: "open",
+      }),
+    );
+  });
+
+  it("ערעור — מזהה חופשי נדחה, ולכן אי אפשר להציף", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "appeals/spam1"), {
+        lawyerId: "lawyerOk", caseId: "c1", status: "open",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "appeals/spam2"), {
+        lawyerId: "lawyerOk", caseId: "c1", status: "open",
+      }),
+    );
+  });
+
+  it("ערעור — אי אפשר להגיש בשם עורך דין אחר", async () => {
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOther_c1"), {
+        lawyerId: "lawyerOther", caseId: "c1", status: "open",
+      }),
+    );
+  });
+
+  it("ערעור — הגשה חוזרת דורסת ואינה פותחת מסמך שני", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOk_c2"), {
+        lawyerId: "lawyerOk", caseId: "c2", status: "open",
+      }),
+    );
+    await assertSucceeds(
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOk_c2"), {
+        lawyerId: "lawyerOk", caseId: "c2", status: "open", reason: "ניסוח מתוקן",
+      }),
+    );
+  });
+
+  it("ערעור — עורך דין אינו מכריע בעצמו", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "appeals/lawyerOk_c3"), {
+        lawyerId: "lawyerOk", caseId: "c3", status: "open",
+      });
+    });
+    await assertFails(
+      setDoc(doc(as("lawyerOk"), "appeals/lawyerOk_c3"), {
+        lawyerId: "lawyerOk", caseId: "c3", status: "accepted",
+      }),
+    );
+  });
+
+  it("פניית תמיכה — נפתחת בשם המגיש בלבד", async () => {
+    await assertSucceeds(
+      setDoc(doc(as("client1"), "supportTickets/t1"), {
+        userId: "client1", email: "a@b.c", message: "שלום", status: "open",
+      }),
+    );
+    await assertFails(
+      setDoc(doc(as("client1"), "supportTickets/t2"), {
+        userId: "lawyerOk", email: "a@b.c", message: "התחזות", status: "open",
+      }),
+    );
   });
 });

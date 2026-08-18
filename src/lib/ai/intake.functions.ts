@@ -685,10 +685,19 @@ export interface NotifyInterestInput {
 export const notifyInterestFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as NotifyInterestInput)
   .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const { requireUser, adminGetCase, adminGetDoc, recordLawyerResponse, notify, withErrorLog } =
-      await import("./server-admin");
+    const {
+      requireUser, adminGetCase, adminGetDoc, recordLawyerResponse, notify,
+      enforceDailyCap, withErrorLog,
+    } = await import("./server-admin");
     return withErrorLog("notifyInterest", async () => {
       const uid = await requireUser(data.idToken);
+      /*
+       * התקרה כאן ולא על הכתיבה (18/8/2026): ההצעה עצמה נכתבת מהדפדפן
+       * וחוקי המסד מגבילים אותה לעשר לתיק, כלומר עורך דין תופס מקום
+       * אחד ואינו חוסם. מה שלא היה חסום זו **ההתראה** — והיא מגיעה
+       * לפונה עצמו, על כל תיק בפיד, בלי גבול. זה הנתיב שמציף אדם אמיתי.
+       */
+      await enforceDailyCap(uid, "notifyInterest");
       const c = await adminGetCase(data.caseId);
       if (!c) return { sent: false };
 
