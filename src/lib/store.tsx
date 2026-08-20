@@ -8,24 +8,20 @@ import {
   type ReactNode,
 } from "react";
 import { onAuthStateChanged, signOut as fbSignOut, type User } from "firebase/auth";
-import type { Case, FeedCase, Lawyer, Role } from "./types";
-import type { CaseOffer } from "./db";
+import type { Case, Role } from "./types";
 
 /** ההצעה כפי שהעו"ד ממלא אותה — חותמת הזמן נוספת בשכבת הנתונים. */
-type OfferInput = Omit<CaseOffer, "at" | "fee">;
 import { toast } from "sonner";
 import { LANGS, type Lang } from "./settings";
 import { translate } from "./i18n";
 import { fbAuth, isBrowser, isFirebaseConfigured } from "./firebase";
 import { consumeRedirectSignIn, hasPendingRedirect } from "./auth-service";
-import { maskLawyerName } from "./privacy";
 import { isOnboarded } from "./post-auth-route";
 import { matchScore, matchTone } from "./match";
 import {
   categoryMatchesSpecialties,
   chooseLawyerDb,
   ensureUserDoc,
-  expressInterestDb,
   markNotificationRead,
   watchLawyerProfile,
   readUserGate,
@@ -54,15 +50,11 @@ interface AppState {
   addCase: (c: Case) => void;
   chooseLawyer: (caseId: string, lawyerId: string) => void;
   getCase: (id: string) => Case | undefined;
-  feed: FeedCase[];
   /** true כשטעינת הפיד נכשלה (לרוב הרשאות) — להבדיל מ״אין פניות״. */
-  feedError: boolean;
   /** true כשטעינת תיקי הלקוח נכשלה — להבדיל מ״אין תיקים״. */
   casesError: boolean;
   /** ה-snapshot הראשון הגיע (או נכשל). לפניו "אין תיקים" אינו נתון. */
   casesLoaded: boolean;
-  expressInterest: (feedId: string, offer?: OfferInput) => void;
-  getFeedCase: (id: string) => FeedCase | undefined;
   /** משתמש Firebase מחובר (null = אורח). */
   user: User | null;
   /** false עד שסטטוס ההתחברות ידוע — מונע ניתוב שגוי בזמן רענון. */
@@ -113,9 +105,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
   const [role, setRoleState] = useState<Role | null>(null);
   const [onboarded, setOnboarded] = useState<boolean | null>(null);
   const [cases, setCases] = useState<Case[]>([]);
-  const [feed, setFeed] = useState<FeedCase[]>([]);
   // פיד שנכשל נראה בדיוק כמו פיד ריק — לכן מבדילים ביניהם במפורש
-  const [feedError, setFeedError] = useState(false);
   // "אין תיקים" מול "לא הצלחנו לטעון" — ללקוח זה ההבדל בין שקט לבהלה
   const [casesError, setCasesError] = useState(false);
   const [casesLoaded, setCasesLoaded] = useState(false);
@@ -314,9 +304,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
    * עד שהפונה בוחר — הפניות מגיעות דרך referrals (LawyerReferrals),
    * והמאזין הזה רק שילם קריאות על רשימה שאיש אינו מציג.
    *
-   * feed/feedError/expressInterest נשארים בממשק כערכים אינרטיים עד
-   * שמסכי המודל הישן (lawyer-case במצב פיד) יוסרו גם הם — כך הקוד
-   * הישן מת בשקט במקום להישבר בקומפילציה.
+   * (feed/feedError/expressInterest הוסרו סופית אחרי שמסך lawyer-case
+   * צומצם למצב המחובר בלבד.)
    */
 
   const setRole = useCallback(
@@ -390,73 +379,6 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
     [cases],
   );
 
-  const expressInterest = useCallback(
-    (feedId: string, offer?: OfferInput) => {
-      setFeed((prev) =>
-        prev.map((f) =>
-          f.id === feedId
-            ? { ...f, expressed: true, interestedCount: f.interestedCount + 1 }
-            : f,
-        ),
-      );
-      const u = user ?? fbAuth().currentUser;
-      if (!u) return;
-      // שם מוסתר עד לחיבור רשמי — מניעת עקיפת הפלטפורמה
-      const displayName = maskLawyerName(myLawyerProfile?.name || u.displayName || "עורך דין");
-      /*
-       * הנתונים נלקחים מהפרופיל שעורך הדין מילא באימות ולא מומצאים.
-       * specialty/firm/blurb היו קבועים ריקים, ולכן דף הפרופיל שהלקוח
-       * רואה לפני הבחירה היה כותרות בלי תוכן.
-       */
-      const profile: Lawyer = {
-        id: u.uid,
-        name: displayName,
-        firm: "",
-        specialty: "",
-        rating: 0,
-        reviews: 0,
-        years: myLawyerProfile?.barYear
-          ? Math.max(0, new Date().getFullYear() - Number(myLawyerProfile.barYear))
-          : 0,
-        initials: displayName.slice(0, 2),
-        blurb: "",
-        specialties: myLawyerProfile?.specialties ?? [],
-        city: myLawyerProfile?.city ?? "",
-        university: myLawyerProfile?.university ?? "",
-        languages: myLawyerProfile?.languages ?? [],
-        /*
-         * מצולמים לתוך התיק ולא נקראים ממנו בזמן אמת: זה מה שהלקוח ראה
-         * ברגע שבחר. שדות ריקים אינם נכתבים — Firestore דוחה undefined.
-         */
-        ...(myLawyerProfile?.photoUrl ? { photoUrl: myLawyerProfile.photoUrl } : {}),
-        ...(myLawyerProfile?.bio ? { bio: myLawyerProfile.bio } : {}),
-      };
-      // אותה בעיה בצד עו"ד: "נשלח ✓" קבוע גם כשהכתיבה נדחתה
-      void expressInterestDb(feedId, { uid: u.uid, profile }, offer).catch((err) => {
-        setFeed((prev) =>
-          prev.map((f) =>
-            f.id === feedId
-              ? { ...f, expressed: false, interestedCount: Math.max(0, f.interestedCount - 1) }
-              : f,
-          ),
-        );
-        /*
-         * "התיק התמלא" אינו תקלה — זה מרוץ שהוא הפסיד בשניות, וההודעה
-         * חייבת לומר את זה. "נסו שוב" כאן היה שולח אותו ללחוץ שוב על
-         * דבר שלעולם לא יצליח.
-         */
-        const full = err instanceof Error && err.message === "CASE_FULL";
-        toast.error(translate(full ? "caseFullToast" : "actionFailedRetry", uiLang()));
-      });
-    },
-    [user, myLawyerProfile],
-  );
-
-  const getFeedCase = useCallback(
-    (id: string) => feed.find((f) => f.id === id),
-    [feed],
-  );
-
   const markRead = useCallback((id: string) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
@@ -496,12 +418,8 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       addCase,
       chooseLawyer,
       getCase,
-      feed,
-      feedError,
       casesError,
       casesLoaded,
-      expressInterest,
-      getFeedCase,
       user,
       authReady,
       authRedirectFailed,
@@ -513,7 +431,7 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
       notifications,
       markRead,
     }),
-    [role, setRole, cases, addCase, chooseLawyer, getCase, feed, feedError, casesError, casesLoaded, expressInterest, getFeedCase, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, onboarded, markOnboarded, signOut, notifications, markRead],
+    [role, setRole, cases, addCase, chooseLawyer, getCase, casesError, casesLoaded, user, authReady, authRedirectFailed, clearAuthRedirectError, authResolving, onboarded, markOnboarded, signOut, notifications, markRead],
   );
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
