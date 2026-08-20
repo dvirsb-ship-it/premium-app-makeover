@@ -147,18 +147,26 @@ function Validating() {
         setRejected(parts.join("\n\n"));
         return;
       }
+      /*
+       * ═══ ליעד חדש — 20/8/2026 ═══
+       *
+       * קודם זה סיים במסך הבית עם אישור הקליטה, כי ההכרעה כבר
+       * נעשתה והתיק כבר הופץ. עכשיו אין הכרעה ואין הפצה: מה שהופק
+       * הוא סיכום עובדתי, והוא חסר משמעות עד שהפונה יקרא, יתקן
+       * ויאשר אותו. לכן היעד הוא מסך האישור.
+       */
       const newCase: Case = {
         id: caseId,
         title: res.title,
         category: res.category,
         summary: res.summary,
         createdAt: Date.now(),
-        status: "matching",
+        status: "summary_ready",
         interested: [],
       };
       addCase(newCase);
       haptic("success");
-      navigate({ to: "/", search: { done: caseId } });
+      navigate({ to: "/summary/$caseId", params: { caseId } });
     },
     [addCase, navigate, t],
   );
@@ -185,14 +193,18 @@ function Validating() {
       /* ignore */
     }
     if (!caseId) return;
-    /*
-     * הבדיקה המעמיקה עדיין רצה, אבל שומר הסף כבר אישר את הפנייה — ולכן
-     * הלקוח מקבל את אישור הקליטה במקום ספינר. שאר העדכונים מגיעים בהתראה.
-     */
-    const tm = window.setTimeout(() => {
-      if (finished.current) return;
-      finished.current = true;
-      navigate({ to: "/", search: { done: caseId } });
+      /*
+       * הסיכום עדיין נכתב כשהאנימציה נגמרה (20/8/2026).
+       *
+       * קודם כתוב היה כאן ש"שומר הסף כבר אישר את הפנייה" — אין
+       * עוד שומר סף ואין אישור. מה שרץ ברקע הוא כתיבת הסיכום,
+       * ולכן היעד הוא מסך התיק: הוא מציג את ההתקדמות, וברגע
+       * שהסיכום מוכן הפונה מוזמן לאשר אותו.
+       */
+      const tm = window.setTimeout(() => {
+        if (finished.current) return;
+        finished.current = true;
+        navigate({ to: "/case/$caseId", params: { caseId } });
     }, 1200);
     return () => window.clearTimeout(tm);
   }, [animDone, result, rejected, stuck, blocked, navigate]);

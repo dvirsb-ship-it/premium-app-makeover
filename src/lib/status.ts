@@ -6,6 +6,7 @@ type StatusLabel = Record<Lang, string> & { tone: "gold" | "navy" | "success" | 
 
 const LABELS: Record<CaseStatus, StatusLabel> = {
   summary_ready: { he: "הסיכום מוכן — לעיונך", en: "Summary ready for your review", ru: "Сводка готова к проверке", ar: "الملخّص جاهز لمراجعتك", es: "Resumen listo para su revisión", fr: "Résumé prêt à relire", tone: "gold" },
+  awaiting_selection: { he: "מוכן — בחר עורך דין", en: "Ready — choose a lawyer", ru: "Готово — выберите адвоката", ar: "جاهز — اختر محاميًا", es: "Listo — elija un abogado", fr: "Prêt — choisissez un avocat", tone: "gold" },
   validating: { he: "בבדיקה", en: "Reviewing", ru: "На проверке", ar: "قيد المراجعة", es: "En revisión", fr: "En cours d’examen", tone: "muted" },
   matching: { he: "עברה את הבדיקה · מחפשים עורכי דין", en: "Passed · finding lawyers", ru: "Проверено · ищем адвокатов", ar: "اجتاز الفحص · نبحث عن محامين", es: "Aprobada · buscando abogados", fr: "Validée · recherche d’avocats", tone: "gold" },
   has_interest: { he: "יש התעניינות", en: "Interest received", ru: "Есть заинтересованность", ar: "هناك اهتمام", es: "Hay interés", fr: "Intérêt reçu", tone: "navy" },

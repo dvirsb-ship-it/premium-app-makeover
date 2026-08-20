@@ -6,6 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { INTAKE_MODEL, INTAKE_SYSTEM_PROMPT } from "./intake-prompt";
 import { VALIDATION_CATEGORIES, normalizeCategory } from "../specialties";
 import { redactForAi } from "./redact";
+import { stripContactInfo } from "../privacy";
 import { AI_VERTEX_ENABLED, toVertexBody, vertexUrl } from "./vertex";
 
 /* ---------- מפתח ה-API (שרת בלבד) ---------- */
@@ -695,6 +696,62 @@ export interface RecordConnectionInput {
  * שנרשם הוא באמת זה שנבחר — כלומר עורך דין לא יכול לזייף חיבור לעצמו,
  * ולקוח לא יכול "לשרוף" את המכסה של עורך דין אחר.
  */
+interface ApproveSummaryInput {
+  caseId: string;
+  idToken?: string;
+  /** הסיכום כפי שהפונה ערך אותו. ריק = משאיר כפי שהופק. */
+  summary?: string;
+  /** התחום שהפונה בחר. חייב להיות מהרשימה המוכרת. */
+  category: string;
+}
+
+/**
+ * אישור הסיכום ובחירת התחום — הרגע שבו הפונה מאשר את מה שייצא ממנו.
+ *
+ * ═══ למה בשרת ולא מהדפדפן (20/8/2026) ═══
+ *
+ * חוקי המסד מתירים ללקוח לכתוב על התיק שלו רק clientContact,
+ * chosenLawyerId ו-status. זה מכוון: סיכום שהלקוח כותב חופשי הוא גם
+ * הדרך הפשוטה ביותר להבריח לתוכו מספר טלפון ולעקוף את ההבטחה
+ * שפרטי קשר נחשפים רק אחרי בחירה. לכן הכתיבה עוברת כאן, והטקסט
+ * מנוקה בדיוק כמו הצעת שכר טרחה.
+ *
+ * העריכה עצמה אינה ויתור אלא דרישה: הסקירה המשפטית מתנה את הסיכום
+ * העובדתי בכך שהפונה **בודק ומאשר** אותו (4.1). מה שיוצג לעורך הדין
+ * הוא מה שהאדם אישר, לא מה שמכונה כתבה עליו.
+ *
+ * הקטגוריה נבחרת כאן ולא על ידי המודל: 4.2 מתיר ניתוב לפי "קטגוריה
+ * שהמשתמש בחר", והצעה אוטומטית מטקסט חופשי טעונה בחינה נוספת שטרם
+ * ניתנה.
+ */
+export const approveSummaryFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as ApproveSummaryInput)
+  .handler(async ({ data }): Promise<{ ok: boolean; category: string }> => {
+    const { requireUser, adminGetCase, adminUpdateCase, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("approveSummary", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) throw new Error("forbidden");
+      if (c.status !== "summary_ready") {
+        // כבר אושר, או שהתיק במצב אחר — לא דורסים
+        return { ok: false, category: String(c.category ?? "") };
+      }
+
+      const category = normalizeCategory(data.category);
+      const edited = (data.summary ?? "").trim();
+      const fields: Record<string, string | number> = {
+        category,
+        status: "awaiting_selection",
+        summaryApprovedAt: Date.now(),
+      };
+      if (edited) fields.summary = stripContactInfo(edited).slice(0, 6000);
+
+      await adminUpdateCase(data.caseId, fields);
+      return { ok: true, category };
+    });
+  });
+
 export const recordConnectionFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RecordConnectionInput)
   .handler(async ({ data }): Promise<{ connections: number }> => {

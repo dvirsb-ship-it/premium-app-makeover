@@ -4,6 +4,8 @@ export type CaseStatus =
   | "validating"
   /** הסיכום העובדתי מוכן, והפונה טרם אישר אותו. אינו נחשף לאיש. */
   | "summary_ready"
+  /** הפונה אישר את הסיכום ובחר תחום; טרם פנה לעורך דין. */
+  | "awaiting_selection"
   | "matching"
   | "has_interest"
   | "connected"
