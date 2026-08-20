@@ -32,7 +32,11 @@ describe("תקנום התשלומים — עברית", () => {
 
   it("תשלום אינו קונה מקום בתצוגה — הטיעון מול כלל 11ב", () => {
     expect(he).toContain("אינו משפיע על סדר התצוגה");
-    expect(he).not.toMatch(/עדיפות בפיד תמורת|קידום בתשלום/);
+    // במודל הבחירה (20/8/2026) ההבטחה מנוסחת כשלילה מפורשת: אין מיקום
+    // ממומן ואין קידום בתשלום. אסור שיופיע "פיד" — הוא כבר לא קיים.
+    expect(he).toMatch(/אין מיקום ממומן/);
+    expect(he).toMatch(/אין קידום בתשלום/);
+    expect(he).not.toMatch(/פיד/);
   });
 });
 
@@ -43,9 +47,11 @@ describe("תקנון התשלומים — אנגלית", () => {
     expect(en).not.toMatch(/per completed connection|fee per connection/i);
   });
 
-  it("אין הבטחת עדיפות בפיד — הסתירה החמורה יותר", () => {
-    expect(en).not.toMatch(/feed priority|priority in the feed(?! )/i);
-    expect(en).toMatch(/no priority in the feed/i);
+  it("אין הבטחת עדיפות בתצוגה — הסתירה החמורה יותר", () => {
+    // "feed" אסור להופיע בכלל — אין פיד במודל הבחירה.
+    expect(en).not.toMatch(/feed/i);
+    expect(en).toMatch(/no sponsored placement/i);
+    expect(en).toMatch(/no paid promotion/i);
   });
 
   it("מנוי חודשי קבוע", () => {

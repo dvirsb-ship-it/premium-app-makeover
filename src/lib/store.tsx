@@ -306,71 +306,18 @@ export function AppStoreProvider({ children }: { children: ReactNode }) {
 
   // הפרופיל המקצועי של עורך הדין (עיר + התמחויות) — לדירוג הפיד
   const [myLawyerProfile, setMyLawyerProfile] = useState<LawyerProfileDoc | null>(null);
-  useEffect(() => {
-    if (!user || role !== "lawyer") {
-      setMyLawyerProfile(null);
-      return;
-    }
-    /*
-     * מנוי חי ולא קריאה חד-פעמית — אחרת התחומים שנבחרו בהרשמה אינם
-     * מגיעים לפיד עד לטעינה הבאה של האפליקציה, וזה בדיוק המסך הראשון.
-     */
-    return watchLawyerProfile(user.uid, setMyLawyerProfile, () => {});
-  }, [user, role]);
-
   /*
-   * פיד עורך הדין — מסונן לפי תחום, ואז מדורג לפי קרבה גאוגרפית.
+   * ═══ מאזין הפיד הוסר — 20/8/2026 ═══
    *
-   * עד כאן ההתמחות רק *דירגה*: תיק מחוץ לתחום ירד למטה אבל עדיין הופיע.
-   * זה סתר ארבעה משפטים באפליקציה ("תראו רק פניות שמתאימות") ובעיקר
-   * הרס את הפיד — עורך דין שרואה תיקים שאינם שלו מפסיק לסרוק אותו.
-   * מי שטרם בחר תחומים רואה הכל, כדי שלא ייתקע מול פיד ריק בלי הסבר.
+   * כאן רץ onSnapshot על כל התיקים הפתוחים במערכת, לכל עורך דין
+   * מחובר, עם מד התאמה שדירג אותם. במתווה החדש תיק אינו נחשף לאיש
+   * עד שהפונה בוחר — הפניות מגיעות דרך referrals (LawyerReferrals),
+   * והמאזין הזה רק שילם קריאות על רשימה שאיש אינו מציג.
+   *
+   * feed/feedError/expressInterest נשארים בממשק כערכים אינרטיים עד
+   * שמסכי המודל הישן (lawyer-case במצב פיד) יוסרו גם הם — כך הקוד
+   * הישן מת בשקט במקום להישבר בקומפילציה.
    */
-  useEffect(() => {
-    if (!user || role !== "lawyer") {
-      setFeed([]);
-      return;
-    }
-    const mySpecs = myLawyerProfile?.specialties ?? [];
-    const matchProfile = {
-      specialties: mySpecs,
-      languages: myLawyerProfile?.languages,
-      city: myLawyerProfile?.city,
-    };
-    return watchLawyerFeed(user.uid, (items) => {
-      const inField =
-        mySpecs.length === 0
-          ? items
-          : items.filter((f) => categoryMatchesSpecialties(f.category, mySpecs));
-      /*
-       * מד ההתאמה — כללים גלויים בלבד (lib/match.ts). פער שפה מסמן,
-       * לא חוסם: עורך דין עשוי להיעזר בקולגה או במתרגם, וחסימה הייתה
-       * משאירה לקוח דובר ערבית בלי אף עורך דין.
-       */
-      const ranked = inField
-        .map((f) => {
-          const m = matchScore(
-            { category: f.category, clientLang: f.clientLang, location: f.location },
-            matchProfile,
-          );
-          return {
-            ...f,
-            langMismatch: m.langMismatch,
-            matchScore: m.score,
-            matchReasons: m.reasons,
-            match: (matchTone(m.score) === "high" ? "high" : "medium") as
-              | "high"
-              | "medium",
-          };
-        })
-        .sort((a, b) => {
-          if (a.langMismatch !== b.langMismatch) return a.langMismatch ? 1 : -1;
-          return (b.matchScore ?? 0) - (a.matchScore ?? 0);
-        });
-      setFeed(ranked);
-      setFeedError(false);
-    }, () => setFeedError(true));
-  }, [user, role, myLawyerProfile]);
 
   const setRole = useCallback(
     (r: Role | null) => {

@@ -171,14 +171,19 @@ service cloud.firestore {
        * התיק. לשימוש דרך הממשק אין שינוי — כל תיק שהוא רשאי לפתוח
        * עומד גם בתנאי הזה.
        */
+      /*
+       * ═══ צומצם שוב — 20/8/2026, אחרי הפיבוט ═══
+       *
+       * זרוע ה-matching/has_interest הוסרה: במתווה החדש תזכירים אינם
+       * נכתבים כלל, ותיק אינו מגיע לפיד. מה שנשאר במסד הוא תזכירי
+       * העבר של תיקי הבדיקה — ניתוח משפטי מלא שאסור שיהיה חשוף דרך
+       * סטטוס ישן. קורא אותם רק עורך הדין שנבחר על תיק ותיק, והאדמין.
+       */
       match /memo/{docId} {
         allow read: if isAdmin() || (
-          isApprovedLawyer() && (
-            get(/databases/$(database)/documents/cases/$(caseId)).data.status
-              in ['matching', 'has_interest']
-            || get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId
-              == request.auth.uid
-          )
+          isApprovedLawyer()
+          && get(/databases/$(database)/documents/cases/$(caseId)).data.chosenLawyerId
+            == request.auth.uid
         );
         allow write: if false;
       }

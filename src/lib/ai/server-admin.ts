@@ -988,6 +988,36 @@ export async function runDueDeletions(
  *   במסד — התביעה נכתבת לפני הריצה, כך ששני מופעים שהתעוררו יחד
  *   אינם מוחקים פעמיים.
  */
+/**
+ * פקיעת פניות שחלונן חלף — הצד היזום של חלון 48 השעות (20/8/2026).
+ *
+ * האכיפה האמיתית עצלה וכבר קיימת: עורך דין אינו יכול לענות אחרי
+ * הפקיעה (respondReferralFn בודק), והפונה רואה "החלון חלף" מחושב
+ * בדפדפן. מה שהסריקה מוסיפה הוא הרגע האנושי — הודעה לפונה שהוא
+ * חופשי לבחור עורך דין אחר, במקום שיגלה זאת רק כשיפתח את האפליקציה.
+ *
+ * רוכבת על סריקת המחיקות היומית — דיוק של יום על חלון של יומיים
+ * מספיק, כי שום זכות אינה תלויה בהודעה הזו.
+ */
+async function expireDueReferrals(now: number): Promise<void> {
+  const ids = await adminQueryIds("referrals", "status", "names_check");
+  for (const id of ids) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r || Number(r.expiresAt ?? 0) > now) continue;
+      await adminPatch(`referrals/${id}`, { status: "expired", expiredAt: now });
+      await adminNotify(String(r.clientId), {
+        type: "case_update",
+        title: "פנייה לעורך דין פקעה",
+        body: "לא התקבל מענה בתוך 48 שעות. אפשר לבחור עורך דין אחר מהאינדקס.",
+        caseId: String(r.caseId),
+      });
+    } catch {
+      /* פנייה אחת שנכשלה לא עוצרת את השאר */
+    }
+  }
+}
+
 const SWEEP_DOC = "system/deletionSweep";
 const SWEEP_EVERY_MS = 24 * 60 * 60 * 1000;
 let lastLocalCheck = 0;
@@ -1002,6 +1032,7 @@ export async function sweepDeletionsIfDue(now = Date.now()): Promise<boolean> {
     // תובעים לפני שמריצים — שני מופעים שהתעוררו יחד לא ירוצו שניהם
     await adminPatch(SWEEP_DOC, { lastRunAt: now });
     await runDueDeletions(now);
+    await expireDueReferrals(now);
     return true;
   } catch {
     /* סריקה שנכשלה תנסה שוב מחר; לעולם לא מפילה בקשה של משתמש */
@@ -1368,7 +1399,7 @@ export async function announceLaunch(
       title: "JustAsk באוויר — האפליקציה שלך מחכה",
       body:
         `${name ? name + ", " : ""}האפליקציה עלתה לאוויר. ` +
-        "הפניות שתראו כבר עברו בדיקה ראשונית, והן בתחומים שסימנתם בלבד. " +
+        "תופיעו באינדקס בתחומים שסימנתם, ופנייה תגיע רק ממי שבחר בכם. " +
         "חצי השנה הראשונה ללא תשלום, כפי שהובטח.",
       link,
       cta: "כניסה לאפליקציה",

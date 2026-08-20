@@ -541,8 +541,10 @@ describe("memo", () => {
     });
   });
 
-  it("עו״ד מאושר קורא", async () => {
-    await assertSucceeds(getDoc(doc(as("lawyerOk"), "cases/openCase/memo/full")));
+  it("עו״ד מאושר אינו קורא עוד תזכיר של תיק בפיד (הפיבוט, 20/8/2026)", async () => {
+    // openCase הוא במצב matching בלי chosenLawyerId — במודל הישן זה
+    // הספיק; היום תזכיר נקרא רק על תיק שחובר לעורך הדין הקורא.
+    await assertFails(getDoc(doc(as("lawyerOk"), "cases/openCase/memo/full")));
   });
 
   it("עו״ד שטרם אושר אינו קורא", async () => {
@@ -912,9 +914,11 @@ describe("תת-אוספים של תיק", () => {
     });
   }
 
-  it("עו״ד מאושר קורא תזכיר של תיק שנמצא בפיד", async () => {
+  it("תזכיר ישן בפיד — אינו נקרא עוד מאז הפיבוט (20/8/2026)", async () => {
+    // הזרוע של matching הוסרה: תזכירים הם שריד המודל הישן, וקוראים
+    // אותם רק על תיק שחובר. תיק שנשאר בסטטוס פיד ישן — סגור.
     await seedMemo("mFeed", "matching");
-    await assertSucceeds(getDoc(doc(as("lawyerOk"), "cases/mFeed/memo/full")));
+    await assertFails(getDoc(doc(as("lawyerOk"), "cases/mFeed/memo/full")));
   });
 
   it("הנבחר ממשיך לקרוא אחרי החיבור", async () => {

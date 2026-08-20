@@ -17,7 +17,7 @@ export const strings = {
   clientCTA: { he: "אני מחפש עורך דין", en: "I'm looking for a lawyer" },
   clientCTASub: { he: "ספרו מה קרה, אשרו את הסיכום — ובחרו עורך דין בעצמכם", en: "Tell what happened, approve the summary — and choose a lawyer yourself" },
   lawyerCTA: { he: "אני עורך דין", en: "I'm a lawyer" },
-  lawyerCTASub: { he: "פניות שכבר עברו בדיקה ראשונית", en: "Matters that already passed an initial check" },
+  lawyerCTASub: { he: "פניות ממי שבחר בך", en: "Requests from clients who chose you" },
   trustBadge: { he: "שלב השקה · השירות ללקוחות חינם — תמיד", en: "Launch phase · always free for clients" },
 
   // Bottom nav
@@ -92,7 +92,7 @@ export const strings = {
   },
   term1: { he: "המידע שאשתף הוא אמיתי ומדויק למיטב ידיעתי.", en: "The information I share is true and accurate to the best of my knowledge." },
   term2: { he: "הסיכום שאאשר הוא ארגון עובדתי של מה שמסרתי — אינו ייעוץ משפטי, אינו הערכת סיכויים, ואינו מבטיח דבר. ההערכה המקצועית היא של עורך הדין שאבחר.", en: "The summary I approve is a factual organisation of what I provided — not legal advice, not an assessment of prospects, and no promise. The professional assessment belongs to the lawyer I choose." },
-  term3: { he: "פרטי הפנייה יישמרו ויוצגו לעורכי דין מאומתים בתחום המשפטי של המקרה — בלי שמי ובלי פרטי הקשר שלי.", en: "My request will be stored and shown to verified lawyers in its legal field — without my name or contact details." },
+  term3: { he: "פרטי הפנייה יישמרו ויוצגו רק לעורכי הדין המאומתים שאבחר. שמות הצדדים יימסרו להם תחילה לבדיקת ניגוד עניינים, ופרטי הקשר שלי יימסרו רק לעורך הדין שאבחר לבסוף.", en: "My request will be stored and shown only to the verified lawyers I choose. Party names are shared with them first for a conflict-of-interest check, and my contact details go only to the lawyer I finally pick." },
   term4: { he: "אני פונה מתוך כוונה אמיתית לקבל סיוע משפטי.", en: "I'm reaching out with a genuine intent to receive legal help." },
   /*
    * שני הסעיפים האלה אינם ויתור, ובכוונה.
@@ -109,7 +109,7 @@ export const strings = {
    * מכילים לעיתים פרטים של אנשים אחרים, וההסכמה של הפונה אינה מכסה
    * אותם.
    */
-  term5: { he: "תיאור המקרה שאמסור יעובד ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך ארגון הסיכום העובדתי בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description I provide will be processed by a Google AI service on servers in the European Union, for the initial check only. ID number, phone and email are stripped automatically before processing." },
+  term5: { he: "תיאור המקרה שאמסור יעובד ע״י שירות בינה מלאכותית של גוגל בשרתים באיחוד האירופי, לצורך ארגון הסיכום העובדתי בלבד. מספר תעודת זהות, טלפון ודוא״ל מוסרים אוטומטית לפני העיבוד.", en: "The case description I provide will be processed by a Google AI service on servers in the European Union, only to organise the factual summary. ID number, phone and email are stripped automatically before processing." },
   term6: { he: "אם אציין שקיים בידי תיעוד — הוא באמת קיים, ואביא אותו לעורך הדין שאבחר.", en: "If I state that I have documentation — it genuinely exists, and I will bring it to the lawyer I choose." },
   term7: { he: "מלאו לי 18 שנים, או שאני הורה או אפוטרופוס הפונה בשם קטין.", en: "I am 18 or older, or a parent or legal guardian applying on behalf of a minor." },
   agreeText: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I've read and agree to the above" },
@@ -261,7 +261,7 @@ export const strings = {
   // Lawyer onboarding
   lawyerOnboardMetaTitle: { he: "JustAsk — הרשמת עורך דין", en: "JustAsk — Lawyer signup" },
   lawyerOnboardMetaDesc: { he: "בחרו את תחומי ההתמחות שלכם כדי לקבל פניות רלוונטיות ב-JustAsk.", en: "Choose your practice areas to receive relevant leads on JustAsk." },
-  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי לקבל פניות שכבר עברו בדיקה ראשונית.", en: "Pick practice areas to receive matters that already passed an initial check." },
+  lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי להופיע באינדקס ולקבל פניות ממי שבחר בך.", en: "Pick practice areas to appear in the index and receive requests from clients who choose you." },
   lawyerOnboardTitle: { he: "הרשמת עורך דין", en: "Lawyer signup" },
   lawyerOnboardSubtitle: { he: "בחרו את תחומי ההתמחות שלכם", en: "Choose your practice areas" },
   joinRosterBadge: { he: "JustAsk · הצטרפות כעורך דין", en: "JustAsk · Join as a lawyer" },
@@ -456,11 +456,11 @@ export const strings = {
     en: "Your privacy is the foundation of JustAsk. What you share is encrypted, kept in a secured region, and shared only with lawyers you pick.",
   },
   privacyEnc: { he: "הצפנה במעבר ובאחסון", en: "Encrypted in transit and at rest" },
-  privacyEncSub: { he: "כל שיחה מוצפנת בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — הבדיקה מחייבת שהמערכת תוכל לקרוא את התוכן. מסמכים אינם נשלחים אלינו כלל.", en: "Every conversation is encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — the check requires the system to read the content. Documents are never sent to us at all." },
+  privacyEncSub: { he: "כל שיחה מוצפנת בהעברה ובשרתי גוגל. שימו לב: זו אינה הצפנה מקצה לקצה — הכנת הסיכום מחייבת שהמערכת תוכל לקרוא את התוכן. מסמכים אינם נשלחים אלינו כלל.", en: "Every conversation is encrypted in transit and on Google's servers. Note: this is not end-to-end encryption — preparing the summary requires the system to read the content. Documents are never sent to us at all." },
   privacyControl: { he: "אתם בשליטה", en: "You're in control" },
   privacyControlSub: { he: "פרטי הקשר נחשפים רק לאחר בחירתכם בעורך דין ספציפי.", en: "Contact details are revealed only after you pick a specific lawyer." },
   privacyRls: { he: "בידוד בין משתמשים", en: "User isolation" },
-  privacyRlsSub: { he: "חוקי גישה בשרת מגבילים כל משתמש למידע שלו. עורכי דין מאומתים רואים תיקים שאושרו — בלי שם מלא ובלי פרטי קשר — ופרטיכם נחשפים רק לעורך הדין שתבחרו.", en: "Server-side rules limit each user to their own data. Verified lawyers see approved cases — without full names or contact details — and your details are revealed only to the lawyer you choose." },
+  privacyRlsSub: { he: "חוקי גישה בשרת מגבילים כל משתמש למידע שלו. עורך דין רואה רק פניות שנשלחו אליו — ופרטי הקשר שלכם נחשפים רק לעורך הדין שתבחרו לבסוף.", en: "Server-side rules limit each user to their own data. A lawyer sees only requests sent to them — and your contact details are revealed only to the lawyer you finally choose." },
   privacyDelete: { he: "מחיקת חשבון ונתונים", en: "Delete account & data" },
   privacyDeleteSub: { he: "מחיקה מלאה זמינה כאן במסך, בכל עת — ומושלמת בתוך 14 יום.", en: "Full deletion is available right here on this screen, any time — completed within 14 days." },
   privacyContact: { he: "לשאלות פרטיות: justask.adv@gmail.com", en: "Privacy inquiries: justask.adv@gmail.com" },
@@ -485,7 +485,7 @@ export const strings = {
   },
   termsSection4Title: { he: "4. תשלומים", en: "4. Payments" },
   termsSection4Body: {
-    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הסיכום, הבחירה והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל גישה לכל הפניות בתחומי ההתמחות שנבחרו, את התקציר העובדתי המלא הנכתב על כל פנייה, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. תשלום אינו משפיע על סדר התצוגה: אין עדיפות בפיד ואין מיון לפי מחיר. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
+    he: "ללקוחות — השירות חינם, תמיד. שיתוף המקרה, הסיכום, הבחירה והחיבור לעורך דין אינם כרוכים בתשלום. שכר הטרחה סוכם ישירות מול עורך הדין הנבחר; JustAsk אינה צד להסכם ואינה נוטלת חלק כלשהו בשכר הטרחה.\n\nלעורכי דין — מנוי חודשי קבוע, הכולל הופעה באינדקס עורכי הדין, קבלת פניות מלקוחות שבחרו בכם, את הסיכום העובדתי שאושר על כל פנייה שנשלחה אליכם, התראות בזמן אמת וצירוף הצעת שכר טרחה. המנוי אינו תלוי במספר הלקוחות שהתקבלו, ואינו כולל עמלה או חלק כלשהו בשכר הטרחה. תשלום אינו משפיע על סדר התצוגה: האינדקס מסודר בסדר קבוע ואחיד, אין מיקום ממומן ואין קידום בתשלום. ניתן לבטל בכל עת. בתקופת ההשקה המנוי ניתן ללא תשלום, ומועד תחילת החיוב יוצג באפליקציה מראש.",
     /*
      * האנגלית פיגרה אחרי העברית ואחרי המוצר: היא הבטיחה תשלום
      * "per completed connection" ו-"feed priority" — שניהם נשקלו ונדחו.
@@ -493,13 +493,13 @@ export const strings = {
      * "אין מקום בתור תמורת תשלום"), ותקנון שסותר את מה שהובטח בפומבי
      * הוא בדיוק מה שעורך דין לאתיקה מחפש. תשלום אינו קונה חשיפה.
      */
-    en: "The service is free for clients — always, including sharing your case, the initial review and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer; JustAsk is not a party to that agreement and takes no share of the fee.\n\nLawyers: a fixed monthly subscription, covering access to every case in your chosen practice areas, the full factual summary written for each one, real-time alerts and the ability to submit a fee proposal. The subscription does not depend on how many clients you receive, and includes no commission or share of any fee. Payment does not affect placement: there is no priority in the feed and no sorting by price. Cancel any time. During the launch period the subscription is free, and the billing start date will be shown in the app in advance.",
+    en: "The service is free for clients — always, including sharing your case, the summary, choosing and connecting with a lawyer. Legal fees are agreed directly with the chosen lawyer; JustAsk is not a party to that agreement and takes no share of the fee.\n\nLawyers: a fixed monthly subscription, covering a listing in the lawyer index, requests from clients who chose you, the approved factual summary of each request sent to you, real-time alerts and the ability to submit a fee proposal. The subscription does not depend on how many clients you receive, and includes no commission or share of any fee. Payment does not affect placement: the index is shown in a fixed, uniform order — no sponsored placement and no paid promotion. Cancel any time. During the launch period the subscription is free, and the billing start date will be shown in the app in advance.",
   },
   termsSection6Title: { he: "6. תקשורת דרך הפלטפורמה", en: "6. Communication through the platform" },
   termsSection7Title: { he: "7. עיבוד המידע שלך", en: "7. Processing your information" },
-  termsSection7Body: { he: "תיאור המקרה שתמסרו מעובד ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך ארגון הסיכום העובדתי בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני העיבוד.\n\nהפלטפורמה אינה מקבלת קבצים ואינה מאחסנת מסמכים. תיעוד שברשותכם נשאר אצלכם, ואתם מביאים אותו ישירות לעורך הדין שתבחרו.", en: "The case description you provide is processed by a Google AI service on servers in the European Union, for the initial check only — not for model training and not for publication. Direct identifiers (ID number, phone, email) are stripped automatically before processing.\n\nThe platform does not accept files and does not store documents. Any documentation you hold stays with you, and you bring it directly to the lawyer you choose." },
+  termsSection7Body: { he: "תיאור המקרה שתמסרו מעובד ע״י שירות בינה מלאכותית של גוגל, בשרתים באיחוד האירופי, לצורך ארגון הסיכום העובדתי בלבד — לא לאימון המודל ולא לפרסום. מזהים ישירים (מספר תעודת זהות, טלפון ודוא״ל) מוסרים אוטומטית לפני העיבוד.\n\nהפלטפורמה אינה מקבלת קבצים ואינה מאחסנת מסמכים. תיעוד שברשותכם נשאר אצלכם, ואתם מביאים אותו ישירות לעורך הדין שתבחרו.", en: "The case description you provide is processed by a Google AI service on servers in the European Union, only to organise the factual summary — not for model training and not for publication. Direct identifiers (ID number, phone, email) are stripped automatically before processing.\n\nThe platform does not accept files and does not store documents. Any documentation you hold stays with you, and you bring it directly to the lawyer you choose." },
   termsSection8Title: { he: "8. מסירת מידע, מטרות וזכויותיך", en: "8. Providing information, purposes and your rights" },
-  termsSection8Body: { he: "אינך חייב על פי חוק למסור לנו מידע — המסירה תלויה ברצונך ובהסכמתך. בלי הפרטים הדרושים לא נוכל להכין את הסיכום או להעביר את פנייתך לעורך הדין שתבחר.\n\nהמידע נאסף לארבע מטרות בלבד: הכנת הסיכום העובדתי, העברת פנייתך לעורכי דין שבחרת, יצירת החיבור לאחר בחירתך, ותפעול השירות ואבטחתו.\n\nהמידע מועבר רק למי שנדרש לכך: לעורכי דין מאומתים — בעילום שם עד לבחירתך — ולספקי התשתית והעיבוד של גוגל (Firebase ו-Vertex AI), הפועלים עבורנו בלבד. איננו מוכרים מידע ואיננו מעבירים אותו לאיש מעבר לכך.\n\nעומדת לך זכות לעיין במידע השמור עליך, לבקש תיקון של מידע שאינו נכון או מעודכן, ולמחוק את החשבון והנתונים — מתוך האפליקציה (הגדרות ← פרטיות ואבטחה) או בכתובת justask.adv@gmail.com. מחיקה מושלמת בתוך 14 יום.", en: "You are under no legal obligation to provide us with information — doing so depends on your choice and consent. Without the required details we cannot run the initial review or present your request to lawyers.\n\nInformation is collected for four purposes only: running the initial review, presenting your request anonymously to verified lawyers in the relevant field, making the connection after you choose, and operating and securing the service.\n\nInformation is shared only with those who need it: verified lawyers — anonymously until you choose — and Google's infrastructure and processing services (Firebase and Vertex AI), acting solely on our behalf. We do not sell information and do not pass it to anyone beyond this.\n\nYou have the right to access the information held about you, to request correction of information that is inaccurate or outdated, and to delete your account and data — from within the app (Settings ← Privacy & security) or at justask.adv@gmail.com. Deletion is completed within 14 days." },
+  termsSection8Body: { he: "אינך חייב על פי חוק למסור לנו מידע — המסירה תלויה ברצונך ובהסכמתך. בלי הפרטים הדרושים לא נוכל להכין את הסיכום או להעביר את פנייתך לעורך הדין שתבחר.\n\nהמידע נאסף לארבע מטרות בלבד: הכנת הסיכום העובדתי, העברת פנייתך לעורכי דין שבחרת, יצירת החיבור לאחר בחירתך, ותפעול השירות ואבטחתו.\n\nהמידע מועבר רק למי שנדרש לכך: לעורכי הדין המאומתים שבחרת — תחילה שמות הצדדים בלבד, לבדיקת ניגוד עניינים, ופרטי הקשר רק לאחר בחירתך הסופית — ולספקי התשתית והעיבוד של גוגל (Firebase ו-Vertex AI), הפועלים עבורנו בלבד. איננו מוכרים מידע ואיננו מעבירים אותו לאיש מעבר לכך.\n\nעומדת לך זכות לעיין במידע השמור עליך, לבקש תיקון של מידע שאינו נכון או מעודכן, ולמחוק את החשבון והנתונים — מתוך האפליקציה (הגדרות ← פרטיות ואבטחה) או בכתובת justask.adv@gmail.com. מחיקה מושלמת בתוך 14 יום.", en: "You are under no legal obligation to provide us with information — doing so depends on your choice and consent. Without the required details we cannot prepare the summary or send your request to the lawyer you choose.\n\nInformation is collected for four purposes only: preparing the factual summary, sending your request to the lawyers you chose, making the connection after you choose, and operating and securing the service.\n\nInformation is shared only with those who need it: the verified lawyers you chose — party names first, for a conflict-of-interest check, with your contact details shared only after your final choice — and Google's infrastructure and processing providers (Firebase and Vertex AI), acting solely on our behalf. We do not sell data and share it with no one else.\n\nYou have the right to review the information we hold about you, to request correction of inaccurate or outdated information, and to delete your account and data — from the app (Settings → Privacy & security) or at justask.adv@gmail.com. Deletion completes within 14 days." },
   termsSection6Body: {
     he: "עד ליצירת חיבור רשמי בין לקוח לעורך דין, התקשורת מתקיימת דרך הפלטפורמה בלבד ופרטי הקשר המלאים אינם נחשפים. שיתוף פרטי קשר, שמות מלאים או פרטי משרד בתוכן חופשי במטרה לעקוף את הפלטפורמה מהווה הפרת תנאים ועלול להוביל להשעיית החשבון.",
     en: "Until an official client–lawyer connection is made, communication takes place exclusively through the platform and full contact details are not disclosed. Sharing contact details, full names or firm details in free-text content in order to bypass the platform constitutes a breach of these terms and may lead to account suspension.",
@@ -999,7 +999,7 @@ export const strings = {
    * "עברו בדיקה ראשונית" ולא "לקוחות מאומתים" (איננו מאמתים לקוחות)
    * ולא "יש להם עילה" (התקנון אומר שהבדיקה אינה ייעוץ משפטי).
    */
-  lpMetaTitle: { he: "JustAsk לעורכי דין — פניות שעברו בדיקה ראשונית", en: "JustAsk for lawyers — matters that passed an initial check" },
+  lpMetaTitle: { he: "JustAsk לעורכי דין — פניות ממי שבחר בך", en: "JustAsk for lawyers — requests from clients who chose you" },
   lpMetaDesc: { he: "פנייה מגיעה אליך רק ממי שבחר בך, עם סיכום עובדתי מסודר שהפונה אישר. ההערכה המקצועית — שלך.", en: "A referral reaches you only from someone who chose you, with an approved factual summary. The professional assessment is yours." },
   lpNavCta: { he: "כניסה", en: "Sign in" },
   lpBadge: { he: "חצי שנה ראשונה — ללא תשלום", en: "First six months — free" },
@@ -1012,14 +1012,14 @@ export const strings = {
   lpArtifactAria: { he: "דוגמה לפנייה כפי שהיא מגיעה לעורך דין", en: "Example of a matter as it reaches a lawyer" },
 
   lpCardCat: { he: "נזיקין ותאונות", en: "Injury & accidents" },
-  lpCardUrgent: { he: "דחוף", en: "Urgent" },
+  lpCardUrgent: { he: "48 שעות למענה", en: "48h to respond" },
   lpCardMatch: { he: "בתחום שלך", en: "In your field" },
-  lpCardTitle: { he: "החלקה על רצפה רטובה בסופרמרקט", en: "Slip on a wet supermarket floor" },
-  lpCardCity: { he: "ירושלים", en: "Jerusalem" },
+  lpCardTitle: { he: "מעידה בחדר מדרגות רטוב בבניין מגורים", en: "Fall in a wet residential stairwell" },
+  lpCardCity: { he: "חיפה", en: "Haifa" },
   lpMemoLabel: { he: "הסיכום העובדתי", en: "The factual summary" },
   lpMemoBody: { he: "ביום 3.8 מעד הפונה בחדר מדרגות רטוב בבניין מגורים בחיפה ואובחן שבר בקרסול. קיימים: מסמכי שחרור, תמונות מהמקום, פרטי עד.", en: "On 3.8 the applicant slipped in a wet stairwell of a Haifa residential building; an ankle fracture was diagnosed. Available: discharge papers, photos, a witness." },
 
-  lpStat1: { he: "מהפניות עברו בדיקה ראשונית", en: "of matters passed an initial check" },
+  lpStat1: { he: "מהפניות — מלקוחות שבחרו בך", en: "of requests come from clients who chose you" },
   lpStat2: {
     he: "תחומי משפט — מקבלים רק את שלך",
     en: "practice areas — you get only yours",
@@ -1202,12 +1202,6 @@ export const strings = {
     he: "הלקוח בוחר. רק אז נחשפים פרטי הקשר שלו, והתיק עובר ל„התיקים שלי”. ההסכם נכרת ישירות ביניכם.",
     en: "The client chooses. Only then are their contact details revealed and the matter moves to My cases. The agreement is made directly between you.",
   },
-  feedFirstRunTitle: { he: "אתם בין הראשונים כאן", en: "You're among the first here" },
-  feedFirstRunSub: { he: "JustAsk בשלב השקה, ועדיין אין פנייה פתוחה בתחומים שבחרתם. זה לא יישאר ככה — וכשתגיע פנייה, אתם תראו אותה ראשונים.", en: "JustAsk is in launch phase and there's no open case in your fields yet. That won't last — and when one arrives, you'll see it first." },
-  feedFirstRun1: { he: "כל פנייה שתגיע כבר עברה בדיקה ראשונית — לא לידים גולמיים", en: "Every matter that arrives already passed an initial check — not raw leads" },
-  feedFirstRun2: { he: "תקבל רק פניות ממי שבחר בך, עם סיכום עובדתי מאושר", en: "Only referrals from people who chose you, with an approved summary" },
-  feedFirstRun3: { he: "אין עלות, אין כרטיס אשראי, ואין מה לרכוש בתקופת ההשקה", en: "No cost, no card on file, nothing to buy during launch" },
-  feedFirstRunNotify: { he: "הפעילו התראות בהגדרות כדי לדעת על פנייה חדשה מיד — מי שמגיב ראשון בולט אצל הלקוח.", en: "Turn on notifications in settings to hear about a new case immediately — responding first stands out to the client." },
   verStatusErrorTitle: { he: "לא הצלחנו לבדוק את סטטוס האימות שלך", en: "Couldn't check your verification status" },
   verStatusErrorSub: { he: "זו תקלת תקשורת ולא שינוי בסטטוס. רעננו את הדף — אם זה חוזר, פנו אלינו דרך העזרה.", en: "This is a connection issue, not a status change. Refresh — if it persists, contact us via Help." },
   casesErrorSub: { he: "התיקים שלך לא נעלמו — רק לא הצלחנו לטעון אותם כרגע. רעננו את הדף.", en: "Your cases haven't gone anywhere — we just couldn't load them. Refresh the page." },

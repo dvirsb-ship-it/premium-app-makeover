@@ -112,19 +112,19 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
-      { title: "JustAsk — גלו אם יש לכם סיכוי, בחינם" },
+      { title: "JustAsk — אתר ובחר עורך דין, בחינם" },
       {
         name: "description",
         content:
-          "ספרו מה קרה בשיחה קצרה. נבדוק אם יש סיכוי, ואם כן נציג את הפנייה לעורכי דין מאומתים בתחום — ואתם בוחרים. זו הערכה ראשונית בלבד ושום דבר אינו מובטח. חינם לחלוטין.",
+          "ספרו מה קרה בשיחה קצרה, אשרו סיכום מסודר, ובחרו עורך דין מאומת מהאינדקס — לפי תחום, אזור ושפה. השירות חינם לפונים.",
       },
       { name: "author", content: "JustAsk" },
       { name: "theme-color", content: "#0F172A" },
-      { property: "og:title", content: "JustAsk — גלו אם יש לכם סיכוי, בחינם" },
+      { property: "og:title", content: "JustAsk — אתר ובחר עורך דין, בחינם" },
       {
         property: "og:description",
         content:
-          "ספרו מה קרה וגלו אם יש סיכוי. הערכה ראשונית בלבד — שום דבר אינו מובטח, וההערכה הסופית היא של עורך הדין. השירות חינם.",
+          "ספרו מה קרה, אשרו את הסיכום, ובחרו בעצמכם עורך דין מאומת. ההערכה המקצועית — של עורך הדין שתבחרו. השירות חינם.",
       },
       { property: "og:type", content: "website" },
       /*
