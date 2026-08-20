@@ -842,14 +842,19 @@ export const requestReferralFn = createServerFn({ method: "POST" })
       let active = 0;
       for (const id of all) {
         const r = await adminGetDoc(`referrals/${id}`);
-        if (r && (r.status === "names_check" || r.status === "cleared" || r.status === "details_shared")) {
+        if (!r) continue;
+        /* פנייה שחלונה חלף אינה תופסת מקום — הפונה כבר חופשי להמשיך */
+        const waiting = r.status === "names_check" && Date.now() <= Number(r.expiresAt ?? 0);
+        if (waiting || r.status === "cleared" || r.status === "details_shared") {
           active++;
         }
       }
       if (active >= MAX_ACTIVE_REFERRALS) return { ok: false, reason: "limit" };
 
+      const profile = await adminGetDoc(`lawyerProfiles/${encodeURIComponent(data.lawyerUid)}`);
       const now = Date.now();
       await adminPatch(`referrals/${refId}`, {
+        lawyerName: String(profile?.name ?? ""),
         caseId: data.caseId,
         clientId: uid,
         lawyerId: data.lawyerUid,
@@ -875,6 +880,176 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         "lawyerInterest",
       );
 
+      return { ok: true };
+    });
+  });
+
+interface RespondReferralInput {
+  referralId: string;
+  /** cleared = אין ניגוד וזמין · declined = אינו זמין */
+  answer: "cleared" | "declined";
+  idToken?: string;
+}
+
+/**
+ * מענה עורך הדין על שלב א — בדיקת הניגוד.
+ *
+ * "cleared" הוא הצהרה כפולה: בדק ניגוד עניינים על שמות הצדדים ולא
+ * מצא, והוא זמין לפנייה. "declined" מנוסח כלפי הפונה כ"אינו זמין"
+ * בלבד — לעולם לא "דחה" (ש·10): ההבדל בין ניסוח לניסוח הוא ההבדל
+ * בין פונה שממשיך לעורך הדין הבא לבין פונה שמסיק שאין לו תיק.
+ *
+ * אחרי החלון — הפנייה פקעה ואי אפשר לענות עליה: מענה מאוחר היה
+ * מפתיע פונה שכבר המשיך הלאה.
+ */
+export const respondReferralFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as RespondReferralInput)
+  .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
+    const { requireUser, adminGetDoc, adminPatch, notify, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("respondReferral", async () => {
+      const uid = await requireUser(data.idToken);
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(data.referralId)}`);
+      if (!r || r.lawyerId !== uid) throw new Error("forbidden");
+      if (r.status !== "names_check") return { ok: false, reason: "not_pending" };
+      if (Date.now() > Number(r.expiresAt ?? 0)) {
+        await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, { status: "expired" });
+        return { ok: false, reason: "expired" };
+      }
+
+      await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
+        status: data.answer,
+        respondedAt: Date.now(),
+      });
+
+      await notify(
+        String(r.clientId),
+        data.answer === "cleared"
+          ? {
+              title: "עורך הדין זמין לפנייתך",
+              body: "הוא בדק ניגוד עניינים ואישר זמינות. עכשיו תורך: אשר את שיתוף הסיכום.",
+              link: `/case/${String(r.caseId)}`,
+            }
+          : {
+              title: "עורך הדין אינו זמין לפנייה זו",
+              body: "אפשר לחזור לאינדקס ולבחור עורך דין אחר.",
+              link: `/choose/${String(r.caseId)}`,
+            },
+        "caseUpdates",
+      );
+      return { ok: true };
+    });
+  });
+
+interface ShareSummaryInput {
+  referralId: string;
+  idToken?: string;
+}
+
+/**
+ * שלב ב — הפונה מאשר את שיתוף הסיכום עם עורך הדין שאישר זמינות.
+ *
+ * ההעתקה נעשית כאן, מהתיק אל מסמך הפנייה, ורק עכשיו: זו ליבת
+ * החשיפה המדורגת (2.5) — עורך הדין לא רואה את התיאור עד שהפונה,
+ * אחרי שידע שאין ניגוד ושעורך הדין זמין, אומר במפורש "שתף".
+ */
+export const shareSummaryFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as ShareSummaryInput)
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { requireUser, adminGetDoc, adminGetCase, adminPatch, notify, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("shareSummary", async () => {
+      const uid = await requireUser(data.idToken);
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(data.referralId)}`);
+      if (!r || r.clientId !== uid) throw new Error("forbidden");
+      if (r.status !== "cleared") return { ok: false };
+
+      const c = await adminGetCase(String(r.caseId));
+      if (!c) return { ok: false };
+
+      await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
+        status: "details_shared",
+        caseTitle: String(c.title ?? ""),
+        summary: String(c.summary ?? ""),
+        sharedAt: Date.now(),
+      });
+
+      await notify(
+        String(r.lawyerId),
+        {
+          title: "הפונה שיתף את סיכום המקרה",
+          body: "הסיכום המלא זמין לעיונך. אפשר להגיש הצעת שכר טרחה.",
+          link: "/lawyer",
+        },
+        "lawyerInterest",
+      );
+      return { ok: true };
+    });
+  });
+
+interface ReferralOfferInput {
+  referralId: string;
+  amount: number;
+  model: string;
+  note?: string;
+  idToken?: string;
+}
+
+/**
+ * הצעת שכר טרחה על פנייה — פרטנית, לפונה בלבד.
+ *
+ * ההצעה יושבת על מסמך הפנייה ולא בפומבי: אסור לפרסם מחירים (2.3),
+ * והפלטפורמה מציגה את ההצעות זו לצד זו בלי לדרג ובלי לסמן "מומלץ"
+ * (נספח א·8). הטקסט החופשי מנוקה מפרטי קשר — התקשורת עד החיבור
+ * עוברת דרך המערכת, ופרטי הקשר נחשפים רק אחרי הבחירה.
+ */
+export const submitReferralOfferFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as ReferralOfferInput)
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { requireUser, adminGetDoc, adminPatch, notify, withErrorLog } =
+      await import("./server-admin");
+    const { stripContactInfo: strip } = await import("../privacy");
+    return withErrorLog("submitReferralOffer", async () => {
+      const uid = await requireUser(data.idToken);
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(data.referralId)}`);
+      if (!r || r.lawyerId !== uid) throw new Error("forbidden");
+      if (r.status !== "details_shared") return { ok: false };
+
+      const profile = await adminGetDoc(`lawyerProfiles/${encodeURIComponent(uid)}`);
+      await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
+        offerAmount: Math.max(0, Math.round(Number(data.amount) || 0)),
+        offerModel: String(data.model ?? "").slice(0, 60),
+        offerNote: strip(String(data.note ?? "")).slice(0, 500),
+        lawyerName: String(profile?.name ?? ""),
+        offeredAt: Date.now(),
+      });
+
+      /*
+       * פרטי הקשר של עורך הדין נכתבים לתת-האוסף שהחוקים כבר שומרים:
+       * הפונה יקרא אותם רק אחרי שיבחר בו (chosenLawyerId). כך חילופי
+       * הקשר עובדים בדיוק כמו קודם — בלי לפתוח שום דלת חדשה.
+       */
+      const contact = await adminGetDoc(`lawyerContacts/${encodeURIComponent(uid)}`);
+      if (contact) {
+        await adminPatch(
+          `cases/${encodeURIComponent(String(r.caseId))}/contacts/${encodeURIComponent(uid)}`,
+          {
+            fullName: String(contact.fullName ?? profile?.name ?? ""),
+            phone: String(contact.phone ?? ""),
+            email: String(contact.email ?? ""),
+          },
+        );
+      }
+
+      await notify(
+        String(r.clientId),
+        {
+          title: "התקבלה הצעת שכר טרחה",
+          body: "עורך הדין הגיש הצעה לפנייתך. היכנס להשוות ולבחור.",
+          link: `/case/${String(r.caseId)}`,
+        },
+        "caseUpdates",
+      );
       return { ok: true };
     });
   });

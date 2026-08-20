@@ -21,6 +21,7 @@ import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
 import { useRequireAuth } from "../lib/require-auth";
 import { trialState } from "../lib/trial";
 import { PushPrimer } from "../components/PushPrimer";
+import { LawyerReferrals } from "../components/LawyerReferrals";
 import { usePushPrimer } from "../lib/use-push-primer";
 import { isWarningReason, strongestReason, type MatchReason } from "../lib/match";
 
@@ -189,7 +190,6 @@ function LawyerFeed() {
       >
         <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
           <Users className="size-3.5 text-gold" strokeWidth={2} />
-          {feed.length} {t("openLeads")}
         </span>
         <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
           <Calendar className="size-3.5 text-gold" strokeWidth={2} />
@@ -373,189 +373,17 @@ function LawyerFeed() {
               {t("feedErrorSub")}
             </p>
           </div>
-        ) : feed.length === 0 ? (
-          /*
-           * עורך הדין הראשון שיאושר ייכנס לפיד ריק — זה בלתי נמנע בשלב
-           * ההשקה, אבל "אין כרגע פניות בתחומכם" נקרא כמו מוצר מת ולא
-           * כמו יום ראשון. אומרים לו איפה אנחנו, מה כבר עובד, ומה יקרה
-           * כשתגיע פנייה. זה עורך דין שגויס אישית — הוא ראוי להקשר.
-           */
-          <div className="rounded-3xl border border-gold/25 bg-gold/[0.05] p-7 text-center">
-            <span className="mx-auto grid size-12 place-items-center rounded-full bg-gold/12 ring-1 ring-gold/25">
-              <Scale className="size-5 text-gold" strokeWidth={1.9} />
-            </span>
-            <p className="mt-4 text-[15px] font-bold text-foreground">
-              {t("feedFirstRunTitle")}
-            </p>
-            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-              {t("feedFirstRunSub")}
-            </p>
-            <ul className="mt-5 space-y-2.5 text-start">
-              {(["feedFirstRun1", "feedFirstRun2", "feedFirstRun3"] as const).map((k) => (
-                <li key={k} className="flex items-start gap-2.5">
-                  <span className="mt-0.5 grid size-4.5 shrink-0 place-items-center rounded-full bg-gold">
-                    <Check className="size-2.5 text-[#0F172A]" strokeWidth={4} />
-                  </span>
-                  <span className="text-[12.5px] leading-relaxed text-foreground/90">{t(k)}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="mt-5 border-t border-gold/15 pt-4 text-[12px] leading-relaxed text-muted-foreground">
-              {t("feedFirstRunNotify")}
-            </p>
-          </div>
-        ) : null}
+          ) : null}
 
-        {feed.map((f, i) => (
-          <motion.button
-            key={f.id}
-            type="button"
-            onClick={() =>
-              navigate({
-                to: "/lawyer-case/$caseId",
-                params: { caseId: f.id },
-              })
-            }
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              delay: 0.15 + i * 0.08,
-              duration: 0.6,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-            whileTap={{ scale: 0.98 }}
-            className="liquid-glass relative flex w-full items-stretch gap-3 overflow-hidden rounded-[20px] p-3 text-start"
-          >
-            {/*
-              * סמל התחום במקום תמונת סטוק. התמונות היו כמעט זהות בכל
-              * הכרטיסים (ורובן ברירת מחדל, כי המפתחות היו שמות קטגוריה
-              * ישנים), כלומר תפסו 88px בלי לשאת מידע. סמל נקרא במבט.
-              */}
-            <span className="chip-emblem grid size-[88px] shrink-0 place-items-center rounded-2xl">
-              {(() => {
-                const Icon = categoryIcon(f.category);
-                return (
-                  <Icon
-                    className="relative z-10 size-9 text-gold-ink"
-                    strokeWidth={1.7}
-                    aria-hidden
-                  />
-                );
-              })()}
-            </span>
-
-            <div className="flex min-w-0 flex-1 flex-col justify-between py-0.5">
-              <div className="min-w-0">
-                <div className="flex items-center gap-1.5">
-                  {/*
-                    * התחום הוא **סיווג**, ולכן שבב דיו ולא זהב. הזהב על
-                    * הכרטיס הזה שמור לסיבת ההתאמה — מה שעושה את התיק שווה
-                    * לעורך הדין הזה דווקא.
-                    */}
-                  <span className="chip-navy rounded-full px-2 py-0.5 text-[10px] font-bold">
-                    {f.category}
-                  </span>
-                  {f.urgency === urgentLabel && (
-                    <span className="rounded-full bg-gold/15 px-2 py-0.5 text-[10px] font-bold text-gold-ink">
-                      {t("urgent")}
-                    </span>
-                  )}
-                  {/*
-                    * הסיבה, לא הציון.
-                    *
-                    * "התאמה 100%" אמר לעורך הדין מה לחשוב בלי לומר לו למה.
-                    * "התחום המרכזי שלך" הוא עובדה שהוא יכול לאמת בעצמו
-                    * ולחלוק עליה. הציון עדיין ממיין את הפיד — הוא פשוט
-                    * הפסיק להתחזות לשיפוט.
-                    */}
-                  {(() => {
-                    const r = strongestReason(
-                      (f.matchReasons ?? []) as MatchReason[],
-                    );
-                    if (!r) return null;
-                    return (
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-[10px] font-bold",
-                          isWarningReason(r)
-                            ? "bg-warning-ink/12 text-warning-ink"
-                            : "chip-gold",
-                        )}
-                      >
-                        {t(r)}
-                      </span>
-                    );
-                  })()}
-                  {/*
-                    * שפת הלקוח — מוצגת רק כשהיא אינה עברית, כי תג על כל
-                    * תיק הוא רעש. אם היא גם מחוץ לשפות שסימן, התג מסמן
-                    * את זה במפורש: זה ההבדל בין "כדאי לדעת" ל"שים לב".
-                    */}
-                  {f.clientLang && f.clientLang !== "he" && (
-                    <span
-                      className={`flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${
-                        f.langMismatch
-                          ? "bg-warning-ink/12 text-warning-ink"
-                          : "bg-primary/10 text-primary"
-                      }`}
-                      title={
-                        f.langMismatch
-                          ? t("feedLangMismatch")
-                          : `${t("feedLangLabel")}: ${LANG_NAMES[f.clientLang as Lang] ?? f.clientLang}`
-                      }
-                    >
-                      <Languages className="size-3" strokeWidth={2.4} />
-                      {LANG_NAMES[f.clientLang as Lang] ?? f.clientLang}
-                    </span>
-                  )}
-                </div>
-                <p className="mt-1 truncate text-[15px] font-semibold text-foreground">
-                  {f.title}
-                </p>
-                <p className="truncate text-[12px] text-muted-foreground">
-                  {f.location}
-                </p>
-              </div>
-              <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <Users className="size-3" />
-                  {f.interestedCount}
-                </span>
-                <span className="flex items-center gap-1 whitespace-nowrap">
-                  <Clock className="size-3 shrink-0" />
-                  {f.postedAgo}
-                </span>
-                {/*
-                  * חלון ההתיישנות — עבר משורת השבבים לשורת הזמן (12/8/2026).
-                  *
-                  * "נותרו להתיישנות 8 חודשים" הוא חמש מילים על שבב. הוא נשבר
-                  * לשורה שנייה, והכרטיס גדל מול כל שאר הכרטיסים בפיד — דביר
-                  * צילם בדיוק את זה. קיצור השבב לא הספיק: ארבעה שבבים אינם
-                  * נכנסים בשורה גם כשהרביעי קטן.
-                  *
-                  * ההפרדה הנכונה: **שורת השבבים מסווגת** (תחום, שלי, דחוף),
-                  * **ושורת הזמן נושאת עובדות זמן** — כמה זמן עבר, וכמה נותר.
-                  * ההתיישנות היא עובדת זמן, ומקומה כאן.
-                  *
-                  * **ואפס אינו מוצג.** `limitationMonthsLeft` מחזיר 0 כשהמועד
-                  * כבר חלף, ו"נותרו 0 חודשים" הוא משפט חסר מובן שגם נראה
-                  * כתקלה. הסף התחתון הוא חודש אחד.
-                  */}
-                {typeof f.limitationMonthsLeft === "number" &&
-                  f.limitationMonthsLeft > 0 &&
-                  f.limitationMonthsLeft <= 18 && (
-                    <span className="flex items-center gap-1 whitespace-nowrap font-bold text-warning-ink">
-                      <Hourglass className="size-3 shrink-0" strokeWidth={2.2} />
-                      {t("limitationLeft").replace(
-                        "{n}",
-                        String(f.limitationMonthsLeft),
-                      )}
-                    </span>
-                  )}
-              </div>
-            </div>
-          </motion.button>
-        ))}
+        {/*
+          * ═══ הפיד הישן הוחלף בפניות — 20/8/2026 ═══
+          *
+          * feed.map הציג כאן את כל התיקים הפתוחים בתחום לכל עורך דין
+          * מאושר — המנגנון שהסקירה כינתה "מכרז על לקוחות". תיק אינו
+          * מגיע עוד ל-matching, כך שהרשימה ההיא ריקה מבנית; מה שמוצג
+          * הוא פניות ממי שבחר בעורך הדין הזה בעצמו.
+          */}
+        {verStatus === "approved" && user && <LawyerReferrals uid={user.uid} />}
       </div>
 
       {/*
@@ -565,7 +393,7 @@ function LawyerFeed() {
         */}
       {verStatus === "approved" && (
         <>
-          <FeedPulse feed={feed} counts={counts} mySpecs={mySpecs} />
+          {/* FeedPulse הוסר מהרינדור — נשען על הפיד הישן. יימחק בטאטוא. */}
           <HowItWorks />
         </>
       )}

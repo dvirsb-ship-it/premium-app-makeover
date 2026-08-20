@@ -752,6 +752,90 @@ export interface LawyerProfileDoc {
  */
 export const BIO_MAX_CHARS = 280;
 
+/* ---------- פניות — המתווה החדש (20/8/2026) ---------- */
+
+export type ReferralStatus =
+  /** שלב א — ממתין לבדיקת ניגוד של עורך הדין */
+  | "names_check"
+  /** עורך הדין אישר: אין ניגוד והוא זמין. ממתין לפונה לשתף את הסיכום */
+  | "cleared"
+  /** הפונה שיתף — עורך הדין רואה את הסיכום ורשאי להגיש הצעה */
+  | "details_shared"
+  /** עורך הדין השיב שאינו זמין. נוסח ניטרלי בלבד — ראו ש·10 */
+  | "declined"
+  /** חלון 48 השעות חלף בלי מענה */
+  | "expired";
+
+export interface ReferralDoc {
+  id: string;
+  caseId: string;
+  clientId: string;
+  lawyerId: string;
+  status: ReferralStatus;
+  /* שלב א — מה שעורך הדין רואה לפני שהפונה שיתף */
+  category: string;
+  city: string;
+  incidentMonth: string;
+  parties: string;
+  /* שלב ב — מועתקים פנימה רק אחרי אישור מפורש של הפונה */
+  caseTitle: string;
+  summary: string;
+  /* הצעה — פרטנית, מוצגת לפונה בלבד, בלי דירוג */
+  offerAmount?: number;
+  offerModel?: string;
+  offerNote?: string;
+  lawyerName?: string;
+  createdAt: number;
+  expiresAt: number;
+}
+
+function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): ReferralDoc {
+  const r = d.data();
+  return {
+    id: d.id,
+    caseId: String(r.caseId ?? ""),
+    clientId: String(r.clientId ?? ""),
+    lawyerId: String(r.lawyerId ?? ""),
+    status: (r.status as ReferralStatus) ?? "names_check",
+    category: String(r.category ?? ""),
+    city: String(r.city ?? ""),
+    incidentMonth: String(r.incidentMonth ?? ""),
+    parties: String(r.parties ?? ""),
+    caseTitle: String(r.caseTitle ?? ""),
+    summary: String(r.summary ?? ""),
+    offerAmount: typeof r.offerAmount === "number" ? r.offerAmount : undefined,
+    offerModel: r.offerModel ? String(r.offerModel) : undefined,
+    offerNote: r.offerNote ? String(r.offerNote) : undefined,
+    lawyerName: r.lawyerName ? String(r.lawyerName) : undefined,
+    createdAt: Number(r.createdAt ?? 0),
+    expiresAt: Number(r.expiresAt ?? 0),
+  };
+}
+
+/** הפניות שהגיעו לעורך דין — רק מי שהפונה בחר בו רואה אותן. */
+export function watchLawyerReferrals(
+  uid: string,
+  cb: (rows: ReferralDoc[]) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const q = query(collection(fbDb(), "referrals"), where("lawyerId", "==", uid));
+  return onSnapshot(q, (snap) => {
+    cb(snap.docs.map(refFromSnap).sort((a, b) => b.createdAt - a.createdAt));
+  }, (err) => onError?.(err));
+}
+
+/** הפניות של תיק — לפונה, במסך התיק. */
+export function watchCaseReferrals(
+  caseId: string,
+  cb: (rows: ReferralDoc[]) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const q = query(collection(fbDb(), "referrals"), where("caseId", "==", caseId));
+  return onSnapshot(q, (snap) => {
+    cb(snap.docs.map(refFromSnap).sort((a, b) => b.createdAt - a.createdAt));
+  }, (err) => onError?.(err));
+}
+
 /** פרטי הקשר של עו"ד — אוסף נפרד שקריא רק לבעליו ולאדמין (מניעת עקיפה). */
 export interface LawyerContactDoc {
   fullName: string;

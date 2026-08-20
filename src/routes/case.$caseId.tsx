@@ -5,6 +5,7 @@ import { ArrowLeft, ArrowRight, Check, MessageCircle, Phone, Scale, Star } from 
 import { toast } from "sonner";
 
 import { AppShell } from "../components/AppShell";
+import { CaseReferrals } from "../components/CaseReferrals";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { OfferComparison } from "../components/OfferComparison";
@@ -298,6 +299,9 @@ function CaseDetail() {
             >
               {t("caseChooseCta")}
             </Link>
+          )}
+          {(item.status === "awaiting_selection" || item.status === "connected") && (
+            <CaseReferrals caseId={item.id} status={item.status} />
           )}
 
           {(item.status === "matching" || item.status === "has_interest") && (
