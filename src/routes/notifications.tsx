@@ -48,6 +48,15 @@ function Notifications() {
     if (!n.read) markRead(n.id);
     if (!n.caseId) return;
     if (role === "lawyer") {
+      /*
+       * התראות הפניה מנווטות למסך ההפניות, לא לתיק: לפני שהפונה בחר
+       * בו עורך הדין אינו רשאי לקרוא את מסמך התיק, ופתיחתו הייתה
+       * מסתיימת במסך שגיאה. רק "נבחרת" מובילה לתיק עצמו.
+       */
+      if (n.type === "referral" || n.type === "summary_shared" || n.type === "referral_closed") {
+        navigate({ to: "/lawyer" });
+        return;
+      }
       navigate({ to: "/lawyer-case/$caseId", params: { caseId: n.caseId } });
     } else {
       navigate({ to: "/case/$caseId", params: { caseId: n.caseId } });

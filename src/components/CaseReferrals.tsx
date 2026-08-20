@@ -92,9 +92,11 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
                           ? t("caseRefCleared")
                           : r.status === "declined"
                             ? t("caseRefDeclined")
-                            : hasOffer
-                              ? `${t("caseRefOffer")}: ₪${r.offerAmount?.toLocaleString()} · ${r.offerModel ?? ""}`
-                              : t("caseRefShared")}
+                            : r.status === "closed"
+                              ? t("caseRefClosed")
+                              : hasOffer
+                                ? `${t("caseRefOffer")}: ₪${r.offerAmount?.toLocaleString()} · ${r.offerModel ?? ""}`
+                                : t("caseRefShared")}
                   </p>
                   {hasOffer && r.offerNote && (
                     <p className="mt-1 text-[12px] leading-relaxed text-foreground/75">{r.offerNote}</p>

@@ -198,6 +198,10 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                     </button>
                   )}
                 </>
+              ) : r.status === "closed" ? (
+                <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
+                  {t("refClosedLawyer")}
+                </p>
               ) : (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
                   {t("caseRefDeclined")}

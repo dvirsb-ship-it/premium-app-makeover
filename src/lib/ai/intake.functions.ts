@@ -817,7 +817,7 @@ export const requestReferralFn = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
     const {
       requireUser, adminGetCase, adminGetDoc, adminPatch, adminQueryIds,
-      notify, withErrorLog,
+      adminNotify, notify, withErrorLog,
     } = await import("./server-admin");
     return withErrorLog("requestReferral", async () => {
       const uid = await requireUser(data.idToken);
@@ -870,6 +870,7 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         expiresAt: now + 48 * 60 * 60 * 1000,
       });
 
+      /* פוש/מייל — ולצידם רשומת פעמון, למי שאין לו פוש */
       await notify(
         data.lawyerUid,
         {
@@ -879,6 +880,14 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         },
         "lawyerInterest",
       );
+      await adminNotify(data.lawyerUid, {
+        type: "referral",
+        caseId: data.caseId,
+        title: "פנייה חדשה ממתינה לבדיקתך",
+        body: "מישהו בחר בך מהאינדקס. בדוק ניגוד עניינים והשב בתוך 48 שעות.",
+        titleKey: "notifRefNewTitle",
+        bodyKey: "notifRefNewBody",
+      });
 
       return { ok: true };
     });
@@ -905,7 +914,7 @@ interface RespondReferralInput {
 export const respondReferralFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RespondReferralInput)
   .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
-    const { requireUser, adminGetDoc, adminPatch, notify, withErrorLog } =
+    const { requireUser, adminGetDoc, adminPatch, adminNotify, notify, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("respondReferral", async () => {
       const uid = await requireUser(data.idToken);
@@ -937,6 +946,26 @@ export const respondReferralFn = createServerFn({ method: "POST" })
             },
         "caseUpdates",
       );
+      await adminNotify(
+        String(r.clientId),
+        data.answer === "cleared"
+          ? {
+              type: "caseUpdate",
+              caseId: String(r.caseId),
+              title: "עורך הדין זמין לפנייתך",
+              body: "הוא בדק ניגוד עניינים ואישר זמינות. עכשיו תורך: אשר את שיתוף הסיכום.",
+              titleKey: "notifRefClearedTitle",
+              bodyKey: "notifRefClearedBody",
+            }
+          : {
+              type: "caseUpdate",
+              caseId: String(r.caseId),
+              title: "עורך הדין אינו זמין לפנייה זו",
+              body: "אפשר לחזור לאינדקס ולבחור עורך דין אחר.",
+              titleKey: "notifRefDeclinedTitle",
+              bodyKey: "notifRefDeclinedBody",
+            },
+      );
       return { ok: true };
     });
   });
@@ -956,7 +985,7 @@ interface ShareSummaryInput {
 export const shareSummaryFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ShareSummaryInput)
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
-    const { requireUser, adminGetDoc, adminGetCase, adminPatch, notify, withErrorLog } =
+    const { requireUser, adminGetDoc, adminGetCase, adminPatch, adminNotify, notify, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("shareSummary", async () => {
       const uid = await requireUser(data.idToken);
@@ -983,6 +1012,14 @@ export const shareSummaryFn = createServerFn({ method: "POST" })
         },
         "lawyerInterest",
       );
+      await adminNotify(String(r.lawyerId), {
+        type: "summary_shared",
+        caseId: String(r.caseId),
+        title: "הפונה שיתף את סיכום המקרה",
+        body: "הסיכום המלא זמין לעיונך. אפשר להגיש הצעת שכר טרחה.",
+        titleKey: "notifRefSharedTitle",
+        bodyKey: "notifRefSharedBody",
+      });
       return { ok: true };
     });
   });
@@ -1006,7 +1043,7 @@ interface ReferralOfferInput {
 export const submitReferralOfferFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ReferralOfferInput)
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
-    const { requireUser, adminGetDoc, adminPatch, notify, withErrorLog } =
+    const { requireUser, adminGetDoc, adminPatch, adminNotify, notify, withErrorLog } =
       await import("./server-admin");
     const { stripContactInfo: strip } = await import("../privacy");
     return withErrorLog("submitReferralOffer", async () => {
@@ -1045,11 +1082,19 @@ export const submitReferralOfferFn = createServerFn({ method: "POST" })
         String(r.clientId),
         {
           title: "התקבלה הצעת שכר טרחה",
-          body: "עורך הדין הגיש הצעה לפנייתך. היכנס להשוות ולבחור.",
+          body: "עורך הדין הגיש הצעה לפנייתך. היכנסו להשוות ולבחור.",
           link: `/case/${String(r.caseId)}`,
         },
         "caseUpdates",
       );
+      await adminNotify(String(r.clientId), {
+        type: "offer",
+        caseId: String(r.caseId),
+        title: "התקבלה הצעת שכר טרחה",
+        body: "עורך הדין הגיש הצעה לפנייתך. היכנסו להשוות ולבחור.",
+        titleKey: "notifRefOfferTitle",
+        bodyKey: "notifRefOfferBody",
+      });
       return { ok: true };
     });
   });
@@ -1085,8 +1130,10 @@ export const approveSummaryFn = createServerFn({ method: "POST" })
 export const recordConnectionFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RecordConnectionInput)
   .handler(async ({ data }): Promise<{ connections: number }> => {
-    const { requireUser, adminGetCase, recordConnection, withErrorLog } =
-      await import("./server-admin");
+    const {
+      requireUser, adminGetCase, adminGetDoc, adminPatch, adminQueryIds,
+      adminNotify, notify, recordConnection, withErrorLog,
+    } = await import("./server-admin");
     return withErrorLog("recordConnection", async () => {
       const uid = await requireUser(data.idToken);
       const c = await adminGetCase(data.caseId);
@@ -1094,6 +1141,46 @@ export const recordConnectionFn = createServerFn({ method: "POST" })
       const lawyerId = c.chosenLawyerId as string | undefined;
       if (!lawyerId) return { connections: 0 };
       const n = await recordConnection(lawyerId, data.caseId);
+
+      /* הרגע הגדול של עורך הדין — פוש, לא רק פעמון (הפעמון נכתב בצד הלקוח) */
+      await notify(
+        lawyerId,
+        {
+          title: "לקוח בחר בך!",
+          body: "פרטי הקשר זמינים בתיק. זה הזמן להרים טלפון.",
+          link: `/lawyer-case/${data.caseId}`,
+        },
+        "lawyerInterest",
+      );
+
+      /*
+       * סגירת הפניות האחיות — כי שתיקה גרועה מ"לא".
+       *
+       * עורך דין שבדק ניגוד או הגיש הצעה לומד את התשובה מהיעדרה אם לא
+       * נסגור: הפנייה קופאת אצלו כ"ממתינה" לנצח, ומי שמגלה לבד שהפסיד
+       * מפסיק להגיש הצעות. הסגירה בשרת — הדפדפן אינו רשאי לכתוב הפניות.
+       */
+      const ids = await adminQueryIds("referrals", "caseId", data.caseId);
+      for (const id of ids) {
+        const r = await adminGetDoc(`referrals/${encodeURIComponent(id)}`);
+        if (!r || r.lawyerId === lawyerId) continue;
+        if (r.status === "names_check" || r.status === "cleared" || r.status === "details_shared") {
+          await adminPatch(`referrals/${encodeURIComponent(id)}`, {
+            status: "closed",
+            closedAt: Date.now(),
+          });
+          /* פעמון בלבד, בלי פוש — בשורה שלילית לא מצדיקה צלצול */
+          await adminNotify(String(r.lawyerId), {
+            type: "referral_closed",
+            caseId: data.caseId,
+            title: "הפנייה נסגרה",
+            body: "הפונה התקדם עם עורך דין אחר. זה לא אומר דבר על המענה שלך.",
+            titleKey: "notifRefClosedTitle",
+            bodyKey: "notifRefClosedBody",
+          });
+        }
+      }
+
       return { connections: n };
     });
   });

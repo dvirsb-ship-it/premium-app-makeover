@@ -687,33 +687,11 @@ export async function chooseLawyerDb(
     });
 
     /*
-     * וגם למי שלא נבחר — כי שתיקה גרועה מ"לא".
-     *
-     * עורך דין שהביע עניין ושלח הצעה נשאר בלי שום אות: התיק פשוט קופא
-     * אצלו, והוא לומד את התשובה מהיעדרה. מי שמגלה לבד שהפסיד מפסיק
-     * להגיש הצעות — וההצעות הן כל המוצר.
-     *
-     * הנוסח עובדתי ולא מנחם-מזויף: נבחר אחר, זה לא אומר דבר על ההצעה,
-     * הפיד ממשיך. כשל כאן לא מפיל את הבחירה — החיבור של הלקוח כבר
-     * נוצר, וההודעות האלה הן נימוס, לא תנאי.
+     * מי שלא נבחר מקבל את האות מהשרת, לא מכאן: recordConnectionFn
+     * (שנקרא למעלה) סוגר את הפניות האחיות ומודיע לעורכי הדין שלהן.
+     * הגרסה הקודמת קראה את c.interested — שדה של מודל הפיד שמת
+     * ב-20/8/2026 — כלומר איש לא קיבל את ההודעה בפועל.
      */
-    const interested = (c.interested as { id?: string }[] | undefined) ?? [];
-    const others = interested
-      .map((l) => l?.id)
-      .filter((id): id is string => !!id && id !== lawyerId);
-    await Promise.allSettled(
-      others.map((id) =>
-        notify(id, {
-          type: "not_chosen",
-          title: "הלקוח בחר הפעם עורך דין אחר",
-          body: `הפנייה "${c.title || c.category}" נסגרה. זה לא אומר דבר על ההצעה שלך — ברוב הפניות נבחר אחד מתוך כמה טובים. הפיד שלך ממשיך להתעדכן.`,
-          titleKey: "notifNotChosenTitle",
-          bodyKey: "notifNotChosenBody",
-          params: { title: c.title || c.category },
-          caseId,
-        }),
-      ),
-    );
   }
 }
 
@@ -764,7 +742,9 @@ export type ReferralStatus =
   /** עורך הדין השיב שאינו זמין. נוסח ניטרלי בלבד — ראו ש·10 */
   | "declined"
   /** חלון 48 השעות חלף בלי מענה */
-  | "expired";
+  | "expired"
+  /** הפונה בחר עורך דין אחר — נסגרת בשרת ברגע הבחירה, כי שתיקה גרועה מ"לא" */
+  | "closed";
 
 export interface ReferralDoc {
   id: string;

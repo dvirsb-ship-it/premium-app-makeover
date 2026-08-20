@@ -1094,7 +1094,11 @@ export async function enforceDailyCap(uid: string, action: string): Promise<void
 /** התראה למשתמש — נכתבת בהרשאות שרת. */
 export async function adminNotify(
   userId: string,
-  n: { type: string; title: string; body: string; caseId?: string },
+  n: {
+    type: string; title: string; body: string; caseId?: string;
+    /* מפתחות תרגום — הפעמון מתורגם לשפת הקורא; העברית נשמרת כגיבוי */
+    titleKey?: string; bodyKey?: string; params?: Record<string, string>;
+  },
 ): Promise<void> {
   const fields: Record<string, FsValue> = {
     userId: { stringValue: userId },
@@ -1105,6 +1109,17 @@ export async function adminNotify(
     createdAt: { integerValue: String(Date.now()) },
   };
   if (n.caseId) fields.caseId = { stringValue: n.caseId };
+  if (n.titleKey) fields.titleKey = { stringValue: n.titleKey };
+  if (n.bodyKey) fields.bodyKey = { stringValue: n.bodyKey };
+  if (n.params && Object.keys(n.params).length) {
+    fields.params = {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(n.params).map(([k, v]) => [k, { stringValue: v }]),
+        ),
+      },
+    };
+  }
   await fetch(`${DOCS}/notifications`, {
     method: "POST",
     headers: {
