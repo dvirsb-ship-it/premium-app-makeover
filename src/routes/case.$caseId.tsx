@@ -276,6 +276,30 @@ function CaseDetail() {
             * בסגירת תיק אצל עורך הדין: פעולה שמודיעים עליה לאנשים
             * אחרים לא נעשית בלחיצה אחת.
             */}
+          {/*
+            * שני השלבים החדשים של המתווה (20/8/2026): סיכום שממתין
+            * לאישור, ותיק מאושר שממתין לבחירת עורך דין. שניהם CTA
+            * יחיד — אלה הרגעים שבהם הפונה הוא זה שפועל.
+            */}
+          {item.status === "summary_ready" && (
+            <Link
+              to="/summary/$caseId"
+              params={{ caseId: item.id }}
+              className="btn-gold mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl text-[14px] font-bold"
+            >
+              {t("caseSummaryReadyCta")}
+            </Link>
+          )}
+          {item.status === "awaiting_selection" && (
+            <Link
+              to="/choose/$caseId"
+              params={{ caseId: item.id }}
+              className="btn-gold mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl text-[14px] font-bold"
+            >
+              {t("caseChooseCta")}
+            </Link>
+          )}
+
           {(item.status === "matching" || item.status === "has_interest") && (
             <div className="mt-3">
               {confirmWithdraw ? (

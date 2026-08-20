@@ -1176,3 +1176,36 @@ describe("תקרות", () => {
     );
   });
 });
+
+/* ---------- פניות — המתווה החדש ---------- */
+
+describe("referrals", () => {
+  async function seedReferral(id: string, clientId: string, lawyerId: string) {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), `referrals/${id}`), {
+        caseId: "c1", clientId, lawyerId,
+        status: "names_check", parties: "הפונה; חברת ביטוח",
+        createdAt: Date.now(),
+      });
+    });
+  }
+
+  it("הפונה ועורך הדין הנמען קוראים; זר לא", async () => {
+    await seedReferral("c1_lawyerOk", "client1", "lawyerOk");
+    await assertSucceeds(getDoc(doc(as("client1"), "referrals/c1_lawyerOk")));
+    await assertSucceeds(getDoc(doc(as("lawyerOk"), "referrals/c1_lawyerOk")));
+    await assertFails(getDoc(doc(as("lawyerOther"), "referrals/c1_lawyerOk")));
+  });
+
+  it("איש אינו כותב פנייה מהדפדפן — גם לא הצדדים עצמם", async () => {
+    await seedReferral("c1_lawyerB", "client1", "lawyerOk");
+    await assertFails(
+      setDoc(doc(as("client1"), "referrals/c1_lawyerC"), {
+        caseId: "c1", clientId: "client1", lawyerId: "lawyerOther", status: "names_check",
+      }),
+    );
+    await assertFails(
+      updateDoc(doc(as("lawyerOk"), "referrals/c1_lawyerB"), { status: "cleared" }),
+    );
+  });
+});

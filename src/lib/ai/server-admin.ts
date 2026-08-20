@@ -532,7 +532,7 @@ async function adminDelete(path: string): Promise<void> {
 }
 
 /** מזהי מסמכים באוסף לפי שדה — לאיתור כל התיקים של המשתמש. */
-async function adminQueryIds(
+export async function adminQueryIds(
   collectionId: string,
   field: string,
   value: string,

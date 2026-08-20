@@ -34,6 +34,7 @@ import { Route as SettingsHelpRouteImport } from './routes/settings.help'
 import { Route as SettingsAccessibilityRouteImport } from './routes/settings.accessibility'
 import { Route as LawyerProfileLawyerIdRouteImport } from './routes/lawyer-profile.$lawyerId'
 import { Route as LawyerCaseCaseIdRouteImport } from './routes/lawyer-case.$caseId'
+import { Route as ChooseCaseIdRouteImport } from './routes/choose.$caseId'
 import { Route as CaseCaseIdRouteImport } from './routes/case.$caseId'
 import { Route as AdminVerificationsRouteImport } from './routes/admin.verifications'
 
@@ -162,6 +163,11 @@ const LawyerCaseCaseIdRoute = LawyerCaseCaseIdRouteImport.update({
   path: '/lawyer-case/$caseId',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ChooseCaseIdRoute = ChooseCaseIdRouteImport.update({
+  id: '/choose/$caseId',
+  path: '/choose/$caseId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CaseCaseIdRoute = CaseCaseIdRouteImport.update({
   id: '/case/$caseId',
   path: '/case/$caseId',
@@ -191,6 +197,7 @@ export interface FileRoutesByFullPath {
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/choose/$caseId': typeof ChooseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
   '/settings/accessibility': typeof SettingsAccessibilityRoute
@@ -220,6 +227,7 @@ export interface FileRoutesByTo {
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/choose/$caseId': typeof ChooseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
   '/settings/accessibility': typeof SettingsAccessibilityRoute
@@ -250,6 +258,7 @@ export interface FileRoutesById {
   '/welcome': typeof WelcomeRoute
   '/admin/verifications': typeof AdminVerificationsRoute
   '/case/$caseId': typeof CaseCaseIdRoute
+  '/choose/$caseId': typeof ChooseCaseIdRoute
   '/lawyer-case/$caseId': typeof LawyerCaseCaseIdRoute
   '/lawyer-profile/$lawyerId': typeof LawyerProfileLawyerIdRoute
   '/settings/accessibility': typeof SettingsAccessibilityRoute
@@ -281,6 +290,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/admin/verifications'
     | '/case/$caseId'
+    | '/choose/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
     | '/settings/accessibility'
@@ -310,6 +320,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/admin/verifications'
     | '/case/$caseId'
+    | '/choose/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
     | '/settings/accessibility'
@@ -339,6 +350,7 @@ export interface FileRouteTypes {
     | '/welcome'
     | '/admin/verifications'
     | '/case/$caseId'
+    | '/choose/$caseId'
     | '/lawyer-case/$caseId'
     | '/lawyer-profile/$lawyerId'
     | '/settings/accessibility'
@@ -369,6 +381,7 @@ export interface RootRouteChildren {
   WelcomeRoute: typeof WelcomeRoute
   AdminVerificationsRoute: typeof AdminVerificationsRoute
   CaseCaseIdRoute: typeof CaseCaseIdRoute
+  ChooseCaseIdRoute: typeof ChooseCaseIdRoute
   LawyerCaseCaseIdRoute: typeof LawyerCaseCaseIdRoute
   LawyerProfileLawyerIdRoute: typeof LawyerProfileLawyerIdRoute
   SettingsAccessibilityRoute: typeof SettingsAccessibilityRoute
@@ -558,6 +571,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LawyerCaseCaseIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/choose/$caseId': {
+      id: '/choose/$caseId'
+      path: '/choose/$caseId'
+      fullPath: '/choose/$caseId'
+      preLoaderRoute: typeof ChooseCaseIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/case/$caseId': {
       id: '/case/$caseId'
       path: '/case/$caseId'
@@ -593,6 +613,7 @@ const rootRouteChildren: RootRouteChildren = {
   WelcomeRoute: WelcomeRoute,
   AdminVerificationsRoute: AdminVerificationsRoute,
   CaseCaseIdRoute: CaseCaseIdRoute,
+  ChooseCaseIdRoute: ChooseCaseIdRoute,
   LawyerCaseCaseIdRoute: LawyerCaseCaseIdRoute,
   LawyerProfileLawyerIdRoute: LawyerProfileLawyerIdRoute,
   SettingsAccessibilityRoute: SettingsAccessibilityRoute,

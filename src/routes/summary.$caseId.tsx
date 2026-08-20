@@ -85,7 +85,8 @@ function SummaryReview() {
       const idToken = await fbAuth().currentUser?.getIdToken();
       await approveSummaryFn({ data: { caseId, idToken, summary, category } });
       haptic("success");
-      navigate({ to: "/case/$caseId", params: { caseId } });
+      // ישר לבחירה — זה הצעד הבא היחיד, ואין סיבה לעצור בדרך
+      navigate({ to: "/choose/$caseId", params: { caseId } });
     } catch {
       setErr(true);
       setSaving(false);

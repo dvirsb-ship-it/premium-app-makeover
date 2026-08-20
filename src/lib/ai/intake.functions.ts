@@ -343,7 +343,8 @@ const SUMMARY_SYSTEM = `אתה מסכם עובדתי של JustAsk. קיבלת ת
 סימונים כמו [מספר זהות הוסר] הם הסרה יזומה של מזהים — התעלם מהם ואל תתייחס אליהם.
 
 ## פלט
-JSON בלבד, בשדות: title, summary, clientChecklist.
+JSON בלבד, בשדות: title, summary, parties, clientChecklist.
+parties — מחרוזת קצרה של הצדדים המעורבים כפי שנמסרו, בשמותיהם אם נאמרו (למשל: "הפונה; סופרמרקט יוחננוף סניף חיפה"). זהו נתון עובדתי לבדיקת ניגוד עניינים אצל עורך הדין. אם לא נמסרו שמות — תאר תפקידים ("הפונה; בעל הדירה"). אל תמציא שמות.
 clientChecklist הוא מערך של מחרוזות קצרות, או מערך ריק אם הפונה לא הצהיר על תיעוד כלשהו.`;
 
 export const validateCaseFn = createServerFn({ method: "POST" })
@@ -456,6 +457,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
             properties: {
               title: { type: "string" },
               summary: { type: "string" },
+              parties: { type: "string" },
               clientChecklist: { type: "array", items: { type: "string" } },
             },
             required: ["title", "summary"],
@@ -466,6 +468,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       const parsed = JSON.parse(raw_summary) as {
         title?: string;
         summary?: string;
+        parties?: string;
         clientChecklist?: string[];
       };
 
@@ -492,6 +495,12 @@ export const validateCaseFn = createServerFn({ method: "POST" })
       await adminUpdateCase(data.caseId, {
         title: result.title,
         summary: result.summary,
+        /*
+         * הצדדים נשמרים בנפרד מהסיכום: זה מה שעורך הדין מקבל בשלב א
+         * של החשיפה המדורגת — בדיקת ניגוד עניינים על שמות בלבד, בלי
+         * תיאור המקרה (סעיף 2.5 לסקירה).
+         */
+        parties: (parsed.parties ?? "").slice(0, 300),
         status: "summary_ready",
         summarizedAt: Date.now(),
       });
@@ -724,6 +733,152 @@ interface ApproveSummaryInput {
  * שהמשתמש בחר", והצעה אוטומטית מטקסט חופשי טעונה בחינה נוספת שטרם
  * ניתנה.
  */
+export interface IndexLawyer {
+  uid: string;
+  name: string;
+  specialties: string[];
+  city?: string;
+  languages?: string[];
+  barYear?: string;
+  photoUrl?: string;
+  bio?: string;
+}
+
+/**
+ * האינדקס — עורכי דין מאושרים בתחום שהפונה בחר.
+ *
+ * ═══ למה בשרת ולא בשאילתת לקוח (20/8/2026) ═══
+ *
+ * "מאושר" נקבע ב-verifications/{uid}, שקריא רק לבעליו ולאדמין —
+ * ובצדק: אין סיבה שכל מחובר ידע מי נדחה. לכן הסינון חייב לרוץ כאן,
+ * עם הרשאות שרת. זו גם נקודת האכיפה של "הפסקת מנוי — הסרה מהאינדקס"
+ * כשיהיה חיוב.
+ *
+ * הסדר אלפביתי, והמסך אומר זאת: הסקירה דורשת מתודולוגיה גלויה ואוסרת
+ * סדר שמרמז על העדפה מקצועית (5.3). א-ב הוא הסדר היחיד שאין בו טענה.
+ */
+export const indexLawyersFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { category: string; idToken?: string })
+  .handler(async ({ data }): Promise<{ lawyers: IndexLawyer[] }> => {
+    const { requireUser, adminApprovedLawyerIds, adminGetDoc, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("indexLawyers", async () => {
+      await requireUser(data.idToken);
+      const ids = await adminApprovedLawyerIds(data.category);
+      const out: IndexLawyer[] = [];
+      for (const uid of ids) {
+        const p = await adminGetDoc(`lawyerProfiles/${encodeURIComponent(uid)}`);
+        if (!p?.name) continue;
+        out.push({
+          uid,
+          name: String(p.name),
+          specialties: (p.specialties as string[] | undefined) ?? [],
+          city: p.city ? String(p.city) : undefined,
+          languages: (p.languages as string[] | undefined) ?? undefined,
+          barYear: p.barYear ? String(p.barYear) : undefined,
+          photoUrl: p.photoUrl ? String(p.photoUrl) : undefined,
+          bio: p.bio ? String(p.bio) : undefined,
+        });
+      }
+      out.sort((a, b) => a.name.localeCompare(b.name, "he"));
+      return { lawyers: out };
+    });
+  });
+
+/** כמה פניות פעילות מותר לפונה במקביל — ההכרעה מהפגישה: "לבחור מספר". */
+export const MAX_ACTIVE_REFERRALS = 3;
+
+interface RequestReferralInput {
+  caseId: string;
+  lawyerUid: string;
+  idToken?: string;
+}
+
+/**
+ * פנייה לעורך דין שהפונה בחר — שלב א של החשיפה המדורגת.
+ *
+ * ═══ המבנה כולו נגזר מהסקירה (20/8/2026) ═══
+ *
+ * מסמך הפנייה מכיל **העתק** של מה שמותר לעורך הדין לראות בכל שלב,
+ * כך שהוא לעולם אינו קורא את מסמך התיק עצמו: בשלב א — הצדדים לבדיקת
+ * ניגוד, תחום, עיר וחודש האירוע. בלי תיאור, בלי סיכום, בלי שם הפונה
+ * (סעיף 2.5). הסיכום המלא יועתק פנימה רק כשהפונה יאשר במפורש — שלב ב.
+ *
+ * הכתיבה בשרת בלבד, משלוש סיבות: מכסת שלוש פניות פעילות היא ספירה
+ * שחוקי מסד אינם יודעים לאכוף; המזהה הדטרמיניסטי caseId_lawyerUid
+ * מונע פנייה כפולה לאותו עורך דין; וההעתק חייב להיבנות ממה שבאמת
+ * שמור על התיק, לא ממה שהדפדפן שולח.
+ *
+ * חלון המענה 48 שעות (ש·10 מהפגישה): פקיעה אינה מעבירה לאיש — הפונה
+ * מקבל הודעה וחוזר לבחור. אין העברה אוטומטית (5.5).
+ */
+export const requestReferralFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as RequestReferralInput)
+  .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
+    const {
+      requireUser, adminGetCase, adminGetDoc, adminPatch, adminQueryIds,
+      notify, withErrorLog,
+    } = await import("./server-admin");
+    return withErrorLog("requestReferral", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) throw new Error("forbidden");
+      if (c.status !== "awaiting_selection") {
+        return { ok: false, reason: "case_not_ready" };
+      }
+
+      const ver = await adminGetDoc(`verifications/${encodeURIComponent(data.lawyerUid)}`);
+      if (ver?.status !== "approved") return { ok: false, reason: "lawyer_not_available" };
+
+      const refId = `${data.caseId}_${data.lawyerUid}`;
+      const existing = await adminGetDoc(`referrals/${refId}`);
+      if (existing) return { ok: false, reason: "already_sent" };
+
+      /*
+       * המכסה נספרת על פניות שעודן פעילות — ממתינות או שנוקו לניגוד.
+       * דחויות ופקועות אינן תופסות מקום: הפונה שנדחה חוזר לבחור.
+       */
+      const all = await adminQueryIds("referrals", "caseId", data.caseId);
+      let active = 0;
+      for (const id of all) {
+        const r = await adminGetDoc(`referrals/${id}`);
+        if (r && (r.status === "names_check" || r.status === "cleared" || r.status === "details_shared")) {
+          active++;
+        }
+      }
+      if (active >= MAX_ACTIVE_REFERRALS) return { ok: false, reason: "limit" };
+
+      const now = Date.now();
+      await adminPatch(`referrals/${refId}`, {
+        caseId: data.caseId,
+        clientId: uid,
+        lawyerId: data.lawyerUid,
+        status: "names_check",
+        /* שלב א — מה שעורך הדין רואה, וזה בלבד */
+        category: String(c.category ?? ""),
+        city: String(c.city ?? ""),
+        incidentMonth: String(c.incidentDate ?? "").slice(0, 7),
+        parties: String(c.parties ?? ""),
+        caseTitle: "",
+        summary: "",
+        createdAt: now,
+        expiresAt: now + 48 * 60 * 60 * 1000,
+      });
+
+      await notify(
+        data.lawyerUid,
+        {
+          title: "פנייה חדשה ממתינה לבדיקת ניגוד עניינים",
+          body: "מישהו בחר בך מהאינדקס. בדוק ניגוד עניינים והשב בתוך 48 שעות.",
+          link: "/lawyer",
+        },
+        "lawyerInterest",
+      );
+
+      return { ok: true };
+    });
+  });
+
 export const approveSummaryFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ApproveSummaryInput)
   .handler(async ({ data }): Promise<{ ok: boolean; category: string }> => {
