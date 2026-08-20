@@ -28,12 +28,12 @@ import { isWarningReason, strongestReason, type MatchReason } from "../lib/match
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
     meta: [
-      { title: "JustAsk — Lawyer feed" },
+      { title: "JustAsk — הפניות אליך" },
       {
         name: "description",
         content: "Fresh legal requests waiting for expert lawyers to express interest.",
       },
-      { property: "og:title", content: "JustAsk — Lawyer feed" },
+      { property: "og:title", content: "JustAsk — הפניות אליך" },
       {
         property: "og:description",
         content: "Quality real-time legal requests for lawyers on JustAsk.",

@@ -8,12 +8,17 @@ const LABELS: Record<CaseStatus, StatusLabel> = {
   summary_ready: { he: "הסיכום מוכן — לעיונך", en: "Summary ready for your review", ru: "Сводка готова к проверке", ar: "الملخّص جاهز لمراجعتك", es: "Resumen listo para su revisión", fr: "Résumé prêt à relire", tone: "gold" },
   awaiting_selection: { he: "מוכן — בחר עורך דין", en: "Ready — choose a lawyer", ru: "Готово — выберите адвоката", ar: "جاهز — اختر محاميًا", es: "Listo — elija un abogado", fr: "Prêt — choisissez un avocat", tone: "gold" },
   validating: { he: "בבדיקה", en: "Reviewing", ru: "На проверке", ar: "قيد المراجعة", es: "En revisión", fr: "En cours d’examen", tone: "muted" },
-  matching: { he: "עברה את הבדיקה · מחפשים עורכי דין", en: "Passed · finding lawyers", ru: "Проверено · ищем адвокатов", ar: "اجتاز الفحص · نبحث عن محامين", es: "Aprobada · buscando abogados", fr: "Validée · recherche d’avocats", tone: "gold" },
+  /*
+   * matching ו-rejected אינם מושגים בזרימה החדשה (20/8/2026) — תיקים
+   * נעצרים ב-summary_ready/awaiting_selection, ודחייה משפטית אינה
+   * קיימת. התוויות נשארות לתיקים ישנים בלבד, בניסוח ניטרלי.
+   */
+  matching: { he: "בטיפול", en: "In progress", ru: "В работе", ar: "قيد المعالجة", es: "En curso", fr: "En cours", tone: "gold" },
   has_interest: { he: "יש התעניינות", en: "Interest received", ru: "Есть заинтересованность", ar: "هناك اهتمام", es: "Hay interés", fr: "Intérêt reçu", tone: "navy" },
   connected: { he: "נוצר חיבור", en: "Connected", ru: "Связь установлена", ar: "تم التواصل", es: "Conectado", fr: "Mis en relation", tone: "success" },
   closed: { he: "התיק הסתיים", en: "Case closed", ru: "Дело закрыто", ar: "أُغلق الملف", es: "Caso cerrado", fr: "Dossier clôturé", tone: "muted" },
   withdrawn: { he: "הפנייה נמשכה", en: "Case withdrawn", ru: "Обращение отозвано", ar: "سُحب الطلب", es: "Caso retirado", fr: "Dossier retiré", tone: "muted" },
-  rejected: { he: "לא זוהה סיכוי", en: "No chance identified", ru: "Шанс не выявлен", ar: "لم يُلحَظ احتمال", es: "Sin posibilidades identificadas", fr: "Aucune chance identifiée", tone: "muted" },
+  rejected: { he: "הפנייה נסגרה", en: "Request closed", ru: "Обращение закрыто", ar: "أُغلق الطلب", es: "Solicitud cerrada", fr: "Demande close", tone: "muted" },
 };
 
 export const statusMeta = new Proxy(
