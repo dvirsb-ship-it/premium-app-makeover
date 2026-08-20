@@ -2,6 +2,8 @@ export type Role = "client" | "lawyer";
 
 export type CaseStatus =
   | "validating"
+  /** הסיכום העובדתי מוכן, והפונה טרם אישר אותו. אינו נחשף לאיש. */
+  | "summary_ready"
   | "matching"
   | "has_interest"
   | "connected"

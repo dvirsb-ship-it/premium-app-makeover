@@ -97,8 +97,9 @@ function Validating() {
         : {
             type: "case_rejected",
             title: "הבדיקה הראשונית הושלמה",
-            // גוף ההסבר מגיע מה-AI בשפת הראיון — אין נוסח קבוע לתרגם
-            body: res.recommendation || res.summary,
+            // ההמלצה הוסרה 19/8/2026 יחד עם הדחייה המשפטית. המסלול הזה
+            // נותר רק לחסימה תפעולית (תקרת תיקים פתוחים).
+            body: res.summary,
             titleKey: "notifCaseRejectedTitle",
             caseId,
           },
@@ -142,7 +143,6 @@ function Validating() {
       }
       if (!res.validated) {
         const parts = [res.summary || t("valRejectedSub")];
-        if (res.recommendation) parts.push(res.recommendation);
         haptic("warning");
         setRejected(parts.join("\n\n"));
         return;
