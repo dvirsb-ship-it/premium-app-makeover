@@ -5,11 +5,13 @@ import { BadgeCheck, MapPin, Search } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
-import { useT } from "../lib/i18n";
+import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { fbDb, fbAuth } from "../lib/firebase";
 import { cn } from "../lib/utils";
+import { SPECIALTIES } from "../lib/specialties";
+import { categoryIcon } from "../lib/category-icons";
 import { haptic } from "../lib/haptics";
 import type { IndexLawyer } from "../lib/ai/intake.functions";
 
@@ -50,6 +52,9 @@ function ChooseLawyer() {
   const [cityFilter, setCityFilter] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState(false);
+  /* אינדקס ריק — בחירת תחום אחר בו-במקום, בלי מבוי סתום */
+  const [picker, setPicker] = useState(false);
+  const [switching, setSwitching] = useState(false);
 
   /* התיק — התחום שנבחר במסך הסיכום */
   useEffect(() => {
@@ -121,6 +126,29 @@ function ChooseLawyer() {
 
   const atLimit = activeCount >= 3;
 
+  async function changeField(value: string) {
+    if (switching || value === category) {
+      setPicker(false);
+      return;
+    }
+    setSwitching(true);
+    try {
+      const { changeCategoryFn } = await import("../lib/ai/intake.functions");
+      const idToken = await fbAuth().currentUser?.getIdToken();
+      const res = await changeCategoryFn({ data: { caseId, category: value, idToken } });
+      if (res.ok) {
+        haptic("light");
+        setLawyers(null);
+        setCategory(res.category);
+        setPicker(false);
+      }
+    } catch {
+      setErr(true);
+    } finally {
+      setSwitching(false);
+    }
+  }
+
   return (
     <AppShell>
       <TopBar title={t("idxTitle")} subtitle={category || t("idxSub")} />
@@ -163,9 +191,46 @@ function ChooseLawyer() {
             <Rise><div className="liquid-glass h-32 animate-pulse rounded-3xl" /></Rise>
           ) : shown.length === 0 ? (
             <Rise>
-              <p className="liquid-glass rounded-3xl p-6 text-center text-[13px] text-muted-foreground">
-                {t("idxEmpty")}
-              </p>
+              <div className="liquid-glass rounded-3xl p-6 text-center">
+                <p className="text-[13px] leading-relaxed text-muted-foreground">
+                  {lawyers && lawyers.length > 0 ? t("idxEmptyCity") : t("idxEmpty")}
+                </p>
+                {(!lawyers || lawyers.length === 0) &&
+                  (picker ? (
+                    <div className="mt-4 grid grid-cols-2 gap-2 text-start">
+                      {SPECIALTIES.map((sp) => {
+                        const label = t(sp.labelKey);
+                        const value = translate(sp.labelKey, "he");
+                        const Icon = categoryIcon(value);
+                        const on = value === category;
+                        return (
+                          <button
+                            key={sp.id}
+                            type="button"
+                            disabled={switching}
+                            onClick={() => void changeField(value)}
+                            aria-pressed={on}
+                            className={cn(
+                              "flex min-h-11 items-center gap-2 rounded-2xl px-3 py-2.5 text-start text-[12.5px] font-semibold transition disabled:opacity-45",
+                              on ? "chip-gold" : "border border-border bg-background/50 text-foreground/80",
+                            )}
+                          >
+                            <Icon className="size-4 shrink-0" aria-hidden />
+                            <span className="min-w-0 flex-1 truncate">{label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setPicker(true)}
+                      className="btn-gold mt-4 min-h-11 rounded-2xl px-6 text-[13px] font-bold"
+                    >
+                      {t("idxChangeField")}
+                    </button>
+                  ))}
+              </div>
             </Rise>
           ) : (
             shown.map((l) => {

@@ -1140,6 +1140,41 @@ export const approveSummaryFn = createServerFn({ method: "POST" })
     });
   });
 
+interface ChangeCategoryInput {
+  caseId: string;
+  category: string;
+  idToken?: string;
+}
+
+/**
+ * שינוי תחום אחרי האישור — הפונה מול אינדקס ריק.
+ *
+ * נולד בבדיקה המשותפת (21/8/2026): תיק צרכנות מול אינדקס שבו רק עורך
+ * דין לנזיקין — מסך ריק בלי שום המשך. ההבטחה שבמסך הסיכום ("אפשר
+ * לשנות אותה בכל שלב") לא הייתה ממומשת בשום מקום.
+ *
+ * בשרת ולא בדפדפן — הלקוח אינו רשאי לכתוב category (חוקי המסד).
+ * מותר רק בשלב הבחירה: אחרי חיבור אין משמעות לשינוי, והפניות שכבר
+ * נשלחו נושאות את התחום שלהן כצילום ואינן מושפעות.
+ */
+export const changeCategoryFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as ChangeCategoryInput)
+  .handler(async ({ data }): Promise<{ ok: boolean; category: string }> => {
+    const { requireUser, adminGetCase, adminUpdateCase, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("changeCategory", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) throw new Error("forbidden");
+      if (c.status !== "awaiting_selection") {
+        return { ok: false, category: String(c.category ?? "") };
+      }
+      const category = normalizeCategory(data.category);
+      await adminUpdateCase(data.caseId, { category });
+      return { ok: true, category };
+    });
+  });
+
 export const recordConnectionFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RecordConnectionInput)
   .handler(async ({ data }): Promise<{ connections: number }> => {
