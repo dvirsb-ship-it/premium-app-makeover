@@ -425,7 +425,11 @@ export interface NewCaseInput {
  * ולא נצטרך לשחזר אותו מהיסטוריית הקוד. אותו מנגנון בדיוק כמו
  * UNDERTAKING_VERSION בצד עורך הדין.
  */
-export const OFFERS_REQUEST_VERSION = 1;
+/*
+ * גרסה 2 (20/8/2026): נוסח מודל הבחירה — נשלח רק לעו"ד שנבחרו, שמות
+ * הצדדים נמסרים תחילה לניגוד עניינים. גרסה 1 דיברה על הצגה בעילום שם.
+ */
+export const OFFERS_REQUEST_VERSION = 2;
 
 /** יצירת תיק חדש במצב ולידציה. מחזיר את מזהה התיק. */
 export async function createCase(input: NewCaseInput): Promise<string> {

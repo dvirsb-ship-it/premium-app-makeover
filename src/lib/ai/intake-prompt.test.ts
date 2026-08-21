@@ -51,6 +51,11 @@ describe("חוקת הקליטה — מסוף ועומק", () => {
     expect(p).toContain("נחקר או נאשם");
   });
 
+  it("הקודים הפנימיים לא מוצגים למשתמש, והפלט בלי Markdown", () => {
+    expect(p).toContain("לעולם אל תציג אותם למשתמש");
+    expect(p).toContain("בלי Markdown");
+  });
+
   it("אין בקשת קבצים ואין בקשת מזהים", () => {
     expect(p).toContain("אל תבקש לצרף או לשלוח קבצים");
     expect(p).toContain("אל תבקש תעודת זהות");
