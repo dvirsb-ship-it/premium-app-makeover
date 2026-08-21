@@ -804,6 +804,13 @@ export const MAX_ACTIVE_REFERRALS = 3;
 interface RequestReferralInput {
   caseId: string;
   lawyerUid: string;
+  /*
+   * הסכמה מראש לשיתוף הסיכום: אם עורך הדין יאשר זמינות, הסיכום נחשף
+   * אוטומטית בלי סבב אישור נוסף. ברירת המחדל במסך דלוקה, וההסכמה
+   * מפורשת — הפונה רואה את הנוסח ליד תיבת הסימון בזמן השליחה.
+   * (הוחלט בבדיקה המשותפת 21/8/2026; לאשרור מול עו"ד נתן לפני השקה.)
+   */
+  autoShare?: boolean;
   idToken?: string;
 }
 
@@ -879,6 +886,7 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         parties: String(c.parties ?? ""),
         caseTitle: "",
         summary: "",
+        autoShare: !!data.autoShare,
         createdAt: now,
         expiresAt: now + 48 * 60 * 60 * 1000,
       });
@@ -927,7 +935,7 @@ interface RespondReferralInput {
 export const respondReferralFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RespondReferralInput)
   .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
-    const { requireUser, adminGetDoc, adminPatch, adminNotify, notify, withErrorLog } =
+    const { requireUser, adminGetDoc, adminGetCase, adminPatch, adminNotify, notify, withErrorLog } =
       await import("./server-admin");
     return withErrorLog("respondReferral", async () => {
       const uid = await requireUser(data.idToken);
@@ -939,14 +947,42 @@ export const respondReferralFn = createServerFn({ method: "POST" })
         return { ok: false, reason: "expired" };
       }
 
-      await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
-        status: data.answer,
-        respondedAt: Date.now(),
-      });
+      /*
+       * שיתוף אוטומטי: הפונה הסכים מראש, בשליחה, שאישור זמינות חושף
+       * את הסיכום מיד — סבב אחד פחות. בלי ההסכמה: העצירה הידנית נשארת.
+       */
+      const autoShare = data.answer === "cleared" && r.autoShare === true;
+      let shared = false;
+      if (autoShare) {
+        const c = await adminGetCase(String(r.caseId));
+        if (c) {
+          await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
+            status: "details_shared",
+            caseTitle: String(c.title ?? ""),
+            summary: String(c.summary ?? ""),
+            respondedAt: Date.now(),
+            sharedAt: Date.now(),
+            autoShared: true,
+          });
+          shared = true;
+        }
+      }
+      if (!shared) {
+        await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
+          status: data.answer,
+          respondedAt: Date.now(),
+        });
+      }
 
       await notify(
         String(r.clientId),
-        data.answer === "cleared"
+        shared
+          ? {
+              title: "עורך הדין זמין — הסיכום שותף",
+              body: "הוא אישר זמינות, והסיכום שותף אוטומטית לפי אישורך. נעדכן כשתגיע הצעת שכר טרחה.",
+              link: `/case/${String(r.caseId)}`,
+            }
+          : data.answer === "cleared"
           ? {
               title: "עורך הדין זמין לפנייתך",
               body: "הוא בדק ניגוד עניינים ואישר זמינות. עכשיו תורך: אשר את שיתוף הסיכום.",
@@ -961,7 +997,16 @@ export const respondReferralFn = createServerFn({ method: "POST" })
       );
       await adminNotify(
         String(r.clientId),
-        data.answer === "cleared"
+        shared
+          ? {
+              type: "caseUpdate",
+              caseId: String(r.caseId),
+              title: "עורך הדין זמין — הסיכום שותף",
+              body: "הוא אישר זמינות, והסיכום שותף אוטומטית לפי אישורך. נעדכן כשתגיע הצעת שכר טרחה.",
+              titleKey: "notifRefAutoTitle",
+              bodyKey: "notifRefAutoBody",
+            }
+          : data.answer === "cleared"
           ? {
               type: "caseUpdate",
               caseId: String(r.caseId),

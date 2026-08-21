@@ -10,7 +10,7 @@ import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { fbDb, fbAuth } from "../lib/firebase";
 import { cn } from "../lib/utils";
-import { SPECIALTIES } from "../lib/specialties";
+import { SPECIALTIES, type SpecId } from "../lib/specialties";
 import { categoryIcon } from "../lib/category-icons";
 import { haptic } from "../lib/haptics";
 import type { IndexLawyer } from "../lib/ai/intake.functions";
@@ -38,6 +38,9 @@ export const Route = createFileRoute("/choose/$caseId")({
  * - הפנייה שולחת שמות לבדיקת ניגוד בלבד, והמסך אומר לפונה בדיוק
  *   מה נשלח ומה לא (2.5). עד שלוש פניות פעילות.
  */
+/* מזהה תחום → מפתח תווית: הכרטיס הציג "injury" גולמי (נתפס בבדיקה המשותפת) */
+const SPEC_LABEL = Object.fromEntries(SPECIALTIES.map((s) => [s.id, s.labelKey]));
+
 function ChooseLawyer() {
   useRequireAuth();
   const { caseId } = Route.useParams();
@@ -55,6 +58,8 @@ function ChooseLawyer() {
   /* אינדקס ריק — בחירת תחום אחר בו-במקום, בלי מבוי סתום */
   const [picker, setPicker] = useState(false);
   const [switching, setSwitching] = useState(false);
+  /* הסכמה מראש: אישור זמינות חושף את הסיכום בלי סבב נוסף */
+  const [autoShare, setAutoShare] = useState(true);
 
   /* התיק — התחום שנבחר במסך הסיכום */
   useEffect(() => {
@@ -114,7 +119,7 @@ function ChooseLawyer() {
     try {
       const { requestReferralFn } = await import("../lib/ai/intake.functions");
       const idToken = await fbAuth().currentUser?.getIdToken();
-      const res = await requestReferralFn({ data: { caseId, lawyerUid: uid, idToken } });
+      const res = await requestReferralFn({ data: { caseId, lawyerUid: uid, autoShare, idToken } });
       if (res.ok) haptic("success");
       else setErr(true);
     } catch {
@@ -177,6 +182,25 @@ function ChooseLawyer() {
             <p className="mt-2 px-1 text-[11px] text-muted-foreground">
               {t("idxOrderNote")} · {t("idxLimit")}
             </p>
+          </Rise>
+
+          <Rise>
+            <label className="liquid-glass flex cursor-pointer items-start gap-3 rounded-2xl px-4 py-3">
+              <input
+                type="checkbox"
+                checked={autoShare}
+                onChange={(e) => setAutoShare(e.target.checked)}
+                className="mt-0.5 size-4 shrink-0 accent-[#B8912B]"
+              />
+              <span className="min-w-0">
+                <span className="block text-[12.5px] font-semibold leading-snug text-foreground">
+                  {t("idxAutoShare")}
+                </span>
+                <span className="mt-0.5 block text-[11px] leading-relaxed text-muted-foreground">
+                  {t("idxAutoShareSub")}
+                </span>
+              </span>
+            </label>
           </Rise>
 
           {atLimit && (
@@ -260,7 +284,9 @@ function ChooseLawyer() {
                         </div>
                         <div className="mt-2 flex flex-wrap gap-1.5">
                           {l.specialties.slice(0, 3).map((s) => (
-                            <span key={s} className="chip-navy rounded-full px-2 py-0.5 text-[10px] font-bold">{s}</span>
+                            <span key={s} className="chip-navy rounded-full px-2 py-0.5 text-[10px] font-bold">
+                              {SPEC_LABEL[s as SpecId] ? t(SPEC_LABEL[s as SpecId]) : s}
+                            </span>
                           ))}
                         </div>
                         {l.bio && (
