@@ -177,6 +177,12 @@ function VerificationQueue() {
   }, [confirming?.rec.id]);
   /** תוצאת ההרצה היבשה של המחיקה — מה היה נמחק, בלי שנמחק. */
   const [preview, setPreview] = useState<{ cases: number; paths: string[]; storage: string[] } | null>(null);
+  /*
+   * מזהה למחיקה — נבחר בלחיצה על שורת ארכיון. עד עכשיו כרטיס המחיקה
+   * דרש מזהה שהמסך לא הציג בשום מקום, כלומר עבד רק עם קונסולת DB
+   * פתוחה ליד (התגלה בבדיקה המשותפת, 20/8/2026).
+   */
+  const [purgeTarget, setPurgeTarget] = useState("");
   /* תוצאת בדיקת המסמכים, לפי uid — כדי שלא תרוץ מחדש בכל רינדור */
   const [docChecks, setDocChecks] = useState<Record<string, DocCheckResult | "loading">>({});
 
@@ -989,11 +995,21 @@ function VerificationQueue() {
         ) : (
           <ul className="mt-3 space-y-2" aria-label={t("adminCasesHeader")}>
             {allCases.map((c) => (
-              <li key={c.id} className="liquid-glass flex items-center gap-3 rounded-2xl px-4 py-3">
+              <li key={c.id} className="liquid-glass rounded-2xl">
+                <button
+                  type="button"
+                  onClick={() => setPurgeTarget(c.id)}
+                  title={c.id}
+                  className={cn(
+                    "flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-start transition",
+                    purgeTarget === c.id && "ring-1 ring-destructive/50",
+                  )}
+                >
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-[13px] font-bold text-foreground">{c.title}</p>
                   <p className="mt-0.5 text-[11px] text-muted-foreground">
                     {c.category || "—"}{c.location ? ` · ${c.location}` : ""} · {dateFmt(c.createdAt)} · {c.interestedCount} {t("interestedSuffix")}
+                    <span className="ms-1.5 font-mono" dir="ltr">{c.id.slice(0, 8)}…</span>
                   </p>
                 </div>
                 <span
@@ -1007,6 +1023,7 @@ function VerificationQueue() {
                 >
                   {c.status}
                 </span>
+                </button>
               </li>
             ))}
           </ul>
@@ -1157,7 +1174,7 @@ function VerificationQueue() {
         )}
       </AnimatePresence>
 
-      <MaintenanceCard />
+      <MaintenanceCard caseId={purgeTarget} onCaseId={setPurgeTarget} />
       </div>
     </AppShell>
   );
@@ -1169,12 +1186,13 @@ function VerificationQueue() {
  * מחיקה רק לתיק שנתקע בבדיקה, ומחיקת חשבון מוחקת הכול. שתי לחיצות
  * במקום דו-שיח אישור — הכפתור עצמו הופך לשאלה.
  */
-function MaintenanceCard() {
+function MaintenanceCard({ caseId, onCaseId }: { caseId: string; onCaseId: (v: string) => void }) {
   const t = useT();
-  const [caseId, setCaseId] = useState("");
+  const setCaseId = onCaseId;
   const [arming, setArming] = useState(false);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState("");
+  useEffect(() => setArming(false), [caseId]);
 
   async function run() {
     if (!arming) { setArming(true); return; }
