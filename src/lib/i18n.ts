@@ -860,6 +860,7 @@ export const strings = {
   sumBring: { he: "מה כדאי להביא לפגישה", en: "What to bring to the meeting" },
   sumPickField: { he: "באיזה תחום לחפש עורך דין?", en: "In which field should we look for a lawyer?" },
   sumPickHint: { he: "הבחירה שלכם, ואפשר לשנות אותה בכל שלב", en: "Your choice, and you can change it at any point" },
+  sumSuggestedHint: { he: "סימנּו הצעה לפי הסיכום — הבחירה עדיין שלכם, ואפשר לשנות.", en: "We marked a suggestion based on the summary — the choice is still yours to change." },
   sumApprove: { he: "מאשר וממשיך", en: "Approve and continue" },
   sumNeedField: { he: "בחרו תחום כדי להמשיך", en: "Choose a field to continue" },
   sumSaving: { he: "שומר…", en: "Saving…" },

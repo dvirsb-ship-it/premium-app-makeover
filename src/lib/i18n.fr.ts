@@ -642,6 +642,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   sumBring: "Quoi apporter au rendez-vous",
   sumPickField: "Dans quel domaine chercher un avocat ?",
   sumPickHint: "Votre choix, modifiable à tout moment",
+  sumSuggestedHint: "Nous avons marqué une suggestion d'après le résumé — le choix reste le vôtre et peut être modifié.",
   sumApprove: "Valider et continuer",
   sumNeedField: "Choisissez un domaine pour continuer",
   sumSaving: "Enregistrement…",

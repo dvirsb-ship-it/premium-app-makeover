@@ -322,6 +322,7 @@ const SUMMARY_SYSTEM = `אתה מסכם עובדתי של JustAsk. קיבלת ת
 1. **כותרת** — משפט קצר ועובדתי שמתאר מה קרה. בלי הערכה ובלי מונח משפטי.
 2. **סיכום** — העובדות שנמסרו, מסודרות וקריאות: מה קרה, מתי, איפה, מי היה מעורב, ומה קרה אחר כך. בלשון עניינית.
 3. **רשימת הכנה** — מה כדאי להביא לפגישה, **אך ורק על סמך מה שהפונה עצמו הצהיר שקיים בידיו**. אל תוסיף פריטים שלא הזכיר.
+4. **הצעת תחום** — בשדה suggestedCategory בלבד: התחום המתאים ביותר מתוך הרשימה הסגורה שבסוף. זו הצעת ניתוב ארגונית שהפונה יאשר או ישנה במסך הבחירה — לא קביעה משפטית. אל תזכיר את ההצעה בתוך הסיכום עצמו.
 
 ## הגבול המוחלט
 אתה מארגן עובדות. אינך מנתח אותן.
@@ -331,7 +332,7 @@ const SUMMARY_SYSTEM = `אתה מסכם עובדתי של JustAsk. קיבלת ת
 - להעריך סיכויים, שווי, פיצוי או כדאיות
 - להזכיר התיישנות, מועדים או לחשב זמנים
 - להפנות לחוק, לסעיף, לפסיקה או לתקנה
-- לסווג את המקרה לתחום משפטי או לומר איזה סוג הליך זה
+- לסווג את המקרה בתוך טקסט הסיכום או לומר איזה סוג הליך זה (הצעת התחום ניתנת אך ורק בשדה suggestedCategory)
 - להמליץ על מסלול פעולה או על גורם שאליו לפנות
 - לכתוב שהמקרה חזק, חלש, ברור, מורכב או כל תואר שמרמז על הערכה
 
@@ -343,9 +344,10 @@ const SUMMARY_SYSTEM = `אתה מסכם עובדתי של JustAsk. קיבלת ת
 סימונים כמו [מספר זהות הוסר] הם הסרה יזומה של מזהים — התעלם מהם ואל תתייחס אליהם.
 
 ## פלט
-JSON בלבד, בשדות: title, summary, parties, clientChecklist.
+JSON בלבד, בשדות: title, summary, parties, clientChecklist, suggestedCategory.
 parties — מחרוזת קצרה של הצדדים המעורבים כפי שנמסרו, בשמותיהם אם נאמרו (למשל: "הפונה; סופרמרקט יוחננוף סניף חיפה"). זהו נתון עובדתי לבדיקת ניגוד עניינים אצל עורך הדין. אם לא נמסרו שמות — תאר תפקידים ("הפונה; בעל הדירה"). אל תמציא שמות.
-clientChecklist הוא מערך של מחרוזות קצרות, או מערך ריק אם הפונה לא הצהיר על תיעוד כלשהו.`;
+clientChecklist הוא מערך של מחרוזות קצרות, או מערך ריק אם הפונה לא הצהיר על תיעוד כלשהו.
+suggestedCategory — ערך אחד בדיוק מהרשימה: ${VALIDATION_CATEGORIES.join(" · ")}. אם אינך בטוח — "אחר".`;
 
 export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
@@ -459,6 +461,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
               summary: { type: "string" },
               parties: { type: "string" },
               clientChecklist: { type: "array", items: { type: "string" } },
+              suggestedCategory: { type: "string" },
             },
             required: ["title", "summary"],
           },
@@ -470,6 +473,7 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         summary?: string;
         parties?: string;
         clientChecklist?: string[];
+        suggestedCategory?: string;
       };
 
       const checklist = (parsed.clientChecklist ?? []).filter(
@@ -501,6 +505,15 @@ export const validateCaseFn = createServerFn({ method: "POST" })
          * תיאור המקרה (סעיף 2.5 לסקירה).
          */
         parties: (parsed.parties ?? "").slice(0, 300),
+        /*
+         * הצעת תחום — 4.2 לסקירה מתיר קטגוריה כהצעה שהפונה מאשר.
+         * מנורמלת לרשימה הסגורה; "אחר" אינו הצעה ולכן לא נשמר —
+         * במקרה כזה הפונה בוחר לבד (הוחלט בבדיקה המשותפת, 21/8/2026).
+         */
+        ...(parsed.suggestedCategory &&
+        normalizeCategory(parsed.suggestedCategory) !== "אחר"
+          ? { suggestedCategory: normalizeCategory(parsed.suggestedCategory) }
+          : {}),
         status: "summary_ready",
         summarizedAt: Date.now(),
       });

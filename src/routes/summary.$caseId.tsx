@@ -5,7 +5,7 @@ import { Check, FileText, ListChecks } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Page, Rise, Stagger } from "../components/motion";
-import { useT } from "../lib/i18n";
+import { useT, translate } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { useAppStore } from "../lib/store";
 import { fbDb, fbAuth } from "../lib/firebase";
@@ -36,8 +36,15 @@ export const Route = createFileRoute("/summary/$caseId")({
  * זה גם מה שהופך את הסיכום למותר: 4.1 מתיר סיכום עובדתי בתנאי
  * שהפונה בודק ומאשר אותו. המסך הזה הוא התנאי.
  *
- * ובחירת התחום כאן ולא במודל: 4.2 מתיר ניתוב לפי קטגוריה **שהמשתמש
- * בחר**. לכן אין הצעה מסומנת מראש ואין "מומלץ" — רשימה, והוא בוחר.
+ * ובחירת התחום: 4.2 מתיר קטגוריה **כהצעה שהמשתמש מאשר**. בגרסה
+ * הראשונה לא הייתה הצעה בכלל — ובבדיקה המשותפת (21/8/2026) התברר
+ * שלקוח מול 21 שבבים פשוט לא יודע לבחור, וטעות שלו שולחת את הפנייה
+ * לתחום הלא נכון. לכן: המנוע מציע (suggestedCategory), ההצעה מסומנת
+ * מראש עם כיתוב מפורש שאפשר לשנות — וההכרעה נשארת של הפונה.
+ *
+ * הערך שנשלח הוא תמיד התווית העברית הקנונית (translate בעברית), לא
+ * התווית המתורגמת — משתמש באנגלית שלח "Consumer protection"
+ * והנרמול הפיל את זה ל"אחר", כלומר הפנייה נעשתה בלתי נראית.
  */
 function SummaryReview() {
   useRequireAuth();
@@ -51,6 +58,7 @@ function SummaryReview() {
   const [summary, setSummary] = useState("");
   const [checklist, setChecklist] = useState<string[]>([]);
   const [category, setCategory] = useState("");
+  const [suggested, setSuggested] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(false);
 
@@ -65,6 +73,11 @@ function SummaryReview() {
         setTitle(String(d.title ?? ""));
         setSummary(String(d.summary ?? ""));
         setChecklist(Array.isArray(d.clientChecklist) ? d.clientChecklist : []);
+        const sug = String(d.suggestedCategory ?? "");
+        if (sug) {
+          setSuggested(sug);
+          setCategory((prev) => prev || sug);
+        }
         /* כבר אושר — אין מה לאשר שוב */
         if (d.status !== "summary_ready") navigate({ to: "/case/$caseId", params: { caseId } });
       } finally {
@@ -156,17 +169,20 @@ function SummaryReview() {
               <Rise>
                 <div className="liquid-glass rounded-3xl p-5">
                   <h3 className="text-[14px] font-bold text-foreground">{t("sumPickField")}</h3>
-                  <p className="mt-1 text-[12px] text-muted-foreground">{t("sumPickHint")}</p>
+                  <p className="mt-1 text-[12px] text-muted-foreground">
+                    {suggested ? t("sumSuggestedHint") : t("sumPickHint")}
+                  </p>
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     {SPECIALTIES.map((s) => {
                       const label = t(s.labelKey);
-                      const Icon = categoryIcon(label);
-                      const on = category === label;
+                      const value = translate(s.labelKey, "he");
+                      const Icon = categoryIcon(value);
+                      const on = category === value;
                       return (
                         <button
                           key={s.id}
                           type="button"
-                          onClick={() => setCategory(label)}
+                          onClick={() => setCategory(value)}
                           aria-pressed={on}
                           className={cn(
                             "flex min-h-11 items-center gap-2 rounded-2xl px-3 py-2.5 text-start text-[12.5px] font-semibold transition",

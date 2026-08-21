@@ -642,6 +642,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   sumBring: "ما يُستحسن إحضاره إلى اللقاء",
   sumPickField: "في أي مجال نبحث عن محامٍ؟",
   sumPickHint: "اختيارك، ويمكن تغييره في أي مرحلة",
+  sumSuggestedHint: "حدّدنا اقتراحًا بناءً على الملخّص — الاختيار ما زال لكم ويمكن تغييره.",
   sumApprove: "أصادق وأتابع",
   sumNeedField: "اختر مجالًا للمتابعة",
   sumSaving: "جارٍ الحفظ…",
