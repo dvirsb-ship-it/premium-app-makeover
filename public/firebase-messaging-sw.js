@@ -30,19 +30,47 @@ messaging.onBackgroundMessage((payload) => {
   });
 });
 
-// לחיצה על ההתראה מביאה את הלשונית הפתוחה לחזית במקום לפתוח עוד אחת
+/*
+ * השתלטות מיידית על חלונות פתוחים — בלעדיה חלון ה-PWA שנפתח לפני
+ * שה-SW הופעל נשאר "לא נשלט", ו-client.navigate() עליו זורק שגיאה.
+ */
+self.addEventListener("activate", (event) => {
+  event.waitUntil(self.clients.claim());
+});
+
+/*
+ * לחיצה על ההתראה פותחת את המסך הנכון (21/8/2026).
+ *
+ * הגרסה הקודמת קראה client.navigate(link) ואז focus — אבל navigate
+ * על חלון לא נשלט זורק, ההבטחה נפלה, ו-openWindow לא הגיע לעולם:
+ * באייפון ההתראה פשוט נסגרה. עכשיו: ניסיון navigate בתוך try, הודעה
+ * לחלון שינווט בעצמו (בתוך האפליקציה), focus — ורק אם אין שום חלון,
+ * openWindow. כל שלב עצמאי וכשל באחד לא מבטל את הבאים.
+ */
 self.addEventListener("notificationclick", (event) => {
   event.notification.close();
   const link = (event.notification.data && event.notification.data.link) || "/";
   event.waitUntil(
-    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+    (async () => {
+      const list = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
       for (const client of list) {
-        if ("focus" in client) {
-          client.navigate(link);
-          return client.focus();
+        try {
+          client.postMessage({ type: "justask:open", link });
+        } catch (_) {
+          /* ignore */
+        }
+        try {
+          if ("navigate" in client) await client.navigate(link);
+        } catch (_) {
+          /* חלון לא נשלט — ההודעה למעלה תנווט אותו */
+        }
+        try {
+          if ("focus" in client) return await client.focus();
+        } catch (_) {
+          /* ignore */
         }
       }
       return self.clients.openWindow(link);
-    }),
+    })(),
   );
 });

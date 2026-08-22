@@ -761,6 +761,9 @@ export interface ReferralDoc {
   city: string;
   incidentMonth: string;
   parties: string;
+  /* מטא של שלב א — סוג הפגיעה ותיעוד מוצהר, בלי נרטיב */
+  damageType?: string;
+  documents?: string[];
   /* שלב ב — מועתקים פנימה רק אחרי אישור מפורש של הפונה */
   caseTitle: string;
   summary: string;
@@ -785,6 +788,8 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
     city: String(r.city ?? ""),
     incidentMonth: String(r.incidentMonth ?? ""),
     parties: String(r.parties ?? ""),
+    damageType: r.damageType ? String(r.damageType) : undefined,
+    documents: Array.isArray(r.documents) ? (r.documents as unknown[]).map(String) : undefined,
     caseTitle: String(r.caseTitle ?? ""),
     summary: String(r.summary ?? ""),
     offerAmount: typeof r.offerAmount === "number" ? r.offerAmount : undefined,

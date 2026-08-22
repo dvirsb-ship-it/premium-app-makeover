@@ -59,6 +59,12 @@ function SummaryReview() {
   const [checklist, setChecklist] = useState<string[]>([]);
   const [category, setCategory] = useState("");
   const [suggested, setSuggested] = useState("");
+  /*
+   * הכוונה ולא רשימה (21/8/2026, בדיקה משותפת): כשיש הצעה, הפונה רואה
+   * תחום אחד מסומן וכפתור "בחרו תחום אחר" — 21 שבבים מוצגים רק למי
+   * שמבקש. הבחירה נשארת שלו (4.2), אבל ברירת המחדל מכוונת.
+   */
+  const [showGrid, setShowGrid] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState(false);
 
@@ -172,6 +178,28 @@ function SummaryReview() {
                   <p className="mt-1 text-[12px] text-muted-foreground">
                     {suggested ? t("sumSuggestedHint") : t("sumPickHint")}
                   </p>
+                  {suggested && !showGrid ? (
+                    <div className="mt-4">
+                      {(() => {
+                        const sp = SPECIALTIES.find((x) => translate(x.labelKey, "he") === category);
+                        const Icon = categoryIcon(category);
+                        return (
+                          <div className="chip-gold flex min-h-12 items-center gap-2.5 rounded-2xl px-4 py-3 text-[14px] font-bold">
+                            <Icon className="size-4.5 shrink-0" aria-hidden />
+                            <span className="min-w-0 flex-1 truncate">{sp ? t(sp.labelKey) : category}</span>
+                            <Check className="size-4 shrink-0" strokeWidth={3} aria-hidden />
+                          </div>
+                        );
+                      })()}
+                      <button
+                        type="button"
+                        onClick={() => setShowGrid(true)}
+                        className="mt-2.5 min-h-10 w-full rounded-2xl border border-border text-[12.5px] font-semibold text-foreground/75"
+                      >
+                        {t("idxChangeField")}
+                      </button>
+                    </div>
+                  ) : (
                   <div className="mt-4 grid grid-cols-2 gap-2">
                     {SPECIALTIES.map((s) => {
                       const label = t(s.labelKey);
@@ -197,6 +225,7 @@ function SummaryReview() {
                       );
                     })}
                   </div>
+                  )}
                 </div>
               </Rise>
             </>

@@ -884,6 +884,13 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         city: String(c.city ?? ""),
         incidentMonth: String(c.incidentDate ?? "").slice(0, 7),
         parties: String(c.parties ?? ""),
+        /*
+         * מטא-נתונים ולא נרטיב (21/8/2026): סוג הפגיעה ואילו תיעודים
+         * הפונה הצהיר שקיימים. נותנים לעורך הדין תחושה של "מה זה"
+         * בלי עובדה אחת מהסיפור — הסיפור נחשף רק אחרי אישור הזמינות.
+         */
+        damageType: String(c.damageType ?? ""),
+        documents: Array.isArray(c.documents) ? (c.documents as unknown[]).map(String).slice(0, 8) : [],
         caseTitle: "",
         summary: "",
         autoShare: !!data.autoShare,

@@ -171,12 +171,18 @@ function Validating() {
     [addCase, navigate, t],
   );
 
-  // האנימציה נגמרה והתוצאה כבר כאן — מציגים אותה
+  /*
+   * האנימציה נגמרה והתוצאה כבר כאן — מציגים אותה.
+   *
+   * הווי הרביעי נעלם (נתפס בבדיקה המשותפת 21/8): השלב האחרון סומן
+   * כהושלם והניווט יצא באותו רנדר, כך שהשורה המלאה מעולם לא נראתה.
+   * 750ms של "הכול הושלם" — מספיק כדי שהעין תקלוט, קצר מכדי להרגיש.
+   */
   useEffect(() => {
-    if (animDone && result) {
-      setCurrent(stepKeys.length);
-      finish(result);
-    }
+    if (!animDone || !result) return;
+    setCurrent(stepKeys.length);
+    const tm = window.setTimeout(() => finish(result), 750);
+    return () => window.clearTimeout(tm);
   }, [animDone, result, finish]);
 
   /*

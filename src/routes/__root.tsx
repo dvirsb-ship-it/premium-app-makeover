@@ -20,6 +20,7 @@ import { Toaster } from "../components/ui/sonner";
 import { Splash } from "../components/Splash";
 import { BottomNav } from "../components/BottomNav";
 import { GlobalHaptics } from "../components/GlobalHaptics";
+import { SwNavBridge } from "../components/SwNavBridge";
 import handshakeAsset from "../../public/videos/handshake.mp4.asset.json";
 import dealAsset from "../../public/videos/deal.mp4.asset.json";
 import lawAmbientAsset from "../../public/videos/law-ambient.mp4.asset.json";
@@ -233,6 +234,7 @@ function RootComponent() {
               <BottomNav />
             </Splash>
             <GlobalHaptics />
+            <SwNavBridge />
             <Toaster />
           </AppStoreProvider>
         </MotionConfig>

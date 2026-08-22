@@ -115,6 +115,21 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                     <p className="mt-1.5 text-[13.5px] font-semibold text-foreground">
                       {t("refParties")}: {r.parties || "—"}
                     </p>
+                    {(r.damageType || (r.documents && r.documents.length > 0)) && (
+                      <p className="mt-1.5 text-[12px] leading-relaxed text-foreground/80">
+                        {r.damageType && (
+                          <span>
+                            {t(r.damageType === "financial" ? "damageFinancial" : r.damageType === "both" ? "damageBoth" : "damageBody")}
+                          </span>
+                        )}
+                        {r.damageType && r.documents && r.documents.length > 0 && " · "}
+                        {r.documents && r.documents.length > 0 && (
+                          <span>
+                            {t("docsHeader")}: {r.documents.map((k) => t(`doc${k.charAt(0).toUpperCase()}${k.slice(1)}` as never)).join(", ")}
+                          </span>
+                        )}
+                      </p>
+                    )}
                     <p className="mt-1.5 text-[11.5px] leading-relaxed text-foreground/75">
                       {t("refStageANote")}
                     </p>
