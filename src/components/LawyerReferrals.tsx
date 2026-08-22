@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
-import { Clock, ShieldCheck, Users } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { ArrowLeft, BadgeCheck, Clock, ShieldCheck, Users } from "lucide-react";
 import { Rise } from "./motion";
 import { useT } from "../lib/i18n";
-import { watchLawyerReferrals, type ReferralDoc } from "../lib/db";
+import { watchLawyerReferrals, readCaseRaw, type ReferralDoc } from "../lib/db";
 import { fbAuth } from "../lib/firebase";
 import { useTimeAgo } from "../lib/status";
 import { haptic } from "../lib/haptics";
 import { cn } from "../lib/utils";
+import { OfferForm, type OfferInput } from "./OfferForm";
 
 /**
  * הפניות של עורך הדין — מה שהחליף את הפיד הפתוח (20/8/2026).
@@ -28,11 +30,38 @@ export function LawyerReferrals({ uid }: { uid: string }) {
   const [rows, setRows] = useState<ReferralDoc[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [offerFor, setOfferFor] = useState<string | null>(null);
-  const [amount, setAmount] = useState("");
-  const [model, setModel] = useState("");
-  const [note, setNote] = useState("");
 
   useEffect(() => watchLawyerReferrals(uid, setRows, () => setRows([])), [uid]);
+
+  /*
+   * גיבוי להפניות מלפני 21/8: הצעה שהוגשה והלקוח כבר בחר — אבל הסטטוס
+   * נשאר details_shared. חוקי המסד מתירים לעורך הדין לקרוא תיק רק אם
+   * נבחר בו, ולכן קריאה מוצלחת היא עצמה ההוכחה. הפניות חדשות מסומנות
+   * connected בשרת ואינן צריכות את זה.
+   */
+  const [legacyConnected, setLegacyConnected] = useState<Set<string>>(new Set());
+  useEffect(() => {
+    if (!rows) return;
+    const probe = rows.filter((r) => r.status === "details_shared" && r.offerAmount);
+    if (probe.length === 0) return;
+    let cancelled = false;
+    void Promise.all(
+      probe.map(async (r) => {
+        try {
+          const c = await readCaseRaw(r.caseId);
+          return c && c.chosenLawyerId === uid ? r.id : null;
+        } catch {
+          return null;
+        }
+      }),
+    ).then((ids) => {
+      if (cancelled) return;
+      setLegacyConnected(new Set(ids.filter((x): x is string => !!x)));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [rows, uid]);
 
   async function respond(id: string, answer: "cleared" | "declined") {
     if (busy) return;
@@ -47,21 +76,16 @@ export function LawyerReferrals({ uid }: { uid: string }) {
     }
   }
 
-  async function submitOffer(id: string) {
+  async function submitOffer(id: string, offer: OfferInput) {
     if (busy) return;
-    const n = Number(amount);
-    if (!n || !model.trim()) return;
     setBusy(id);
     try {
       const { submitReferralOfferFn } = await import("../lib/ai/intake.functions");
       const idToken = await fbAuth().currentUser?.getIdToken();
-      const res = await submitReferralOfferFn({
-        data: { referralId: id, amount: n, model, note, idToken },
-      });
+      const res = await submitReferralOfferFn({ data: { referralId: id, offer, idToken } });
       if (res.ok) {
         haptic("success");
         setOfferFor(null);
-        setAmount(""); setModel(""); setNote("");
       }
     } finally {
       setBusy(null);
@@ -84,6 +108,7 @@ export function LawyerReferrals({ uid }: { uid: string }) {
         const expired =
           r.status === "expired" ||
           (r.status === "names_check" && Date.now() > r.expiresAt);
+        const status = legacyConnected.has(r.id) ? "connected" : r.status;
         return (
           <Rise key={r.id}>
             <div className="liquid-glass rounded-3xl p-5">
@@ -105,7 +130,7 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
                   {t("refExpiredLawyer")}
                 </p>
-              ) : r.status === "names_check" ? (
+              ) : status === "names_check" ? (
                 <>
                   <div className="recessed mt-3 rounded-2xl bg-[var(--recess-fill)] px-4 py-3">
                     <p className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -153,12 +178,12 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                     </button>
                   </div>
                 </>
-              ) : r.status === "cleared" ? (
+              ) : status === "cleared" ? (
                 <p className="mt-3 flex items-center gap-2 text-[13px] font-semibold text-foreground/75">
                   <Clock className="size-4 shrink-0 text-gold-ink dark:text-gold" aria-hidden />
                   {t("refWaitClient")}
                 </p>
-              ) : r.status === "details_shared" ? (
+              ) : status === "details_shared" ? (
                 <>
                   <h3 className="mt-3 text-[15px] font-bold text-foreground">{r.caseTitle}</h3>
                   <p className="mt-1.5 whitespace-pre-line text-[13px] leading-relaxed text-foreground/85">
@@ -170,39 +195,11 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                       {t("refOfferSent")}
                     </p>
                   ) : offerFor === r.id ? (
-                    <div className="recessed mt-3 space-y-2.5 rounded-2xl bg-[var(--recess-fill)] p-4">
-                      <input
-                        value={amount}
-                        onChange={(e) => setAmount(e.target.value.replace(/[^0-9]/g, ""))}
-                        inputMode="numeric"
-                        placeholder={t("refOfferAmount")}
-                        aria-label={t("refOfferAmount")}
-                        className="w-full rounded-xl border border-border bg-background/60 px-3 py-2.5 text-[13px] text-foreground"
-                      />
-                      <input
-                        value={model}
-                        onChange={(e) => setModel(e.target.value)}
-                        placeholder={t("refOfferModel")}
-                        aria-label={t("refOfferModel")}
-                        className="w-full rounded-xl border border-border bg-background/60 px-3 py-2.5 text-[13px] text-foreground"
-                      />
-                      <textarea
-                        value={note}
-                        onChange={(e) => setNote(e.target.value)}
-                        rows={2}
-                        placeholder={t("refOfferNote")}
-                        aria-label={t("refOfferNote")}
-                        className="w-full resize-none rounded-xl border border-border bg-background/60 px-3 py-2.5 text-[13px] text-foreground"
-                      />
-                      <button
-                        type="button"
-                        disabled={busy === r.id || !Number(amount) || !model.trim()}
-                        onClick={() => void submitOffer(r.id)}
-                        className="btn-gold min-h-11 w-full rounded-2xl text-[13px] font-bold disabled:opacity-45"
-                      >
-                        {t("refOfferCta")}
-                      </button>
-                    </div>
+                    <OfferForm
+                      category={r.category}
+                      busy={busy === r.id}
+                      onSubmit={(offer) => void submitOffer(r.id, offer)}
+                    />
                   ) : (
                     <button
                       type="button"
@@ -212,8 +209,33 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                       {t("refOfferCta")}
                     </button>
                   )}
+                  {/*
+                    * יציאה מפורשת אחרי קריאה (21/8/2026): עורך דין שקרא
+                    * והבין שזה לא בשבילו — אחרת הפונה מחכה להצעה שלא תגיע.
+                    * אותו נוסח ניטרלי כמו בשלב השמות (ש·10).
+                    */}
+                  {!r.offerAmount && (
+                    <button
+                      type="button"
+                      disabled={busy === r.id}
+                      onClick={() => void respond(r.id, "declined")}
+                      className="mt-2 min-h-10 w-full rounded-2xl border border-border text-[12.5px] font-semibold text-foreground/70 disabled:opacity-45"
+                    >
+                      {t("refDecline")}
+                    </button>
+                  )}
                 </>
-              ) : r.status === "closed" ? (
+              ) : status === "connected" ? (
+                <Link
+                  to="/lawyer-case/$caseId"
+                  params={{ caseId: r.caseId }}
+                  className="mt-3 flex items-center gap-3 rounded-2xl bg-gold/15 px-4 py-3 text-[13px] font-bold text-gold-ink transition active:scale-[0.99] dark:text-gold"
+                >
+                  <BadgeCheck className="size-4 shrink-0" aria-hidden />
+                  <span className="min-w-0 flex-1">{t("refChosenLawyer")}</span>
+                  <ArrowLeft className="size-4 shrink-0 rtl:rotate-0 ltr:rotate-180" aria-hidden />
+                </Link>
+              ) : status === "closed" ? (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
                   {t("refClosedLawyer")}
                 </p>

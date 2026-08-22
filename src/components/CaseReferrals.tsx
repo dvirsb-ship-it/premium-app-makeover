@@ -6,6 +6,26 @@ import { watchCaseReferrals, chooseLawyerDb, type ReferralDoc } from "../lib/db"
 import { fbAuth } from "../lib/firebase";
 import { haptic } from "../lib/haptics";
 import { cn } from "../lib/utils";
+import { OfferComparison } from "./OfferComparison";
+import type { CaseOffer, Lawyer } from "../lib/types";
+
+/*
+ * תצוגה מקוצרת של הצעה מובנית — באותה שפה שבה הוצעה.
+ * "12%" / "₪600 לשעה" / "₪8,000", ואחריהן רק מה שמשנה ללקוח: מדרגות,
+ * מע"מ, "אין פיצוי — אין שכר". ההשוואה המלאה ו"מה זה אומר בכסף" —
+ * ב-OfferComparison למטה.
+ */
+function offerLine(o: CaseOffer, t: (k: never) => string): string {
+  const amt =
+    o.model === "contingency"
+      ? `${o.amount}%` + (o.judgmentPercent && o.judgmentPercent > o.amount ? `–${o.judgmentPercent}%` : "")
+      : `₪${o.amount.toLocaleString("he-IL")}`;
+  const model = t((o.model === "contingency" ? "feeContingency" : o.model === "hourly" ? "feeHourly" : "feeFixed") as never);
+  const bits = [`${amt} · ${model}`];
+  if (o.vat) bits.push(t((o.vat === "plus" ? "offerVatPlus" : "offerVatIncluded") as never));
+  if (o.model === "contingency" && o.noWinNoFee) bits.push(t("offerNoWinLabel" as never));
+  return bits.join(" · ");
+}
 
 /**
  * הפניות של התיק — מה שהפונה רואה אחרי שבחר עורכי דין.
@@ -53,6 +73,23 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
     }
   }
 
+  /* ההשוואה: עורכי דין עם הצעה מובנית, בסדר הגעה, בלי דירוג */
+  const withOffers = rows.filter((r) => r.offer && r.offer.amount > 0);
+  const cmpLawyers: Lawyer[] = withOffers.map((r) => ({
+    id: r.lawyerId,
+    name: r.lawyerName || "—",
+    firm: "",
+    specialty: r.category,
+    rating: 0,
+    reviews: 0,
+    years: 0,
+    initials: (r.lawyerName || "?").split(" ").map((w) => w[0]).slice(0, 2).join(""),
+    blurb: "",
+  }));
+  const cmpOffers: Record<string, CaseOffer> = Object.fromEntries(
+    withOffers.map((r) => [r.lawyerId, r.offer as CaseOffer]),
+  );
+
   return (
     <div className="mt-3">
       <p className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -75,7 +112,9 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
                   <p
                     className={cn(
                       "mt-0.5 text-[11.5px] font-semibold",
-                      expired || r.status === "declined"
+                      r.status === "connected"
+                        ? "text-success-ink"
+                        : expired || r.status === "declined"
                         ? "text-muted-foreground"
                         : r.status === "cleared"
                           ? "text-gold-ink dark:text-gold"
@@ -94,8 +133,14 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
                             ? t("caseRefDeclined")
                             : r.status === "closed"
                               ? t("caseRefClosed")
+                              : r.status === "connected"
+                                ? t("caseRefChosen")
                               : hasOffer
-                                ? `${t("caseRefOffer")}: ₪${r.offerAmount?.toLocaleString()} · ${r.offerModel ?? ""}`
+                                ? `${t("caseRefOffer")}: ${
+                                    r.offer
+                                      ? offerLine(r.offer, t as never)
+                                      : `₪${r.offerAmount?.toLocaleString()} · ${r.offerModel ?? ""}`
+                                  }`
                                 : t("caseRefShared")}
                   </p>
                   {hasOffer && r.offerNote && (
@@ -138,6 +183,11 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
           );
         })}
       </div>
+      {withOffers.length > 0 && (
+        <div className="mt-4">
+          <OfferComparison interested={cmpLawyers} offers={cmpOffers} />
+        </div>
+      )}
     </div>
   );
 }

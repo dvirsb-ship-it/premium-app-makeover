@@ -122,11 +122,23 @@ export async function adminGetCase(caseId: string): Promise<Record<string, unkno
   return out;
 }
 
-type Primitive = string | number | boolean | string[];
+/* מפה שטוחה של פרימיטיבים — להצעת שכר טרחה מובנית (21/8/2026) */
+type Primitive = string | number | boolean | string[] | Record<string, string | number | boolean>;
 
 function encode(v: Primitive): FsValue {
   if (Array.isArray(v)) {
     return { arrayValue: { values: v.map((x) => ({ stringValue: x })) } };
+  }
+  if (typeof v === "object" && v !== null) {
+    return {
+      mapValue: {
+        fields: Object.fromEntries(
+          Object.entries(v)
+            .filter(([, x]) => x !== undefined)
+            .map(([k, x]) => [k, encode(x as Primitive)]),
+        ),
+      },
+    };
   }
   if (typeof v === "boolean") return { booleanValue: v };
   if (typeof v === "number") {
@@ -1010,6 +1022,32 @@ async function expireDueReferrals(now: number): Promise<void> {
         type: "case_update",
         title: "פנייה לעורך דין פקעה",
         body: "לא התקבל מענה בתוך 48 שעות. אפשר לבחור עורך דין אחר מהאינדקס.",
+        caseId: String(r.caseId),
+      });
+    } catch {
+      /* פנייה אחת שנכשלה לא עוצרת את השאר */
+    }
+  }
+
+  /*
+   * שתיקה אחרי קריאה (21/8/2026): עורך דין שקרא את הסיכום ולא הגיש
+   * הצעה ולא לחץ "אינני זמין" — הפונה נשאר תלוי. אחרי 48 שעות מרגע
+   * השיתוף הפנייה פוקעת, והפונה חופשי להמשיך.
+   */
+  const shared = await adminQueryIds("referrals", "status", "details_shared");
+  for (const id of shared) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r || r.offerAmount) continue;
+      const sharedAt = Number(r.sharedAt ?? r.respondedAt ?? 0);
+      if (!sharedAt || now - sharedAt < 48 * 60 * 60 * 1000) continue;
+      await adminPatch(`referrals/${id}`, { status: "expired", expiredAt: now });
+      await adminNotify(String(r.clientId), {
+        type: "case_update",
+        title: "לא התקבלה הצעה בתוך 48 שעות",
+        body: "עורך הדין קרא את הסיכום ולא הגיש הצעה. אפשר לבחור עורך דין אחר מהאינדקס.",
+        titleKey: "notifRefNoOfferTitle",
+        bodyKey: "notifRefNoOfferBody",
         caseId: String(r.caseId),
       });
     } catch {

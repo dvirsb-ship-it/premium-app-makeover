@@ -748,7 +748,9 @@ export type ReferralStatus =
   /** חלון 48 השעות חלף בלי מענה */
   | "expired"
   /** הפונה בחר עורך דין אחר — נסגרת בשרת ברגע הבחירה, כי שתיקה גרועה מ"לא" */
-  | "closed";
+  | "closed"
+  /** הפונה בחר **בו** — הכרטיס הופך לקישור לתיק המחובר (21/8/2026) */
+  | "connected";
 
 export interface ReferralDoc {
   id: string;
@@ -768,6 +770,7 @@ export interface ReferralDoc {
   caseTitle: string;
   summary: string;
   /* הצעה — פרטנית, מוצגת לפונה בלבד, בלי דירוג */
+  offer?: CaseOffer;
   offerAmount?: number;
   offerModel?: string;
   offerNote?: string;
@@ -792,6 +795,7 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
     documents: Array.isArray(r.documents) ? (r.documents as unknown[]).map(String) : undefined,
     caseTitle: String(r.caseTitle ?? ""),
     summary: String(r.summary ?? ""),
+    offer: r.offer && typeof r.offer === "object" ? (r.offer as CaseOffer) : undefined,
     offerAmount: typeof r.offerAmount === "number" ? r.offerAmount : undefined,
     offerModel: r.offerModel ? String(r.offerModel) : undefined,
     offerNote: r.offerNote ? String(r.offerNote) : undefined,

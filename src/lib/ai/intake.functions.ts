@@ -948,10 +948,21 @@ export const respondReferralFn = createServerFn({ method: "POST" })
       const uid = await requireUser(data.idToken);
       const r = await adminGetDoc(`referrals/${encodeURIComponent(data.referralId)}`);
       if (!r || r.lawyerId !== uid) throw new Error("forbidden");
-      if (r.status !== "names_check") return { ok: false, reason: "not_pending" };
-      if (Date.now() > Number(r.expiresAt ?? 0)) {
-        await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, { status: "expired" });
-        return { ok: false, reason: "expired" };
+      /*
+       * "אינני זמין" מותר גם אחרי קריאת הסיכום (21/8/2026): עורך דין
+       * שאישר שאין ניגוד, קרא, והבין שזה לא בשבילו — חייב דרך לומר
+       * זאת, אחרת הפונה מחכה להצעה שלא תגיע. "cleared" עדיין רק
+       * משלב השמות.
+       */
+      const afterRead = r.status === "cleared" || r.status === "details_shared";
+      if (data.answer === "declined" && afterRead) {
+        if (r.offerAmount) return { ok: false, reason: "not_pending" };
+      } else {
+        if (r.status !== "names_check") return { ok: false, reason: "not_pending" };
+        if (Date.now() > Number(r.expiresAt ?? 0)) {
+          await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, { status: "expired" });
+          return { ok: false, reason: "expired" };
+        }
       }
 
       /*
@@ -1091,9 +1102,24 @@ export const shareSummaryFn = createServerFn({ method: "POST" })
 
 interface ReferralOfferInput {
   referralId: string;
-  amount: number;
-  model: string;
-  note?: string;
+  /*
+   * הצעה מובנית (21/8/2026) — הוחזרה מגרסת הפיד. מודל, מדרגות, מקדמה,
+   * מע"מ, הוצאות ומשך: כך הפונה משווה הצעות באותה שפה, והפלטפורמה
+   * לא מדרגת. הטקסטים החופשיים מנוקים מפרטי קשר.
+   */
+  offer: {
+    model: "contingency" | "hourly" | "fixed";
+    amount: number;
+    postSuitPercent?: number;
+    judgmentPercent?: number;
+    retainer?: number;
+    vat?: "plus" | "included";
+    noWinNoFee: boolean;
+    expenses: "included" | "advanced" | "client";
+    expensesEstimate: string;
+    duration: string;
+    note: string;
+  };
   idToken?: string;
 }
 
@@ -1117,11 +1143,35 @@ export const submitReferralOfferFn = createServerFn({ method: "POST" })
       if (!r || r.lawyerId !== uid) throw new Error("forbidden");
       if (r.status !== "details_shared") return { ok: false };
 
+      const o = data.offer ?? ({} as ReferralOfferInput["offer"]);
+      const model = (["contingency", "hourly", "fixed"] as const).includes(o.model) ? o.model : "fixed";
+      const num = (v: unknown, max: number) => {
+        const n = Math.max(0, Math.round(Number(v) || 0));
+        return Math.min(n, max);
+      };
+      const amount = num(o.amount, model === "contingency" ? 100 : 10_000_000);
+      if (amount <= 0) return { ok: false };
+      const offer = {
+        model,
+        amount,
+        ...(model === "contingency" && o.postSuitPercent ? { postSuitPercent: num(o.postSuitPercent, 100) } : {}),
+        ...(model === "contingency" && o.judgmentPercent ? { judgmentPercent: num(o.judgmentPercent, 100) } : {}),
+        ...(model !== "contingency" && o.retainer ? { retainer: num(o.retainer, 10_000_000) } : {}),
+        vat: o.vat === "included" ? "included" : "plus",
+        noWinNoFee: model === "contingency" ? !!o.noWinNoFee : false,
+        expenses: (["included", "advanced", "client"] as const).includes(o.expenses) ? o.expenses : "advanced",
+        expensesEstimate: strip(String(o.expensesEstimate ?? "")).slice(0, 120),
+        duration: strip(String(o.duration ?? "")).slice(0, 80),
+        note: strip(String(o.note ?? "")).slice(0, 500),
+        at: Date.now(),
+      };
       const profile = await adminGetDoc(`lawyerProfiles/${encodeURIComponent(uid)}`);
       await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, {
-        offerAmount: Math.max(0, Math.round(Number(data.amount) || 0)),
-        offerModel: String(data.model ?? "").slice(0, 60),
-        offerNote: strip(String(data.note ?? "")).slice(0, 500),
+        offer,
+        /* שדות שטוחים — לשורת "מה חדש" ולתצוגה מקוצרת */
+        offerAmount: amount,
+        offerModel: model,
+        offerNote: offer.note,
         lawyerName: String(profile?.name ?? ""),
         offeredAt: Date.now(),
       });
@@ -1241,6 +1291,19 @@ export const recordConnectionFn = createServerFn({ method: "POST" })
       const lawyerId = c.chosenLawyerId as string | undefined;
       if (!lawyerId) return { connections: 0 };
       const n = await recordConnection(lawyerId, data.caseId);
+
+      /*
+       * ההפניה הנבחרת הופכת ל-connected — אחרת כרטיס "ההצעה הוגשה" נשאר
+       * תקוע במסך הפניות בלי דרך להגיע לתיק (נתפס בבדיקה המשותפת 21/8).
+       */
+      try {
+        await adminPatch(`referrals/${encodeURIComponent(`${data.caseId}_${lawyerId}`)}`, {
+          status: "connected",
+          connectedAt: Date.now(),
+        });
+      } catch {
+        /* החיבור עצמו כבר נוצר על התיק; הכרטיס הוא נוחות, לא תנאי */
+      }
 
       /* הרגע הגדול של עורך הדין — פוש, לא רק פעמון (הפעמון נכתב בצד הלקוח) */
       await notify(

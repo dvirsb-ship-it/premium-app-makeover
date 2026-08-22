@@ -26,7 +26,7 @@ import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
 import type { Case } from "../lib/types";
-import { watchCaseReferrals, type ReferralDoc } from "../lib/db";
+import { CaseWhatsNew, caseActionRank } from "../components/CaseWhatsNew";
 
 
 export const Route = createFileRoute("/")({
@@ -118,65 +118,6 @@ function Index() {
  * לכן התיק הפעיל הוא האלמנט הגדול והיחיד שמושך תשומת לב, והשאר מסודר
  * בקוביות זכוכית שקטות.
  */
-/*
- * שורת "מה חדש" — הדופק של התיק, על הכרטיס בדף הבית (21/8/2026).
- *
- * נולדה בבדיקה המשותפת: עורך הדין אישר זמינות, הגיש הצעה — והבית
- * המשיך להציג "מוכן — בחר עורך דין". התנועה חיה בפעמון ובמסך התיק,
- * כלומר מוחבאת. השורה גוזרת מהפניות את הדבר האחד הכי אקטואלי,
- * בסדר דחיפות: הצעה שהתקבלה > זמין וממתין לך > שותף וממתין להצעה >
- * נשלח ונבדק > כולן לא זמינות.
- */
-function whatsNewKey(refs: ReferralDoc[], status: Case["status"]): StringKey | null {
-  if (status === "connected") return "homeNewConnected";
-  if (refs.length === 0) return null;
-  const live = (r: ReferralDoc) =>
-    r.status === "names_check" && Date.now() <= r.expiresAt;
-  if (refs.some((r) => r.status === "details_shared" && r.offerAmount)) return "homeNewOffer";
-  if (refs.some((r) => r.status === "cleared")) return "homeNewCleared";
-  if (refs.some((r) => r.status === "details_shared")) return "homeNewShared";
-  if (refs.some(live)) return "homeNewSent";
-  return "homeNewUnavailable";
-}
-
-function CaseWhatsNew({ caseId, status }: { caseId: string; status: Case["status"] }) {
-  const t = useT();
-  const [refs, setRefs] = useState<ReferralDoc[]>([]);
-  const relevant = status === "awaiting_selection" || status === "connected";
-  useEffect(() => {
-    if (!relevant) return;
-    return watchCaseReferrals(caseId, setRefs, () => {});
-  }, [caseId, relevant]);
-  if (!relevant) return null;
-  const key = whatsNewKey(refs, status);
-  if (!key) return null;
-  const bright = key === "homeNewOffer" || key === "homeNewConnected";
-  return (
-    <div
-      className={cn(
-        "mt-4 flex items-center gap-2.5 rounded-2xl px-3.5 py-2.5",
-        bright ? "bg-gold/15" : "bg-[var(--recess-fill)]",
-      )}
-    >
-      <span
-        aria-hidden
-        className={cn(
-          "size-2 shrink-0 rounded-full",
-          bright ? "bg-gold-ink dark:bg-gold motion-safe:animate-pulse" : "bg-muted-foreground/50",
-        )}
-      />
-      <span
-        className={cn(
-          "min-w-0 text-[12.5px] font-bold leading-snug",
-          bright ? "text-gold-ink dark:text-gold" : "text-foreground/80",
-        )}
-      >
-        {t(key)}
-      </span>
-    </div>
-  );
-}
-
 function ClientHome() {
   const navigate = useNavigate();
   const { done } = Route.useSearch();
@@ -198,7 +139,12 @@ function ClientHome() {
         : hour >= 17 && hour < 22
           ? "greetEvening"
           : "greetNight";
-  const [active, ...rest] = cases;
+  /*
+   * הכרטיס הראשי — לפי מה שדורש פעולה, לא לפי מי שנוצר אחרון (21/8):
+   * תיק מחובר מאתמול דחק תיק עם הצעה ממתינה ל"התיקים שלי" בלי סימן.
+   */
+  const ordered = [...cases].sort((a, b) => caseActionRank(a.status) - caseActionRank(b.status) || b.createdAt - a.createdAt);
+  const [active, ...rest] = ordered;
   const activeMeta = active ? statusMeta(active.status) : null;
   const interested = active?.interested.length ?? 0;
   /* תיקים שעדיין דורשים משהו — לא כולל סגורים ונדחים */
@@ -517,6 +463,7 @@ function ClientHome() {
                           {c.title || t("homeCaseUntitled")}
                         </p>
                         <p className="mt-0.5 text-[11px] text-muted-foreground">{m.label}</p>
+                        <CaseWhatsNew caseId={c.id} status={c.status} compact />
                       </div>
                       <Arrow className="size-4 shrink-0 text-muted-foreground/40" />
                     </button>

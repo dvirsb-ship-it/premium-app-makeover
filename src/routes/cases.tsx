@@ -8,6 +8,7 @@ import { CaseListSkeleton } from "../components/Skeleton";
 import { Page, Stagger, Rise, Pressable } from "../components/motion";
 import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
+import { CaseWhatsNew } from "../components/CaseWhatsNew";
 import { useSettings } from "../lib/settings";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
@@ -141,6 +142,7 @@ function Cases() {
                         {timeAgo(c.createdAt)}
                       </span>
                     </div>
+                    <CaseWhatsNew caseId={c.id} status={c.status} />
                     {/*
                       * הבדיקה רצה עכשיו — 10-15 שניות של עבודת AI אמיתית.
                       * בלי השורה הזו הכרטיס נראה ריק ושבור; איתה הוא נראה
