@@ -204,7 +204,6 @@ export const strings = {
   newCaseAria: { he: "מקרה חדש", en: "New case" },
   noCases: { he: "אין עדיין תיקים", en: "No cases yet" },
   shareNewCase: { he: "שיתוף מקרה חדש", en: "Share a new case" },
-  lawyersInterestedCount: { he: "עורכי דין הביעו עניין", en: "lawyers expressed interest" },
   /*
    * רגע ההגעה: מישהו אמר "אני יכול לעזור לך". עד עכשיו הוא נאמר בפס
    * דק בתחתית הכרטיס, בלשון סטטוס ("1 עורכי דין הביעו עניין" — גם
@@ -968,7 +967,7 @@ export const strings = {
   suspendLawyerHint: { he: "חוסם הבעת עניין בתיקים חדשים. תיקים פעילים ממשיכים — ניתוק לקוח באמצע תיק פוגע בו, לא מגן עליו.", en: "Blocks interest in new cases. Active cases continue — cutting a client mid-case harms them, not protects them." },
   reinstateLawyer: { he: "החזרת גישה", en: "Reinstate access" },
   confirmSuspendTitle: { he: "להשעות את עורך הדין?", en: "Suspend this lawyer?" },
-  confirmSuspendBody: { he: "מרגע ההשעיה הוא לא יראה פניות חדשות ולא יוכל להביע עניין. תיקים שכבר חובר אליהם ממשיכים כרגיל, והלקוחות שלו לא יינזקו. ניתן להחזיר גישה בכל עת.", en: "From now they won't see new leads or express interest. Cases already connected continue as normal, so their clients aren't harmed. Access can be restored any time." },
+  confirmSuspendBody: { he: "מרגע ההשעיה הוא יוסר מהאינדקס ולא יקבל פניות חדשות. תיקים פעילים ממשיכים.", en: "Once suspended they're removed from the index and receive no new requests. Active cases continue." },
   confirmApproveTitle: { he: "לאשר את עורך הדין הזה?", en: "Approve this lawyer?" },
   confirmApproveBody: { he: "מרגע האישור הוא רואה תיקים של לקוחות בתחומים שבחר, ומקבל הודעה שאושר. ודאו שהמסמכים נבדקו.", en: "Once approved they see client cases in their fields and get a notification. Make sure the documents were checked." },
   confirmRejectTitle: { he: "לדחות את הבקשה?", en: "Reject this application?" },
@@ -1240,7 +1239,7 @@ export const strings = {
   compareHeader: { he: "השוואת ההצעות", en: "Compare the offers" },
   compareSub: { he: "כל מה שקיבלתם, זה לצד זה. הזול ביותר אינו בהכרח הנכון ביותר — שקלו גם ניסיון, מהירות תגובה ומה כלול.", en: "Everything you received, side by side. Cheapest isn't always right — weigh experience, response time and what's included." },
   compareRange: { he: "טווח ההצעות", en: "Offer range" },
-  compareNoOffers: { he: "עורכי דין שהביעו עניין בלי לצרף הצעה — אפשר לשאול אותם ישירות אחרי הבחירה.", en: "Lawyers who expressed interest without attaching an offer — you can ask them directly after choosing." },
+  compareNoOffers: { he: "עורכי דין שקוראים את הסיכום וטרם הגישו הצעה", en: "lawyers reading the summary who haven't submitted a proposal yet" },
   compareOnlyOne: { he: "התקבלה הצעה אחת. אפשר להמתין לעוד או להתקדם איתה.", en: "One offer so far. You can wait for more or move ahead with it." },
 
   /* ---------- דירוג אחרי סיום התיק ---------- */

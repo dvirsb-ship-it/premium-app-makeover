@@ -593,69 +593,8 @@ export interface DetectRegionsInput {
   idToken: string;
 }
 
-/* ---------- התראת דחיפה על הבעת עניין ---------- */
 
-export interface NotifyInterestInput {
-  caseId: string;
-  idToken: string;
-}
-
-/**
- * עו"ד שהביע עניין מבקש להתריע ללקוח.
- * השרת מאמת שהפונה באמת רשום כמתעניין בתיק — אחרת אפשר היה לשלוח
- * התראות לכל משתמש. אין כאן פרטים מזהים של העו"ד; רק שיש התעניינות.
- */
-export const notifyInterestFn = createServerFn({ method: "POST" })
-  .validator((d: unknown) => d as NotifyInterestInput)
-  .handler(async ({ data }): Promise<{ sent: boolean }> => {
-    const {
-      requireUser, adminGetCase, adminGetDoc, recordLawyerResponse, notify,
-      enforceDailyCap, withErrorLog,
-    } = await import("./server-admin");
-    return withErrorLog("notifyInterest", async () => {
-      const uid = await requireUser(data.idToken);
-      /*
-       * התקרה כאן ולא על הכתיבה (18/8/2026): ההצעה עצמה נכתבת מהדפדפן
-       * וחוקי המסד מגבילים אותה לעשר לתיק, כלומר עורך דין תופס מקום
-       * אחד ואינו חוסם. מה שלא היה חסום זו **ההתראה** — והיא מגיעה
-       * לפונה עצמו, על כל תיק בפיד, בלי גבול. זה הנתיב שמציף אדם אמיתי.
-       */
-      await enforceDailyCap(uid, "notifyInterest");
-      const c = await adminGetCase(data.caseId);
-      if (!c) return { sent: false };
-
-      const interestedIds = (c.interestedIds as string[] | undefined) ?? [];
-      if (!interestedIds.includes(uid)) return { sent: false };
-
-      /*
-       * מדד התגובתיות נמדד מהרגע שהתיק נעשה זמין *לעורך הדין הזה* —
-       * המאוחר מבין פתיחת התיק ואישור האימות שלו.
-       *
-       * בלי זה עורך דין שמצטרף היום ורואה backlog של תיקים בני שבועיים
-       * מקבל מיד ציון תגובתיות נורא, על זמן שבו הוא לא היה רשום ולא
-       * יכול היה להגיב. זה מדד שמוצג ללקוחות ומשפיע על בחירה.
-       */
-      const caseOpenedAt = Number(c.validatedAt ?? c.createdAt ?? 0);
-      const ver = await adminGetDoc(`verifications/${encodeURIComponent(uid)}`);
-      const approvedAt = Number(ver?.reviewedAt ?? 0);
-      const baseline = Math.max(caseOpenedAt, approvedAt);
-      if (baseline > 0) await recordLawyerResponse(uid, Date.now() - baseline);
-
-      await notify(
-        c.clientId as string,
-        {
-          title: "עורך דין הביע עניין בתיק שלך",
-          body: `"${(c.title as string) || "התיק שלך"}" — היכנסו לראות את ההצעה ולבחור`,
-          link: `/case/${data.caseId}`,
-        },
-        "lawyerInterest",
-      );
-      return { sent: true };
-    });
-  });
-
-
-/* ---------- דירוג עורך הדין אחרי סיום התיק ---------- */
+/* notifyInterestFn נמחק (23/8/2026) — מנגנון הפיד; ההתראות נשלחות מ-requestReferral/respondReferral */
 
 export interface RateInput {
   caseId: string;
