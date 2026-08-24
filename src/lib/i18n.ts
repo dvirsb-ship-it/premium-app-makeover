@@ -226,7 +226,6 @@ export const strings = {
   chooseThisLawyer: { he: "בחירת עורך דין זה", en: "Choose this lawyer" },
 
   // Lawyer feed
-  lawyerFeedMetaTitle: { he: "JustAsk — פיד עורכי דין", en: "JustAsk — Lawyer feed" },
   lawyerFeedMetaDesc: { he: "פניות משפטיות טריות המחכות להבעת עניין מעורכי דין מומחים.", en: "Fresh legal requests waiting for expert lawyers to express interest." },
   lawyerFeedOgDesc: { he: "פניות משפטיות איכותיות בזמן אמת לעורכי דין ב-JustAsk.", en: "Quality real-time legal requests for lawyers on JustAsk." },
   newLeads: { he: "פניות חדשות", en: "New leads" },
@@ -599,7 +598,7 @@ export const strings = {
   appealBy: { he: "דווח ע״י", en: "Reported by" },
   appealAccept: { he: "קבלת הערעור", en: "Accept appeal" },
   appealDismiss: { he: "דחיית הערעור", en: "Dismiss" },
-  appealAcceptedToast: { he: "הערעור התקבל והתיק הוסר מהפיד", en: "Appeal accepted — case removed from feed" },
+  appealAcceptedToast: { he: "הדיווח התקבל והפנייה הוסרה", en: "Report accepted — the request was removed" },
   appealDismissedToast: { he: "הערעור נדחה — הבדיקה בתוקף", en: "Appeal dismissed — the assessment stands" },
   adminSupportHeader: { he: "פניות תמיכה", en: "Support inbox" },
   supportEmpty: { he: "אין פניות — הודעות מטופס העזרה יופיעו כאן.", en: "No tickets — messages from the help form will appear here." },
@@ -1259,7 +1258,7 @@ export const strings = {
   notifRevertedTitle: { he: "הפנייה שלך חזרה לבדיקה", en: "Your case went back for review" },
   notifRevertedBody: { he: "לאחר בדיקה נוספת נדרשים פרטים משלימים. אפשר לפתוח פנייה חדשה עם מידע נוסף — אנחנו כאן.", en: "A further review found details missing. You can open a new case with more information — we're here." },
   notifAppealAcceptedTitle: { he: "הערעור שלך התקבל", en: "Your appeal was accepted" },
-  notifAppealAcceptedBody: { he: "צדקת — התיק \"{title}\" הוסר מהפיד. תודה ששמרת על איכות המערכת.", en: "You were right — \"{title}\" was removed from the feed. Thanks for guarding the system's quality." },
+  notifAppealAcceptedBody: { he: "צדקת — הפנייה \"{title}\" הוסרה. תודה ששמרת על איכות המערכת.", en: "You were right — \"{title}\" was removed. Thank you for keeping the platform honest." },
   notifAppealDismissedTitle: { he: "הערעור נבדק", en: "Your appeal was reviewed" },
   notifAppealDismissedBody: { he: "בדקנו את \"{title}\" — הבדיקה נשארת בתוקף. תודה על הערנות.", en: "We reviewed \"{title}\" — the assessment stands. Thanks for flagging." },
   /* פעמון — זרימת ההפניות של מודל הבחירה (20/8/2026) */
