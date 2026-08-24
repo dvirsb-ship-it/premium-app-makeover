@@ -878,7 +878,7 @@ export const strings = {
   notFoundTitle: { he: "הדף לא נמצא", en: "Page not found" },
   notFoundBody: { he: "הדף הזה לא קיים או שהוא עבר. בוא נחזיר אותך למסלול.", en: "This page doesn't exist or has moved. Let's get you back on track." },
   adminMaintTitle: { he: "תחזוקה — מחיקת תיק", en: "Maintenance — delete a case" },
-  adminMaintSub: { he: "מוחק תיק לצמיתות — כולל תזכיר, אבני דרך, חשיפות קשר והתראות. לתיקי דמו ובדיקה בלבד.", en: "Permanently deletes a case — memo, milestones, contact reveals and notifications included. Demo and test cases only." },
+  adminMaintSub: { he: "מוחק תיק לצמיתות — כולל ההפניות שלו, אבני דרך, חשיפות קשר והתראות. לתיקי דמו ובדיקה בלבד.", en: "Permanently deletes a case — its referrals, milestones, contact reveals and notifications. Demo and test cases only." },
   adminMaintPh: { he: "מזהה התיק (מכתובת מסך התיק)", en: "Case ID (from the case screen URL)" },
   adminMaintBtn: { he: "מחיקה", en: "Delete" },
   adminMaintConfirm: { he: "בטוח? מחיקה סופית", en: "Sure? This is final" },

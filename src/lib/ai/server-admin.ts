@@ -806,6 +806,18 @@ export async function adminPurgeCase(
   for (const k of ["met", "demandSent", "filed", "closed"]) {
     await del(`cases/${id}/milestones/${k}`);
   }
+  /*
+   * הפניות וחשיפות קשר של מודל הבחירה (23/8/2026): ההפניות הן אוסף
+   * עליון ולא תת-אוסף, וה-contacts נכתבים לפי עורכי הדין שבהפניות —
+   * לא לפי interestedIds של הפיד. בלעדי זה מחיקת תיק השאירה את שמות
+   * הצדדים והסיכום חיים במסמכי ההפניה היתומים.
+   */
+  for (const rid of await adminQueryIds("referrals", "caseId", caseId)) {
+    const lawyerId = rid.startsWith(`${caseId}_`) ? rid.slice(caseId.length + 1) : "";
+    if (lawyerId) await del(`cases/${id}/contacts/${encodeURIComponent(lawyerId)}`);
+    await del(`referrals/${encodeURIComponent(rid)}`);
+  }
+  /* interestedIds — תיקי פיד ישנים בלבד */
   for (const lid of (c.interestedIds as string[] | undefined) ?? []) {
     await del(`cases/${id}/contacts/${encodeURIComponent(lid)}`);
   }
