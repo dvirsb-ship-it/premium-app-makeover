@@ -101,15 +101,13 @@ function Cases() {
           <Stagger className="space-y-4">
             {cases.map((c) => {
               const meta = statusMeta(c.status);
-              /* ממתין להחלטה שלך — מסומן, ויושב ראשון ברשימה */
-              const awaiting = c.status === "has_interest";
               return (
                 <Rise key={c.id}>
                   <Pressable
                     onClick={() =>
                       navigate({ to: "/case/$caseId", params: { caseId: c.id } })
                     }
-                    className={`liquid-glass w-full rounded-3xl p-5 ${awaiting ? "attention-ring" : ""}`}
+                    className={`liquid-glass w-full rounded-3xl p-5`}
                   >
                     <div className="flex items-start justify-between gap-3">
                       <span
@@ -156,17 +154,6 @@ function Cases() {
                         </span>
                         <span className="text-xs font-semibold text-foreground">
                           {t("validatingCardHint")}
-                        </span>
-                      </div>
-                    )}
-                    {/* אותו רגע כמו במסך הבית — זהב מלא, בלשון פעולה */}
-                    {c.status === "has_interest" && (
-                      <div className="mt-4 flex items-center gap-2.5 rounded-2xl bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] px-3.5 py-2.5">
-                        <Users className="size-4 shrink-0 text-[#0F172A]" strokeWidth={2.4} />
-                        <span className="text-[13px] font-black text-[#0F172A]">
-                          {c.interested.length === 1
-                            ? t("offerWaitingOne")
-                            : t("offerWaitingMany").replace("{n}", String(c.interested.length))}
                         </span>
                       </div>
                     )}

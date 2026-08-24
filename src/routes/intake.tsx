@@ -12,7 +12,6 @@ import { haptic } from "../lib/haptics";
 import { useAppStore } from "../lib/store";
 import {
   intakeTurn,
-  type IntakeNotSuitable,
   type IntakeReady,
 } from "../lib/ai/intake.functions";
 import { createCase } from "../lib/db";
@@ -70,7 +69,6 @@ function Intake() {
   const [step, setStep] = useState(0);
   const [typing, setTyping] = useState(false);
   const [ready, setReady] = useState(false);
-  const [notSuitable, setNotSuitable] = useState<IntakeNotSuitable | null>(null);
   const [submitting, setSubmitting] = useState(false);
   /*
    * עצירה לפני הגשה בלי תיעוד.
@@ -135,7 +133,6 @@ function Intake() {
         messages?: ChatMessage[];
         step?: number;
         ready?: IntakeReady | null;
-        notSuitable?: IntakeNotSuitable | null;
       };
       const stale = !saved.at || Date.now() - saved.at > DRAFT_MAX_AGE_MS;
       if (stale || !Array.isArray(saved.messages)) {
@@ -156,7 +153,6 @@ function Intake() {
           readyData.current = saved.ready;
           setReady(true);
         }
-        if (saved.notSuitable) setNotSuitable(saved.notSuitable);
       }
     } catch {
       clearDraft();
@@ -174,14 +170,13 @@ function Intake() {
             messages,
             step,
             ready: ready ? readyData.current : null,
-            notSuitable,
           }),
         );
       }
     } catch {
       /* ignore */
     }
-  }, [messages, openers.length, step, ready, notSuitable]);
+  }, [messages, openers.length, step, ready]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({
@@ -217,8 +212,6 @@ function Intake() {
   }, []);
 
   // ארבעה פרטים נאספים בשיחה: תיאור, תאריך, סוג נזק, תיעוד
-  const totalSteps = 3;
-  const progress = Math.min(step, totalSteps);
 
   async function send() {
     const text = input.trim();
@@ -229,12 +222,13 @@ function Intake() {
       track("intake_first_message");
     }
 
-    // תשובה אחרי סיכום — המשתמש מתקן/מוסיף, ההכרעה נפתחת מחדש
-    if (ready || notSuitable) {
+    // תשובה אחרי סיכום — המשתמש מתקן/מוסיף, והסיכום ייכתב מחדש
+    if (ready) {
       setReady(false);
-      setNotSuitable(null);
       readyData.current = null;
     }
+    /* תיאור מסמכים בהודעה חדשה מבטל את "באמת אין תיעוד?" */
+    if (confirmNoDocs) setConfirmNoDocs(false);
 
     const userMsg: ChatMessage = {
       id: `u-${Date.now()}`,
@@ -270,11 +264,6 @@ function Intake() {
         setReady(true);
         track("intake_ready");
       }
-      if (res.notSuitable) {
-        setNotSuitable(res.notSuitable);
-        track("intake_not_suitable");
-      }
-
       setStep((s) => s + 1);
     } catch {
       setTyping(false);
@@ -382,44 +371,27 @@ function Intake() {
             }
           />
 
-          {/* Elegant step progress */}
+          {/*
+            * מחוון כן (23/8/2026): הפס הקודם ספר הודעות והציג "2 / 4" —
+            * פיקציה שנראתה כמו התקדמות אמיתית. שני מצבים אמיתיים בלבד:
+            * אוספים, או מוכן לשליחה.
+            */}
           <div className="px-5 pt-4">
-            <div className="flex items-center gap-1.5">
-              {Array.from({ length: totalSteps + 1 }).map((_, i) => {
-                const done = i < progress;
-                const current = i === progress && !ready;
-                return (
-                  <motion.span
-                    key={i}
-                    initial={false}
-                    animate={{
-                      width: current ? 28 : 14,
-                      opacity: done || current ? 1 : 0.35,
-                    }}
-                    transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                    className={
-                      "h-1 rounded-full " +
-                      (done || ready
-                        ? "bg-gradient-to-r from-gold to-[#B8912B]"
-                        : current
-                          ? "bg-gold/80"
-                          : "bg-foreground/15")
-                    }
-                  />
-                );
-              })}
-              {/*
-                * dir=ltr הכרחי: "1 / 4" הוא זוג מספרים עם מפריד ניטרלי,
-                * ובפסקה RTL אלגוריתם הדו-כיווניות הופך את סדרם — על המסך
-                * זה נקרא "4 / 1", כלומר שלב 4 מתוך 1. דביר תפס את זה
-                * בצילום מהטלפון.
-                */}
-              <span
-                dir="ltr"
-                className="ms-auto text-[10px] font-semibold uppercase tracking-widest text-muted-foreground"
-              >
-                {ready ? "✓" : `${Math.min(progress + 1, totalSteps + 1)} / ${totalSteps + 1}`}
-              </span>
+            <div className="flex items-center gap-2">
+              {ready ? (
+                <span className="flex items-center gap-1.5 text-[10.5px] font-bold uppercase tracking-widest text-gold-ink dark:text-gold">
+                  <span aria-hidden className="grid size-3.5 place-items-center rounded-full bg-gold text-[8px] font-black text-[#0F172A]">✓</span>
+                  {t("intakeReadyBadge")}
+                </span>
+              ) : (
+                <span className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <span aria-hidden className="relative flex size-2">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-gold opacity-60" />
+                    <span className="relative inline-flex size-2 rounded-full bg-gold" />
+                  </span>
+                  {t("intakeCollecting")}
+                </span>
+              )}
             </div>
           </div>
 
@@ -523,48 +495,7 @@ function Intake() {
             */}
           <div className="workspace sticky bottom-0 border-t border-border px-5 pb-6 pt-4 [box-shadow:0_-12px_28px_-24px_oklch(var(--sh)_/_0.5)]">
             <AnimatePresence>
-              {notSuitable && (
-                <motion.div
-                  key="notsuitable"
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: 8 }}
-                  transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="liquid-glass mb-3 rounded-3xl p-4"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-gold/15 text-gold">
-                      <Scale className="size-4" strokeWidth={2.2} />
-                    </span>
-                    <p className="text-[13px] font-bold text-foreground">
-                      {t("intakeNotSuitableTitle")}
-                    </p>
-                  </div>
-                  <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">
-                    {notSuitable.reason}
-                  </p>
-                  <div className="mt-3 rounded-2xl bg-gold/8 px-3.5 py-3">
-                    <p className="text-[11px] font-bold uppercase tracking-wider text-gold">
-                      {t("intakeNotSuitableRec")}
-                    </p>
-                    <p className="mt-1 text-[13px] leading-relaxed text-foreground/90">
-                      {notSuitable.recommendation}
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      clearDraft();
-                      navigate({ to: "/" });
-                    }}
-                    className="liquid-glass mt-3 w-full rounded-2xl py-2.5 text-[13px] font-semibold text-foreground transition active:scale-[0.98]"
-                  >
-                    {t("valGoCases")}
-                  </button>
-                </motion.div>
-              )}
-
-              {ready && !notSuitable && confirmNoDocs && (
+              {ready && confirmNoDocs && (
                 <motion.div
                   key="nodocs"
                   initial={{ opacity: 0, y: 8 }}
@@ -587,7 +518,7 @@ function Intake() {
                 * תקנון" לבין "ביקשתי הצעות" הוא בדיוק מה שיישאל, ותיבה
                 * שיושבת לבד ברגע הנכון היא הראיה לכך שהיא נקראה.
                 */}
-              {ready && !notSuitable && (
+              {ready && (
                 <motion.label
                   key="offers-request"
                   initial={{ opacity: 0, y: 8 }}
@@ -611,7 +542,7 @@ function Intake() {
                 </motion.label>
               )}
 
-              {ready && !notSuitable && (
+              {ready && (
                 <motion.button
                   key="submit"
                   type="button"
@@ -644,7 +575,7 @@ function Intake() {
             </AnimatePresence>
 
             {/* דרך יזומה להתחיל מחדש — בלי זה שיחה שנתקעה נשארת לנצח */}
-            {messages.length > 2 && !ready && !notSuitable && (
+            {messages.length > 2 && !ready && (
               <button
                 type="button"
                 onClick={() => {
@@ -686,7 +617,7 @@ function Intake() {
                   }
                 }}
                 rows={1}
-                placeholder={ready || notSuitable ? t("composerFixPlaceholder") : t("composerPlaceholder")}
+                placeholder={ready ? t("composerFixPlaceholder") : t("composerPlaceholder")}
                 aria-label={t("composerAria")}
                 className="max-h-32 flex-1 resize-none bg-transparent py-3 text-[15px] leading-relaxed text-foreground outline-none placeholder:text-muted-foreground"
               />

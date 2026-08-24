@@ -15,6 +15,7 @@ import {
   ShieldCheck,
   Sun,
   UserRound,
+  Scale,
 } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -52,6 +53,7 @@ function Profile() {
 
   useRequireAuth();  const navigate = useNavigate();
   const { role, setRole, signOut, user } = useAppStore();
+  const [switchArmed, setSwitchArmed] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
   const { theme, toggleTheme, lang, setLang, dir } = useSettings();
   const t = useT();
@@ -166,9 +168,19 @@ function Profile() {
           </Rise>
 
           <Rise>
+            {/*
+              * דו-שלבי (23/8/2026): לחיצת סקרנות זרקה את המשתמש למסך
+              * בחירת תפקיד בלי אזהרה — הפעולה ה"הרסנית" היחידה שהייתה
+              * בלחיצה אחת. אותו דפוס כמו משיכת פנייה וסגירת תיק.
+              */}
             <button
               type="button"
               onClick={() => {
+                if (!switchArmed) {
+                  setSwitchArmed(true);
+                  window.setTimeout(() => setSwitchArmed(false), 5000);
+                  return;
+                }
                 setRole(null);
                 navigate({ to: "/" });
               }}
@@ -178,11 +190,31 @@ function Profile() {
                 <Repeat className="size-5" />
               </span>
               <span className="flex-1 text-sm font-bold text-foreground">
-                {t("switchRole")}
+                {switchArmed ? t("switchRoleConfirm") : t("switchRole")}
               </span>
               <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
             </button>
           </Rise>
+
+          {/* תחומי התמחות — הדרך היחידה לעדכן בלי לאבד אימות (23/8/2026:
+              המסך היה קיים ובלתי נגיש משום מקום) */}
+          {role === "lawyer" && (
+            <Rise>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/settings/specialties" })}
+                className="liquid-glass flex w-full items-center gap-3 rounded-3xl p-4 text-start transition active:scale-[0.99]"
+              >
+                <span className="grid size-10 place-items-center rounded-xl bg-gold/12 text-gold-ink">
+                  <Scale className="size-5" />
+                </span>
+                <span className="flex-1 text-sm font-bold text-foreground">
+                  {t("specialtiesTitle")}
+                </span>
+                <ChevronLeft className={`size-5 text-muted-foreground/50 ${flip}`} />
+              </button>
+            </Rise>
+          )}
 
           {/*
             * הצגה עצמית — לעורכי דין בלבד, וגבוה ברשימה בכוונה.

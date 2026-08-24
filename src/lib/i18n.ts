@@ -40,6 +40,8 @@ export const strings = {
   language: { he: "שפה", en: "Language" },
   languageSub: { he: "בחרו את שפת הממשק", en: "Choose the interface language" },
   switchRole: { he: "החלפת תפקיד", en: "Switch role" },
+  switchRoleConfirm: { he: "בטוח? מעבר למסך בחירת התפקיד", en: "Sure? Back to role selection" },
+  specialtiesTitle: { he: "תחומי התמחות", en: "Practice areas" },
   notifications: { he: "התראות", en: "Notifications" },
   privacy: { he: "פרטיות ואבטחה", en: "Privacy & security" },
   terms: { he: "תנאי שימוש", en: "Terms of use" },
@@ -117,9 +119,11 @@ export const strings = {
 
   // Intake (chat)
   intakeTitle: { he: "שיתוף הסיפור", en: "Share your story" },
+  intakeCollecting: { he: "אוספים את הפרטים", en: "Gathering the details" },
+  intakeReadyBadge: { he: "הכול נאסף — אפשר לשלוח", en: "All gathered — ready to send" },
   intakeSubtitle: { he: "שיחה מאובטחת", en: "Secure conversation" },
   secureBadge: { he: "מאובטח", en: "Secure" },
-  opener1: { he: "שלום 👋 אני עוזר הקליטה של JustAsk. אני כאן כדי לשמוע על המקרה שלך ולבדוק התאמה ראשונית.", en: "Hi 👋 I'm the JustAsk intake assistant. I'm here to hear about your case and check an initial match." },
+  opener1: { he: "שלום 👋 אני עוזר הקליטה של JustAsk. אני כאן כדי לשמוע מה קרה ולארגן ממנו פנייה מסודרת לעורך הדין שתבחרו.", en: "Hi 👋 I'm JustAsk's intake assistant. I'm here to hear what happened and organise it into a clear request for the lawyer you'll choose." },
   opener2: { he: "ספר/י לי בחופשיות מה קרה — אני אשאל שאלות תוך כדי.", en: "Tell me freely what happened — I'll ask questions along the way." },
   /*
    * ═══ הבקשה המפורשת (12/8/2026) ═══
@@ -167,17 +171,17 @@ export const strings = {
     en: "Write the way you think. There's no right or wrong answer — you can revise or add anything at any point.",
   },
   tipDatesTitle: { he: "הוסיפו תאריכים מדויקים", en: "Add precise dates" },
-  tipDatesBody: { he: "מתי זה קרה? מתי פניתם לגורמים אחרים? תאריכים עוזרים לנו לבדוק מועדים ולסווג את המקרה נכון.", en: "When did it happen? When did you contact others? Dates help us check deadlines and classify your case correctly." },
+  tipDatesBody: { he: "תאריכים — ולו משוערים — עוזרים לבנות ציר זמן ברור של מה שקרה.", en: "Dates — even approximate — help build a clear timeline of what happened." },
   tipPhotosTitle: { he: "דעו מה קיים אצלכם", en: "Know what you have" },
   tipPhotosBody: { he: "מסמכים רפואיים, תמונות מהמקום, התכתבויות, קבלות, עדים או מסמך רשמי. אתם לא מעלים לכאן כלום — רק אומרים מה קיים, ומביאים אותו לפגישה עם עורך הדין.", en: "Medical records, photos of the scene, correspondence, receipts, witnesses or an official document. You upload nothing here — you just say what exists, and bring it to the meeting with the lawyer." },
   tipDetailsTitle: { he: "כמה שיותר פרטים", en: "As many details as possible" },
   tipDetailsBody: {
-    he: "שמות של גורמים מעורבים, סכומים, מקומות ותוצאות. ככל שיש יותר מידע — כך הבדיקה מדויקת יותר וההתאמה איכותית יותר.",
-    en: "Names of parties involved, amounts, locations and outcomes. The more information, the more accurate the review and match.",
+    he: "ככל שתשתפו יותר, הסיכום שעורך הדין יקבל יהיה מלא ומדויק יותר.",
+    en: "The more you share, the fuller and more accurate the summary your lawyer receives.",
   },
   tipsFooterNote: {
-    he: "🔒 כל מה שתשתפו מוצפן ונשמר בשרתים מאובטחים בישראל. פרטים אישיים ייחשפו רק לעורך הדין שתבחרו.",
-    en: "🔒 Everything you share is encrypted and stays yours. Personal details are revealed only to lawyers you choose.",
+    he: "🔒 כל מה שתשתפו מוצפן. תיאור המקרה מעובד ע״י שירות AI של גוגל באיחוד האירופי לצורך ארגון הסיכום, והנתונים נשמרים בשרתים מאובטחים. פרטי הקשר ייחשפו רק לעורך הדין שתבחרו.",
+    en: "🔒 Everything you share is encrypted. The case description is processed by a Google AI service in the EU to organise the summary, and data is stored on secured servers. Contact details are revealed only to the lawyer you choose.",
   },
   tipsStartCta: { he: "הבנתי, בואו נתחיל", en: "Got it, let's start" },
 
@@ -192,8 +196,6 @@ export const strings = {
   defaultCategory: { he: "נזיקין ותאונות דרכים", en: "Personal Injury & Traffic" },
 
   // Submitted
-  submittedTitle: { he: "המקרה שלך נשלח בהצלחה", en: "Your case was submitted successfully" },
-  viewStatus: { he: "צפייה בסטטוס המקרה", en: "View case status" },
   backHome: { he: "חזרה לדף הבית", en: "Back to home" },
 
   // Cases list
@@ -209,10 +211,6 @@ export const strings = {
    * שגוי דקדוקית ביחיד). זה הרגע שכל המסע הוביר אליו, והוא צריך
    * להיקרא כהזמנה לפעולה, לא כהערת שוליים.
    */
-  offerWaitingOne: { he: "עורך דין רוצה לקחת את התיק שלך", en: "A lawyer wants to take your case" },
-  offerWaitingMany: { he: "{n} עורכי דין רוצים לקחת את התיק שלך", en: "{n} lawyers want to take your case" },
-  offerWaitingCtaOne: { he: "לצפייה בהצעה ולבחירה", en: "See the offer and choose" },
-  offerWaitingCtaMany: { he: "להשוואת ההצעות ולבחירה", en: "Compare the offers and choose" },
   connectedWithLawyer: { he: "נוצר חיבור עם עורך דין", en: "Connected with a lawyer" },
 
   // Case detail (client)
@@ -225,8 +223,6 @@ export const strings = {
   viewFullProfile: { he: "צפייה בפרופיל המלא", en: "View full profile" },
   messageAction: { he: "הודעה", en: "Message" },
   callAction: { he: "התקשרות", en: "Call" },
-  lawyersInterestedHeader: { he: "עורכי דין שהביעו עניין", en: "Lawyers who expressed interest" },
-  noInterestYet: { he: "עדיין אין התעניינות. נעדכן אותך ברגע שעורך דין יביע עניין.", en: "No interest yet. We'll update you as soon as a lawyer expresses interest." },
   yearsExperience: { he: "שנות ניסיון", en: "years experience" },
   chooseThisLawyer: { he: "בחירת עורך דין זה", en: "Choose this lawyer" },
 
@@ -263,7 +259,7 @@ export const strings = {
   lawyerOnboardMetaDesc: { he: "בחרו את תחומי ההתמחות שלכם כדי לקבל פניות רלוונטיות ב-JustAsk.", en: "Choose your practice areas to receive relevant leads on JustAsk." },
   lawyerOnboardOgDesc: { he: "בחירת תחומי התמחות כדי להופיע באינדקס ולקבל פניות ממי שבחר בך.", en: "Pick practice areas to appear in the index and receive requests from clients who choose you." },
   lawyerOnboardTitle: { he: "הרשמת עורך דין", en: "Lawyer signup" },
-  lawyerOnboardSubtitle: { he: "בחרו את תחומי ההתמחות שלכם", en: "Choose your practice areas" },
+  lawyerOnboardSubtitle: { he: "אימות זהות, רישיון ותחומים — כמה דקות", en: "Identity, licence and fields — a few minutes" },
   joinRosterBadge: { he: "JustAsk · הצטרפות כעורך דין", en: "JustAsk · Join as a lawyer" },
   onboardHeading1: { he: "באילו תחומים", en: "In which areas" },
   onboardHeading2: { he: "אתם מתמחים?", en: "do you specialize?" },
@@ -319,10 +315,10 @@ export const strings = {
   handshakeWelcome: { he: "לחיצת יד לתחילת הדרך", en: "Sealed with a handshake" },
   welcomeSlide1Title: { he: "קודם כל — מגיעים מוכנים", en: "First — arrive prepared" },
   welcomeSlide1Body: { he: "ספרו מה קרה בשיחה קצרה. נארגן מזה סיכום מסודר וציר זמן — ואתם מאשרים כל מילה לפני שהיא יוצאת מכם.", en: "Tell what happened in a short chat. We organise it into a summary and timeline — and you approve every word before it leaves you." },
-  welcomeSlide2Title: { he: "מתחברים לעורך הדין הנכון", en: "Matched with the right lawyer" },
-  welcomeSlide2Body: { he: "רק עורכי דין מאומתים בתחום של התיק רואים את הפנייה ומביעים עניין. אתם בוחרים.", en: "Only verified lawyers in the case's field see it and express interest. You choose." },
+  welcomeSlide2Title: { he: "אתם בוחרים את עורך הדין", en: "You choose the lawyer" },
+  welcomeSlide2Body: { he: "אינדקס של עורכי דין מאומתים, לפי תחום ואזור. אתם שולחים פנייה למי שבחרתם — עד שלושה במקביל.", en: "An index of verified lawyers, by field and area. You send your request to the ones you picked — up to three at a time." },
   welcomeSlide3Title: { he: "הפרטים שלכם, בשליטתכם", en: "Your details, your control" },
-  welcomeSlide3Body: { he: "עורכי הדין רואים את המקרה בלי שמכם ובלי פרטי קשר. הם נחשפים רק לעורך הדין שתבחרו.", en: "Lawyers see the case without your name or contact details. Those are revealed only to the lawyer you pick." },
+  welcomeSlide3Body: { he: "עורך הדין מקבל תחילה שמות בלבד — לבדיקת ניגוד עניינים. הסיפור שלכם נחשף רק אחרי שאישר, ופרטי הקשר רק למי שבחרתם לבסוף.", en: "The lawyer first receives names only — for a conflict check. Your story opens only after they confirm, and your contact details go only to the one you finally choose." },
 
   // Validating — retry
   valStuckTitle: { he: "הבדיקה מתעכבת", en: "This is taking longer than usual" },
@@ -334,7 +330,7 @@ export const strings = {
   lawyerVerifyStepOf: { he: "שלב {n} מתוך {total}", en: "Step {n} of {total}" },
   lawyerVerifyIntroBadge: { he: "אימות זהות ורישיון", en: "Identity & license verification" },
   lawyerVerifyTitle: { he: "בואו נאמת שהכל תקין", en: "Let's verify your credentials" },
-  lawyerVerifySub: { he: "כדי לשמור על איכות הפלטפורמה, אנו מאמתים כל עורך דין לפני שהוא רואה פניות של לקוחות.", en: "To keep the platform high-quality, we verify every lawyer before they see client requests." },
+  lawyerVerifySub: { he: "כדי לשמור על איכות הפלטפורמה, אנו מאמתים כל עורך דין לפני שהוא מופיע באינדקס.", en: "To keep the platform trustworthy, we verify every lawyer before they appear in the index." },
   lawyerVerifyBegin: { he: "התחלת אימות", en: "Begin verification" },
 
   stepIdentityTitle: { he: "פרטים אישיים", en: "Personal details" },
@@ -370,7 +366,7 @@ export const strings = {
   uploadDiploma: { he: "צילום תעודת בוגר", en: "Photo of diploma" },
 
   stepSpecTitle: { he: "תחומי התמחות", en: "Practice areas" },
-  stepSpecDesc: { he: "בחרו את התחומים שבהם אתם מייצגים. תראו רק פניות שמתאימות להם.", en: "Pick the fields you practice in. You'll only see matching requests." },
+  stepSpecDesc: { he: "בחרו את התחומים שבהם אתם מייצגים. אלה האינדקסים שבהם תופיעו — ומהם לקוחות בוחרים.", en: "Pick the fields you practise. These are the indexes you'll appear in — where clients choose." },
 
   stepReviewTitle: { he: "סקירה ואישור", en: "Review & submit" },
   stepReviewDesc: { he: "בדקו שהכל נכון. אחרי השליחה נבדוק את המסמכים ונעדכן אתכם בהתראה.", en: "Check everything looks right. After submission we review the documents and notify you." },
@@ -399,7 +395,7 @@ export const strings = {
   aiStep3: { he: "המסמכים צורפו", en: "Documents attached" },
   aiStep4: { he: "תחומי התמחות נבחרו", en: "Practice areas selected" },
   aiPassTitle: { he: "הפרטים נקלטו", en: "Details received" },
-  aiPassSub: { he: "הבקשה הועברה לבדיקה אנושית של המסמכים. נעדכן אותך בהתראה ברגע שהאימות יאושר — ואז הפניות בתחומכם ייפתחו.", en: "Your application moved to a human document review. We'll notify you when it's approved — then leads in your fields open." },
+  aiPassSub: { he: "הבקשה הועברה לבדיקה אנושית של המסמכים. עם האישור תופיע באינדקס עורכי הדין — ופניות יגיעו ממי שיבחר בך.", en: "Your application moved to human document review. Once approved you'll appear in the lawyer index — and requests will come from clients who choose you." },
   aiPassCta: { he: "סיום", en: "Done" },
   aiFailTitle: { he: "מצאנו כמה דברים שצריך לתקן", en: "We found a few things to fix" },
   aiFailSub: { he: "כדי להשלים את ההצטרפות, יש להשלים או לתקן את הפריטים הבאים:", en: "To finish onboarding, please complete or fix the items below:" },
@@ -516,13 +512,13 @@ export const strings = {
   helpSub: { he: "אנחנו כאן לענות על כל שאלה", en: "We're here to answer any question" },
   helpFaqHeader: { he: "שאלות נפוצות", en: "Frequently asked" },
   faq1Q: { he: "כמה זמן לוקח לקבל תשובה מעורך דין?", en: "How long until a lawyer responds?" },
-  faq1A: { he: "עורכי דין מאומתים בתחום של התיק מקבלים התראה מיד כשהפנייה מאושרת. זמן התגובה משתנה לפי התחום והאזור, ואם עדיין אין עורך דין מאומת בתחום — נגיד לכם את זה במסך התיק ולא נשאיר אתכם ממתינים.", en: "Verified lawyers in the case's field are notified the moment it's approved. Response time varies by field and area — and if no verified lawyer covers it yet, we say so on the case screen instead of leaving you waiting." },
+  faq1A: { he: "אתם שולחים את הפנייה לעד שלושה עורכי דין שבחרתם מהאינדקס, ולכל אחד 48 שעות להשיב על בדיקת ניגוד העניינים. תקבלו התראה על כל תשובה — וגם אם עורך דין אינו זמין, תמיד אפשר לבחור אחר.", en: "You send your request to up to three lawyers you pick from the index, and each has 48 hours to answer the conflict check. You get an alert on every response — and if a lawyer isn't available, you can always pick another." },
   faq2Q: { he: "האם השירות בתשלום?", en: "Is the service paid?" },
-  faq2A: { he: "ללקוחות — חינם, תמיד. שיתוף המקרה, הבדיקה והחיבור לעורך דין לא עולים לכם שקל. שכר הטרחה עצמו סוכם ישירות מול עורך הדין הנבחר. את השירות מממנים עורכי הדין.", en: "For clients — free, always. Sharing your case, the review and connecting with a lawyer cost you nothing. Legal fees are agreed directly with your chosen lawyer. The service is funded by the lawyers." },
+  faq2A: { he: "לפונים — הכול חינם, תמיד: השיחה, הסיכום, שליחת הפניות והחיבור לעורך דין. שכר הטרחה נסגר ישירות מול עורך הדין שבחרתם.", en: "For clients — everything is free, always: the conversation, the summary, sending requests and connecting. Legal fees are agreed directly with the lawyer you chose." },
   faq3Q: { he: "איך אני מוחק את החשבון שלי?", en: "How do I delete my account?" },
   faq3A: { he: "שלחו בקשה דרך טופס התמיכה למטה ונשלים מחיקה מלאה של החשבון והנתונים בתוך 14 יום, כנדרש בדין.", en: "Send a request via the support form below and we'll complete full deletion of your account and data within 14 days, as required by law." },
   faq4Q: { he: "האם עורכי הדין נבדקים?", en: "Are lawyers vetted?" },
-  faq4A: { he: "כל עורך דין עובר אימות זהות, רישיון והשכלה לפני שהוא מקבל גישה לפניות.", en: "Every lawyer passes identity, license and education verification before receiving access to requests." },
+  faq4A: { he: "כל עורך דין עובר אימות תעודות, רישיון והצלבה מול פנקס הלשכה, בבדיקה אנושית — לפני שהוא מופיע באינדקס.", en: "Every lawyer passes certificate and licence verification, cross-checked against the Bar registry by a human reviewer — before appearing in the index." },
   helpContactHeader: { he: "צריכים עוד עזרה?", en: "Need more help?" },
   helpContactSub: { he: "השאירו הודעה ונחזור אליכם בהקדם", en: "Leave a message and we'll get back to you" },
   helpMessagePh: { he: "כתבו לנו במה נוכל לעזור…", en: "Tell us how we can help…" },
@@ -550,14 +546,14 @@ export const strings = {
   notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
   verifyUploadError: { he: "ההגשה לא הושלמה. בדקו את החיבור ונסו שוב — אפשר לשלוח שוב בבטחה.", en: "Your submission didn't complete. Check your connection and try again — resubmitting is safe." },
   verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },
-  verPendingBannerSub: { he: "אנחנו בודקים את המסמכים. הפניות בתחומכם ייפתחו ברגע שהאימות יאושר — נעדכן אותך בהתראה.", en: "We're reviewing your documents. Leads in your fields open the moment you're approved — we'll notify you." },
+  verPendingBannerSub: { he: "אנחנו בודקים את המסמכים. ברגע שהאימות יאושר תופיע באינדקס, ופניות יגיעו ממי שיבחר בך — נעדכן בהתראה.", en: "We're reviewing your documents. Once approved you'll appear in the index, and requests will come from clients who choose you — we'll alert you." },
   verRejectedBanner: { he: "האימות לא אושר — אפשר להגיש שוב עם מסמכים מעודכנים", en: "Verification wasn't approved — you can resubmit with updated documents" },
   verRejectedBannerCta: { he: "הגשה מחדש", en: "Resubmit" },
   docBarCard: { he: "רישיון לשכה", en: "Bar card" },
   docDiploma: { he: "תעודת בוגר", en: "Diploma" },
   docSelfieVideo: { he: "סרטון אימות", en: "Verification video" },
   selfiePurgedNote: { he: "הסרטון נמחק לאחר ההחלטה (פרטיות)", en: "Video deleted after decision (privacy)" },
-  interestLockedTitle: { he: "הבעת עניין נפתחת לאחר אימות הפרופיל", en: "Expressing interest unlocks after profile verification" },
+  interestLockedTitle: { he: "קבלת פניות נפתחת לאחר אימות הפרופיל", en: "Receiving requests opens after profile verification" },
   interestLockedPending: { he: "הבקשה שלך בבדיקה — נעדכן אותך ברגע שתאושר.", en: "Your application is under review — we'll notify you the moment it's approved." },
   interestLockedCta: { he: "לאימות הפרופיל", en: "Verify my profile" },
   clientContactHeader: { he: "פרטי הלקוח", en: "Client contact" },
@@ -640,11 +636,6 @@ export const strings = {
   checklistHeader: { he: "מה להכין לפגישה", en: "What to prepare for the meeting" },
   checklistSub: { he: "נגזר ממה שספרתם בשיחה — כך הפגישה הראשונה תהיה יעילה.", en: "Derived from what you told us — so the first meeting is productive." },
 
-  submittedStep1: { he: "הסיכום שלך מוכן ומאושר", en: "Your summary is ready and approved" },
-  submittedStep2: { he: "הפנייה נפתחה לעורכי דין מאומתים בתחום", en: "Your case was opened to verified lawyers in the field" },
-  submittedStep3: { he: "נעדכן אותך ברגע שמישהו יביע עניין", en: "We'll update you the moment someone shows interest" },
-  submittedGoodLuck: { he: "בהצלחה בבחירת עורך הדין שלך", en: "Good luck choosing your lawyer" },
-  submittedToHome: { he: "המשך לדף הבית", en: "Continue to home" },
   closeAria: { he: "סגירה", en: "Close" },
   intakeRestart: { he: "התחלת שיחה חדשה", en: "Start a new conversation" },
   /* לחיצה שנייה — ההגנה על שיחה שלמה שנמחקת בלחיצה אחת */
@@ -656,12 +647,7 @@ export const strings = {
   proLaunchFreeSub: { he: "אין כרגע מה לרכוש: כל התכונות פתוחות לכל עורך דין מאומת. נעדכן מראש לפני שמנוי ייכנס לתוקף.", en: "There is nothing to buy right now — every feature is open to all verified lawyers. We'll give notice before any subscription starts." },
   actionFailedRetry: { he: "הפעולה לא נשמרה. בדקו את החיבור ונסו שוב.", en: "That didn't save. Check your connection and try again." },
   proNoPriorityTitle: { he: "תשלום לא קונה מקום בתור", en: "Paying buys no place in the queue" },
-  proNoPriority: { he: "הפיד מסודר לפי מועד הפנייה ולפי התחומים שסימנתם — ולא לפי מי משלם. אין קידום, אין מיון לפי מחיר, ואין הצעה שמוצגת ראשונה בתמורה. הלקוח משווה את כל ההצעות באותו מסך ובוחר בעצמו.", en: "The feed is ordered by when a request arrived and by the areas you marked — not by who pays. There is no promotion, no sorting by price, and no offer shown first in exchange for payment. The client compares every offer on one screen and chooses." },
-  whoSeesTitle: { he: "מי רואה את הפנייה שלך", en: "Who can see your request" },
-  whoSeesCount: { he: "{n} עורכי דין מאומתים בתחום שלך רואים את התיק — בלי שמך ובלי פרטי הקשר שלך.", en: "{n} verified lawyers in your field can see this case — without your name and without your contact details." },
-  whoSeesConfidential: { he: "כל אחד מהם חתם על התחייבות לשמור על סודיות המידע, גם אם לא תבחרו בו.", en: "Each of them has signed an undertaking to keep it confidential, even if you don't choose them." },
-  whoSeesDocs: { he: "התיעוד שצירפתם נפתח רק למי שהגיש הצעה — לא לכל מי שרואה את התיק.", en: "The documentation you attached opens only to those who submitted an offer — not to everyone who can see the case." },
-  whoSeesContact: { he: "פרטי הקשר שלכם נחשפים רק לעורך הדין שתבחרו, ורק ברגע הבחירה.", en: "Your contact details are revealed only to the lawyer you choose, and only at the moment you choose." },
+  proNoPriority: { he: "האינדקס מסודר בסדר קבוע ואחיד — לא לפי מי משלם. אין מיקום ממומן, אין קידום, ואין הצעה שמוצגת ראשונה בתמורה. הלקוח בוחר בך בשמך, משווה את כל ההצעות באותו מסך ומכריע בעצמו.", en: "The index is shown in a fixed, uniform order — not by who pays. No sponsored placement, no promotion, no offer shown first in exchange for payment. The client picks you by name, compares every offer on one screen and decides." },
   conflictTitle: { he: "בדיקת ניגוד עניינים", en: "Conflict check" },
   conflictBody: { he: "אשרו לפני ההגשה: אינכם מייצגים את הצד שכנגד בעניין זה, אין לכם או למשרדכם ניגוד עניינים בתיק, ולא ייצגתם בו צד אחר בעבר.", en: "Confirm before submitting: you do not represent the opposing party in this matter, neither you nor your firm has a conflict in this case, and you have not previously acted for another party in it." },
   conflictAgree: { he: "בדקתי — אין ניגוד עניינים", en: "I've checked — no conflict" },
@@ -671,7 +657,7 @@ export const strings = {
   undertake1: { he: "אני עורך/ת דין בעל/ת רישיון בתוקף, חבר/ת לשכת עורכי הדין בישראל, ואינני מושעה/ית או מוגבל/ת בעיסוק.", en: "I hold a valid licence, am a member of the Israel Bar, and am not suspended or restricted from practice." },
   undertake2: { he: "כל פנייה שאראה — גם כזו שלא אבחר בה ולא איבחר בה — היא מידע חסוי. לא אעשה בה שימוש, לא אעביר אותה ולא אחשוף אותה לאיש.", en: "Every request I see — including ones I don't take and am not chosen for — is confidential. I will not use, transfer or disclose it." },
   undertake3: { he: "לא אנסה ליצור קשר עם פונה מחוץ לפלטפורמה לפני שבחר בי, ולא אבקש ממנו פרטי קשר בשום דרך.", en: "I will not attempt to contact an applicant outside the platform before they choose me, nor request their contact details in any way." },
-  undertake4: { he: "אבדוק ניגוד עניינים לפני שאביע עניין, ואמנע מפנייה שבה קיים ניגוד — לרבות כזה הנוגע לצד שכנגד.", en: "I will check for conflicts before expressing interest, and will skip any request where one exists — including one involving the opposing party." },
+  undertake4: { he: "אבדוק ניגוד עניינים על שמות הצדדים מיד עם קבלת פנייה, בטרם אקרא את סיכום המקרה, ואמנע מהמשך טיפול בפנייה שבה קיים ניגוד — לרבות כזה הנוגע לצד שכנגד.", en: "I will check for conflicts of interest against the party names immediately upon receiving a request, before reading the case summary, and will not proceed with any request where a conflict exists — including one concerning the opposing party." },
   undertake5: { he: "הצעת שכר הטרחה שאגיש תעמוד בכללי לשכת עורכי הדין החלים על אותו סוג תיק, לרבות תקרות אחוזים ואיסור התניית שכר בתוצאה בהליך פלילי.", en: "My fee proposal will comply with the Bar rules for that case type, including percentage caps and the ban on outcome-contingent fees in criminal matters." },
   undertake6: { he: "ידוע לי ש-JustAsk אינה צד להסכם שכר הטרחה, אינה נוטלת חלק בו, ואינה מקנה עדיפות בתמורה לתשלום. הייצוג והאחריות המקצועית הם שלי בלבד.", en: "I understand JustAsk is not a party to the fee agreement, takes no share of it, and grants no paid priority. Representation and professional responsibility are mine alone." },
   undertakeAgree: { he: "קראתי ואני מתחייב/ת לאמור לעיל", en: "I have read and undertake the above" },
@@ -789,12 +775,12 @@ export const strings = {
   offerNonBindingShort: { he: "הערכה ראשונית ואינה מחייבת. המחייב הוא הסכם שכר טרחה חתום.", en: "Preliminary, non-binding estimate. Only a signed fee agreement is binding." },
 
   // בדיקה מעמיקה שרצה ברקע
-  deepCheckRunning: { he: "הפנייה התקבלה ובבדיקה", en: "Received and under review" },
-  deepCheckRunningSub: { he: "אין מה לעשות מכאן — נעדכן אתכם בהתראה ברגע שהבדיקה תסתיים.", en: "Nothing to do from here — we'll notify you as soon as the review is done." },
+  deepCheckRunning: { he: "הסיכום נכתב עכשיו", en: "Your summary is being written" },
+  deepCheckRunningSub: { he: "אין מה לעשות מכאן — נעדכן אתכם בהתראה ברגע שהסיכום מוכן לאישור.", en: "Nothing to do here — we'll alert you the moment the summary is ready for your review." },
 
   // התראות דחיפה
-  notifLawyerInterest: { he: "עורך דין הביע עניין", en: "A lawyer showed interest" },
-  notifLawyerInterestSub: { he: "כשעורך דין מבקש לטפל בתיק שלכם", en: "When a lawyer asks to take your case" },
+  notifLawyerInterest: { he: "תשובות עורכי דין", en: "Lawyer responses" },
+  notifLawyerInterestSub: { he: "כשעורך דין משיב לפנייתך או מגיש הצעה", en: "When a lawyer answers your request or submits a proposal" },
   pushEnabled: { he: "התראות הופעלו במכשיר הזה", en: "Notifications enabled on this device" },
   pushDeniedMsg: { he: "לא ניתנה הרשאה להתראות", en: "Notification permission was not granted" },
   pushBlockedHint: { he: "ההתראות חסומות בהגדרות הדפדפן. אפשר לפתוח אותן שם ולחזור לכאן.", en: "Notifications are blocked in your browser settings. Allow them there and come back." },
@@ -849,7 +835,7 @@ export const strings = {
   idxChoose: { he: "פנה אליו לבדיקת ניגוד", en: "Send for conflict check" },
   idxSent: { he: "נשלח — ממתין לבדיקתו", en: "Sent — awaiting their check" },
   idxWhatSent: { he: "מה נשלח בשלב הזה? רק שמות הצדדים המעורבים, התחום, העיר וחודש האירוע — כדי שעורך הדין יבדוק ניגוד עניינים. תיאור המקרה שלך יישלח רק אם תאשר זאת אחרי שהוא יאשר זמינות.", en: "What is sent at this stage? Only the parties involved, the field, city and month of the event — so the lawyer can check for conflicts. Your case description is sent only if you approve it after they confirm availability." },
-  idxLimit: { he: "אפשר לפנות לעד שלושה עורכי דין במקביל", en: "You can approach up to three lawyers at a time" },
+  idxLimit: { he: "אפשר לפנות לעד שלושה עורכי דין במקביל · לכל אחד 48 שעות להשיב", en: "You can approach up to three lawyers at a time · each has 48 hours to respond" },
   idxLimitHit: { he: "הגעת לשלוש פניות פעילות. המתן לתשובה או בטל אחת.", en: "You have three active requests. Wait for a reply or withdraw one." },
   idxAlready: { he: "כבר פנית אליו על התיק הזה", en: "Already sent for this case" },
   /* דף הבית — שורת "מה חדש" חיה על כרטיס התיק (21/8/2026) */
@@ -946,15 +932,15 @@ export const strings = {
   deletionMarkDone: { he: "סימון כבוצע", en: "Mark done" },
   deletionDone: { he: "בוצע", en: "Done" },
 
-  navLawyerLeads: { he: "פניות", en: "Leads" },
+  navLawyerLeads: { he: "פניות", en: "Requests" },
   navLawyerActive: { he: "התיקים שלי", en: "My cases" },
   lawyerActiveTitle: { he: "התיקים שלי", en: "My cases" },
   lawyerActiveSub: { he: "לקוחות שבחרו בך. כאן מסמנים התקדמות ומגיעים לפרטי הקשר.", en: "Clients who chose you. Mark progress and reach contact details here." },
   lawyerActiveBadge: { he: "פעיל", en: "Active" },
   lawyerActiveClient: { he: "הלקוח", en: "Client" },
   lawyerActiveEmpty: { he: "עוד אין לך תיקים פעילים", en: "No active cases yet" },
-  lawyerActiveEmptySub: { he: "תיק יופיע כאן ברגע שלקוח יבחר בך מתוך מי שהביע עניין.", en: "A case appears here the moment a client picks you from those who expressed interest." },
-  lawyerActiveToFeed: { he: "לפניות הפתוחות", en: "To open leads" },
+  lawyerActiveEmptySub: { he: "תיק יופיע כאן ברגע שלקוח יבחר בך מבין ההצעות שקיבל.", en: "A case appears here the moment a client picks you from the proposals they received." },
+  lawyerActiveToFeed: { he: "למסך הפניות", en: "To your requests" },
   expertiseNone: { he: "טרם נבחרו תחומי התמחות", en: "No practice areas selected yet" },
   intakeFunnelHeader: { he: "לפני שנוצר תיק", en: "Before a case exists" },
   intakeFunnelSub: { he: "משתמשים ייחודיים. מי שפתח את השיחה ונטש לא הופיע בשום מקום עד עכשיו — כאן רואים איפה בדיוק עוזבים.", en: "Unique users. Anyone who opened the chat and left was invisible until now — this shows exactly where they drop." },
@@ -970,7 +956,7 @@ export const strings = {
   roleSaveFailed: { he: "לא הצלחנו לשמור את הבחירה. בדקו את החיבור ונסו שוב.", en: "We couldn't save your choice. Check your connection and try again." },
   /* עריכת תחומי עיסוק — מסך נפרד שאינו נוגע באימות */
   saveAction: { he: "שמירת התחומים", en: "Save practice areas" },
-  savedToast: { he: "התחומים עודכנו — הפיד שלך מתעדכן בהתאם", en: "Practice areas updated — your feed follows" },
+  savedToast: { he: "התחומים עודכנו — האינדקסים שבהם אתה מופיע השתנו בהתאם", en: "Fields updated — the indexes you appear in changed accordingly" },
   docCheckTitle: { he: "בדיקת המסמכים", en: "Document check" },
   docCheckRun: { he: "הרצה", en: "Run" },
   docCheckRunning: { he: "קורא את המסמכים…", en: "Reading the documents…" },
@@ -987,9 +973,6 @@ export const strings = {
   confirmApproveBody: { he: "מרגע האישור הוא רואה תיקים של לקוחות בתחומים שבחר, ומקבל הודעה שאושר. ודאו שהמסמכים נבדקו.", en: "Once approved they see client cases in their fields and get a notification. Make sure the documents were checked." },
   confirmRejectTitle: { he: "לדחות את הבקשה?", en: "Reject this application?" },
   confirmRejectBody: { he: "עורך הדין יקבל הודעה שהאימות לא אושר, ויוכל להגיש שוב עם מסמכים מעודכנים.", en: "The lawyer will be told the verification wasn't approved and can resubmit with updated documents." },
-  fomoTitleMine: { he: "תיקים פתוחים בתחומים שבחרת", en: "Open cases in your fields" },
-  fomoTitleAll: { he: "תיקים פתוחים ממתינים עכשיו", en: "Open cases waiting right now" },
-  fomoUnlock: { he: "האימות פותח אותם", en: "Verification unlocks them" },
 
   /*
    * מתחת לפיד. כל מספר כאן נמדד באמת: visible הוא מה שמוצג לו בפועל,
@@ -1154,10 +1137,10 @@ export const strings = {
    * מסך ההסבר שלפני בקשת ההרשאה של המערכת. מדבר בהפסד קונקרטי ולא
    * בתועלת מופשטת — זה מה שבאמת עומד על הפרק בשני הצדדים.
    */
-  primerLawyerTitle: { he: "תיק חדש לא מחכה", en: "A new matter won't wait" },
+  primerLawyerTitle: { he: "פנייה אליך מחכה למענה", en: "A request to you awaits a response" },
   primerLawyerBody: {
-    he: "פנייה בתחום שלך נפתחת בפני כמה עורכי דין באותו רגע. בלי התראה תגלה אותה רק בכניסה הבאה — ועד אז הלקוח כבר בחר.",
-    en: "A matter in your field opens to several lawyers at once. Without alerts you'll see it only next time you open the app — by then the client has chosen.",
+    he: "כשלקוח בוחר בך מהאינדקס, יש לך 48 שעות להשיב על בדיקת ניגוד העניינים. בלי התראה תגלה את הפנייה רק בכניסה הבאה — והחלון ימשיך לרוץ.",
+    en: "When a client picks you from the index, you have 48 hours to answer the conflict check. Without alerts you'll see the request only next time you open the app — while the window keeps running.",
   },
   primerClientTitle: { he: "שנעדכן אותך כשמשהו קורה?", en: "Want updates as things happen?" },
   primerClientBody: { he: "נודיע לך כשהסיכום מוכן, כשעורך דין משיב לפנייתך וכשמתקבלת הצעה. בלי זה תצטרך לבדוק בעצמך.", en: "We'll notify you when the summary is ready, a lawyer replies, or an offer arrives. Without this you'd have to keep checking." },
@@ -1190,16 +1173,13 @@ export const strings = {
 
   journeyTitleActive: { he: "איפה הפנייה שלך עומדת", en: "Where your matter stands" },
   journeyTitleEmpty: { he: "מה יקרה אחרי שתשתפו", en: "What happens after you share" },
-  journeyStep1: { he: "מספרים מה קרה, מאשרים סיכום עובדתי, ובוחרים תחום. חינם, ותמיד יישאר חינם.", en: "Tell what happened, approve a factual summary, and pick a field. Free, and it stays free." },
-  journeyStep2: {
-    he: "עורכי דין מאומתים בתחום שלכם רואים את הפנייה — בלי שמכם ובלי פרטי הקשר שלכם.",
-    en: "Verified lawyers in your area of law see the matter — without your name or contact details.",
-  },
-  journeyStep3: {
-    he: "אתם בוחרים מי מהם, ורק אז נחשפים פרטיכם לעורך הדין שבחרתם. ההסכם נכרת ישירות ביניכם.",
-    en: "You choose one, and only then are your details revealed to that lawyer. The agreement is made directly between you.",
-  },
-  journeyNotified: { he: "עורכי דין מאומתים קיבלו אותה", en: "verified lawyers received it" },
+  journeyStep1: { he: "מספרים מה קרה בשיחה, ומאשרים סיכום עובדתי מסודר — אתם עורכים כל מילה.", en: "Tell what happened in a conversation, and approve a clear factual summary — you edit every word." },
+  journeyStep2: { he: "בוחרים עורכי דין מהאינדקס — לפי תחום, עיר ושפה — ושולחים פנייה. עד שלושה במקביל.", en: "Pick lawyers from the index — by field, city and language — and send your request. Up to three at a time." },
+  journeyStep3: { he: "עורך הדין מקבל שמות בלבד ובודק ניגוד עניינים. יש לו 48 שעות להשיב.", en: "The lawyer receives names only and checks for conflicts. They have 48 hours to respond." },
+  journeyStep4: { he: "מי שאישר קורא את הסיכום ומגיש הצעת שכר טרחה מפורטת — ואתם משווים.", en: "Whoever confirms reads the summary and submits a detailed fee proposal — and you compare." },
+  journeyStep5: { he: "בוחרים אחד. רק אז נחשפים פרטי הקשר, וההסכם נכרת ישירות ביניכם.", en: "Choose one. Only then are contact details revealed, and the agreement is made directly between you." },
+  journeyNoteSent: { he: "פניות נשלחו", en: "requests sent" },
+  journeyNoteOffers: { he: "הצעות התקבלו", en: "proposals received" },
 
   pulseEyebrow: { he: "בזמן אמת", en: "LIVE" },
   pulseTitle: { he: "מה פתוח עכשיו", en: "Open right now" },
@@ -1245,18 +1225,16 @@ export const strings = {
   proNowHeader: { he: "כלול עכשיו — בלי תשלום", en: "Included now — at no cost" },
   proNow1: { he: "פניות ממי שבחר בך מהאינדקס, ברגע שהפונה משתף", en: "Referrals from people who chose you, the moment they share" },
   proNow2: { he: "סיכום עובדתי מאושר — מה קרה, מתי, ואיזה תיעוד קיים", en: "An approved factual summary — what happened, when, and what documentation exists" },
-  proNow3: { he: "התראה בזמן אמת על כל פנייה חדשה בתחום שלך", en: "Real-time alerts on every new lead in your field" },
+  proNow3: { he: "התראה בזמן אמת על כל פנייה שנשלחת אליך", en: "A real-time alert for every request sent to you" },
   proNow4: { he: "צירוף הצעת שכר טרחה לפני שהלקוח בוחר", en: "Attach a fee proposal before the client chooses" },
-  proNow5: { he: "מדד זמן תגובה שמוצג ללקוח לצד ההצעה שלך", en: "A response-time metric shown to the client next to your offer" },
+  proNow5: { he: "מדד זמן תגובה — שקיפות שהלקוח רואה, זהה לכל עורכי הדין", en: "A response-time metric — transparency the client sees, identical for all lawyers" },
   proLaterHeader: { he: "ומה יקרה בסוף תקופת ההשקה", en: "And what happens when the launch period ends" },
   proLaterSub: { he: "מנוי חודשי קבוע — אותו מחיר בין אם קיבלתם לקוח אחד או עשרה. אין עמלה על לקוח ואין חלק בשכר הטרחה. אין כרגע כרטיס אשראי במערכת, ומועד תחילת החיוב יוצג מראש.", en: "A flat monthly membership — the same price whether you get one client or ten. No per-client fee and no share of your fee. No card on file today; we'll announce the start date in advance." },
 
   /* ---------- כיסוי תחומים: מה אנחנו באמת מסווגים ---------- */
-  specCoverageNote: { he: "אלה התחומים ש-JustAsk מסווגת בהם פניות כרגע. תחום שאינו ברשימה עדיין לא מקבל פניות — נעדכן אתכם כשנרחיב.", en: "These are the fields JustAsk currently classifies. A field not listed doesn't receive leads yet — we'll tell you when we expand." },
+  specCoverageNote: { he: "אלה התחומים שקיימים כרגע באינדקס. תחום שאינו ברשימה עדיין אינו פתוח לפניות — נעדכן אתכם כשנרחיב.", en: "These are the fields currently in the index. A field not listed isn't open to requests yet — we'll update you as we expand." },
 
   /* ---------- כשאין עדיין עורך דין בתחום ---------- */
-  noLawyersYetTitle: { he: "עדיין אין עורך דין מאומת בתחום הזה", en: "No verified lawyer in this field yet" },
-  noLawyersYetSub: { he: "התיק שלך אושר ושמור אצלנו. ברגע שיצטרף עורך דין מאומת בתחום הזה הוא יראה אותו ראשון — ונשלח לך התראה.", en: "Your case is approved and saved. The moment a verified lawyer joins this field they'll see it first — and we'll notify you." },
 
   /* ---------- השוואת הצעות ---------- */
   compareHeader: { he: "השוואת ההצעות", en: "Compare the offers" },
@@ -1279,9 +1257,6 @@ export const strings = {
   /* ---------- גיל האירוע: עובדה שכבר חושבה ולא הוצגה ---------- */
   // התראות הפעמון — מפתח+פרמטרים נכתבים על המסמך ומתורגמים בזמן קריאה
   validatingCardHint: { he: "הסיכום נכתב עכשיו — בדרך כלל פחות מדקה, ונעדכן בפעמון", en: "Your summary is being written — usually under a minute; the bell will update" },
-  notifInterestTitle: { he: "עורך דין מעוניין בתיק שלך", en: "A lawyer is interested in your case" },
-  notifInterestBody: { he: "{name} הביע עניין בפנייה \"{title}\"", en: "{name} expressed interest in \"{title}\"" },
-  notifInterestBodyOffer: { he: "{name} הביע עניין בפנייה \"{title}\" וצירף הצעה", en: "{name} expressed interest in \"{title}\" and attached an offer" },
   notifRevertedTitle: { he: "הפנייה שלך חזרה לבדיקה", en: "Your case went back for review" },
   notifRevertedBody: { he: "לאחר בדיקה נוספת נדרשים פרטים משלימים. אפשר לפתוח פנייה חדשה עם מידע נוסף — אנחנו כאן.", en: "A further review found details missing. You can open a new case with more information — we're here." },
   notifAppealAcceptedTitle: { he: "הערעור שלך התקבל", en: "Your appeal was accepted" },
@@ -1305,6 +1280,7 @@ export const strings = {
   notifRefNoOfferBody: { he: "עורך הדין קרא את הסיכום ולא הגיש הצעה. אפשר לבחור עורך דין אחר מהאינדקס.", en: "The lawyer read the summary and did not submit a proposal. You can choose another lawyer from the index." },
   notifRefClosedTitle: { he: "הפנייה נסגרה", en: "The request was closed" },
   notifRefClosedBody: { he: "הפונה התקדם עם עורך דין אחר. זה לא אומר דבר על המענה שלך.", en: "The client moved ahead with another lawyer. This says nothing about your response." },
+  notifRefWithdrawnBody: { he: "הפנייה כבר אינה פתוחה. תודה על הזמן שהשקעת.", en: "The request is no longer open. Thank you for your time." },
   notifChosenTitle: { he: "לקוח בחר בך!", en: "A client chose you!" },
   notifChosenBody: { he: "נבחרת לטפל בפנייה \"{title}\" — פרטי הקשר זמינים בתיק", en: "You were chosen for \"{title}\" — contact details are in the case" },
   /* ההודעה הקשה — ולכן היא עובדתית, קצרה, ובלי עידוד מזויף */
@@ -1320,7 +1296,7 @@ export const strings = {
   notifValidatedBody: { he: "\"{title}\" אושר — פתחו את התיק לפרטים ולמצב החיפוש", en: "\"{title}\" was approved — open the case for details and search status" },
   notifCaseRejectedTitle: { he: "עדכון על הפנייה שלך", en: "An update on your request" },
   notifVerApprovedTitle: { he: "האימות שלך אושר! 🎉", en: "You're verified! 🎉" },
-  notifVerApprovedBody: { he: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.", en: "Your profile is verified — you can now express interest in cases and appear to clients." },
+  notifVerApprovedBody: { he: "הפרופיל שלך אומת — מעכשיו אתה מופיע באינדקס בתחומים שסימנת, ופניות יגיעו ממי שיבחר בך.", en: "Your profile is verified — you now appear in the index in your fields, and requests will come from clients who choose you." },
   notifVerRejectedTitle: { he: "האימות לא אושר", en: "Verification not approved" },
   notifVerRejectedBody: { he: "חלק מהפרטים לא עברו בדיקה. אפשר להגיש שוב עם מסמכים מעודכנים.", en: "Some details didn't pass review. You can resubmit with updated documents." },
   // מודל הניסיון — הקיר עולה לפני לקיחת לקוח, לא אחרי
@@ -1348,13 +1324,12 @@ export const strings = {
   withdrawCta: { he: "משיכת הפנייה", en: "Withdraw this case" },
   withdrawConfirmTitle: { he: "למשוך את הפנייה?", en: "Withdraw this case?" },
   withdrawConfirmBody: { he: "הפנייה תרד מרשימת עורכי הדין ולא תקבלו עליה עוד הצעות. היא תישאר אצלכם ברשימת התיקים.", en: "The case leaves the lawyers' list and you'll get no further offers. It stays in your own case list." },
-  withdrawConfirmBodyInterested: { he: "הפנייה תרד מרשימת עורכי הדין, ומי שכבר הביע בה עניין יקבל הודעה. ההצעות שקיבלתם יישמרו לצפייה, אבל לא תוכלו לבחור מהן.", en: "The case leaves the lawyers' list, and anyone who already expressed interest is told. The offers you received stay visible, but you can no longer choose from them." },
   withdrawConfirmBtn: { he: "כן, למשוך", en: "Yes, withdraw" },
   notifWithdrawnTitle: { he: "הפונה משך את הפנייה", en: "The client withdrew their case" },
   notifWithdrawnBody: { he: "\"{title}\" כבר אינו פתוח. תודה על הזמן שהשקעת.", en: "\"{title}\" is no longer open. Thank you for the time you put in." },
-  staleCheckTitle: { he: "הבדיקה לא הסתיימה", en: "The check didn't finish" },
+  staleCheckTitle: { he: "הכנת הסיכום לא הסתיימה", en: "Summary preparation didn't finish" },
   staleCheckBody: { he: "הכנת הסיכום אמורה לקחת פחות מדקה, וכאן היא נתקעה. אף אחד לא ראה את הפנייה שלך; אפשר לנסות שוב בבטחה.", en: "Preparing the summary should take under a minute, and it stalled. No one saw your request; retrying is safe." },
-  staleCheckRetry: { he: "להריץ את הבדיקה שוב", en: "Run the check again" },
+  staleCheckRetry: { he: "לנסות להכין שוב", en: "Try preparing again" },
   staleCheckRemove: { he: "הסרת הפנייה", en: "Remove this case" },
   tooManyOpenTitle: { he: "יש לכם כבר {n} פניות פתוחות", en: "You already have {n} open cases" },
   tooManyOpenBody: { he: "כדי שכל פנייה תקבל תשומת לב אמיתית מעורכי הדין, אפשר להחזיק עד {n} פניות פתוחות בו-זמנית. ברגע שאחת מהן נסגרת או מתחברת לעורך דין — אפשר לפתוח חדשה.", en: "So every case gets real attention from lawyers, you can hold up to {n} open cases at a time. As soon as one closes or connects with a lawyer, you can open another." },
@@ -1368,7 +1343,7 @@ export const strings = {
   fitField: { he: "עוסק בתחום שלך", en: "Works in your field" },
   fitLanguage: { he: "מדבר את שפתך", en: "Speaks your language" },
   stepLangTitle: { he: "שפות שירות", en: "Languages you work in" },
-  stepLangDesc: { he: "באילו שפות תוכלו לנהל את התיק מול הלקוח? נשתמש בזה כדי להתאים לכם פניות שתוכלו באמת לקחת.", en: "Which languages can you run a case in? We use this to match you with clients you can actually take." },
+  stepLangDesc: { he: "שפות השירות שלכם מוצגות ללקוח באינדקס — כך מי שצריך אתכם בשפתו ימצא אתכם.", en: "Your service languages are shown to clients in the index — so someone who needs you in their language finds you." },
   issueLanguages: { he: "בחרו לפחות שפה אחת שבה אתם נותנים שירות", en: "Choose at least one language you can work in" },
   feedLangMismatchNote: { he: "הלקוח ניהל את הפנייה בשפה שלא סימנתם כשפת שירות. שקלו זאת לפני שליחת הצעה — אפשר לעדכן שפות בפרופיל.", en: "This client used a language you didn't list as a service language. Consider that before making an offer — you can update your languages in your profile." },
   feedLangLabel: { he: "שפת הלקוח", en: "Client's language" },

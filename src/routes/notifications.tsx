@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { BadgeCheck, Bell, Sparkles, Users } from "lucide-react";
+import { BadgeCheck, Bell, Sparkles, Users, Scale, Clock } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { EmptyState } from "../components/EmptyState";
@@ -25,10 +25,18 @@ export const Route = createFileRoute("/notifications")({
 
 function iconFor(type: string) {
   switch (type) {
-    case "new_case":
+    /* סוגי מודל הבחירה — עודכן 23/8/2026 (הישנים לא נפלטים עוד) */
+    case "referral":
       return Sparkles;
-    case "lawyer_interest":
+    case "summary_shared":
       return Users;
+    case "offer":
+      return Scale;
+    case "caseUpdate":
+    case "case_update":
+      return Bell;
+    case "referral_closed":
+      return Clock;
     case "chosen":
       return BadgeCheck;
     default:

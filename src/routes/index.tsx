@@ -16,7 +16,6 @@ import { AppShell } from "../components/AppShell";
 
 import { Page, Pressable, Rise, Stagger } from "../components/motion";
 import { NotificationBell } from "../components/NotificationBell";
-import { SubmittedModal } from "../components/SubmittedModal";
 import { PushPrimer } from "../components/PushPrimer";
 import { usePushPrimer } from "../lib/use-push-primer";
 import { MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED } from "../lib/limits";
@@ -26,14 +25,13 @@ import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
 import type { Case } from "../lib/types";
+import { ClientJourney } from "../components/ClientJourney";
 import { CaseWhatsNew, caseActionRank } from "../components/CaseWhatsNew";
 
 
 export const Route = createFileRoute("/")({
   // מזהה תיק שזה עתה נשלח — מציג את אישור הקליטה מעל הבית.
   // המפתח מושמט כשאינו קיים, כדי שניווטים רגילים ל-"/" לא ידרשו search.
-  validateSearch: (search: Record<string, unknown>): { done?: string } =>
-    typeof search.done === "string" ? { done: search.done } : {},
   /*
    * ה-meta בעברית — זה מה שנשלח בוואטסאפ ומה שגוגל מאנדקס, על עמוד
    * שמוגש כ-lang="he" dir="rtl". תצוגה מקדימה באנגלית לקהל ישראלי היא
@@ -120,7 +118,6 @@ function Index() {
  */
 function ClientHome() {
   const navigate = useNavigate();
-  const { done } = Route.useSearch();
   const t = useT();
   const { cases, casesError, user } = useAppStore();
   const { dir } = useSettings();
@@ -146,7 +143,6 @@ function ClientHome() {
   const ordered = [...cases].sort((a, b) => caseActionRank(a.status) - caseActionRank(b.status) || b.createdAt - a.createdAt);
   const [active, ...rest] = ordered;
   const activeMeta = active ? statusMeta(active.status) : null;
-  const interested = active?.interested.length ?? 0;
   /* תיקים שעדיין דורשים משהו — לא כולל סגורים ונדחים */
   const openCount = cases.filter(
     (c) => c.status !== "closed" && c.status !== "rejected",
@@ -158,8 +154,8 @@ function ClientHome() {
    */
   const competingCount = cases.filter(
     (c) =>
-      c.status === "matching" ||
-      c.status === "has_interest" ||
+      c.status === "summary_ready" ||
+      c.status === "awaiting_selection" ||
       (c.status === "validating" &&
         Date.now() - c.createdAt < 30 * 60 * 1000) ||
       /* נמשכה — נספרת שבוע, כדי שמשיכה לא תשמש לעקיפת המכסה */
@@ -183,14 +179,6 @@ function ClientHome() {
         onAllow={() => void primer.allow()}
         onDismiss={primer.dismiss}
       />
-      <AnimatePresence>
-        {done && (
-          <SubmittedModal
-            onClose={() => navigate({ to: "/", search: {}, replace: true })}
-            onViewCase={() => navigate({ to: "/case/$caseId", params: { caseId: done } })}
-          />
-        )}
-      </AnimatePresence>
 
       <Page>
         {/*
@@ -294,7 +282,6 @@ function ClientHome() {
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
                   "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[26px] text-start",
-                  active.status === "has_interest" && "glass-warm",
                   active.status === "connected" && "glass-lit",
                 )}
               >
@@ -321,43 +308,6 @@ function ClientHome() {
                   <CaseWhatsNew caseId={active.id} status={active.status} />
                 </div>
 
-                {/*
-                  * רגע ההגעה.
-                  *
-                  * זה מה שכל המסלול הוביל אליו: אדם שנפגע, סיפר סיפור לא
-                  * קל, חיכה — ועכשיו מישהו אמר "אני יכול לעזור לך". קודם
-                  * זה נאמר בפס דק בלשון סטטוס, וזה נקרא כהערת שוליים.
-                  * כאן זה זהב מלא, בגובה שאי אפשר לפספס, ובלשון פעולה.
-                  */}
-                {active.status === "has_interest" && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    className="relative overflow-hidden bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] px-5 py-4"
-                  >
-                    {/* פס אור איטי — סימן חיים, לא קרנבל */}
-                    <span
-                      aria-hidden
-                      className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 skew-x-[-18deg] bg-[linear-gradient(100deg,transparent,rgba(255,255,255,0.45),transparent)] motion-safe:animate-[shine_3.8s_ease-in-out_infinite]"
-                    />
-                    <div className="relative flex items-center gap-3">
-                      <span className="grid size-9 shrink-0 place-items-center rounded-full bg-[#0F172A]/10">
-                        <Sparkles className="size-4.5 text-[#0F172A]" strokeWidth={2.4} />
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-[15px] font-black leading-tight text-[#0F172A]">
-                          {interested === 1
-                            ? t("offerWaitingOne")
-                            : t("offerWaitingMany").replace("{n}", String(interested))}
-                        </span>
-                        <span className="mt-0.5 block text-[12.5px] font-semibold text-[#0F172A]/70">
-                          {interested === 1 ? t("offerWaitingCtaOne") : t("offerWaitingCtaMany")}
-                        </span>
-                      </span>
-                      <Arrow className="size-5 shrink-0 text-[#0F172A]/60" />
-                    </div>
-                  </motion.div>
-                )}
               </Pressable>
             </Rise>
           ) : (
@@ -479,198 +429,3 @@ function ClientHome() {
   );
 }
 
-/**
- * איפה הפנייה שלך נמצאת עכשיו.
- *
- * זה מה שהחליף ארבע קוביות ניווט שהובילו למקומות שכבר נגישים מהתפריט
- * התחתון ומהפעמון שלמעלה. השאלה שהלקוח באמת מחזיק בראש אינה "איפה
- * הפרופיל" אלא "מה קורה עם מה ששלחתי, ומי כבר ראה את זה".
- *
- * שלושת השלבים הם המראה של אותו הסבר שעורך הדין מקבל בסוף הפיד שלו —
- * אותו תהליך, משני צדדיו.
- */
-function ClientJourney({ active }: { active?: Case }) {
-  const t = useT();
-
-  /*
-   * השלב הנוכחי נגזר מהסטטוס האמיתי של התיק, לא מהערכה. בלי תיק פעיל
-   * מוצגים אותם שלבים בלי סימון — כך זה נקרא כ"מה יקרה" ולא כהתקדמות
-   * מדומה של תיק שלא קיים.
-   */
-  const step = !active
-    ? -1
-    : active.status === "validating"
-      ? 0
-      : active.status === "matching"
-        ? 1
-        : active.status === "has_interest"
-          ? 2
-          : active.status === "connected" || active.status === "closed"
-            ? 3
-            : -1;
-
-  /*
-   * המספר האמיתי של עורכי הדין שקיבלו את הפנייה. undefined בתיקים
-   * ישנים שנפתחו לפני שהתחלנו למדוד — ואז פשוט לא נאמר מספר, במקום
-   * לנחש אחד.
-   */
-  const notified = active?.notifiedLawyers;
-
-  const steps: { key: StringKey; note?: string }[] = [
-    { key: "journeyStep1" },
-    {
-      key: "journeyStep2",
-      note:
-        typeof notified === "number" && notified > 0
-          ? `${notified} ${t("journeyNotified")}`
-          : undefined,
-    },
-    { key: "journeyStep3" },
-  ];
-
-  /*
-   * הכרטיס כהה בכוונה — היחיד בעמוד (7/8/2026).
-   *
-   * זה המסך שאדם פותח כדי לענות על שאלה אחת: "מה קורה עם הפנייה שלי?"
-   * כשהכרטיס שעונה עליה נראה כמו כל שאר הזכוכית, הוא נבלע. דיו כהה על
-   * עמוד בהיר הופך אותו לעוגן — אותו מהלך כמו רצועת "מה כלול" בדף
-   * הנחיתה: רגע כהה אחד, ולכן הוא הרגע שזוכרים.
-   *
-   * **הכרטיס הזה שקוע, לא בולט** (9/8/2026).
-   *
-   * עברנו כאן דרך ‎#101a30 ואז ‎#1E2A45, ושניהם הפריעו מאותה סיבה: כרטיס
-   * שבולט נקרא כמשהו שדורש פעולה. אבל זה לוח מחוונים — הוא **מדווח** לך
-   * איפה הפנייה עומדת, ואי אפשר ללחוץ עליו. לכן הוא נחרט לתוך אזור
-   * העבודה במקום לרחף מעליו, ובכך הוא נבדל מ"פנייה חדשה" שמורם.
-   *
-   * במצב כהה הוא נשאר ‎#101a30: שם אין לאן לרדת, והכהות היא השקע.
-   * הזהב הוא מה שמחזיק את הזהות בשני המצבים — אבל **המנגנון שלו משתנה**:
-   * על כהה הוא זוהר, על בהיר זוהר לא נראה ולכן הוא מלא ומוצק.
-   */
-  return (
-    /*
-     * ההילה היא **גרדיאנט רקע** ולא אלמנט מטושטש (10/8/2026).
-     *
-     * קודם ישב כאן `div` עם `blur-3xl` בתוך `overflow-hidden` + `rounded`.
-     * iOS חותך שכבה שעברה `filter` לתיבת הגבול המרובעת ולא למעוגלת, ומכאן
-     * פינת זהב מרובעת שבלטה מחוץ לעיגול — נצפתה בכרטיס התיק הפעיל, ואותו
-     * מבנה בדיוק היה כאן. גרדיאנט רקע נחתך ע"י ה-radius בכל דפדפן.
-     *
-     * על כהה בלבד: על משטח בהיר הזהב אינו קורא כאור אלא ככתם חום.
-     */
-    /*
-     * קצה הזהב (10/8/2026) — "יש כאן משהו", בלי להוסיף צבע ובלי להגביה.
-     * הכרטיס נשאר שקוע, כמו שהוכרע ב-9/8; הקצה הוא הסימון היחיד שאפשר
-     * להוסיף לו בלי לסתור את זה.
-     */
-    /*
-     * `dark:ring-1 dark:ring-gold/25` ישב כאן והיה **קוד מת**.
-     *
-     * `ring` של Tailwind נכתב כ-box-shadow, ו-`.dark .recessed` קובע
-     * box-shadow משלו ב-CSS ידני מחוץ ל-layer — שמנצח כל utility בלי
-     * קשר לספציפיות. הטבעת מעולם לא רונדרה. נמדד: הצל בכהה מכיל רק את
-     * שתי השכבות הפנימיות של `.recessed`.
-     *
-     * הוסרה במקום לתקן: `edge-gold` כבר נותן את סימון הזהב, ובשני
-     * המצבים באותה צורה. טבעת מלאה **ועוד** קצה היו שני אותות זהב על
-     * כרטיס אחד — בדיוק מה שדביר קרא לו "מצועצע" בלוח הכותרת.
-     */
-    <div className="edge-gold recessed relative overflow-hidden rounded-[26px] bg-[var(--recess-fill)] p-5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)]">
-      <p className="text-[11px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
-        {t("journeyEyebrow")}
-      </p>
-      <p className="mt-1 text-[15px] font-bold text-foreground dark:text-white">
-        {t(active ? "journeyTitleActive" : "journeyTitleEmpty")}
-      </p>
-
-      <ol className="mt-5 space-y-0">
-        {steps.map((s, i) => {
-          const done = step > i;
-          const current = step === i;
-          const last = i === steps.length - 1;
-          return (
-            <li key={s.key} className="relative flex items-start gap-3 pb-5 last:pb-0">
-              {/*
-               * הקו המחבר יורד ממרכז העיגול אל הבא. הוא מוזהב רק כשהשלב
-               * שמעליו הושלם — כך הזהב מטפס עם ההתקדמות, והחלק שטרם
-               * הגיע נשאר חיוור. בלי קו ההתקדמות היא רשימה; איתו — מסע.
-               */}
-              {!last && (
-                <span
-                  aria-hidden
-                  className={cn(
-                    "absolute right-[13px] top-7 bottom-0 w-0.5 rounded-full",
-                    done
-                      ? "bg-gold dark:bg-gradient-to-b dark:from-gold dark:via-gold/70 dark:to-gold/25"
-                      : "bg-foreground/15 dark:bg-white/10",
-                  )}
-                />
-              )}
-              <span className="relative mt-0.5 shrink-0" aria-hidden>
-                {/* ההילה המהבהבת — רק על השלב שקורה עכשיו */}
-                {current && (
-                  <span className="absolute inset-0 animate-ping rounded-full bg-gold/40 dark:bg-gold/50" />
-                )}
-                <span
-                  className={cn(
-                    "relative grid size-7 place-items-center rounded-full text-[10.5px] font-black",
-                    /*
-                     * על כהה הזהב זוהר; על בהיר זוהר לא קיים, אז הוא **מלא**.
-                     * אותו מסר בשתי פיזיקות שונות של אור.
-                     *
-                     * המילוי היה `gold-ink` (10/8/2026) — הדיו שנועד **לכתוב**
-                     * על נייר, ‎oklch(0.52)‎. כמילוי של עיגול הוא נקרא כחום
-                     * עכור ולא כזהב, וכך דביר תיאר אותו. `--gold` הוא הצבע
-                     * הנכון לכל מה שהוא משטח; `--gold-ink` נשאר לטקסט בלבד,
-                     * שם הוא קיים כי ‎--gold‎ נכשל AA על נייר (2.16:1).
-                     *
-                     * טבעת רכה במקום זוהר: על כהה ההילה היא אור שנפלט, ועל
-                     * נייר אין ממה לפלוט — שם אותו תפקיד נעשה בהילה מוצקה
-                     * ודקה סביב העיגול.
-                     */
-                    done &&
-                      "bg-gold text-[#0F172A] shadow-[0_0_0_4px_oklch(0.76_0.13_85/0.16)] dark:bg-gold/15 dark:text-gold dark:shadow-[0_0_14px_rgba(212,175,55,0.45)] dark:ring-1 dark:ring-gold/50",
-                    current &&
-                      "bg-gradient-to-b from-[#F1E4C3] via-gold to-[#B8912B] text-[#0F172A] shadow-[0_0_0_3px_rgba(201,162,39,0.22)] dark:shadow-[0_0_18px_rgba(212,175,55,0.6)]",
-                    !done &&
-                      !current &&
-                      "bg-background/70 text-muted-foreground ring-1 ring-foreground/12 dark:bg-white/5 dark:text-white/40 dark:ring-white/15",
-                  )}
-                >
-                  {done ? <Check className="size-4" strokeWidth={3} /> : i + 1}
-                </span>
-              </span>
-              <div className="min-w-0 flex-1 pt-1">
-                <p
-                  className={cn(
-                    "text-[12.5px] leading-relaxed",
-                    current
-                      ? "font-semibold text-foreground dark:text-white"
-                      : done
-                        ? "text-foreground/80 dark:text-white/80"
-                        : "text-muted-foreground dark:text-white/45",
-                  )}
-                >
-                  {t(s.key)}
-                  {/*
-                    מצב השלב היה ויזואלי בלבד (17/8/2026): וי מול מספר,
-                    ועיגול המחוון מסומן aria-hidden. קורא מסך קיבל שלושה
-                    שמות שלבים בלי לדעת איפה התיק עומד — WCAG 1.3.1.
-                    מילה נסתרת פותרת בלי לגעת בעיצוב.
-                  */}
-                  <span className="sr-only">
-                    {" · "}
-                    {done ? t("stepDone") : current ? t("stepCurrent") : t("stepPending")}
-                  </span>
-                </p>
-                {s.note && (
-                  <p className="mt-1 text-[12px] font-bold text-gold-ink dark:text-gold">{s.note}</p>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-    </div>
-  );
-}

@@ -3,11 +3,8 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { Calendar, Check, Clock, Hourglass, Languages, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
-import { categoryIcon } from "../lib/category-icons";
-import { openCaseCountsFn, type OpenCountsResult } from "../lib/ai/intake.functions";
 import { fbAuth } from "../lib/firebase";
-import { categoryMatchesSpecialties } from "../lib/db";
-import { readLawyerProfile, readLawyerStats } from "../lib/db";
+import { readLawyerStats } from "../lib/db";
 import { NotificationBell } from "../components/NotificationBell";
 import {
   watchMyVerification,
@@ -31,12 +28,12 @@ export const Route = createFileRoute("/lawyer")({
       { title: "JustAsk — הפניות אליך" },
       {
         name: "description",
-        content: "Fresh legal requests waiting for expert lawyers to express interest.",
+        content: "Requests from clients who chose you — conflict check first, summary after.",
       },
       { property: "og:title", content: "JustAsk — הפניות אליך" },
       {
         property: "og:description",
-        content: "Quality real-time legal requests for lawyers on JustAsk.",
+        content: "Requests reach you only from clients who picked you from the index.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -69,44 +66,6 @@ function LawyerFeed() {
    * מציע לעורך דין *מאושר* להתחיל אימות מחדש — בדיוק ההיפך מהאמת.
    */
   const [verError, setVerError] = useState(false);
-  /*
-   * ספירות התיקים הפתוחים — לעו"ד שטרם אומת.
-   *
-   * הוא אינו רשאי לקרוא תיקים, וזה נכון שיישאר ככה. אבל מסך ריק לגמרי
-   * נראה כמו מוצר מת בדיוק ברגע שבו הוא מחליט אם להשלים את האימות.
-   * מספרים בלבד: אפס מידע על אף אדם, והוכחה שיש כאן עבודה.
-   */
-  const [counts, setCounts] = useState<OpenCountsResult | null>(null);
-  const [mySpecs, setMySpecs] = useState<string[]>([]);
-  useEffect(() => {
-    /*
-     * בלי תלות ב-verStatus — בכוונה. כשהוא היה בתנאי, סטטוס האימות
-     * (קריאת Firestore מהירה) הגיע לפני שהספירה מהשרת חזרה, ה-cleanup
-     * ביטל אותה באמצע, וההרצה מחדש יצאה מיד ב-return — כלומר אצל עורך
-     * דין מאושר FeedPulse לא הופיע אף פעם. הספירה זולה; מי שמחליט אם
-     * להציג אותה הוא ה-render, לא ה-fetch.
-     */
-    if (!user) return;
-    let cancelled = false;
-    void (async () => {
-      try {
-        const idToken = await fbAuth().currentUser?.getIdToken();
-        if (!idToken) return;
-        const [res, prof] = await Promise.all([
-          openCaseCountsFn({ data: { idToken } }),
-          readLawyerProfile(user.uid).catch(() => null),
-        ]);
-        if (cancelled) return;
-        setCounts(res);
-        setMySpecs(prof?.specialties ?? []);
-      } catch {
-        /* ספירה שנכשלה פשוט לא מוצגת */
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [user]);
 
   useEffect(() => {
     if (!user) return;
@@ -188,9 +147,6 @@ function LawyerFeed() {
         transition={{ delay: 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
         className="mt-5 flex gap-2"
       >
-        <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
-          <Users className="size-3.5 text-gold" strokeWidth={2} />
-        </span>
         <span className="liquid-glass flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12px] font-medium text-foreground">
           <Calendar className="size-3.5 text-gold" strokeWidth={2} />
           {t("today")}
@@ -283,55 +239,6 @@ function LawyerFeed() {
         </motion.div>
       )}
 
-      {/*
-        * הפומו. מוצג רק כשיש באמת תיקים — פאנל שמכריז "0 תיקים ממתינים"
-        * עושה את ההיפך המדויק ממה שהוא נועד לו.
-        */}
-      {verStatus !== "approved" && counts && counts.total > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="mt-4 rounded-[26px] border border-gold/30 bg-gold/[0.06] p-5"
-        >
-          {(() => {
-            const mine = mySpecs.length
-              ? counts.byCategory.filter((c) => categoryMatchesSpecialties(c.category, mySpecs))
-              : counts.byCategory;
-            const mineTotal = mine.reduce((n, c) => n + c.count, 0);
-            const show = (mineTotal > 0 ? mine : counts.byCategory).slice(0, 6);
-            const headline = mineTotal > 0 ? mineTotal : counts.total;
-            return (
-              <>
-                <p className="text-center text-[46px] font-black leading-none text-gold-ink">
-                  {headline}
-                </p>
-                <p className="mt-1.5 text-center text-[13.5px] font-bold text-foreground">
-                  {t(mineTotal > 0 ? "fomoTitleMine" : "fomoTitleAll")}
-                </p>
-                <div className="mt-4 space-y-1.5">
-                  {show.map((c) => {
-                    const Icon = categoryIcon(c.category);
-                    return (
-                      <div key={c.category} className="flex items-center gap-2.5">
-                        <Icon className="size-4 shrink-0 text-gold-ink" strokeWidth={1.9} aria-hidden />
-                        <span className="flex-1 truncate text-[12.5px] text-foreground/90">
-                          {c.category}
-                        </span>
-                        <span className="text-[12.5px] font-bold text-foreground">{c.count}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-                <p className="mt-4 border-t border-gold/20 pt-3 text-center text-[12px] font-semibold text-gold-ink">
-                  {t("fomoUnlock")}
-                </p>
-              </>
-            );
-          })()}
-        </motion.div>
-      )}
-
       <div className="mt-6 space-y-3">
         {/*
           * שלושה מצבים שנראו זהים ולכן בלבלו: פיד ריק, פיד שנכשל, ופיד
@@ -384,7 +291,6 @@ function LawyerFeed() {
         */}
       {verStatus === "approved" && (
         <>
-          {/* FeedPulse הוסר מהרינדור — נשען על הפיד הישן. יימחק בטאטוא. */}
           <HowItWorks />
         </>
       )}

@@ -246,15 +246,24 @@ export const intakeTurn = createServerFn({ method: "POST" })
       }
     };
 
+    /*
+     * ═══ מסלול הדחייה בוטל — 23/8/2026 ═══
+     *
+     * [NOT_SUITABLE] היה הכרעה משפטית (ס' 20), והפרומפט אוסר אותו —
+     * אבל הפרסר עוד כיבד אותו, והדפדפן רינדר את נימוקי המודל מילה
+     * במילה תחת "מה כן מומלץ לעשות". משטח ההערכה הגלוי האחרון.
+     * מעכשיו: אם המודל בכל זאת יפלוט את המסוף, הטקסט שלפניו מוגש
+     * כתשובה רגילה והשיחה נמשכת — ההכרעה לעולם של עורך הדין.
+     */
     const notSuitable = parseTerminator<IntakeNotSuitable>("[NOT_SUITABLE]");
     if (notSuitable) {
-      return { reply: notSuitable.before, ready: null, notSuitable: notSuitable.data };
+      return { reply: notSuitable.before || "ספרו לי עוד — אני כאן כדי לארגן את הפרטים.", ready: null, notSuitable: null };
     }
 
     const ready = parseTerminator<IntakeReady>("[READY]");
     if (ready) {
       return {
-        reply: ready.before || "תודה! יש לי את כל מה שצריך — אפשר לשלוח לבדיקה.",
+        reply: ready.before || "תודה! יש לי את כל מה שצריך — אפשר לשלוח להכנת הסיכום.",
         ready: ready.data,
         notSuitable: null,
       };
@@ -1274,6 +1283,41 @@ export const changeCategoryFn = createServerFn({ method: "POST" })
       const category = normalizeCategory(data.category);
       await adminUpdateCase(data.caseId, { category });
       return { ok: true, category };
+    });
+  });
+
+/**
+ * משיכת פנייה — סגירת ההפניות הפעילות והודעה מנומסת לעורכי הדין
+ * שכבר השקיעו בה (בדקו ניגוד, קראו, אולי הציעו). שתיקה גרועה מ"לא".
+ */
+export const withdrawReferralsFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { caseId: string; idToken?: string })
+  .handler(async ({ data }): Promise<{ closed: number }> => {
+    const { requireUser, adminGetCase, adminGetDoc, adminPatch, adminQueryIds, adminNotify, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("withdrawReferrals", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) throw new Error("forbidden");
+      const ids = await adminQueryIds("referrals", "caseId", data.caseId);
+      let closed = 0;
+      for (const id of ids) {
+        const r = await adminGetDoc(`referrals/${encodeURIComponent(id)}`);
+        if (!r) continue;
+        if (r.status === "names_check" || r.status === "cleared" || r.status === "details_shared") {
+          await adminPatch(`referrals/${encodeURIComponent(id)}`, { status: "closed", closedAt: Date.now() });
+          await adminNotify(String(r.lawyerId), {
+            type: "referral_closed",
+            caseId: data.caseId,
+            title: "הפנייה נמשכה על ידי הפונה",
+            body: "הפנייה כבר אינה פתוחה. תודה על הזמן שהשקעת.",
+            titleKey: "notifWithdrawnTitle",
+            bodyKey: "notifRefWithdrawnBody",
+          });
+          closed++;
+        }
+      }
+      return { closed };
     });
   });
 

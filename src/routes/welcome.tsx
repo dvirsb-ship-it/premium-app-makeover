@@ -26,9 +26,9 @@ export const Route = createFileRoute("/welcome")({
   head: () => ({
     meta: [
       { title: "Welcome to JustAsk" },
-      { name: "description", content: "A quick tour of how JustAsk organizes your matter and routes it to lawyers." },
+      { name: "description", content: "A quick tour of how JustAsk organizes your matter and and lets you pick a verified lawyer yourself" },
       { property: "og:title", content: "Welcome to JustAsk" },
-      { property: "og:description", content: "A quick tour of how JustAsk organizes your matter and routes it to lawyers." },
+      { property: "og:description", content: "A quick tour of how JustAsk organizes your matter and and lets you pick a verified lawyer yourself" },
       { property: "og:type", content: "website" },
       { name: "robots", content: "noindex" },
     ],
@@ -170,6 +170,11 @@ function Welcome() {
    * חגגה הסכם שעוד לא קרה. נשארת רק דהיית מעבר קצרה — נימוס, לא טקס.
    */
   function choose(role: Role) {
+    try {
+      sessionStorage.setItem("justask-welcome-passed", "1");
+    } catch {
+      /* ignore */
+    }
     haptic("success");
     setRole(role);
     setLeaving(true);

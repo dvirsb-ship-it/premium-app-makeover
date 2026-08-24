@@ -14,7 +14,7 @@ const LABELS: Record<CaseStatus, StatusLabel> = {
    * קיימת. התוויות נשארות לתיקים ישנים בלבד, בניסוח ניטרלי.
    */
   matching: { he: "בטיפול", en: "In progress", ru: "В работе", ar: "قيد المعالجة", es: "En curso", fr: "En cours", tone: "gold" },
-  has_interest: { he: "יש התעניינות", en: "Interest received", ru: "Есть заинтересованность", ar: "هناك اهتمام", es: "Hay interés", fr: "Intérêt reçu", tone: "navy" },
+  has_interest: { he: "בטיפול", en: "In progress", ru: "В работе", ar: "قيد المعالجة", es: "En curso", fr: "En cours", tone: "gold" },
   connected: { he: "נוצר חיבור", en: "Connected", ru: "Связь установлена", ar: "تم التواصل", es: "Conectado", fr: "Mis en relation", tone: "success" },
   closed: { he: "התיק הסתיים", en: "Case closed", ru: "Дело закрыто", ar: "أُغلق الملف", es: "Caso cerrado", fr: "Dossier clôturé", tone: "muted" },
   withdrawn: { he: "הפנייה נמשכה", en: "Case withdrawn", ru: "Обращение отозвано", ar: "سُحب الطلب", es: "Caso retirado", fr: "Dossier retiré", tone: "muted" },

@@ -18,7 +18,11 @@ export type VerificationStatus = "pending" | "approved" | "rejected";
  * הנוסח הנוכחי נכתב על ידינו וטרם עבר עורך דין; כשהוא ינוסח מחדש,
  * המספר עולה ל-2 ומי שנרשם קודם יתבקש לאשר שוב.
  */
-export const UNDERTAKING_VERSION = 1;
+/*
+ * גרסה 2 (23/8/2026): undertake4 נוסח מחדש למודל הבחירה — בדיקת ניגוד
+ * על שמות הצדדים לפני קריאת הסיכום, במקום "לפני שאביע עניין".
+ */
+export const UNDERTAKING_VERSION = 2;
 
 export interface VerificationRecord {
   id: string; // ה-uid של עורך הדין
@@ -218,7 +222,7 @@ export async function updateVerification(
       ? {
           type: "verification_approved",
           title: "האימות שלך אושר! 🎉",
-          body: "הפרופיל שלך אומת — מעכשיו אפשר להביע עניין בתיקים ולהופיע בפני לקוחות.",
+          body: "הפרופיל שלך אומת — מעכשיו אתה מופיע באינדקס בתחומים שסימנת, ופניות יגיעו ממי שיבחר בך.",
           titleKey: "notifVerApprovedTitle",
           bodyKey: "notifVerApprovedBody",
         }

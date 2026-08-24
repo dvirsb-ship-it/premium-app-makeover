@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
-import { ArrowLeft, ArrowRight, CalendarDays, Camera, MessageCircle, Sparkles, FileText } from "lucide-react";
+import { ArrowLeft, ArrowRight, CalendarDays, FileCheck2, MessageCircle, Sparkles, FileText } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { TopBar } from "../components/TopBar";
 import { Rise, Stagger, Pressable } from "../components/motion";
@@ -26,6 +26,19 @@ export const Route = createFileRoute("/intake-tips")({
       { name: "twitter:card", content: "summary" },
     ],
   }),
+  /*
+   * הטיפים מוצגים פעם אחת (23/8/2026): המסך חסם כל פנייה חדשה, כולל
+   * אצל מי שכבר עבר את המסלול. מי שראה — עובר ישר לשיחה.
+   */
+  beforeLoad: () => {
+    try {
+      if (localStorage.getItem("justask-tips-seen") === "1") {
+        throw redirect({ to: "/intake" });
+      }
+    } catch (e) {
+      if (e && typeof e === "object" && "to" in (e as object)) throw e;
+    }
+  },
   component: IntakeTips,
 });
 
@@ -48,7 +61,7 @@ function IntakeTips() {
       body: t("tipDatesBody"),
     },
     {
-      icon: Camera,
+      icon: FileCheck2,
       title: t("tipPhotosTitle"),
       body: t("tipPhotosBody"),
     },
@@ -121,7 +134,14 @@ function IntakeTips() {
           transition={{ duration: 0.4 }}
         >
           <Pressable
-            onClick={() => navigate({ to: "/intake" })}
+            onClick={() => {
+              try {
+                localStorage.setItem("justask-tips-seen", "1");
+              } catch {
+                /* ignore */
+              }
+              navigate({ to: "/intake" });
+            }}
             className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-bold"
           >
             <span>{t("tipsStartCta")}</span>

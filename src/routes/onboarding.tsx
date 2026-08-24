@@ -65,7 +65,7 @@ function Onboarding() {
     if (!agreed || submitting) return;
     setSubmitting(true);
     // האישור נחתם בשרת — בלעדיו הכניסה הבאה תחזור לכאן במקום הביתה
-    void markOnboarded();
+    void markOnboarded().catch(() => {});
     setSealing(true);
   }
 

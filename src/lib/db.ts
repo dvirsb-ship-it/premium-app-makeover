@@ -473,85 +473,8 @@ export async function readCaseRaw(caseId: string) {
 
 // תוצאת הוולידציה נכתבת בצד השרת (validateCaseFn, Admin SDK) — הלקוח לא נוגע בסטטוס.
 
-/** עו"ד מביע עניין בתיק (אופציונלית עם הצעה) + התראה ללקוח. */
-export async function expressInterestDb(
-  caseId: string,
-  lawyer: { uid: string; profile: Lawyer },
-  offer?: Omit<CaseOffer, "at" | "fee">,
-): Promise<void> {
-  // סינון פרטי קשר מהתוכן החופשי — התקשורת עד החיבור עוברת דרך הפלטפורמה בלבד
-  const clean = offer && {
-    model: offer.model,
-    amount: offer.amount,
-    noWinNoFee: offer.noWinNoFee,
-    expenses: offer.expenses,
-    expensesEstimate: stripContactInfo(offer.expensesEstimate),
-    duration: stripContactInfo(offer.duration),
-    note: stripContactInfo(offer.note),
-    /*
-     * הצהרת ניגוד העניינים נשמרת תמיד כשהיא ניתנה — היא הראיה היחידה
-     * שהבדיקה נעשתה, ולכן היא לא עוברת דרך הסינון של הערכים הריקים.
-     */
-    ...(offer.noConflict ? { noConflict: true } : {}),
-    // Firestore דוחה undefined — האופציונליים נכנסים רק כשיש בהם ערך ממשי
-    ...(offer.vat ? { vat: offer.vat } : {}),
-    ...(offer.postSuitPercent ? { postSuitPercent: offer.postSuitPercent } : {}),
-    ...(offer.judgmentPercent ? { judgmentPercent: offer.judgmentPercent } : {}),
-    ...(offer.retainer ? { retainer: offer.retainer } : {}),
-  };
-  const hasOffer = !!clean && clean.amount > 0;
-  /*
-   * התיק מלא? — נבדק לפני הכתיבה כדי שעורך הדין יקבל הודעה מובנת
-   * במקום "permission denied" מהחוקים. החוקים הם עדיין האכיפה
-   * האמיתית (ראו firestore.rules); זו שכבת האדיבות בלבד.
-   */
-  const snap = await getDoc(doc(fbDb(), "cases", caseId));
-  const already = ((snap.data()?.interestedIds as string[] | undefined) ?? []);
-  if (!already.includes(lawyer.uid) && already.length >= MAX_OFFERS_PER_CASE) {
-    throw new Error("CASE_FULL");
-  }
-  await updateDoc(doc(fbDb(), "cases", caseId), {
-    interestedIds: arrayUnion(lawyer.uid),
-    interested: arrayUnion(lawyer.profile),
-    status: "has_interest",
-    ...(hasOffer
-      ? { [`offers.${lawyer.uid}`]: { ...clean, at: Date.now() } }
-      : {}),
-  });
-  // התראה מחוץ לאפליקציה ללקוח — השרת מאמת שהעו"ד באמת רשום כמתעניין
-  try {
-    const { notifyInterestFn } = await import("./ai/intake.functions");
-    const { fbAuth } = await import("./firebase");
-    const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
-    await notifyInterestFn({ data: { caseId, idToken } });
-  } catch {
-    /* ההתראה היא תוספת — הבעת העניין כבר נרשמה */
-  }
+/* expressInterestDb נמחק (23/8/2026) — מנגנון הפיד; ההצעות מוגשות דרך submitReferralOfferFn */
 
-  // פרטי הקשר של העו"ד נכתבים לתת-אוסף שנחשף ללקוח רק אחרי בחירה
-  try {
-    const contact = await readOwnLawyerContact(lawyer.uid);
-    if (contact) {
-      await setDoc(doc(fbDb(), "cases", caseId, "contacts", lawyer.uid), contact);
-    }
-  } catch {
-    /* לא חוסם את הבעת העניין */
-  }
-  const c = await readCaseRaw(caseId);
-  if (c) {
-    await notify(c.clientId, {
-      type: "lawyer_interest",
-      title: "עורך דין מעוניין בתיק שלך",
-      body: hasOffer
-        ? `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}" וצירף הצעה`
-        : `${lawyer.profile.name} הביע עניין בפנייה "${c.title || c.category}"`,
-      titleKey: "notifInterestTitle",
-      bodyKey: hasOffer ? "notifInterestBodyOffer" : "notifInterestBody",
-      params: { name: lawyer.profile.name, title: c.title || c.category },
-      caseId,
-    });
-  }
-}
 
 /* ---------- ערעורי ולידציה (ולידציה כפולה ע"י עורכי הדין) ---------- */
 
@@ -1108,26 +1031,24 @@ export async function cancelScheduledDeletion(uid: string): Promise<boolean> {
  * יש יחסי עו"ד-לקוח, וסיומם הוא ביניהם.
  */
 export async function withdrawCase(caseId: string): Promise<void> {
-  const c = await readCaseRaw(caseId);
   await updateDoc(doc(fbDb(), "cases", caseId), {
     status: "withdrawn",
     withdrawnAt: Date.now(),
   });
-  // ההתראה אינה חוסמת — המשיכה עצמה כבר נרשמה
-  const title = (c?.title as string) || (c?.category as string) || "";
-  await Promise.all(
-    (((c?.interestedIds as string[]) ?? [])).map((lid) =>
-      notify(lid, {
-        type: "case_withdrawn",
-        title: "הפונה משך את הפנייה",
-        body: `"${title}" כבר אינו פתוח. תודה על הזמן שהשקעת.`,
-        titleKey: "notifWithdrawnTitle",
-        bodyKey: "notifWithdrawnBody",
-        params: { title },
-        caseId,
-      }).catch(() => undefined),
-    ),
-  );
+  /*
+   * סגירת הפניות פעילות והודעה לעורכי הדין — בשרת (23/8/2026):
+   * הדפדפן אינו רשאי לכתוב הפניות, והגרסה הקודמת קראה את
+   * interestedIds של מודל הפיד — כלומר איש לא קיבל את ההודעה.
+   * לא חוסם: המשיכה עצמה כבר נרשמה.
+   */
+  try {
+    const { withdrawReferralsFn } = await import("./ai/intake.functions");
+    const { fbAuth } = await import("./firebase");
+    const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+    await withdrawReferralsFn({ data: { caseId, idToken } });
+  } catch {
+    /* ignore */
+  }
 }
 
 export async function removeStuckCase(caseId: string): Promise<void> {

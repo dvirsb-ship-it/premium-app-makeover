@@ -828,7 +828,10 @@ import { MAX_OPEN_CASES } from "../limits";
  */
 const WITHDRAWN_HOLD_MS = 7 * 24 * 60 * 60 * 1000;
 
-const OPEN_STATUSES = ["validating", "matching", "has_interest", "withdrawn"];
+/* עודכן למודל הבחירה (23/8/2026): תיק "מתחרה על תשומת לב" הוא כזה
+ * שממתין לפעולה — בכתיבה, באישור סיכום או בבחירה. matching/has_interest
+ * היו סטטוסי הפיד ולא נכתבים עוד. */
+const OPEN_STATUSES = ["validating", "summary_ready", "awaiting_selection", "withdrawn"];
 
 /**
  * תיק שנשאר ב"בבדיקה" יותר מזה מעולם לא הושלם — הוא לא מתחרה על תשומת
