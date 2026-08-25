@@ -1082,7 +1082,7 @@ interface ReferralOfferInput {
 export const submitReferralOfferFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ReferralOfferInput)
   .handler(async ({ data }): Promise<{ ok: boolean }> => {
-    const { requireUser, adminGetDoc, adminPatch, adminNotify, notify, withErrorLog } =
+    const { requireUser, adminGetDoc, adminGetCase, adminUpdateCase, adminPatch, adminNotify, notify, withErrorLog } =
       await import("./server-admin");
     const { stripContactInfo: strip } = await import("../privacy");
     return withErrorLog("submitReferralOffer", async () => {
@@ -1123,6 +1123,15 @@ export const submitReferralOfferFn = createServerFn({ method: "POST" })
         lawyerName: String(profile?.name ?? ""),
         offeredAt: Date.now(),
       });
+
+      /*
+       * חותמת חד-פעמית על התיק: מתי הגיעה ההצעה הראשונה. חדר הבקרה
+       * מודד ממנה את זמן התגובה של השוק בלי לקרוא את כל ההפניות.
+       */
+      const caseDoc = await adminGetCase(String(r.caseId));
+      if (caseDoc && !caseDoc.firstOfferAt) {
+        await adminUpdateCase(String(r.caseId), { firstOfferAt: Date.now() });
+      }
 
       /*
        * פרטי הקשר של עורך הדין נכתבים לתת-האוסף שהחוקים כבר שומרים:

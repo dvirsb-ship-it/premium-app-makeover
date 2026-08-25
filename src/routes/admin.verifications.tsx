@@ -815,8 +815,8 @@ function VerificationQueue() {
           const steps: { label: string; value: number; of?: number }[] = [
             { label: t("funnelCreated"), value: f.created },
             { label: t("funnelPassed"), value: f.passed, of: f.created },
-            { label: t("funnelInterest"), value: f.withInterest, of: f.passed },
-            { label: t("funnelConnected"), value: f.connected, of: f.withInterest },
+            { label: t("funnelGotOffer"), value: f.withOffer, of: f.passed },
+            { label: t("funnelConnected"), value: f.connected, of: f.withOffer },
           ];
           return (
             <>
@@ -861,7 +861,7 @@ function VerificationQueue() {
               </div>
 
               {/* אות הכיול: קטגוריה שאושרה ואף עו"ד לא נגע בה */}
-              {f.byCategory.some((c) => c.noInterest > 0) && (
+              {f.byCategory.some((c) => c.noOffer > 0) && (
                 <div className="mt-2 rounded-2xl border border-gold/25 bg-gold/[0.06] p-4">
                   <p className="text-[12px] font-bold text-gold">{t("funnelCalibration")}</p>
                   <p className="mt-1 text-[11px] leading-relaxed text-muted-foreground">
@@ -869,14 +869,14 @@ function VerificationQueue() {
                   </p>
                   <ul className="mt-2 space-y-1">
                     {f.byCategory
-                      .filter((c) => c.noInterest > 0)
+                      .filter((c) => c.noOffer > 0)
                       .map((c) => (
                         <li key={c.category} className="text-[12px] text-foreground">
                           {c.category} —{" "}
                           <span className="font-bold">
-                            {c.noInterest}/{c.passed}
+                            {c.noOffer}/{c.passed}
                           </span>{" "}
-                          <span className="text-muted-foreground">{t("funnelNoInterest")}</span>
+                          <span className="text-muted-foreground">{t("funnelNoOffer")}</span>
                         </li>
                       ))}
                   </ul>

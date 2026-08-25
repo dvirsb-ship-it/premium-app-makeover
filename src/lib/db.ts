@@ -183,6 +183,10 @@ interface CaseDoc {
   /** תמונות שצורפו בקליטה — מקור ללקוח, גרסה מצונזרת לעורכי הדין. */
   /** הרגע שבו התיק נעשה זמין לעורכי דין (נכתב מהשרת בסיום הוולידציה). */
   validatedAt?: number;
+  /** אישור הסיכום בידי הפונה — נקודת הפתיחה של מודל הבחירה. */
+  summaryApprovedAt?: number;
+  /** מתי הוגשה ההצעה הראשונה בתיק (נכתב מהשרת, חד-פעמי). */
+  firstOfferAt?: number;
   /** רשימת ההכנה שנגזרה מהראיון — מוצגת ללקוח. */
   clientChecklist?: string[];
   /**
@@ -1270,6 +1274,7 @@ export interface AdminCaseRow {
   status: string;
   location: string;
   createdAt: number;
+  /** @deprecated המודל הישן; נשמר כדי שתיקים היסטוריים ימשיכו להיספר במשפך. */
   interestedCount: number;
   /** הרגע שבו התיק נעשה זמין לעורכי דין — בסיס למדידת זמן להצעה ראשונה. */
   validatedAt?: number;
@@ -1405,18 +1410,18 @@ export interface FunnelStats {
   created: number;
   rejected: number;
   passed: number;
-  withInterest: number;
+  withOffer: number;
   connected: number;
   /** זמן חציוני מרגע שהתיק נעשה זמין ועד ההצעה הראשונה, בדקות. */
   medianFirstOfferMins: number | null;
-  /** לפי קטגוריה: כמה אושרו וכמה מהם עדיין בלי אף התעניינות. */
-  byCategory: { category: string; passed: number; noInterest: number }[];
+  /** לפי קטגוריה: כמה אושרו וכמה מהם עדיין בלי אף הצעה. */
+  byCategory: { category: string; passed: number; noOffer: number }[];
 }
 
 /**
  * המשפך מחושב מהארכיון שכבר נטען — בלי שאילתות נוספות.
- * "אושרו ואפס התעניינות" הוא אות הכיול החשוב: אם בקטגוריה שלמה עורכי דין
- * לא נוגעים בתיקים, כנראה שומר הסף רחב מדי שם.
+ * "אושרו ואפס הצעות" הוא אות הכיול החשוב: אם בקטגוריה שלמה עורכי דין
+ * לא מגישים הצעות, כנראה שאין בה מספיק עורכי דין — או שהפניות לא נענות.
  */
 /**
  * המשפך שלפני התיק — כמה אנשים בכלל התחילו, וכמה נשרו בדרך.
@@ -1460,17 +1465,19 @@ export function watchIntakeFunnel(
 
 export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
   const passedRows = rows.filter((r) => r.status !== "rejected" && r.status !== "validating");
+  /* תיק "נענה" כשהוגשה בו הצעה; interestedCount מכסה תיקים מהמודל הישן. */
+  const engaged = (r: AdminCaseRow) => r.firstOfferAt !== undefined || r.interestedCount > 0;
   const offerGaps = rows
     .filter((r) => r.validatedAt && r.firstOfferAt && r.firstOfferAt > r.validatedAt)
     .map((r) => (r.firstOfferAt! - r.validatedAt!) / 60000)
     .sort((a, b) => a - b);
 
-  const cats = new Map<string, { passed: number; noInterest: number }>();
+  const cats = new Map<string, { passed: number; noOffer: number }>();
   for (const r of passedRows) {
     const key = r.category || "אחר";
-    const cur = cats.get(key) ?? { passed: 0, noInterest: 0 };
+    const cur = cats.get(key) ?? { passed: 0, noOffer: 0 };
     cur.passed += 1;
-    if (r.interestedCount === 0) cur.noInterest += 1;
+    if (!engaged(r)) cur.noOffer += 1;
     cats.set(key, cur);
   }
 
@@ -1478,7 +1485,7 @@ export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
     created: rows.length,
     rejected: rows.filter((r) => r.status === "rejected").length,
     passed: passedRows.length,
-    withInterest: rows.filter((r) => r.interestedCount > 0).length,
+    withOffer: rows.filter(engaged).length,
     // תיק שהסתיים הוא חיבור שהבשיל, לא חיבור שנעלם
     connected: rows.filter((r) => r.status === "connected" || r.status === "closed").length,
     medianFirstOfferMins: offerGaps.length
@@ -1486,7 +1493,7 @@ export function computeFunnel(rows: AdminCaseRow[]): FunnelStats {
       : null,
     byCategory: [...cats.entries()]
       .map(([category, v]) => ({ category, ...v }))
-      .sort((a, b) => b.noInterest - a.noInterest || b.passed - a.passed),
+      .sort((a, b) => b.noOffer - a.noOffer || b.passed - a.passed),
   };
 }
 
@@ -1514,11 +1521,14 @@ export function watchAllCasesAdmin(
               location: c.location || "",
               createdAt: c.createdAt,
               interestedCount: c.interestedIds?.length ?? 0,
-              validatedAt: c.validatedAt,
-              firstOfferAt: Object.values(c.offers ?? {})
-                .map((o) => o.at)
-                .filter((n) => typeof n === "number")
-                .sort((a, b) => a - b)[0],
+              /* מודל הבחירה מודד מאישור הסיכום; validatedAt נשאר לתיקים ישנים */
+              validatedAt: c.summaryApprovedAt ?? c.validatedAt,
+              firstOfferAt:
+                c.firstOfferAt ??
+                Object.values(c.offers ?? {})
+                  .map((o) => o.at)
+                  .filter((n) => typeof n === "number")
+                  .sort((a, b) => a - b)[0],
             };
           })
           .sort((a, b) => b.createdAt - a.createdAt),
