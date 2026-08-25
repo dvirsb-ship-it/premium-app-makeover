@@ -681,30 +681,38 @@ html:not(.dark) .anchor {
     var(--rim-mid) 32%, var(--rim-mid) 70%, var(--rim-bot) 100%);
 }
 /*
- * בשורה טובה (התקבלה הצעה, נוצר חיבור) — טבעת ירוקה **מלאה** מסביב
- * לכרטיס, לא רק אור על הקצה העליון. חלק מכלל הצבע של 25/8/2026:
- * זהב = נדרש ממך צעד, ירוק = קרה משהו טוב. הבקשה של דביר: "ממש
- * מסביב לקוביה", כדי שהבשורה תבלוט מתוך ים הזהב.
+ * בשורה טובה (התקבלה הצעה, נוצר חיבור) — הכרטיס מחליף את קצה הזהב
+ * במסגרת בדיו הכהה של האפליקציה, והירוק חי בפנים (הרצועה) ובזוהר
+ * שמאחור. החלטת דביר 25/8/2026 אחרי שתי איטרציות מרונדרות: "בוא ננסה
+ * שחור, ותשאיר את הירוק גם בפנים וגם במאחורה שזה זוהר". חלק מכלל
+ * הצבע: זהב = נדרש ממך צעד, ירוק = קרה משהו טוב.
  */
 .liquid-glass.glass-good::before {
   background: linear-gradient(180deg,
-    oklch(0.70 0.14 162 / 0.85) 0%,
-    oklch(0.70 0.14 162 / 0.45) 45%,
-    oklch(0.70 0.14 162 / 0.65) 100%);
+    oklch(0.208 0.042 265.755 / 0.70) 0%,
+    oklch(0.208 0.042 265.755 / 0.42) 40%,
+    oklch(0.208 0.042 265.755 / 0.85) 100%);
+}
+/* לעוגן בבהיר יש קצה זהב בספציפיות (0,2,1) שמנצחת — דריסה תואמת */
+html:not(.dark) .anchor.glass-good::before {
+  background: linear-gradient(180deg,
+    oklch(0.208 0.042 265.755 / 0.70) 0%,
+    oklch(0.208 0.042 265.755 / 0.42) 40%,
+    oklch(0.208 0.042 265.755 / 0.85) 100%);
 }
 .liquid-glass.glass-good {
   box-shadow: var(--elev-3), var(--rim-inset),
-    0 14px 34px -20px oklch(0.70 0.14 162 / 0.55);
+    0 16px 38px -20px oklch(0.70 0.14 162 / 0.60);
 }
-/* בבהיר הקו נמשך גם מה-inset של glass-raised; בכהה ה-::before הכללי
-   דורס — שתי הדריסות כאן מיישרות את הטבעת בשני המצבים. */
 html:not(.dark) .liquid-glass.glass-good,
 html:not(.dark) .liquid-glass.glass-raised.glass-good {
   box-shadow: var(--elev-2), var(--rim-inset),
-    inset 0 0 0 1px oklch(0.70 0.14 162 / 0.40),
-    0 14px 34px -20px oklch(0.70 0.14 162 / 0.55);
+    inset 0 0 0 1px oklch(0.208 0.042 265.755 / 0.30),
+    0 16px 38px -20px oklch(0.70 0.14 162 / 0.60);
 }
-.dark .liquid-glass.glass-good::before {
+/* בכהה דיו כהה נבלע ברקע — שם הקצה נשאר ירוק, גם מעל קצה-הזהב של העוגן */
+.dark .liquid-glass.glass-good::before,
+.dark .anchor.liquid-glass.glass-good::before {
   background: linear-gradient(180deg,
     oklch(0.70 0.14 162 / 0.85) 0%,
     oklch(0.70 0.14 162 / 0.40) 45%,
