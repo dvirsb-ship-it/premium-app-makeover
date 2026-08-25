@@ -84,7 +84,7 @@ function Notifications() {
           <EmptyState
             icon={Bell}
             title={t("notifEmpty")}
-            description={t("notifEmptySub")}
+            description={t(role === "lawyer" ? "notifEmptySubLawyer" : "notifEmptySub")}
           />
         </div>
       ) : (

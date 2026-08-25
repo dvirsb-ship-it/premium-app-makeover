@@ -154,10 +154,11 @@ function LawyerCases() {
             );
           })
         )}
-      </div>
 
       {/*
         * הארכיון. מוצג רק כשיש בו משהו — כותרת "ארכיון (0)" היא רעש.
+        * בתוך אזור העבודה (23/8/2026) — היה מרונדר מחוץ לו, על רקע
+        * העמוד, עם ריפוד שונה מהרשימה שמעליו.
         */}
       {archived.length > 0 && (
         <div className="pb-4">
@@ -230,6 +231,7 @@ function LawyerCases() {
           </AnimatePresence>
         </div>
       )}
+      </div>
     </AppShell>
   );
 }

@@ -541,6 +541,7 @@ export const strings = {
   notifCenterSub: { he: "כל העדכונים על התיקים שלך", en: "All updates about your cases" },
   notifEmpty: { he: "אין התראות עדיין", en: "No notifications yet" },
   notifEmptySub: { he: "כאן יופיעו העדכונים — כשהסיכום מוכן, כשעורך דין משיב, וכשמתקבלת הצעה.", en: "Updates appear here — when your summary is ready, a lawyer replies, or an offer arrives." },
+  notifEmptySubLawyer: { he: "כאן יופיעו העדכונים — כשלקוח בוחר בך, משתף סיכום, או כשתיק מתקדם.", en: "Updates appear here — when a client picks you, shares a summary, or a case moves." },
   notifAria: { he: "פתיחת מרכז ההתראות", en: "Open notifications" },
   verifyUploadError: { he: "ההגשה לא הושלמה. בדקו את החיבור ונסו שוב — אפשר לשלוח שוב בבטחה.", en: "Your submission didn't complete. Check your connection and try again — resubmitting is safe." },
   verPendingBanner: { he: "הפרופיל שלך בבדיקה", en: "Your profile is under review" },
@@ -779,6 +780,10 @@ export const strings = {
   // התראות דחיפה
   notifLawyerInterest: { he: "תשובות עורכי דין", en: "Lawyer responses" },
   notifLawyerInterestSub: { he: "כשעורך דין משיב לפנייתך או מגיש הצעה", en: "When a lawyer answers your request or submits a proposal" },
+  notifLawyerCaseUpdates: { he: "עדכוני תיקים", en: "Case updates" },
+  notifLawyerCaseUpdatesSub: { he: "כשלקוח משתף סיכום, בוחר בך, או מתקדם בתיק", en: "When a client shares a summary, chooses you, or the case moves" },
+  notifLawyerReferrals: { he: "פניות אליך", en: "Requests to you" },
+  notifLawyerReferralsSub: { he: "כשלקוח בוחר בך מהאינדקס — יש 48 שעות להשיב", en: "When a client picks you from the index — 48 hours to respond" },
   pushEnabled: { he: "התראות הופעלו במכשיר הזה", en: "Notifications enabled on this device" },
   pushDeniedMsg: { he: "לא ניתנה הרשאה להתראות", en: "Notification permission was not granted" },
   pushBlockedHint: { he: "ההתראות חסומות בהגדרות הדפדפן. אפשר לפתוח אותן שם ולחזור לכאן.", en: "Notifications are blocked in your browser settings. Allow them there and come back." },

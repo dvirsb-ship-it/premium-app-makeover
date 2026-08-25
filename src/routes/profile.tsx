@@ -83,6 +83,12 @@ function Profile() {
                     ? t("lawyerAccountSub")
                     : t("clientAccountSub")}
                 </p>
+                {/* איזה חשבון מחובר — בלי זה אי אפשר לדעת ממי מתנתקים (23/8/2026) */}
+                {(user?.email || user?.phoneNumber) && (
+                  <p className="mt-0.5 truncate text-[12px] text-muted-foreground/80" dir="ltr">
+                    {user?.email || user?.phoneNumber}
+                  </p>
+                )}
               </div>
             </div>
           </Rise>

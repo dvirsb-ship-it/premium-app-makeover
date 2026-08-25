@@ -35,9 +35,20 @@ export const Route = createFileRoute("/settings/notifications")({
 });
 
 /** נושאים שנשמרים על מסמך המשתמש והשרת בודק אותם לפני שליחה. */
-const topics: { key: "caseUpdates" | "lawyerInterest"; icon: typeof Bell; title: StringKey; sub: StringKey }[] = [
+type Topic = { key: "caseUpdates" | "lawyerInterest"; icon: typeof Bell; title: StringKey; sub: StringKey };
+const topics: Topic[] = [
   { key: "caseUpdates", icon: Bell, title: "notifCaseUpdates", sub: "notifCaseUpdatesSub" },
   { key: "lawyerInterest", icon: Sparkles, title: "notifLawyerInterest", sub: "notifLawyerInterestSub" },
+];
+
+/*
+ * אותם שני מתגים, בשפה של עורך הדין (23/8/2026): עד עכשיו עורך דין
+ * ראה "תשובות עורכי דין — כשעורך דין משיב לפנייתך", כלומר מתג של
+ * לקוח על עצמו. אותם topics בשרת — רק התוויות מתחלפות.
+ */
+const lawyerTopics: Topic[] = [
+  { key: "caseUpdates", icon: Bell, title: "notifLawyerCaseUpdates", sub: "notifLawyerCaseUpdatesSub" },
+  { key: "lawyerInterest", icon: Sparkles, title: "notifLawyerReferrals", sub: "notifLawyerReferralsSub" },
 ];
 
 /*
@@ -78,7 +89,8 @@ function Switch({
 function NotificationsSettings() {
   useRequireAuth();
   const t = useT();
-  const { user } = useAppStore();
+  const { user, role } = useAppStore();
+  const shownTopics = role === "lawyer" ? lawyerTopics : topics;
 
   const [prefs, setPrefs] = useState<Record<string, boolean>>({
     caseUpdates: true,
@@ -141,12 +153,12 @@ function NotificationsSettings() {
         <Stagger className="space-y-4 pb-10 pt-4">
           <Rise>
             <div className="liquid-glass overflow-hidden rounded-3xl">
-              {topics.map((row, i) => {
+              {shownTopics.map((row, i) => {
                 const Icon = row.icon;
                 return (
                   <div
                     key={row.key}
-                    className={`flex items-center gap-3 p-4 ${i === topics.length - 1 ? "" : "border-b border-border"}`}
+                    className={`flex items-center gap-3 p-4 ${i === shownTopics.length - 1 ? "" : "border-b border-border"}`}
                   >
                     <span className="grid size-10 place-items-center rounded-xl bg-gold/15 text-gold">
                       <Icon className="size-5" />
