@@ -35,7 +35,16 @@ function offerLine(o: CaseOffer, t: (k: never) => string): string {
  * ובחירה כשיש הצעה. ההצעות מוצגות זו לצד זו **בסדר הגעה, בלי דירוג
  * ובלי סימון "מומלץ"** — ההשוואה וההכרעה כולן של הפונה (נספח א·8).
  */
-export function CaseReferrals({ caseId, status }: { caseId: string; status: string }) {
+export function CaseReferrals({
+  caseId,
+  status,
+  onConnected,
+}: {
+  caseId: string;
+  status: string;
+  /** נורה פעם אחת אחרי בחירה מוצלחת — מדליק את אוברליי החגיגה במסך התיק */
+  onConnected?: (lawyerName: string) => void;
+}) {
   const t = useT();
   const [rows, setRows] = useState<ReferralDoc[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
@@ -68,6 +77,7 @@ export function CaseReferrals({ caseId, status }: { caseId: string; status: stri
         email: u?.email ?? "",
       });
       haptic("success");
+      onConnected?.(r.lawyerName || "");
     } finally {
       setBusy(null);
     }

@@ -218,6 +218,11 @@ export const strings = {
   toMyCases: { he: "לתיקים שלי", en: "To my cases" },
   caseDetailsTitle: { he: "פרטי המקרה", en: "Case details" },
   connectedWith: { he: "נוצר חיבור עם", en: "Connected with" },
+  /* אוברליי החגיגה — רגע הבחירה (25/8/2026) */
+  celebrateTitle: { he: "יצרת חיבור עם עו״ד {name}!", en: "You're connected with {name}!" },
+  celebrateBody: { he: "פרטי הקשר נחשפו לשני הצדדים. אפשר להתקשר או לשלוח הודעה — ההסכם עצמו נכרת ישירות ביניכם.", en: "Contact details are now open on both sides. Call or message — the agreement itself is made directly between you." },
+  celebrateCta: { he: "לפרטי הקשר", en: "View contact details" },
+  celebrateLater: { he: "בהמשך", en: "Later" },
   orDirectContact: { he: "צפייה בפרופיל המלא או פנייה ישירה:", en: "View the full profile or contact directly:" },
   viewFullProfile: { he: "צפייה בפרופיל המלא", en: "View full profile" },
   messageAction: { he: "הודעה", en: "Message" },

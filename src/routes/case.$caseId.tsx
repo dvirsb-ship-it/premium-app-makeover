@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { AppShell } from "../components/AppShell";
 import { CaseReferrals } from "../components/CaseReferrals";
+import { ConnectionCelebration } from "../components/ConnectionCelebration";
 import { ClientJourney } from "../components/ClientJourney";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -93,6 +94,8 @@ function CaseDetail() {
   const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
   const [retrying, setRetrying] = useState(false);
+  /* אוברליי החגיגה — רק ברגע הבחירה עצמו, לא בכניסות הבאות לתיק */
+  const [celebrating, setCelebrating] = useState<string | null>(null);
   /*
    * הקריאה הזו מרוצה מול הכתיבה של הבחירה עצמה, ומפסידה.
    *
@@ -276,7 +279,7 @@ function CaseDetail() {
             </Link>
           )}
           {(item.status === "awaiting_selection" || item.status === "connected") && (
-            <CaseReferrals caseId={item.id} status={item.status} />
+            <CaseReferrals caseId={item.id} status={item.status} onConnected={setCelebrating} />
           )}
 
           {/* הסרגל הגדול — כל המסע והמיקום בו, גם כאן (23/8/2026) */}
@@ -474,9 +477,10 @@ function CaseDetail() {
             {chosen ? (
               <motion.div
                 key="connected"
+                id="connected-panel"
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="mt-6"
+                className="mt-6 scroll-mt-24"
               >
                 <div className="liquid-glass rounded-3xl p-5 text-center">
                   <span className="mx-auto grid size-12 place-items-center rounded-full bg-success text-success-foreground shadow-lg shadow-success/30">
@@ -527,6 +531,19 @@ function CaseDetail() {
             ) : null}
           </AnimatePresence>
         </div>
+
+        <ConnectionCelebration
+          name={celebrating}
+          onClose={() => setCelebrating(null)}
+          onView={() => {
+            setCelebrating(null);
+            requestAnimationFrame(() =>
+              document
+                .getElementById("connected-panel")
+                ?.scrollIntoView({ behavior: "smooth", block: "center" }),
+            );
+          }}
+        />
       </Page>
     </AppShell>
   );
