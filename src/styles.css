@@ -702,23 +702,50 @@ html:not(.dark) .anchor.glass-good::before {
     oklch(0.208 0.042 265.755 / 0.42) 40%,
     oklch(0.208 0.042 265.755 / 0.85) 100%);
 }
-/*
- * ההילה עוטפת 360° ולא רק שוקעת מטה — "אני רוצה שישימו לב לזה"
- * (דביר, 25/8). שתי שכבות: טבעת רכה צמודה + פיזור רחב, בלי אנימציה —
- * הנקודה ברצועה כבר פועמת, והכרטיס עטוף overflow-hidden כך שרק
- * צל (שאינו נחתך) יכול לזהור החוצה.
- */
 .liquid-glass.glass-good {
-  box-shadow: var(--elev-3), var(--rim-inset),
-    0 0 0 5px oklch(0.70 0.14 162 / 0.14),
-    0 0 34px 4px oklch(0.70 0.14 162 / 0.42);
+  box-shadow: var(--elev-3), var(--rim-inset);
 }
 html:not(.dark) .liquid-glass.glass-good,
 html:not(.dark) .liquid-glass.glass-raised.glass-good {
   box-shadow: var(--elev-2), var(--rim-inset),
-    inset 0 0 0 1px oklch(0.208 0.042 265.755 / 0.30),
-    0 0 0 5px oklch(0.70 0.14 162 / 0.14),
-    0 0 34px 4px oklch(0.70 0.14 162 / 0.42);
+    inset 0 0 0 1px oklch(0.208 0.042 265.755 / 0.30);
+}
+
+/*
+ * ── הילת הבשורה — עטיפה נפרדת עם פעימות לב (דביר, 25/8) ─────────────
+ *
+ * שלוש איטרציות של פידבק: זוהר-מטה בלבד → 360° עם טבעת ("רואים קו")
+ * → "ממש faded, פעימות לב". הטבעת הקשיחה ירדה; נשאר זוהר מפוזר בלבד,
+ * שנושם בקצב לב — פעימה כפולה ומנוחה.
+ *
+ * למה עטיפה ולא הכרטיס עצמו: הכרטיס חתוך ב-overflow-hidden ולכן
+ * pseudo פנימי נחתך, ואנימציית box-shadow מציירת כל פריים. העטיפה
+ * מחזיקה את הצל על ::before סטטי ומנפישה רק opacity — קומפוזיטור,
+ * לא צביעה. במצב reduced-motion ההילה פשוט דולקת קבוע.
+ */
+.good-halo {
+  position: relative;
+}
+.good-halo::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border-radius: 26px;
+  z-index: -1;
+  pointer-events: none;
+  box-shadow: 0 0 42px 12px oklch(0.70 0.14 162 / 0.55);
+  opacity: 0.5;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .good-halo::before {
+    animation: good-heartbeat 2.4s ease-in-out infinite;
+  }
+}
+@keyframes good-heartbeat {
+  0%, 48%, 100% { opacity: 0.28; }
+  12% { opacity: 1; }
+  26% { opacity: 0.4; }
+  36% { opacity: 0.85; }
 }
 /* בכהה דיו כהה נבלע ברקע — שם הקצה נשאר ירוק, גם מעל קצה-הזהב של העוגן */
 .dark .liquid-glass.glass-good::before,

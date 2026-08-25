@@ -280,11 +280,13 @@ function ClientHome() {
         <Stagger className="pb-12">
           {active ? (
             <Rise>
+              {/* ההילה על עטיפה: הכרטיס חתוך ב-overflow ואינו יכול לזהור בעצמו */}
+              <div className={cn(isGoodNews(activeKey) && "good-halo")}>
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
                   "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[26px] text-start",
-                  /* טבעת ירוקה מלאה כשיש בשורה טובה — הצעה שהתקבלה או חיבור */
+                  /* מסגרת כהה כשיש בשורה טובה — הצעה שהתקבלה או חיבור */
                   isGoodNews(activeKey) && "glass-good",
                 )}
               >
@@ -312,6 +314,7 @@ function ClientHome() {
                 </div>
 
               </Pressable>
+              </div>
             </Rise>
           ) : (
             <Rise>
