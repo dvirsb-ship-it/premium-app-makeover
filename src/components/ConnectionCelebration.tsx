@@ -62,7 +62,8 @@ export function ConnectionCelebration({
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
             className="good-halo relative w-full max-w-sm"
           >
-          <div className="liquid-glass glass-raised glass-good rounded-[28px] p-6 text-center">
+          {/* בלי glass-good: "נשאיר נקי בלי הקו השחור מסביב" — ההילה בעטיפה מספיקה */}
+          <div className="liquid-glass glass-raised rounded-[28px] p-6 text-center">
             <span className="mx-auto grid size-16 place-items-center rounded-full bg-success text-success-foreground shadow-lg shadow-success/35">
               <BadgeCheck className="size-8" strokeWidth={2.25} aria-hidden />
             </span>
