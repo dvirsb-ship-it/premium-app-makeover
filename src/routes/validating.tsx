@@ -34,6 +34,8 @@ function Validating() {
   const [current, setCurrent] = useState(0);
   const [stuck, setStuck] = useState(false);
   const [blocked, setBlocked] = useState(false);
+  /* תקרה יומית — עצירה כנה, לא "משהו השתבש" */
+  const [capped, setCapped] = useState(false);
   const [rejected, setRejected] = useState<string | null>(null);
   const [runToken, setRunToken] = useState(0);
   const [animDone, setAnimDone] = useState(false);
@@ -45,6 +47,7 @@ function Validating() {
     let cancelled = false;
     setResult(null);
     setStuck(false);
+    setCapped(false);
     setRejected(null);
 
     let caseId = "";
@@ -73,6 +76,13 @@ function Validating() {
       if (res.blocked === "too_many_open") {
         if (!cancelled) {
           setBlocked(true);
+          haptic("warning");
+        }
+        return;
+      }
+      if (res.blocked === "daily_cap") {
+        if (!cancelled) {
+          setCapped(true);
           haptic("warning");
         }
         return;
@@ -191,7 +201,7 @@ function Validating() {
    * ובסיום נשלחת התראה. כך נשמר הרגע הנעים בלי דקה של המתנה מיותרת.
    */
   useEffect(() => {
-    if (!animDone || result || rejected || stuck || blocked) return;
+    if (!animDone || result || rejected || stuck || blocked || capped) return;
     let caseId = "";
     try {
       caseId = sessionStorage.getItem("justask-active-case") ?? "";
@@ -213,7 +223,7 @@ function Validating() {
         navigate({ to: "/case/$caseId", params: { caseId } });
     }, 1200);
     return () => window.clearTimeout(tm);
-  }, [animDone, result, rejected, stuck, blocked, navigate]);
+  }, [animDone, result, rejected, stuck, blocked, capped, navigate]);
 
   function retry() {
     finished.current = false;
@@ -341,7 +351,29 @@ function Validating() {
             </motion.div>
           )}
 
-          {stuck && !rejected && !blocked && !finished.current && !result && (
+          {capped && (
+            <motion.div
+              key="capped"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-8 w-full max-w-xs rounded-3xl border border-gold/35 bg-gold/[0.07] p-6 text-center"
+              role="alert"
+            >
+              <p className="text-[16px] font-black text-foreground">{t("dailyCapTitle")}</p>
+              <p className="mt-2 text-[13.5px] leading-relaxed text-muted-foreground">
+                {t("dailyCapBody")}
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate({ to: "/cases" })}
+                className="btn-gold mt-4 w-full rounded-2xl py-3.5 text-[15px] font-bold"
+              >
+                {t("valGoCases")}
+              </button>
+            </motion.div>
+          )}
+
+          {stuck && !rejected && !blocked && !capped && !finished.current && !result && (
             <motion.div
               key="stuck"
               initial={{ opacity: 0, y: 12 }}

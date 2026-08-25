@@ -302,7 +302,7 @@ export interface ValidateResult {
    * שגיאה זרוקה מגיעה למסך כ"משהו השתבש" — ואדם שסיפר עכשיו את כל
    * סיפורו ראוי לדעת בדיוק למה, ומה לעשות.
    */
-  blocked?: "too_many_open";
+  blocked?: "too_many_open" | "daily_cap";
 }
 
 /*
@@ -368,7 +368,16 @@ export const validateCaseFn = createServerFn({ method: "POST" })
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
     const uid = await requireUser(data.idToken);
-    await enforceDailyCap(uid, "validateCase");
+    try {
+      await enforceDailyCap(uid, "validateCase");
+    } catch {
+      /*
+       * תקרה יומית אינה "משהו השתבש". הסיפור שמור בתיק, והפונה ראוי
+       * לדעת בדיוק למה נעצר ומה הלאה — מוחזר, לא נזרק, בדיוק כמו
+       * תקרת התיקים הפתוחים.
+       */
+      return { validated: false, blocked: "daily_cap", title: "", category: "", summary: "", caseContext: "" };
+    }
 
     const raw = await adminGetCase(data.caseId);
     if (!raw) throw new Error("case not found");

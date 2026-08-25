@@ -1124,7 +1124,14 @@ export async function enforceDailyCap(uid: string, action: string): Promise<void
   const cap = DAILY_CAPS[action];
   if (!cap) return;
   const day = new Date().toISOString().slice(0, 10);
-  const path = `usage/${encodeURIComponent(uid)}`;
+  /*
+   * מסמך לכל יום (uid_YYYY-MM-DD) — 25/8/2026. הגרסה הקודמת החזיקה
+   * מסמך אחד עם שדה day ואיפסה ביום חדש רק את הפעולה הראשונה שנגעה
+   * בו. intakeTurn תמיד נגע ראשון, ולכן המונה של validateCase ירש את
+   * ערכו של אתמול ולא התאפס מעולם — הצטבר על פני שבועות עד שדביר
+   * נחסם באמצע בדיקה אמיתית. מסמך יומי מתאפס מעצם קיומו.
+   */
+  const path = `usage/${encodeURIComponent(`${uid}_${day}`)}`;
   let used = 0;
   try {
     const cur = (await adminGetDoc(path)) ?? {};
