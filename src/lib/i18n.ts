@@ -326,6 +326,7 @@ export const strings = {
   // Validating — retry
   valStuckTitle: { he: "הבדיקה מתעכבת", en: "This is taking longer than usual" },
   valStuckSub: { he: "משהו השתבש בדרך. הסיפור שלך שמור — נסו שוב או המשיכו לתיקים שלכם.", en: "Something went wrong along the way. Your story is saved — try again or continue to your cases." },
+  caseChooseMoreCta: { he: "אפשר לפנות לעוד עורכי דין — עד שלושה במקביל", en: "You can contact more lawyers — up to three at once" },
   dailyCapTitle: { he: "נעצרנו להיום", en: "That's it for today" },
   dailyCapBody: { he: "כדי לשמור על המערכת יש תקרה יומית לבדיקות, והיא נוצלה. הסיפור שלך שמור בתיק — נסו שוב מחר מתוך התיק עצמו.", en: "To protect the system there's a daily limit on checks, and it's been used up. Your story is saved — try again tomorrow from the case itself." },
   valRetry: { he: "נסה שוב", en: "Try again" },

@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { AppShell } from "../components/AppShell";
 import { CaseReferrals } from "../components/CaseReferrals";
 import { ConnectionCelebration } from "../components/ConnectionCelebration";
+import { useWhatsNewKey } from "../components/CaseWhatsNew";
 import { ClientJourney } from "../components/ClientJourney";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -96,6 +97,17 @@ function CaseDetail() {
   const [retrying, setRetrying] = useState(false);
   /* אוברליי החגיגה — רק ברגע הבחירה עצמו, לא בכניסות הבאות לתיק */
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  /*
+   * "פעולה מובילה לפעולה" (דביר, 25/8): אחרי ששלח פנייה, כפתור
+   * "בחרו עורך דין" הצועק סתר את המצב. המפתח מלמד אם יש פנייה חיה —
+   * ואז הכפתור מפנה את הבמה לשורות הסטטוס והופך לקישור שקט.
+   */
+  const whatsNew = useWhatsNewKey(caseId, item?.status ?? "validating");
+  const refsInFlight =
+    whatsNew === "homeNewSent" ||
+    whatsNew === "homeNewCleared" ||
+    whatsNew === "homeNewShared" ||
+    whatsNew === "homeNewOffer";
   /*
    * הקריאה הזו מרוצה מול הכתיבה של הבחירה עצמה, ומפסידה.
    *
@@ -269,13 +281,22 @@ function CaseDetail() {
               {t("caseSummaryReadyCta")}
             </Link>
           )}
-          {item.status === "awaiting_selection" && (
+          {item.status === "awaiting_selection" && !refsInFlight && (
             <Link
               to="/choose/$caseId"
               params={{ caseId: item.id }}
               className="btn-gold mt-3 flex min-h-12 w-full items-center justify-center rounded-2xl text-[14px] font-bold"
             >
               {t("caseChooseCta")}
+            </Link>
+          )}
+          {item.status === "awaiting_selection" && refsInFlight && (
+            <Link
+              to="/choose/$caseId"
+              params={{ caseId: item.id }}
+              className="liquid-glass mt-3 flex min-h-11 w-full items-center justify-center rounded-2xl text-[13px] font-semibold text-foreground"
+            >
+              {t("caseChooseMoreCta")}
             </Link>
           )}
           {(item.status === "awaiting_selection" || item.status === "connected") && (

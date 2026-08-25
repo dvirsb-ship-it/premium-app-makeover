@@ -221,6 +221,7 @@ export const es: Partial<Record<StringKey, string>> = {
   welcomeSlide3Body: "El abogado recibe primero solo nombres — para comprobar conflictos. Su historia se abre solo tras su confirmación, y sus datos de contacto van solo al que elija al final.",
   valStuckTitle: "La revisión se está demorando",
   valStuckSub: "Algo salió mal en el camino. Su historia está guardada — inténtelo de nuevo o continúe a sus casos.",
+  caseChooseMoreCta: "Puede contactar a más abogados — hasta tres a la vez",
   dailyCapTitle: "Suficiente por hoy",
   dailyCapBody: "Para proteger el sistema hay un límite diario de revisiones y ya se agotó. Su historia está guardada en el caso — inténtelo mañana desde el propio caso.",
   valRetry: "Reintentar",
