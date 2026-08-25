@@ -144,7 +144,12 @@ service cloud.firestore {
           resource.data.clientId == request.auth.uid
           && request.resource.data.diff(resource.data).affectedKeys()
                .hasOnly(['status', 'withdrawnAt'])
-          && resource.data.status in ['matching', 'has_interest']
+          /*
+           * summary_ready/awaiting_selection — סטטוסי מודל הבחירה
+           * (נתפס בריצת 25/8: המסך אפשר משיכה והחוק דחה אותה);
+           * matching/has_interest נשארים לתיקי המודל הישן.
+           */
+          && resource.data.status in ['matching', 'has_interest', 'summary_ready', 'awaiting_selection']
           && request.resource.data.status == 'withdrawn'
           && request.resource.data.withdrawnAt is int
         )

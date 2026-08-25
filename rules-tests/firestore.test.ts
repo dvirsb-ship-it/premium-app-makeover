@@ -869,6 +869,21 @@ describe("משיכת פנייה ע\"י הפונה", () => {
     await assertSucceeds(updateDoc(doc(as("client"), "cases/c2"), withdraw));
   });
 
+  /*
+   * מודל הבחירה (25/8/2026): המסך אפשר משיכה מ-summary_ready
+   * ו-awaiting_selection, אבל החוק הכיר רק בסטטוסי הפיד הישנים —
+   * וכל משיכה של תיק חדש נדחתה. הבדיקות האלה מקבעות את התיקון.
+   */
+  it("מושך פנייה עם סיכום שממתין לאישור (מודל הבחירה)", async () => {
+    await seed("c6", "summary_ready");
+    await assertSucceeds(updateDoc(doc(as("client"), "cases/c6"), withdraw));
+  });
+
+  it("מושך פנייה שממתינה לבחירת עורך דין (מודל הבחירה)", async () => {
+    await seed("c7", "awaiting_selection");
+    await assertSucceeds(updateDoc(doc(as("client"), "cases/c7"), withdraw));
+  });
+
   it("אי אפשר למשוך תיק מחובר — יש כבר עו\"ד שעובד עליו", async () => {
     await seed("c3", "connected", { chosenLawyerId: "lawyerOk" });
     await assertFails(updateDoc(doc(as("client"), "cases/c3"), withdraw));
