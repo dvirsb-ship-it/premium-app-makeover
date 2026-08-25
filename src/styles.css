@@ -688,6 +688,8 @@ html:not(.dark) .anchor {
  * הצבע: זהב = נדרש ממך צעד, ירוק = קרה משהו טוב.
  */
 .liquid-glass.glass-good::before {
+  /* 2px — "עבה יותר", בחירת דביר מתוך שלושה עוביים מרונדרים (25/8) */
+  padding: 2px;
   background: linear-gradient(180deg,
     oklch(0.208 0.042 265.755 / 0.70) 0%,
     oklch(0.208 0.042 265.755 / 0.42) 40%,
