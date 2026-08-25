@@ -25,6 +25,7 @@ import { useT } from "../lib/i18n";
 import type { StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import { isAdminUser } from "../lib/admin";
+import { BUILD_STAMP } from "../lib/build-stamp";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -325,6 +326,11 @@ function Profile() {
               {t("logout")}
             </button>
           </Rise>
+
+          {/* מה שכתוב כאן הוא מה שהמכשיר באמת מריץ — לא מה שיש בשרת */}
+          <p className="pb-2 pt-1 text-center text-[10.5px] text-muted-foreground/60" dir="ltr">
+            JustAsk · {BUILD_STAMP}
+          </p>
         </Stagger>
       </Page>
     </AppShell>

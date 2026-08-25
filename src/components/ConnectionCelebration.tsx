@@ -60,8 +60,9 @@ export function ConnectionCelebration({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.94, y: 8 }}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
-            className="good-halo liquid-glass glass-raised glass-good relative w-full max-w-sm rounded-[28px] p-6 text-center"
+            className="good-halo relative w-full max-w-sm"
           >
+          <div className="liquid-glass glass-raised glass-good rounded-[28px] p-6 text-center">
             <span className="mx-auto grid size-16 place-items-center rounded-full bg-success text-success-foreground shadow-lg shadow-success/35">
               <BadgeCheck className="size-8" strokeWidth={2.25} aria-hidden />
             </span>
@@ -86,6 +87,7 @@ export function ConnectionCelebration({
             >
               {t("celebrateLater")}
             </button>
+          </div>
           </motion.div>
         </motion.div>
       )}
