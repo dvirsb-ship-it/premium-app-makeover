@@ -300,7 +300,13 @@ function ClientHome() {
                 <div className="p-5">
                   <div className="flex items-center justify-between gap-3">
                     <span
-                      className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${toneClasses[activeMeta!.tone]}`}
+                      className={cn(
+                        "rounded-full px-2.5 py-1 text-[11px] font-bold",
+                        /* על מילוי הזהב צ'יפ זהב נבלע — דיו כהה כמו טקסט כפתור הזהב */
+                        mood === "offer"
+                          ? "bg-[#0f172a]/85 text-[#f1e4c3]"
+                          : toneClasses[activeMeta!.tone],
+                      )}
                     >
                       {activeMeta!.label}
                     </span>
