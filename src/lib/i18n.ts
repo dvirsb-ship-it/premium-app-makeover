@@ -1197,6 +1197,8 @@ export const strings = {
   journeyCtaCompare: { he: "להשוואת ההצעות ולבחירה", en: "Compare offers & choose" },
   journeyCaseLink: { he: "לפרטי התיק המלא", en: "Full case details" },
   journeyOpenFull: { he: "לצפייה במסלול המלא ובהסברים", en: "See the full path & explanations" },
+  journeyStageOf: { he: "שלב {n} מתוך 5", en: "Stage {n} of 5" },
+  journeyStageDone: { he: "כל השלבים הושלמו — נוצר חיבור", en: "All stages complete — you're connected" },
   journeyClosed: { he: "הפנייה הזו סגורה. אפשר לפתוח פנייה חדשה מדף הבית.", en: "This request is closed. You can start a new one from the home screen." },
   journeyStep2: { he: "בוחרים עורכי דין מהאינדקס — לפי תחום, עיר ושפה — ושולחים פנייה. עד שלושה במקביל.", en: "Pick lawyers from the index — by field, city and language — and send your request. Up to three at a time." },
   journeyStep3: { he: "עורך הדין מקבל שמות בלבד ובודק ניגוד עניינים. יש לו 48 שעות להשיב.", en: "The lawyer receives names only and checks for conflicts. They have 48 hours to respond." },

@@ -8,7 +8,7 @@ import { AppShell } from "../components/AppShell";
 import { CaseReferrals } from "../components/CaseReferrals";
 import { ConnectionCelebration } from "../components/ConnectionCelebration";
 import { useWhatsNewKey } from "../components/CaseWhatsNew";
-import { ClientJourney } from "../components/ClientJourney";
+import { JourneyGateway } from "../components/ClientJourney";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
 import { RateLawyerCard } from "../components/RateLawyerCard";
@@ -303,9 +303,9 @@ function CaseDetail() {
             <CaseReferrals caseId={item.id} status={item.status} onConnected={setCelebrating} />
           )}
 
-          {/* הסרגל הגדול — כל המסע והמיקום בו, גם כאן (23/8/2026) */}
+          {/* שורת-השער למרכז המסלול — הקובייה המלאה ירדה גם מכאן (26/8) */}
           <div className="mt-5">
-            <ClientJourney active={item} />
+            <JourneyGateway active={item} />
           </div>
 
           {/*

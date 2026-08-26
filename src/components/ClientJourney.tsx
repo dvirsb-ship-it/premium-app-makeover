@@ -50,6 +50,40 @@ export function useJourneyState(active?: Case) {
   return { refs, doneFlags, step, offers, sent: refs.length };
 }
 
+/**
+ * שורת-השער הדקה — מחליפה את הקובייה הגדולה בבית ובמסך התיק
+ * (26/8/2026, דביר: "עדיין השארנו את זה במסך הבית?"). מציגה רק את
+ * השלב הנוכחי ופס התקדמות; המסע המלא עם ההסברים גר ב"התיקים שלי".
+ */
+export function JourneyGateway({ active }: { active: Case }) {
+  const t = useT();
+  const { step } = useJourneyState(active);
+  const shown = Math.min(Math.max(step, 0) + 1, 5);
+  const done = step >= 5;
+  return (
+    <Link
+      to="/cases"
+      className="edge-gold recessed relative flex items-center gap-3 overflow-hidden rounded-[22px] bg-[var(--recess-fill)] px-4 py-3.5 dark:bg-[image:radial-gradient(120%_85%_at_18%_-15%,oklch(0.76_0.13_85_/_0.16),transparent_58%)]"
+    >
+      <div className="min-w-0 flex-1">
+        <p className="text-[10.5px] font-medium tracking-[0.2em] text-gold-ink dark:text-gold">
+          {t("journeyEyebrow")}
+        </p>
+        <p className="mt-0.5 text-[13.5px] font-bold text-foreground dark:text-white">
+          {done ? t("journeyStageDone") : t("journeyStageOf").replace("{n}", String(shown))}
+        </p>
+        <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-foreground/10 dark:bg-white/10">
+          <span
+            className="block h-full rounded-full bg-gold"
+            style={{ width: `${(done ? 5 : Math.max(step, 0)) * 20}%` }}
+          />
+        </span>
+      </div>
+      <span className="text-[11.5px] font-bold text-gold-ink dark:text-gold">{t("journeyOpenFull")}</span>
+    </Link>
+  );
+}
+
 export function ClientJourney({ active }: { active?: Case }) {
   const t = useT();
   const { refs, step, offers } = useJourneyState(active);
@@ -212,16 +246,6 @@ export function ClientJourney({ active }: { active?: Case }) {
         })}
       </ol>
 
-      {/*
-        * השער ללוח המלא: הקובייה נשארת לוח מחוונים, אבל מ-26/8 המסלול
-        * כולו — עם ההסברים — גר ב"התיקים שלי", וזו הדלת אליו.
-        */}
-      <Link
-        to="/cases"
-        className="mt-4 flex min-h-10 items-center justify-center rounded-2xl bg-foreground/[0.05] text-[12px] font-bold text-gold-ink dark:bg-white/[0.07] dark:text-gold"
-      >
-        {t("journeyOpenFull")}
-      </Link>
     </div>
   );
 }

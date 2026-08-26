@@ -850,6 +850,8 @@ export const es: Partial<Record<StringKey, string>> = {
   journeyCtaCompare: "Comparar propuestas y elegir",
   journeyCaseLink: "Detalles completos del caso",
   journeyOpenFull: "Ver el camino completo y las explicaciones",
+  journeyStageOf: "Etapa {n} de 5",
+  journeyStageDone: "Todas las etapas completadas — están conectados",
   journeyClosed: "Esta solicitud está cerrada. Puede abrir una nueva desde la pantalla de inicio.",
   journeyStep2: "Elija abogados del índice — por área, ciudad e idioma — y envíe su consulta. Hasta tres a la vez.",
   journeyStep3: "El abogado recibe solo nombres y comprueba conflictos de interés. Tiene 48 horas para responder.",

@@ -24,7 +24,7 @@ import { useAppStore } from "../lib/store";
 import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
 import type { Case } from "../lib/types";
-import { ClientJourney } from "../components/ClientJourney";
+import { ClientJourney, JourneyGateway } from "../components/ClientJourney";
 import { CaseWhatsNew, WhatsNewStrip, useWhatsNewKey, cardMood, caseActionRank } from "../components/CaseWhatsNew";
 
 
@@ -393,7 +393,11 @@ function ClientHome() {
             * דביר: "סתם מיותר בדף הבית") — הוא יושב בפרופיל, מקומו הטבעי.
             */}
           <Rise className="mt-6">
-            <ClientJourney active={active} />
+            {/*
+              * עם תיק — שורת-שער דקה למרכז המסלול; בלי תיק — הקובייה
+              * המלאה נשארת כהסבר "מה יקרה" (כי "התיקים שלי" ריק אצלו).
+              */}
+            {active ? <JourneyGateway active={active} /> : <ClientJourney />}
           </Rise>
 
           {rest.length > 0 && (
