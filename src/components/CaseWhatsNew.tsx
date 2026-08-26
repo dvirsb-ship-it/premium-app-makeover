@@ -33,6 +33,24 @@ export function isGoodNews(key: StringKey | null): boolean {
   return key === "homeNewOffer" || key === "homeNewConnected";
 }
 
+/**
+ * שלושת מצבי הכרטיס הראשי — המפרט הסופי של דביר (26/8/2026):
+ * נשלח = לבן עם מסגרת כהה, בלי הילה; בתהליך = + הילה ירוקה פועמת;
+ * הצעה = הפנים מתמלא זהב כמו כפתור הזהב + הילה זהובה. חיבור נשאר
+ * במשפחת הירוק (בשורה שכבר נחגגה), וכשאין כלום — כרטיס רגיל.
+ */
+export type CardMood = "sent" | "process" | "offer" | "good" | null;
+export function cardMood(key: StringKey | null): CardMood {
+  switch (key) {
+    case "homeNewSent": return "sent";
+    case "homeNewCleared":
+    case "homeNewShared": return "process";
+    case "homeNewOffer": return "offer";
+    case "homeNewConnected": return "good";
+    default: return null;
+  }
+}
+
 /** המפתח האקטואלי של התיק — גם למי שצריך אותו ברמת הכרטיס (מסגרת ירוקה). */
 export function useWhatsNewKey(caseId: string | null, status: Case["status"]): StringKey | null {
   const [refs, setRefs] = useState<ReferralDoc[]>([]);
@@ -46,7 +64,7 @@ export function useWhatsNewKey(caseId: string | null, status: Case["status"]): S
 }
 
 /** הרצועה עצמה, בלי מנוי משלה — למי שכבר מחזיק את המפתח ביד. */
-export function WhatsNewStrip({ k, compact = false }: { k: StringKey | null; compact?: boolean }) {
+export function WhatsNewStrip({ k, compact = false, onGold = false }: { k: StringKey | null; compact?: boolean; onGold?: boolean }) {
   const t = useT();
   if (!k) return null;
   const good = isGoodNews(k);
@@ -62,7 +80,8 @@ export function WhatsNewStrip({ k, compact = false }: { k: StringKey | null; com
     <div
       className={cn(
         "mt-4 flex items-start gap-2.5 rounded-2xl px-3.5 py-2.5",
-        good ? "bg-success/[0.13]" : "bg-[var(--recess-fill)]",
+        /* על כרטיס הזהב (מצב הצעה) הרצועה יושבת על לבן שקוף, לא על ירקרק */
+        onGold ? "bg-white/45" : good ? "bg-success/[0.13]" : "bg-[var(--recess-fill)]",
       )}
     >
       <span

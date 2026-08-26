@@ -26,7 +26,7 @@ import { toneClasses, useStatusMeta, useTimeAgo } from "../lib/status";
 import { cn } from "../lib/utils";
 import type { Case } from "../lib/types";
 import { ClientJourney } from "../components/ClientJourney";
-import { CaseWhatsNew, WhatsNewStrip, useWhatsNewKey, isGoodNews, caseActionRank } from "../components/CaseWhatsNew";
+import { CaseWhatsNew, WhatsNewStrip, useWhatsNewKey, cardMood, caseActionRank } from "../components/CaseWhatsNew";
 
 
 export const Route = createFileRoute("/")({
@@ -143,8 +143,9 @@ function ClientHome() {
   const ordered = [...cases].sort((a, b) => caseActionRank(a.status) - caseActionRank(b.status) || b.createdAt - a.createdAt);
   const [active, ...rest] = ordered;
   const activeMeta = active ? statusMeta(active.status) : null;
-  /* המפתח נשלף ברמת הכרטיס: בשורה טובה צובעת גם את המסגרת (glass-good) */
+  /* המפתח נשלף ברמת הכרטיס: המצב קובע מסגרת, הילה ומילוי (שלושת המצבים) */
   const activeKey = useWhatsNewKey(active?.id ?? null, active?.status ?? "validating");
+  const mood = cardMood(activeKey);
   /* תיקים שעדיין דורשים משהו — לא כולל סגורים ונדחים */
   const openCount = cases.filter(
     (c) => c.status !== "closed" && c.status !== "rejected",
@@ -281,13 +282,19 @@ function ClientHome() {
           {active ? (
             <Rise>
               {/* ההילה על עטיפה: הכרטיס חתוך ב-overflow ואינו יכול לזהור בעצמו */}
-              <div className={cn(isGoodNews(activeKey) && "good-halo")}>
+              <div
+                className={cn(
+                  (mood === "process" || mood === "good") && "good-halo",
+                  mood === "offer" && "good-halo halo-gold",
+                )}
+              >
               <Pressable
                 onClick={() => navigate({ to: "/case/$caseId", params: { caseId: active.id } })}
                 className={cn(
                   "anchor liquid-glass glass-raised relative w-full overflow-hidden rounded-[26px] text-start",
-                  /* מסגרת כהה כשיש בשורה טובה — הצעה שהתקבלה או חיבור */
-                  isGoodNews(activeKey) && "glass-good",
+                  /* מסגרת כהה מרגע ששלחת פנייה; מילוי זהב כשהתקבלה הצעה */
+                  mood !== null && "glass-good",
+                  mood === "offer" && "glass-offer",
                 )}
               >
                 <div className="p-5">
@@ -310,7 +317,7 @@ function ClientHome() {
                   <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-muted-foreground">
                     {active.summary}
                   </p>
-                  <WhatsNewStrip k={activeKey} />
+                  <WhatsNewStrip k={activeKey} onGold={mood === "offer"} />
                 </div>
 
               </Pressable>

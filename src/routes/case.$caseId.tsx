@@ -349,13 +349,19 @@ function CaseDetail() {
                   </div>
                 </div>
               ) : (
-                <button
-                  type="button"
-                  onClick={() => setConfirmWithdraw(true)}
-                  className="w-full rounded-2xl py-3 text-[13px] font-semibold text-muted-foreground transition hover:text-foreground"
-                >
-                  {t("withdrawCta")}
-                </button>
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmWithdraw(true)}
+                    className="w-full rounded-2xl py-3 text-[13px] font-semibold text-muted-foreground transition hover:text-foreground"
+                  >
+                    {t("withdrawCta")}
+                  </button>
+                  {/* כוכבית ההסבר — "משיכת הפנייה" לא הובן גם ע"י דביר (26/8) */}
+                  <p className="px-2 pb-1 text-center text-[10.5px] leading-snug text-muted-foreground/80">
+                    {t("withdrawHint")}
+                  </p>
+                </>
               )}
             </div>
           )}

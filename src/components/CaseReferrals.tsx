@@ -163,31 +163,45 @@ export function CaseReferrals({
               </div>
 
               {r.status === "cleared" && status === "awaiting_selection" && (
-                <button
-                  type="button"
-                  disabled={busy === r.id}
-                  onClick={() => void share(r.id)}
-                  className="btn-gold mt-3 min-h-11 w-full rounded-2xl text-[13px] font-bold disabled:opacity-45"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <BadgeCheck className="size-4" aria-hidden />
-                    {t("caseRefShare")}
-                  </span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled={busy === r.id}
+                    onClick={() => void share(r.id)}
+                    className="btn-gold mt-3 min-h-11 w-full rounded-2xl text-[13px] font-bold disabled:opacity-45"
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <BadgeCheck className="size-4" aria-hidden />
+                      {t("caseRefShare")}
+                    </span>
+                  </button>
+                  <p className="mt-1.5 px-1 text-center text-[10.5px] leading-snug text-muted-foreground">
+                    {t("caseRefShareHint")}
+                  </p>
+                </>
               )}
 
               {hasOffer && status === "awaiting_selection" && (
-                <button
-                  type="button"
-                  disabled={busy === r.id}
-                  onClick={() => void choose(r)}
-                  className="btn-gold mt-3 min-h-11 w-full rounded-2xl text-[13px] font-bold disabled:opacity-45"
-                >
-                  <span className="inline-flex items-center gap-1.5">
-                    <Scale className="size-4" aria-hidden />
-                    {t("caseRefChoose")}
-                  </span>
-                </button>
+                <>
+                  <button
+                    type="button"
+                    disabled={busy === r.id}
+                    onClick={() => void choose(r)}
+                    className="btn-gold mt-3 min-h-11 w-full rounded-2xl text-[13px] font-bold disabled:opacity-45"
+                  >
+                    <span className="inline-flex items-center gap-1.5">
+                      <Scale className="size-4" aria-hidden />
+                      {t("caseRefChoose")}
+                    </span>
+                  </button>
+                  {/*
+                    * ההשלכות של הבחירה — חשיפת קשר וסגירת שאר הפניות —
+                    * חייבות להיאמר ליד הכפתור, לא רק ב"כך זה עובד".
+                    */}
+                  <p className="mt-1.5 px-1 text-center text-[10.5px] leading-snug text-muted-foreground">
+                    {t("caseRefChooseHint")}
+                  </p>
+                </>
               )}
             </div>
           );

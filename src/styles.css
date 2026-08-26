@@ -751,6 +751,25 @@ html:not(.dark) .liquid-glass.glass-raised.glass-good {
   0%, 100% { opacity: 0.55; }
   50% { opacity: 1; }
 }
+
+/*
+ * מצב 3 — התקבלה הצעה: הכרטיס מתמלא זהב כמו כפתור הזהב, וההילה
+ * מחליפה צבע לזהב. המסגרת הכהה נשארת. מפרט שלושת המצבים של דביר
+ * (26/8/2026). דריסות הספציפיות: העוגן בבהיר קובע background-image
+ * ב-(0,3,1), וה-raised בכהה קובע background-color ב-(0,3,0).
+ */
+.liquid-glass.glass-offer,
+html:not(.dark) .anchor.glass-offer,
+.dark .liquid-glass.glass-offer,
+.dark .liquid-glass.glass-raised.glass-offer {
+  background-color: var(--gold-mid);
+  background-image: linear-gradient(180deg, var(--gold-hi) 0%, var(--gold-mid) 55%, var(--gold-lo) 100%);
+  /* טקסט משני על זהב צריך דיו כהה יותר מהרגיל */
+  --muted-foreground: oklch(0.34 0.05 262);
+}
+.good-halo.halo-gold::before {
+  box-shadow: 0 0 46px 14px oklch(0.76 0.13 85 / 0.65);
+}
 /* בכהה דיו כהה נבלע ברקע — שם הקצה נשאר ירוק, גם מעל קצה-הזהב של העוגן */
 .dark .liquid-glass.glass-good::before,
 .dark .anchor.liquid-glass.glass-good::before {
