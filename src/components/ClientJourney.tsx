@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Check } from "lucide-react";
 import { useT, type StringKey } from "../lib/i18n";
 import { cn } from "../lib/utils";
@@ -15,9 +16,11 @@ import type { Case } from "../lib/types";
  * חמישה שלבים, נגזרים מהתיק ומההפניות עצמן. בלי תיק — אותם שלבים בלי
  * סימון, כהסבר "מה יקרה"; עם תיק — הזהב מטפס עם ההתקדמות האמיתית.
  */
-export function ClientJourney({ active }: { active?: Case }) {
-  const t = useT();
-
+/**
+ * מצב המסע של תיק — מנוי אחד, שני צרכנים: הקובייה בבית ולוח המסלול
+ * המלא ב"התיקים שלי" (26/8/2026).
+ */
+export function useJourneyState(active?: Case) {
   /* ההפניות של התיק הפעיל — מהן נגזרים שלבים 2-4 */
   const [refs, setRefs] = useState<ReferralDoc[]>([]);
   const wantRefs =
@@ -42,8 +45,15 @@ export function ClientJourney({ active }: { active?: Case }) {
   const doneFlags = [summaryDone, anySent, anyAnswered, anyOffer, connected];
   /* השלב הנוכחי: הראשון שטרם הושלם; תיק מחובר = הכול מלא */
   const step = !active ? -1 : connected ? 5 : doneFlags.findIndex((d) => !d);
-
   const offers = refs.filter((r) => !!r.offerAmount).length;
+
+  return { refs, doneFlags, step, offers, sent: refs.length };
+}
+
+export function ClientJourney({ active }: { active?: Case }) {
+  const t = useT();
+  const { refs, step, offers } = useJourneyState(active);
+  const anySent = refs.length > 0;
   const steps: { key: StringKey; note?: string }[] = [
     { key: "journeyStep1" },
     {
@@ -201,6 +211,17 @@ export function ClientJourney({ active }: { active?: Case }) {
           );
         })}
       </ol>
+
+      {/*
+        * השער ללוח המלא: הקובייה נשארת לוח מחוונים, אבל מ-26/8 המסלול
+        * כולו — עם ההסברים — גר ב"התיקים שלי", וזו הדלת אליו.
+        */}
+      <Link
+        to="/cases"
+        className="mt-4 flex min-h-10 items-center justify-center rounded-2xl bg-foreground/[0.05] text-[12px] font-bold text-gold-ink dark:bg-white/[0.07] dark:text-gold"
+      >
+        {t("journeyOpenFull")}
+      </Link>
     </div>
   );
 }

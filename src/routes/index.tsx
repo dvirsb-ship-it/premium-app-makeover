@@ -6,7 +6,6 @@ import {
   ArrowRight,
   Check,
   FolderOpen,
-  LifeBuoy,
   Plus,
   Scale,
   Sparkles,
@@ -390,26 +389,11 @@ function ClientHome() {
             * עוזרת — היא רק מרעישה את המסך.
             *
             * במקומן: מה שהלקוח באמת לא יודע. איפה הפנייה שלו נמצאת עכשיו,
-            * ומי כבר ראה אותה. "עזרה ותמיכה" נשאר, כי הוא היחיד שלא היה
-            * נגיש מכאן.
+            * ומי כבר ראה אותה. "עזרה ותמיכה" ירד גם הוא (26/8/2026,
+            * דביר: "סתם מיותר בדף הבית") — הוא יושב בפרופיל, מקומו הטבעי.
             */}
           <Rise className="mt-6">
             <ClientJourney active={active} />
-          </Rise>
-
-          <Rise className="mt-3">
-            <Pressable
-              onClick={() => navigate({ to: "/settings/help" })}
-              className="liquid-glass glass-flat tap flex w-full items-center gap-3 rounded-[20px] px-4 py-3.5"
-            >
-              <span className="chip-emblem grid size-10 shrink-0 place-items-center">
-                <LifeBuoy className="relative z-10 size-4 text-gold-ink" strokeWidth={1.9} aria-hidden />
-              </span>
-              <span className="flex-1 text-start text-[13.5px] font-bold text-foreground">
-                {t("help")}
-              </span>
-              <Arrow className="size-4 shrink-0 text-muted-foreground/50" />
-            </Pressable>
           </Rise>
 
           {rest.length > 0 && (

@@ -17,7 +17,7 @@ const LABELS: Record<CaseStatus, StatusLabel> = {
   has_interest: { he: "בטיפול", en: "In progress", ru: "В работе", ar: "قيد المعالجة", es: "En curso", fr: "En cours", tone: "gold" },
   connected: { he: "נוצר חיבור", en: "Connected", ru: "Связь установлена", ar: "تم التواصل", es: "Conectado", fr: "Mis en relation", tone: "success" },
   closed: { he: "התיק הסתיים", en: "Case closed", ru: "Дело закрыто", ar: "أُغلق الملف", es: "Caso cerrado", fr: "Dossier clôturé", tone: "muted" },
-  withdrawn: { he: "הפנייה נמשכה", en: "Case withdrawn", ru: "Обращение отозвано", ar: "سُحب الطلب", es: "Caso retirado", fr: "Dossier retiré", tone: "muted" },
+  withdrawn: { he: "הפנייה בוטלה", en: "Request cancelled", ru: "Обращение отменено", ar: "أُلغي الطلب", es: "Solicitud cancelada", fr: "Demande annulée", tone: "muted" },
   rejected: { he: "הפנייה נסגרה", en: "Request closed", ru: "Обращение закрыто", ar: "أُغلق الطلب", es: "Solicitud cerrada", fr: "Demande close", tone: "muted" },
 };
 
