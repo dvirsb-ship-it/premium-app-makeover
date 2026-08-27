@@ -237,7 +237,11 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                 </Link>
               ) : status === "closed" ? (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
-                  {t("refClosedLawyer")}
+                  {/*
+                    * ביטול ≠ בחירה-באחר. "התקדם עם עורך דין אחר" על פנייה
+                    * שבוטלה הוא מידע כוזב (נתפס בבדיקת 26/8) — ש·10.
+                    */}
+                  {t(r.closedReason === "withdrawn" ? "refClosedWithdrawn" : "refClosedLawyer")}
                 </p>
               ) : (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">

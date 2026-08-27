@@ -613,6 +613,7 @@ export const es: Partial<Record<StringKey, string>> = {
   caseRefChosen: "Elegido — conectados",
   refChosenLawyer: "¡Le eligieron! Los datos de contacto están en el caso — abrirlo",
   refClosedLawyer: "Consulta cerrada — el cliente siguió adelante con otro abogado",
+  refClosedWithdrawn: "Consulta cerrada — el cliente la canceló",
   caseRefExpired: "Plazo vencido — puede elegir otro abogado",
   caseRefShare: "Aprobar y compartir el resumen",
   caseRefShareHint: "El abogado leerá solo el resumen factual — sus datos de contacto permanecen ocultos hasta que lo elija.",

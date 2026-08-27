@@ -1262,7 +1262,8 @@ export const withdrawReferralsFn = createServerFn({ method: "POST" })
         const r = await adminGetDoc(`referrals/${encodeURIComponent(id)}`);
         if (!r) continue;
         if (r.status === "names_check" || r.status === "cleared" || r.status === "details_shared") {
-          await adminPatch(`referrals/${encodeURIComponent(id)}`, { status: "closed", closedAt: Date.now() });
+          /* closedReason מבדיל ביטול מבחירה-באחר — הכרטיס אצל עו"ד חייב לומר אמת */
+          await adminPatch(`referrals/${encodeURIComponent(id)}`, { status: "closed", closedAt: Date.now(), closedReason: "withdrawn" });
           await adminNotify(String(r.lawyerId), {
             type: "referral_closed",
             caseId: data.caseId,
@@ -1332,6 +1333,7 @@ export const recordConnectionFn = createServerFn({ method: "POST" })
           await adminPatch(`referrals/${encodeURIComponent(id)}`, {
             status: "closed",
             closedAt: Date.now(),
+            closedReason: "chosen",
           });
           /* פעמון בלבד, בלי פוש — בשורה שלילית לא מצדיקה צלצול */
           await adminNotify(String(r.lawyerId), {

@@ -832,6 +832,7 @@ export const strings = {
   caseRefChosen: { he: "נבחר — נוצר חיבור", en: "Chosen — connected" },
   refChosenLawyer: { he: "נבחרת! פרטי הקשר בתיק — לפתיחת התיק", en: "You were chosen! Contact details are in the case — open it" },
   refClosedLawyer: { he: "הפנייה נסגרה — הפונה התקדם עם עורך דין אחר", en: "Request closed — the client moved ahead with another lawyer" },
+  refClosedWithdrawn: { he: "הפנייה נסגרה — הפונה ביטל אותה", en: "Request closed — the client cancelled it" },
   caseRefExpired: { he: "החלון חלף — אפשר לבחור עורך דין אחר", en: "Window passed — you can choose another lawyer" },
   caseRefShare: { he: "אישור ושיתוף הסיכום", en: "Approve & share the summary" },
   caseRefShareHint: { he: "עורך הדין יקרא את הסיכום העובדתי בלבד — פרטי הקשר שלכם נשארים חסויים עד שתבחרו בו.", en: "The lawyer will read the factual summary only — your contact details stay hidden until you choose them." },

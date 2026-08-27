@@ -702,6 +702,8 @@ export interface ReferralDoc {
   offerModel?: string;
   offerNote?: string;
   lawyerName?: string;
+  /* למה נסגרה: ביטול הפונה או בחירה בעו"ד אחר — הכרטיס אצל עו"ד אומר אמת */
+  closedReason?: "withdrawn" | "chosen";
   createdAt: number;
   expiresAt: number;
 }
@@ -727,6 +729,10 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
     offerModel: r.offerModel ? String(r.offerModel) : undefined,
     offerNote: r.offerNote ? String(r.offerNote) : undefined,
     lawyerName: r.lawyerName ? String(r.lawyerName) : undefined,
+    closedReason:
+      r.closedReason === "withdrawn" || r.closedReason === "chosen"
+        ? r.closedReason
+        : undefined,
     createdAt: Number(r.createdAt ?? 0),
     expiresAt: Number(r.expiresAt ?? 0),
   };
