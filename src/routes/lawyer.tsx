@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
-import { Calendar, Check, Clock, Hourglass, Languages, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
+import { Calendar, Clock, Scale, ShieldAlert, ShieldCheck, Sparkles, Users } from "lucide-react";
 import { AppShell } from "../components/AppShell";
 import { fbAuth } from "../lib/firebase";
 import { readLawyerStats } from "../lib/db";
@@ -11,16 +11,13 @@ import {
   type VerificationStatus,
 } from "../lib/verification-queue";
 import { useAppStore } from "../lib/store";
-import type { FeedCase } from "../lib/types";
 import { cn } from "../lib/utils";
-import { useT, translate, type StringKey } from "../lib/i18n";
-import { LANG_NAMES, useSettings, type Lang } from "../lib/settings";
+import { useT, type StringKey } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { trialState } from "../lib/trial";
+import { trialState, isFounding, foundingUntil } from "../lib/trial";
 import { PushPrimer } from "../components/PushPrimer";
 import { LawyerReferrals } from "../components/LawyerReferrals";
 import { usePushPrimer } from "../lib/use-push-primer";
-import { isWarningReason, strongestReason, type MatchReason } from "../lib/match";
 
 export const Route = createFileRoute("/lawyer")({
   head: () => ({
@@ -47,9 +44,7 @@ function LawyerFeed() {
 
   useRequireAuth();  const navigate = useNavigate();
   const { user } = useAppStore();
-  const { lang } = useSettings();
   const t = useT();
-  const urgentLabel = translate("urgent", "he"); // still used to test underlying data
 
   // סטטוס האימות של עורך הדין — באנר קבוע עד לאישור
   const [verStatus, setVerStatus] = useState<VerificationStatus | null>(null);
@@ -94,10 +89,15 @@ function LawyerFeed() {
    */
   const trial = trialState({ connections, approvedAt });
   /*
-   * ההסבר על ההתראות — רק לעו"ד שאושר. לפני האישור אין לו תיקים לקבל
-   * עליהם התראה, ובקשה בשלב הזה היא רעש שישרוף לנו את ההזדמנות.
+   * ההסבר על ההתראות — גם בהמתנה לאימות (26/8/2026): הנימוק הקודם
+   * "אין לו על מה לקבל התראה" היה שגוי — יש: החלטת האימות עצמה.
+   * ובלי פוש, עו"ד שנרשם בטלפון מגלה את האישור רק אם ייכנס במקרה,
+   * והפנייה הראשונה שלו פוקעת אחרי 48 שעות.
    */
-  const primer = usePushPrimer(user?.uid, verStatus === "approved");
+  const primer = usePushPrimer(
+    user?.uid,
+    verStatus === "approved" || verStatus === "pending",
+  );
 
   return (
     <AppShell>
@@ -253,6 +253,22 @@ function LawyerFeed() {
           * לגלות את זה כשהוא כבר רוצה להגיש הצעה. למייסדים ולמנויים
           * אין מונה בכלל — אין להם מכסה.
           */}
+        {/*
+          * מייסד רואה את העסקה שהובטחה לו בקמפיין — עם תאריך (26/8/2026).
+          * עד עכשיו isFounding החזיר Infinity והצ'יפ פשוט נעלם, ומי
+          * שגויס על "חצי שנה חינם" לא מצא לזה זכר במוצר.
+          */}
+        {verStatus === "approved" && approvedAt !== null && isFounding(approvedAt) && (
+          <div className="mb-3 flex items-center gap-2 rounded-2xl border border-gold/30 bg-gold/[0.07] px-3.5 py-2.5">
+            <Sparkles className="size-4 shrink-0 text-gold" strokeWidth={2.2} />
+            <span className="text-[12.5px] font-bold text-foreground">
+              {t("foundingChip").replace(
+                "{date}",
+                new Date(foundingUntil(approvedAt) ?? approvedAt).toLocaleDateString("he-IL"),
+              )}
+            </span>
+          </div>
+        )}
         {verStatus === "approved" && Number.isFinite(trial.left) && (
           <div className="mb-3 flex items-center gap-2 rounded-2xl border border-gold/30 bg-gold/[0.07] px-3.5 py-2.5">
             <Sparkles className="size-4 shrink-0 text-gold" strokeWidth={2.2} />
@@ -289,7 +305,12 @@ function LawyerFeed() {
         * זה כל מה שיש או שהמערכת פשוט שקטה. שני הבלוקים האלה עונים בדיוק
         * על זה — הראשון במספרים אמיתיים, השני בהסבר של מה קורה הלאה.
         */}
-      {verStatus === "approved" && (
+      {/*
+        * "כך עובדת פנייה" גם בהמתנה (26/8/2026): דווקא בזמן ההמתנה
+        * לאימות עורך הדין פנוי ללמוד איך זה עובד — ועד עכשיו הבלוק
+        * הוסתר ממנו והמסך נשאר כמעט ריק.
+        */}
+      {(verStatus === "approved" || verStatus === "pending") && (
         <>
           <HowItWorks />
         </>
@@ -297,8 +318,6 @@ function LawyerFeed() {
 
       </div>
 
-      {/* silence unused var warnings when lang changes */}
-      <span hidden>{lang}</span>
     </AppShell>
   );
 }

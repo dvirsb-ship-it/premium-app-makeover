@@ -30,8 +30,25 @@ export function LawyerReferrals({ uid }: { uid: string }) {
   const [rows, setRows] = useState<ReferralDoc[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [offerFor, setOfferFor] = useState<string | null>(null);
+  /*
+   * כשל טעינה אינו "אין פניות" (26/8/2026): זה היה הרכיב היחיד במסך
+   * שמיפה שגיאה לריקנות — ועו"ד עם פנייה חיה שממתינה 48 שעות היה
+   * רואה "אין פניות כרגע" על כשל snapshot רגעי.
+   */
+  const [loadFailed, setLoadFailed] = useState(false);
 
-  useEffect(() => watchLawyerReferrals(uid, setRows, () => setRows([])), [uid]);
+  useEffect(
+    () =>
+      watchLawyerReferrals(
+        uid,
+        (r) => {
+          setRows(r);
+          setLoadFailed(false);
+        },
+        () => setLoadFailed(true),
+      ),
+    [uid],
+  );
 
   /*
    * גיבוי להפניות מלפני 21/8: הצעה שהוגשה והלקוח כבר בחר — אבל הסטטוס
@@ -91,6 +108,14 @@ export function LawyerReferrals({ uid }: { uid: string }) {
       setBusy(null);
     }
   }
+
+  if (loadFailed)
+    return (
+      <div className="rounded-3xl border border-destructive/30 bg-destructive/[0.05] p-5 text-center" role="alert">
+        <p className="text-[13px] font-bold text-foreground">{t("loadFailedTitle")}</p>
+        <p className="mt-1 text-[12px] leading-relaxed text-muted-foreground">{t("refsLoadError")}</p>
+      </div>
+    );
 
   if (rows === null)
     return <div className="liquid-glass h-28 animate-pulse rounded-3xl" />;

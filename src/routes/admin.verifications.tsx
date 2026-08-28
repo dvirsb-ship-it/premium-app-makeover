@@ -816,7 +816,9 @@ function VerificationQueue() {
             { label: t("funnelCreated"), value: f.created },
             { label: t("funnelPassed"), value: f.passed, of: f.created },
             { label: t("funnelGotOffer"), value: f.withOffer, of: f.passed },
-            { label: t("funnelConnected"), value: f.connected, of: f.withOffer },
+            /* מכנה "אושרו" ולא "קיבלו הצעה": חיבורי legacy קדמו למדידת
+               ההצעות, ו-4/1 היה מציג 400% חסר-משמעות */
+            { label: t("funnelConnected"), value: f.connected, of: f.passed },
           ];
           return (
             <>

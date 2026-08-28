@@ -85,6 +85,14 @@ function LawyerSubscription() {
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted-foreground">
           {t("proLaunchFreeSub")}
         </p>
+        {/*
+          * הבטחת הגיוס במוצר (26/8/2026): דף הגיוס מבטיח "חצי שנה
+          * ראשונה ללא תשלום מיום האישור" — והמסך הזה דיבר רק על
+          * "תקופת השקה" עמומה. מי שגויס אישית קרא את זה כנסיגה.
+          */}
+        <p className="mt-2.5 text-[12.5px] font-bold text-gold-ink dark:text-gold">
+          {t("proFoundingLine")}
+        </p>
       </motion.div>
 
       <motion.section

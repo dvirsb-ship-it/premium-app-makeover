@@ -1518,6 +1518,24 @@ export const notifySubmissionFn = createServerFn({ method: "POST" })
         body: `${name} הגיש/ה מסמכים לאימות`,
         link: "/admin/verifications",
       });
+      /*
+       * אישור קבלה גם למגיש (26/8/2026): עד עכשיו רק האדמין ידע שההגשה
+       * נקלטה — עורך הדין נשאר בלי שום תיעוד מלבד PDF חד-פעמי. פעמון
+       * (+פוש/מייל אם קיימים), וכשל בו לא מפיל את התראת האדמין.
+       */
+      const { adminNotify } = await import("./server-admin");
+      await adminNotify(me.uid, {
+        type: "verification_received",
+        title: "ההגשה התקבלה",
+        body: "הפרופיל שלך בבדיקה — נעדכן ברגע שההחלטה תתקבל.",
+        titleKey: "notifVerReceivedTitle",
+        bodyKey: "notifVerReceivedBody",
+      }).catch(() => {});
+      await notify(me.uid, {
+        title: "ההגשה התקבלה",
+        body: "הפרופיל שלך בבדיקה — נעדכן ברגע שההחלטה תתקבל.",
+        link: "/lawyer",
+      }).catch(() => {});
       return { sent: true };
     });
   });

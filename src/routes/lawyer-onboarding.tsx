@@ -35,6 +35,7 @@ import {
   UNDERTAKING_VERSION,
   enqueueVerification,
   selfieVideoProblem,
+  watchMyVerification,
   type VerificationRecord,
 } from "../lib/verification-queue";
 import { fbAuth } from "../lib/firebase";
@@ -78,6 +79,7 @@ type SpecId = SharedSpecId;
 
 type StepId = "intro" | "identity" | "bar" | "education" | "specialties" | "review";
 const STEPS: StepId[] = ["intro", "identity", "bar", "education", "specialties", "review"];
+const DRAFT_KEY = "justask-lawyer-onb-draft";
 
 interface Uploaded {
   name: string;
@@ -208,13 +210,84 @@ function LawyerOnboarding() {
     university: "",
     gradYear: "",
     diplomaFile: null,
-    specialties: new Set<SpecId>(["injury"]),
-    languages: new Set<Lang>(["he"]),
+    /*
+     * בלי ברירות מחדל חבויות (26/8/2026): "injury"+"he" מראש גרמו לכך
+     * שעו"ד שדילג על השלב נרשם כעו"ד נזיקין דובר עברית — ואז לא קיבל
+     * אף פנייה בתחום שלו בלי לדעת למה. ריק מכריח בחירה מפורשת,
+     * והוולידציה פר-שלב עוצרת את מי שלא בחר.
+     */
+    specialties: new Set<SpecId>(),
+    languages: new Set<Lang>(),
   });
+
+  /*
+   * טיוטה מקומית (26/8/2026): עו"ד שמילא ארבעה שלבים ונטש חזר לאשף
+   * ריק — ההבדל בין "נרשם" ל"אבד". שדות הטקסט, הבחירות והשלב נשמרים
+   * ב-localStorage על המכשיר שלו; קבצים אינם ניתנים לסריאליזציה ולכן
+   * יועלו מחדש (הוולידציה תבקש אותם). הטיוטה נמחקת בהגשה מוצלחת.
+   */
+  const draftLoaded = useRef(false);
+  useEffect(() => {
+    if (draftLoaded.current) return;
+    draftLoaded.current = true;
+    try {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (!raw) return;
+      const d = JSON.parse(raw) as Record<string, unknown>;
+      setForm((prev) => ({
+        ...prev,
+        fullName: String(d.fullName ?? ""),
+        idNumber: String(d.idNumber ?? ""),
+        email: String(d.email ?? ""),
+        phone: String(d.phone ?? ""),
+        city: String(d.city ?? ""),
+        barNumber: String(d.barNumber ?? ""),
+        barYear: String(d.barYear ?? ""),
+        university: String(d.university ?? ""),
+        gradYear: String(d.gradYear ?? ""),
+        specialties: new Set((Array.isArray(d.specialties) ? d.specialties : []) as SpecId[]),
+        languages: new Set((Array.isArray(d.languages) ? d.languages : []) as Lang[]),
+      }));
+      const s = Number(d.stepIdx);
+      if (Number.isFinite(s) && s > 0 && s < STEPS.length - 1) setStepIdx(s);
+    } catch {
+      /* טיוטה פגומה — מתחילים נקי */
+    }
+  }, []);
+  useEffect(() => {
+    if (!draftLoaded.current) return;
+    try {
+      localStorage.setItem(
+        DRAFT_KEY,
+        JSON.stringify({
+          fullName: form.fullName, idNumber: form.idNumber, email: form.email,
+          phone: form.phone, city: form.city, barNumber: form.barNumber,
+          barYear: form.barYear, university: form.university, gradYear: form.gradYear,
+          specialties: [...form.specialties], languages: [...form.languages],
+          stepIdx,
+        }),
+      );
+    } catch {
+      /* ignore */
+    }
+  }, [form, stepIdx]);
 
   const [verifyState, setVerifyState] = useState<"idle" | "running" | "pass" | "fail">("idle");
   const [issues, setIssues] = useState<Issue[]>([]);
   const [record, setRecord] = useState<VerificationRecord | null>(null);
+
+  /*
+   * הגיש כבר? (26/8/2026) עו"ד שסיים אבל סגר את האפליקציה לפני לחיצת
+   * ה-CTA חזר לאשף ריק — ומילא הכול מחדש או הניח שההגשה נכשלה. אם יש
+   * בקשה בתור, מציגים אותה במקום אשף ריק. בכשל קריאה לא נוגעים — אשף
+   * רגיל עדיף על חסימת נרשם חדש.
+   */
+  const [existing, setExisting] = useState<VerificationRecord | null>(null);
+  const [refill, setRefill] = useState(false);
+  useEffect(() => {
+    if (!user?.uid) return;
+    return watchMyVerification(user.uid, setExisting, () => {});
+  }, [user?.uid]);
 
   const step = STEPS[stepIdx];
   const contentSteps = STEPS.slice(1);
@@ -249,7 +322,19 @@ function LawyerOnboarding() {
     setVerifyState("idle");
   }
 
+  /*
+   * ולידציה פר-שלב (26/8/2026): הלוגיקה של collectIssues כולה קיימת
+   * ומכוסה בטסטים — היא פשוט רצה רק בסוף, ועו"ד שדילג קיבל "האימות
+   * נכשל" עם שמונה שגיאות בבת אחת. עכשיו "הבא" נעול עד שהשלב הנוכחי
+   * תקין, והשגיאה הראשונה כתובה מתחתיו.
+   */
+  const stepIssues =
+    step === "intro" || step === "review"
+      ? []
+      : collectIssues(form).filter((i) => i.step === step);
+
   function goNext() {
+    if (stepIssues.length > 0) return;
     if (stepIdx < STEPS.length - 1) setStepIdx(stepIdx + 1);
   }
   /*
@@ -259,11 +344,20 @@ function LawyerOnboarding() {
    * שתי העלאות מלאות ושתי התראות לאדמין.
    */
   const verifyTimer = useRef<number | null>(null);
+  /*
+   * ההעלאה עצמה (סרטון עד 80MB — עשרות שניות בסלולר) חיה מעבר לחלון
+   * הטיימר: "חזרה" באמצעה החליפה מסך ואז חטפה חזרה ל"עבר", ולחיצה
+   * שנייה על "שליחה" העלתה הכול פעמיים (נתפס בביקורת 26/8). הדגל
+   * מכסה את כל הטווח האסינכרוני.
+   */
+  const uploadBusy = useRef(false);
   useEffect(() => () => {
     if (verifyTimer.current) window.clearTimeout(verifyTimer.current);
   }, []);
 
   function goBack() {
+    /* באמצע העלאה אין "חזרה" — נשארים על מסך הריצה עד הכרעה */
+    if (uploadBusy.current) return;
     if (verifyState === "running" || verifyState === "pass" || verifyState === "fail") {
       if (verifyTimer.current) {
         window.clearTimeout(verifyTimer.current);
@@ -280,7 +374,7 @@ function LawyerOnboarding() {
   }
 
   function runVerification() {
-    if (verifyState === "running") return;
+    if (verifyState === "running" || uploadBusy.current) return;
     if (!undertook) return;
     setVerifyState("running");
     const found = collectIssues(form);
@@ -289,6 +383,7 @@ function LawyerOnboarding() {
       verifyTimer.current = null;
       if (found.length === 0) {
         void (async () => {
+          uploadBusy.current = true;
           try {
             const rec = await enqueueVerification(
               {
@@ -312,13 +407,16 @@ function LawyerOnboarding() {
               { barCard: form.barCardFile, diploma: form.diplomaFile, selfieVideo: form.selfieVideo },
             );
             setRecord(rec);
+            /*
+             * ההתראה לאדמין נשלחת מיד כשהבקשה בתור — לא אחרי כתיבות
+             * הפרופיל. אחרת כשל בכתיבה השאיר בקשה שקטה בתור שאיש לא
+             * ידע עליה (נתפס בביקורת 26/8). כשל בהתראה עצמה לא מפיל.
+             */
             try {
-              sessionStorage.setItem(
-                "justask-lawyer-specialties",
-                JSON.stringify([...form.specialties]),
-              );
+              const idToken = await fbAuth().currentUser?.getIdToken();
+              if (idToken) await notifySubmissionFn({ data: { idToken } });
             } catch {
-              /* ignore */
+              /* הבקשה בתור; היא תתגלה גם בלי ההתראה */
             }
             /*
              * שתי הכתיבות האלה אינן "תוספת" — הן התנאי לכך שההרשמה שווה
@@ -354,14 +452,15 @@ function LawyerOnboarding() {
              */
             setVerifyState("pass");
             try {
-              const idToken = await fbAuth().currentUser?.getIdToken();
-              if (idToken) await notifySubmissionFn({ data: { idToken } });
+              localStorage.removeItem(DRAFT_KEY);
             } catch {
-              /* הבקשה בתור; היא תתגלה גם בלי ההתראה */
+              /* ignore */
             }
           } catch {
             toast.error(t("verifyUploadError"));
             setVerifyState("idle");
+          } finally {
+            uploadBusy.current = false;
           }
         })();
       } else {
@@ -381,6 +480,37 @@ function LawyerOnboarding() {
 
   const NextIcon = rtl ? ChevronLeft : ChevronRight;
   const showingVerify = verifyState !== "idle";
+
+  if (!refill && existing !== null && existing.status !== "rejected" && verifyState === "idle" && record === null) {
+    return (
+      <AppShell>
+        <TopBar title={t("lawyerOnboardTitle")} subtitle={t("onbAlreadyTitle")} onBack={() => navigate({ to: "/" })} />
+        <div className="px-1 pt-10">
+          <div className="liquid-glass rounded-3xl p-6 text-center">
+            <span className="mx-auto grid size-14 place-items-center rounded-full bg-gold/15 text-gold-ink dark:text-gold">
+              <ShieldCheck className="size-7" strokeWidth={2.2} />
+            </span>
+            <h2 className="mt-4 text-[17px] font-black text-foreground">{t("onbAlreadyTitle")}</h2>
+            <p className="mt-2 text-[13px] leading-relaxed text-muted-foreground">{t("onbAlreadyBody")}</p>
+            <button
+              type="button"
+              onClick={finishOnboarding}
+              className="btn-gold mt-5 flex min-h-12 w-full items-center justify-center rounded-2xl text-[14px] font-bold"
+            >
+              {t("onbAlreadyCta")}
+            </button>
+            <button
+              type="button"
+              onClick={() => setRefill(true)}
+              className="mt-2 w-full rounded-2xl py-2.5 text-[12.5px] font-semibold text-muted-foreground"
+            >
+              {t("onbAlreadyRefill")}
+            </button>
+          </div>
+        </div>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
@@ -487,15 +617,24 @@ function LawyerOnboarding() {
               </p>
             </>
           ) : (
-            <motion.button
-              type="button"
-              onClick={step === "intro" ? () => setStepIdx(1) : goNext}
-              whileTap={{ scale: 0.97 }}
-              className="btn-gold flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold"
-            >
-              {step === "intro" ? t("lawyerVerifyBegin") : t("nextStep")}
-              <NextIcon className="size-5" strokeWidth={2.4} />
-            </motion.button>
+            <>
+              <motion.button
+                type="button"
+                onClick={step === "intro" ? () => setStepIdx(1) : goNext}
+                disabled={stepIssues.length > 0}
+                whileTap={stepIssues.length === 0 ? { scale: 0.97 } : undefined}
+                className="btn-gold flex h-14 w-full items-center justify-center gap-2 rounded-full text-[15px] font-bold transition disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {step === "intro" ? t("lawyerVerifyBegin") : t("nextStep")}
+                <NextIcon className="size-5" strokeWidth={2.4} />
+              </motion.button>
+              {/* למה נעול — השגיאה הראשונה של השלב, במקום כפתור אילם */}
+              {stepIssues.length > 0 && (
+                <p className="mt-2.5 text-center text-[11.5px] leading-snug text-muted-foreground">
+                  {t(stepIssues[0].messageKey)}
+                </p>
+              )}
+            </>
           )}
         </div>
       )}
