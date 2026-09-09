@@ -1431,7 +1431,7 @@ export const checkVerificationDocsFn = createServerFn({ method: "POST" })
       await import("./server-admin");
     return withErrorLog("checkVerificationDocs", async () => {
       const me = await requireIdentity(data.idToken);
-      if (!["justask.adv@gmail.com", "dvirsb@gmail.com"].includes(me.email)) {
+      if (!["contact@justask.co.il", "dvirsb@gmail.com"].includes(me.email)) {
         throw new Error("forbidden");
       }
 
@@ -1509,7 +1509,7 @@ export const notifySubmissionFn = createServerFn({ method: "POST" })
       const ver = await adminGetDoc(`verifications/${encodeURIComponent(me.uid)}`);
       if (!ver || ver.status !== "pending") return { sent: false };
 
-      const adminUid = await uidByEmail("justask.adv@gmail.com");
+      const adminUid = await uidByEmail("contact@justask.co.il");
       if (!adminUid) return { sent: false };
 
       const name = typeof ver.fullName === "string" ? ver.fullName : "עורך דין";
@@ -1556,7 +1556,7 @@ export const notifyVerificationFn = createServerFn({ method: "POST" })
       await import("./server-admin");
     return withErrorLog("notifyVerification", async () => {
       const me = await requireIdentity(data.idToken);
-      if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
+      if (me.email !== "contact@justask.co.il" || !me.emailVerified) {
         throw new Error("forbidden");
       }
       await notify(
@@ -1625,7 +1625,7 @@ export const purgeAccountFn = createServerFn({ method: "POST" })
     return withErrorLog("purgeAccount", async () => {
       // האימייל נלקח מהטוקן המאומת, לא ממסמך המשתמש שהוא עצמו כותב
       const me = await requireIdentity(data.idToken);
-      if (me.email !== "justask.adv@gmail.com" || !me.emailVerified) {
+      if (me.email !== "contact@justask.co.il" || !me.emailVerified) {
         throw new Error("forbidden");
       }
       return purgeAccount(data.targetUid, data.dryRun === true);
@@ -1642,7 +1642,7 @@ export const adminDeleteCaseFn = createServerFn({ method: "POST" })
     const { requireIdentity, adminPurgeCase, withErrorLog } = await import("./server-admin");
     return withErrorLog("adminDeleteCase", async () => {
       const me = await requireIdentity(data.idToken);
-      if (!["justask.adv@gmail.com", "dvirsb@gmail.com"].includes(me.email)) {
+      if (!["contact@justask.co.il", "dvirsb@gmail.com"].includes(me.email)) {
         throw new Error("forbidden");
       }
       const caseId = String(data.caseId ?? "").trim();

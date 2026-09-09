@@ -10,7 +10,7 @@ import type { User } from "firebase/auth";
  *
  * הרשימות כאן חייבות להתאים ל-isAdmin()/isSuperAdmin() בחוקי Firestore ו-Storage.
  */
-export const SUPER_ADMIN_EMAILS = ["justask.adv@gmail.com"];
+export const SUPER_ADMIN_EMAILS = ["contact@justask.co.il"];
 
 export const ADMIN_EMAILS = ["dvirsb@gmail.com", ...SUPER_ADMIN_EMAILS];
 
