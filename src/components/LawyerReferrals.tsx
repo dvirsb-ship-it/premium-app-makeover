@@ -127,6 +127,17 @@ export function LawyerReferrals({ uid }: { uid: string }) {
       </p>
     );
 
+  /*
+   * "אצל מי הכדור" + כמה זמן נשאר (25/9/2026): חלונות 48 השעות נאכפו
+   * בשרת אבל לא הוצגו לעורך הדין בשום מקום — הכרטיס אמר רק "לפני X
+   * שעות". עכשיו כל מצב-ביניים אומר של מי התור, ומצב שהתור בו אצל
+   * עורך הדין מציג גם את הזמן שנותר.
+   */
+  function timeLeft(deadline: number): string {
+    const h = Math.ceil((deadline - Date.now()) / 3_600_000);
+    return h >= 1 ? t("refTimeLeftH").replace("{h}", String(h)) : t("refTimeLeftSoon");
+  }
+
   return (
     <div className="space-y-3">
       {rows.map((r) => {
@@ -134,6 +145,22 @@ export function LawyerReferrals({ uid }: { uid: string }) {
           r.status === "expired" ||
           (r.status === "names_check" && Date.now() > r.expiresAt);
         const status = legacyConnected.has(r.id) ? "connected" : r.status;
+        const ball =
+          expired
+            ? null
+            : status === "names_check"
+              ? { text: t("refBallYouNames"), left: timeLeft(r.expiresAt), you: true }
+              : status === "cleared"
+                ? { text: t("refBallClientShare"), left: null, you: false }
+                : status === "details_shared" && !r.offerAmount
+                  ? {
+                      text: t("refBallYouOffer"),
+                      left: r.sharedAt ? timeLeft(r.sharedAt + 48 * 3_600_000) : null,
+                      you: true,
+                    }
+                  : status === "details_shared"
+                    ? { text: t("refBallClientOffer"), left: null, you: false }
+                    : null;
         return (
           <Rise key={r.id}>
             <div className="liquid-glass rounded-3xl p-5">
@@ -151,9 +178,26 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                 <span className="ms-auto text-[11px] text-muted-foreground">{ago(r.createdAt)}</span>
               </div>
 
+              {ball && (
+                <p
+                  className={cn(
+                    "mt-3 flex items-center gap-2 rounded-2xl px-3.5 py-2.5 text-[12.5px] font-bold",
+                    ball.you
+                      ? "bg-gold/12 text-gold-ink dark:text-gold"
+                      : "recessed bg-[var(--recess-fill)] text-foreground/75",
+                  )}
+                >
+                  <Clock className="size-4 shrink-0" aria-hidden />
+                  <span className="min-w-0 flex-1">{ball.text}</span>
+                  {ball.left && (
+                    <span className="shrink-0 text-[11.5px] font-semibold">{ball.left}</span>
+                  )}
+                </p>
+              )}
+
               {expired ? (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
-                  {t("refExpiredLawyer")}
+                  {t(r.sharedAt ? "refExpiredOffer" : "refExpiredNames")}
                 </p>
               ) : status === "names_check" ? (
                 <>
@@ -204,10 +248,8 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                   </div>
                 </>
               ) : status === "cleared" ? (
-                <p className="mt-3 flex items-center gap-2 text-[13px] font-semibold text-foreground/75">
-                  <Clock className="size-4 shrink-0 text-gold-ink dark:text-gold" aria-hidden />
-                  {t("refWaitClient")}
-                </p>
+                /* פס "אצל מי הכדור" למעלה כבר אומר הכול — אין מה להוסיף */
+                null
               ) : status === "details_shared" ? (
                 <>
                   <h3 className="mt-3 text-[15px] font-bold text-foreground">{r.caseTitle}</h3>
@@ -215,10 +257,25 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                     {r.summary}
                   </p>
                   {r.offerAmount ? (
-                    <p className="mt-3 flex items-center gap-2 rounded-2xl bg-success/12 px-4 py-3 text-[13px] font-bold text-success-ink">
-                      <Users className="size-4" aria-hidden />
-                      {t("refOfferSent")}
-                    </p>
+                    /*
+                     * ההצעה של עורך הדין עצמו (25/9/2026): עד עכשיו אחרי
+                     * ההגשה הוא ראה רק "ההצעה הוגשה" — בלי התנאים שהגיש.
+                     */
+                    <div className="mt-3 rounded-2xl bg-success/12 px-4 py-3">
+                      <p className="flex items-center gap-2 text-[12px] font-bold text-success-ink">
+                        <Users className="size-4" aria-hidden />
+                        {t("refYourOffer")}
+                      </p>
+                      <p className="mt-1 text-[13.5px] font-semibold text-foreground">
+                        ₪{r.offerAmount.toLocaleString()}
+                        {r.offerModel ? ` · ${r.offerModel}` : ""}
+                      </p>
+                      {r.offerNote && (
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-foreground/75">
+                          {r.offerNote}
+                        </p>
+                      )}
+                    </div>
                   ) : offerFor === r.id ? (
                     <OfferForm
                       category={r.category}
@@ -270,7 +327,8 @@ export function LawyerReferrals({ uid }: { uid: string }) {
                 </p>
               ) : (
                 <p className="mt-3 text-[13px] font-semibold text-muted-foreground">
-                  {t("caseRefDeclined")}
+                  {/* בלשון עורך הדין — קודם הוצג לו הנוסח שהלקוח רואה, בגוף שלישי */}
+                  {t("refDeclinedByYou")}
                 </p>
               )}
             </div>

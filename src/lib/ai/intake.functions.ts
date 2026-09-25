@@ -6,7 +6,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { INTAKE_MODEL, INTAKE_SYSTEM_PROMPT } from "./intake-prompt";
 import { VALIDATION_CATEGORIES, normalizeCategory } from "../specialties";
 import { redactForAi } from "./redact";
-import { stripContactInfo } from "../privacy";
+import { scrubApplicantName, stripContactInfo } from "../privacy";
 import { AI_VERTEX_ENABLED, toVertexBody, vertexUrl } from "./vertex";
 
 /* ---------- מפתח ה-API (שרת בלבד) ---------- */
@@ -354,7 +354,7 @@ const SUMMARY_SYSTEM = `אתה מסכם עובדתי של JustAsk. קיבלת ת
 
 ## פלט
 JSON בלבד, בשדות: title, summary, parties, clientChecklist, suggestedCategory.
-parties — מחרוזת קצרה של הצדדים המעורבים כפי שנמסרו, בשמותיהם אם נאמרו (למשל: "הפונה; סופרמרקט יוחננוף סניף חיפה"). זהו נתון עובדתי לבדיקת ניגוד עניינים אצל עורך הדין. אם לא נמסרו שמות — תאר תפקידים ("הפונה; בעל הדירה"). אל תמציא שמות.
+parties — מחרוזת קצרה של הצדדים המעורבים (למשל: "הפונה; סופרמרקט יוחננוף סניף חיפה"). זהו נתון עובדתי לבדיקת ניגוד עניינים אצל עורך הדין. הפונה עצמו מופיע תמיד ורק כ"הפונה" — לעולם לא בשמו, גם אם מסר אותו. שמות נכתבים רק לצדדים האחרים, ורק אם נאמרו; אחרת תאר תפקידים ("הפונה; בעל הדירה"). אל תמציא שמות.
 clientChecklist הוא מערך של מחרוזות קצרות, או מערך ריק אם הפונה לא הצהיר על תיעוד כלשהו.
 suggestedCategory — ערך אחד בדיוק מהרשימה: ${VALIDATION_CATEGORIES.join(" · ")}. אם אינך בטוח — "אחר".`;
 
@@ -362,12 +362,12 @@ export const validateCaseFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as ValidateInput)
   .handler(async ({ data }): Promise<ValidateResult> => {
     const {
-      requireUser, adminGetCase, adminNotify, enforceDailyCap,
+      requireUserName, adminGetCase, adminNotify, enforceDailyCap,
       adminPatch, adminUpdateCase, downloadImageBase64, notify, withErrorLog,
       countOpenCases, MAX_OPEN_CASES, OPEN_CASE_LIMIT_ENABLED, adminDeleteCase,
     } = await import("./server-admin");
     return withErrorLog("validateCase", async () => {
-    const uid = await requireUser(data.idToken);
+    const { uid, displayName } = await requireUserName(data.idToken);
     try {
       await enforceDailyCap(uid, "validateCase");
     } catch {
@@ -520,9 +520,10 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         /*
          * הצדדים נשמרים בנפרד מהסיכום: זה מה שעורך הדין מקבל בשלב א
          * של החשיפה המדורגת — בדיקת ניגוד עניינים על שמות בלבד, בלי
-         * תיאור המקרה (סעיף 2.5 לסקירה).
+         * תיאור המקרה (סעיף 2.5 לסקירה). שם הפונה עצמו מטוהר
+         * ל"הפונה" — גם אם אמר את שמו בשיחה והמנוע כתב אותו.
          */
-        parties: (parsed.parties ?? "").slice(0, 300),
+        parties: scrubApplicantName((parsed.parties ?? "").slice(0, 300), displayName),
         /*
          * הצעת תחום — 4.2 לסקירה מתיר קטגוריה כהצעה שהפונה מאשר.
          * מנורמלת לרשימה הסגורה; "אחר" אינו הצעה ולכן לא נשמר —
@@ -805,11 +806,11 @@ export const requestReferralFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as RequestReferralInput)
   .handler(async ({ data }): Promise<{ ok: boolean; reason?: string }> => {
     const {
-      requireUser, adminGetCase, adminGetDoc, adminPatch, adminQueryIds,
+      requireUserName, adminGetCase, adminGetDoc, adminPatch, adminQueryIds,
       adminNotify, notify, withErrorLog,
     } = await import("./server-admin");
     return withErrorLog("requestReferral", async () => {
-      const uid = await requireUser(data.idToken);
+      const { uid, displayName } = await requireUserName(data.idToken);
       const c = await adminGetCase(data.caseId);
       if (!c || c.clientId !== uid) throw new Error("forbidden");
       if (c.status !== "awaiting_selection") {
@@ -852,7 +853,8 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         category: String(c.category ?? ""),
         city: String(c.city ?? ""),
         incidentMonth: String(c.incidentDate ?? "").slice(0, 7),
-        parties: String(c.parties ?? ""),
+        /* טיהור גם כאן — מגן על תיקים ישנים שנשמרו לפני התיקון */
+        parties: scrubApplicantName(String(c.parties ?? ""), displayName),
         /*
          * מטא-נתונים ולא נרטיב (21/8/2026): סוג הפגיעה ואילו תיעודים
          * הפונה הצהיר שקיימים. נותנים לעורך הדין תחושה של "מה זה"

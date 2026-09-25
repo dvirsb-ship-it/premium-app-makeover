@@ -39,6 +39,31 @@ export async function requireUser(idToken: string | undefined): Promise<string> 
 }
 
 /**
+ * אימות + שם התצוגה של הפונה — לטיהור שמו משדה הצדדים לפני שהוא
+ * מגיע לעורך דין (השם מגיע מגוגל, לא ממסמך שהמשתמש כותב בעצמו).
+ */
+export async function requireUserName(
+  idToken: string | undefined,
+): Promise<{ uid: string; displayName: string }> {
+  if (!idToken) throw new Error("unauthenticated: missing id token");
+  const res = await fetch(
+    `https://identitytoolkit.googleapis.com/v1/accounts:lookup?key=${API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ idToken }),
+    },
+  );
+  if (!res.ok) throw new Error(`unauthenticated: ${(await res.text()).slice(0, 120)}`);
+  const data = (await res.json()) as {
+    users?: { localId?: string; displayName?: string }[];
+  };
+  const u = data.users?.[0];
+  if (!u?.localId) throw new Error("unauthenticated: token has no user");
+  return { uid: u.localId, displayName: u.displayName ?? "" };
+}
+
+/**
  * זהות מאומתת מול גוגל — כולל האימייל.
  * חשוב: אסור להסתמך על שדה email שבמסמך המשתמש, כי המשתמש כותב אותו בעצמו.
  */
@@ -1090,6 +1115,17 @@ async function expireDueReferrals(now: number): Promise<{ names: number; shared:
         body: "לא התקבל מענה בתוך 48 שעות. אפשר לבחור עורך דין אחר מהאינדקס.",
         caseId: String(r.caseId),
       });
+      /*
+       * גם עורך הדין מקבל הודעה (25/9/2026): עד עכשיו הפקיעה הייתה
+       * שקטה אצלו — הכרטיס פשוט התחלף ל"החלון חלף" והוא גילה במקרה.
+       */
+      await adminNotify(String(r.lawyerId), {
+        type: "referral",
+        title: "חלון בדיקת הניגוד חלף",
+        body: "פנייה אליך פקעה אחרי 48 שעות ללא מענה. המקום חזר לפונה.",
+        titleKey: "notifRefExpiredNamesTitle",
+        bodyKey: "notifRefExpiredNamesBody",
+      });
     } catch {
       /* פנייה אחת שנכשלה לא עוצרת את השאר */
     }
@@ -1126,6 +1162,14 @@ async function expireDueReferrals(now: number): Promise<{ names: number; shared:
         titleKey: "notifRefNoOfferTitle",
         bodyKey: "notifRefNoOfferBody",
         caseId: String(r.caseId),
+      });
+      /* וגם כאן — הפקיעה אינה שקטה אצל עורך הדין */
+      await adminNotify(String(r.lawyerId), {
+        type: "referral",
+        title: "חלון ההצעה חלף",
+        body: "קראת את הסיכום ולא הוגשה הצעה בתוך 48 שעות — הפנייה נסגרה.",
+        titleKey: "notifRefExpiredOfferTitle",
+        bodyKey: "notifRefExpiredOfferBody",
       });
     } catch {
       /* פנייה אחת שנכשלה לא עוצרת את השאר */

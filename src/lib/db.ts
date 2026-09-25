@@ -716,6 +716,8 @@ export interface ReferralDoc {
   closedAt?: number;
   /** עו"ד אישר שיצר קשר עם הלקוח אחרי החיבור (שלב 4). */
   contactConfirmedAt?: number;
+  /** הלקוח דיווח "לא חזרו אליי" — חייב להיראות גם אצל עורך הדין. */
+  noContactReportedAt?: number;
 }
 
 function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): ReferralDoc {
@@ -752,6 +754,7 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
     connectedAt: typeof r.connectedAt === "number" ? r.connectedAt : undefined,
     closedAt: typeof r.closedAt === "number" ? r.closedAt : undefined,
     contactConfirmedAt: typeof r.contactConfirmedAt === "number" ? r.contactConfirmedAt : undefined,
+    noContactReportedAt: typeof r.noContactReportedAt === "number" ? r.noContactReportedAt : undefined,
   };
 }
 
@@ -1416,15 +1419,17 @@ export async function reportNoContact(caseId: string): Promise<void> {
 }
 
 /** האם עו"ד המחובר כבר אישר קשר — לפתיחת מסך עו"ד במצב הנכון. */
-export async function isContactConfirmed(caseId: string): Promise<boolean> {
+/** ההפניה של עורך הדין המחובר לתיק — מקור אחד לאישור קשר, לדיווח
+ * "לא חזרו אליי" ולמסלול הפנייה (חותמות הזמן של כל שלב). */
+export async function readMyReferral(caseId: string): Promise<ReferralDoc | null> {
   const { fbAuth } = await import("./firebase");
   const uid = fbAuth().currentUser?.uid;
-  if (!uid) return false;
+  if (!uid) return null;
   try {
     const snap = await getDoc(doc(fbDb(), "referrals", `${caseId}_${uid}`));
-    return snap.exists() && typeof (snap.data() as Record<string, unknown>).contactConfirmedAt === "number";
+    return snap.exists() ? refFromSnap({ id: snap.id, data: () => snap.data() as Record<string, unknown> }) : null;
   } catch {
-    return false;
+    return null;
   }
 }
 

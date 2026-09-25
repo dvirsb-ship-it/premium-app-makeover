@@ -7,7 +7,10 @@ import { TopBar } from "../components/TopBar";
 import { useAppStore } from "../lib/store";
 import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
-import { avgRating, avgResponseLabel, readLawyerStats } from "../lib/db";
+import {
+  avgRating, avgResponseLabel, readLawyerProfile, readLawyerStats,
+  type LawyerProfileDoc,
+} from "../lib/db";
 import { LAWYER_RATINGS_VISIBLE } from "../lib/limits";
 import { SPECIALTIES, type SpecId } from "../lib/specialties";
 import { SPEC_ICON } from "../lib/category-icons";
@@ -40,8 +43,16 @@ function LawyerProfile() {
   const { cases } = useAppStore();
   const t = useT();
 
+  /*
+   * המקור האמיתי: המדריך הציבורי lawyerProfiles/{uid} — אותו מסמך שממנו
+   * נבנה האינדקס שהלקוח בחר ממנו.
+   *
+   * קודם המסך חיפש את עורך הדין ב-case.interested — מערך של מודל הפיד
+   * שנמחק ב-25/8 ומאז נכתב תמיד ריק. התוצאה: "עורך הדין לא נמצא" על כל
+   * תיק שחובר במודל הבחירה. המערך נשאר רק כנפילה לתיקים ישנים.
+   */
   const chosenCase = cases.find((c) => c.chosenLawyerId === lawyerId);
-  const lawyer =
+  const legacy =
     chosenCase?.interested.find((l) => l.id === lawyerId) ??
     cases.flatMap((c) => c.interested).find((l) => l.id === lawyerId);
 
@@ -56,6 +67,8 @@ function LawyerProfile() {
    */
   const [responseLabel, setResponseLabel] = useState<string | null>(null);
   const [rating, setRating] = useState<{ avg: number; count: number } | null>(null);
+  const [profile, setProfile] = useState<LawyerProfileDoc | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
   useEffect(() => {
     void readLawyerStats(lawyerId)
       .then((st) => {
@@ -66,8 +79,52 @@ function LawyerProfile() {
       })
       .catch(() => {});
   }, [lawyerId]);
+  useEffect(() => {
+    let on = true;
+    void readLawyerProfile(lawyerId)
+      .then((p) => {
+        if (on) setProfile(p);
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (on) setProfileLoaded(true);
+      });
+    return () => {
+      on = false;
+    };
+  }, [lawyerId]);
+
+  /* ותק מוצג משנת החברות בלשכה — הנתון שעורך הדין מסר באימות */
+  const barY = Number.parseInt(profile?.barYear ?? "", 10);
+  const years =
+    Number.isFinite(barY) && barY > 1900
+      ? Math.max(0, new Date().getFullYear() - barY)
+      : 0;
+
+  const lawyer = profile
+    ? {
+        id: lawyerId,
+        name: profile.name,
+        initials: "",
+        firm: "",
+        years,
+        photoUrl: profile.photoUrl,
+        city: profile.city,
+        bio: profile.bio,
+        specialties: profile.specialties,
+        university: profile.university,
+      }
+    : legacy;
 
   if (!lawyer) {
+    /* עד שהפרופיל נטען — מסך שקט, לא "לא נמצא" מהבהב */
+    if (!profileLoaded) {
+      return (
+        <AppShell>
+          <TopBar title={t("profileTitle")} onBack={() => navigate({ to: "/cases" })} />
+        </AppShell>
+      );
+    }
     return (
       <AppShell>
         <TopBar title={t("profileTitle")} onBack={() => navigate({ to: "/cases" })} />

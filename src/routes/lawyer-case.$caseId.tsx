@@ -11,7 +11,8 @@ import { useRequireAuth } from "../lib/require-auth";
 import {
   markMilestone,
   confirmContact,
-  isContactConfirmed,
+  readMyReferral,
+  type ReferralDoc,
   reconcileClosedCase,
   watchMilestones,
   MILESTONE_ORDER,
@@ -114,11 +115,22 @@ function LawyerCaseDetail() {
    */
   const [confirmClose, setConfirmClose] = useState(false);
 
-  /* אישור "יצרתי קשר" — שלב 4: ההבטחה ללקוח שהוא לא ננטש אחרי החיבור */
+  /*
+   * ההפניה של עורך הדין לתיק הזה — מקור אחד לשלושה דברים: אישור
+   * "יצרתי קשר", דיווח "לא חזרו אליי" של הלקוח, ומסלול הפנייה
+   * (חותמות הזמן של כל שלב, להצגת "מה קרה עד כה").
+   */
   const [contactOk, setContactOk] = useState<boolean | null>(null);
+  const [noContactAt, setNoContactAt] = useState<number | null>(null);
+  const [myRef, setMyRef] = useState<ReferralDoc | null>(null);
   useEffect(() => {
     let on = true;
-    void isContactConfirmed(caseId).then((v) => { if (on) setContactOk(v); });
+    void readMyReferral(caseId).then((r) => {
+      if (!on) return;
+      setMyRef(r);
+      setContactOk(typeof r?.contactConfirmedAt === "number");
+      setNoContactAt(r?.noContactReportedAt ?? null);
+    });
     return () => { on = false; };
   }, [caseId]);
 
@@ -143,12 +155,45 @@ function LawyerCaseDetail() {
         <Page className="flex min-h-screen flex-col">
           <TopBar title={t("leadDetailsTitle")} subtitle={connected.category} />
           <div className="flex-1 px-5 pt-6">
+            {/* הצ'יפ בלשון עורך הדין — קודם הוצג לו הנוסח של הלקוח ("נוצר חיבור עם עורך דין") */}
             <span className="rounded-full bg-success/12 px-2.5 py-1 text-[11px] font-bold text-success-ink">
-              {t("connectedWithLawyer")}
+              {t("lcConnectedChip")}
             </span>
             <h2 className="mt-4 text-xl font-black leading-snug text-foreground">
               {connected.title}
             </h2>
+
+            {/*
+              * הפעולה של השלב — למעלה, לא קבורה בתחתית (25/9/2026):
+              * "יצרתי קשר" הוא הדבר הראשון שעורך הדין נדרש לו אחרי
+              * חיבור, ודיווח "לא חזרו אליי" של הלקוח חייב לצעוק כאן.
+              */}
+            {noContactAt !== null && contactOk === false && (
+              <p className="mt-4 rounded-2xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-[13px] font-bold leading-relaxed text-foreground" role="alert">
+                {t("lcNoContactWarn")}
+              </p>
+            )}
+            {contactOk === false && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setContactOk(true);
+                    void confirmContact(caseId).catch(() => setContactOk(false));
+                  }}
+                  className="btn-gold tap flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
+                >
+                  {t("lcContactBtn")}
+                </button>
+                <p className="mt-2 text-center text-[11.5px] leading-snug text-muted-foreground">
+                  {t("lcContactHint")}
+                </p>
+              </div>
+            )}
+            {contactOk === true && (
+              <p className="mt-3 text-[12.5px] font-bold text-success-ink">{t("lcContactDone")}</p>
+            )}
+
             <div className="liquid-glass mt-6 rounded-3xl p-5">
               <h3 className="text-sm font-bold text-foreground">{t("caseDescriptionHeader")}</h3>
               <p className="mt-2 text-[15px] leading-relaxed text-muted-foreground">
@@ -247,6 +292,41 @@ function LawyerCaseDetail() {
               </div>
             </div>
 
+            {/*
+              * מסלול הפנייה (25/9/2026): עורך הדין רואה מה קרה עד כה —
+              * מהפנייה ועד אישור הקשר — מחותמות הזמן שכבר על ההפניה שלו.
+              * המקבילה שלו ליומן התיק של הלקוח, בקול שלו ובלי שינוי חוקים.
+              */}
+            {myRef && (
+              <div className="liquid-glass mt-4 rounded-3xl p-5">
+                <h3 className="text-sm font-bold text-foreground">{t("lcJourneyHeader")}</h3>
+                <ol className="mt-3 space-y-2">
+                  {(
+                    [
+                      [myRef.createdAt, "lcJrReceived"],
+                      [myRef.respondedAt, "lcJrCleared"],
+                      [myRef.sharedAt, "lcJrShared"],
+                      [myRef.offeredAt, "lcJrOffered"],
+                      [myRef.connectedAt, "lcJrConnected"],
+                      [myRef.contactConfirmedAt, "lcJrContact"],
+                    ] as const
+                  )
+                    .filter(([ts]) => typeof ts === "number" && ts > 0)
+                    .map(([ts, key]) => (
+                      <li key={key} className="flex items-center gap-2.5">
+                        <Check className="size-4 shrink-0 text-[color:var(--success-ink)]" strokeWidth={3} aria-hidden />
+                        <span className="flex-1 text-[13px] font-semibold text-foreground">
+                          {t(key)}
+                        </span>
+                        <span className="shrink-0 text-[11px] text-muted-foreground">
+                          {new Date(ts as number).toLocaleDateString(undefined, { day: "numeric", month: "numeric" })}
+                        </span>
+                      </li>
+                    ))}
+                </ol>
+              </div>
+            )}
+
             <div className="liquid-glass mt-4 rounded-3xl p-5">
               <div className="flex items-center gap-2">
                 <BadgeCheck className="size-4 text-gold" strokeWidth={2.2} />
@@ -294,26 +374,6 @@ function LawyerCaseDetail() {
               </div>
             </div>
 
-            {contactOk === false && (
-              <div className="mt-4">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setContactOk(true);
-                    void confirmContact(caseId).catch(() => setContactOk(false));
-                  }}
-                  className="btn-gold tap flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
-                >
-                  {t("lcContactBtn")}
-                </button>
-                <p className="mt-2 text-center text-[11.5px] leading-snug text-muted-foreground">
-                  {t("lcContactHint")}
-                </p>
-              </div>
-            )}
-            {contactOk === true && (
-              <p className="mt-3 text-center text-[12.5px] font-bold text-success-ink">{t("lcContactDone")}</p>
-            )}
           </div>
         </Page>
       </AppShell>
