@@ -15,6 +15,7 @@ import { Page, Stagger, Rise } from "../components/motion";
 import { RateLawyerCard } from "../components/RateLawyerCard";
 import { useAppStore } from "../lib/store";
 import {
+  reportNoContact,
   avgRating,
   avgResponseLabel,
   readMyRating,
@@ -98,6 +99,7 @@ function CaseDetail() {
   const [retrying, setRetrying] = useState(false);
   /* אוברליי החגיגה — רק ברגע הבחירה עצמו, לא בכניסות הבאות לתיק */
   const [celebrating, setCelebrating] = useState<string | null>(null);
+  const [noContactSent, setNoContactSent] = useState(false);
   /*
    * "פעולה מובילה לפעולה" (דביר, 25/8): אחרי ששלח פנייה, כפתור
    * "בחרו עורך דין" הצועק סתר את המצב. המפתח מלמד אם יש פנייה חיה —
@@ -554,6 +556,20 @@ function CaseDetail() {
                       {t("callAction")}
                     </button>
                   </div>
+                  {noContactSent ? (
+                    <p className="mt-3 text-[12px] font-bold text-success-ink">{t("caseNoContactSent")}</p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNoContactSent(true);
+                        void reportNoContact(item.id).catch(() => {});
+                      }}
+                      className="mt-3 text-[12px] font-semibold text-muted-foreground underline underline-offset-4"
+                    >
+                      {t("caseNoContactQ")}
+                    </button>
+                  )}
                 </div>
               </motion.div>
             ) : item.status === "rejected" ? (

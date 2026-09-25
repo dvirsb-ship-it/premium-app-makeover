@@ -1490,6 +1490,127 @@ export const recordConnectionFn = createServerFn({ method: "POST" })
     });
   });
 
+/* ---------- אחרי החיבור: אישור קשר, דיווח שקט, ופוש לאבני דרך ---------- */
+
+const MS_TITLES: Record<string, string> = {
+  met: "נפגשתם עם עורך הדין",
+  demandSent: "נשלח מכתב דרישה",
+  filed: "הוגשה תביעה",
+  closed: "התיק הסתיים",
+};
+const MS_BODIES: Record<string, string> = {
+  met: "עורך הדין סימן שהפגישה התקיימה.",
+  demandSent: "מכתב הדרישה נשלח לצד שכנגד.",
+  filed: "התביעה הוגשה לבית המשפט.",
+  closed: "עורך הדין סימן שהטיפול בתיק הושלם.",
+};
+
+/** עו"ד הנבחר מאשר שיצר קשר — ההבטחה ללקוח שהוא לא ננטש. */
+export const confirmContactFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { caseId: string; idToken?: string })
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { requireUser, adminGetCase, adminGetDoc, adminPatch, notify, logCaseEvent, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("confirmContact", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.chosenLawyerId !== uid) throw new Error("forbidden");
+      const refId = `${data.caseId}_${uid}`;
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(refId)}`);
+      if (r?.contactConfirmedAt) return { ok: true };
+      await adminPatch(`referrals/${encodeURIComponent(refId)}`, { contactConfirmedAt: Date.now() });
+      await notify(String(c.clientId), {
+        title: "עורך הדין אישר: נוצר קשר",
+        body: "מעכשיו תראו ביומן התיק עדכון על כל צעד.",
+        link: `/case/${data.caseId}`,
+      }, "caseUpdates");
+      await logCaseEvent(data.caseId, String(c.clientId), {
+        kind: "contact_confirmed",
+        actor: "lawyer",
+        titleKey: "evContactConfirmed",
+        heTitle: `עו״ד ${String(r?.lawyerName ?? "")} אישר שנוצר קשר`,
+        bodyKey: "evContactConfirmedBody",
+        heBody: "מכאן ממשיכים יחד — נעדכן כאן על כל צעד בתיק.",
+        refId,
+        refName: String(r?.lawyerName ?? ""),
+      });
+      return { ok: true };
+    });
+  });
+
+/**
+ * "לא חזרו אליי" — הלקוח מדווח, ואיש לא נשאר לבד: מייל אלינו, נודניק
+ * עדין לעו"ד, ורשומת יומן שמאשרת ללקוח שהדיווח התקבל.
+ */
+export const reportNoContactFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { caseId: string; idToken?: string })
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { requireUser, adminGetCase, adminGetDoc, adminPatch, notify, sendMailTo, logCaseEvent, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("reportNoContact", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.clientId !== uid) throw new Error("forbidden");
+      if (c.status !== "connected" || !c.chosenLawyerId) return { ok: false };
+      const refId = `${data.caseId}_${c.chosenLawyerId}`;
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(refId)}`);
+      await adminPatch(`referrals/${encodeURIComponent(refId)}`, { noContactReportedAt: Date.now() });
+      await sendMailTo("contact@justask.co.il", {
+        title: "דיווח לקוח: עורך הדין לא יצר קשר",
+        body: `תיק ${data.caseId} · עו"ד ${String(r?.lawyerName ?? c.chosenLawyerId)} — הלקוח מדווח שלא נוצר קשר אחרי החיבור.`,
+      });
+      await notify(String(c.chosenLawyerId), {
+        title: "הלקוח ממתין לשיחה ראשונה",
+        body: "נוצר חיבור וטרם נוצר קשר. שיחה קצרה עכשיו שווה יותר מכל דבר אחר.",
+        link: `/lawyer-case/${data.caseId}`,
+      }, "lawyerInterest");
+      await logCaseEvent(data.caseId, uid, {
+        kind: "no_contact_report",
+        actor: "client",
+        titleKey: "evNoContactReport",
+        heTitle: "קיבלנו את הדיווח שלך",
+        bodyKey: "evNoContactReportBody",
+        heBody: "אנחנו בודקים את זה מול עורך הדין. לא תישארו לבד עם זה.",
+        refId,
+        refName: String(r?.lawyerName ?? ""),
+      });
+      return { ok: true };
+    });
+  });
+
+/** פוש + רשומת יומן לאבן דרך — הסימון עצמו נשאר בדפדפן עו"ד (rules קיימים). */
+export const notifyMilestoneFn = createServerFn({ method: "POST" })
+  .validator((d: unknown) => d as { caseId: string; key: string; note?: string; idToken?: string })
+  .handler(async ({ data }): Promise<{ ok: boolean }> => {
+    const { requireUser, adminGetCase, adminGetDoc, notify, logCaseEvent, withErrorLog } =
+      await import("./server-admin");
+    return withErrorLog("notifyMilestone", async () => {
+      const uid = await requireUser(data.idToken);
+      const c = await adminGetCase(data.caseId);
+      if (!c || c.chosenLawyerId !== uid) throw new Error("forbidden");
+      if (!(data.key in MS_TITLES)) return { ok: false };
+      const note = (data.note ?? "").trim().slice(0, 300);
+      const refId = `${data.caseId}_${uid}`;
+      const r = await adminGetDoc(`referrals/${encodeURIComponent(refId)}`);
+      await notify(String(c.clientId), {
+        title: MS_TITLES[data.key],
+        body: note || MS_BODIES[data.key],
+        link: `/case/${data.caseId}`,
+      }, "caseUpdates");
+      await logCaseEvent(data.caseId, String(c.clientId), {
+        kind: "milestone",
+        actor: "lawyer",
+        titleKey: "evMilestone",
+        heTitle: `עו״ד ${String(r?.lawyerName ?? "")} עדכן את התיק`,
+        bodyKey: note ? "" : `notifMsBody_${data.key}`,
+        heBody: note || MS_BODIES[data.key],
+        refId,
+        refName: String(r?.lawyerName ?? ""),
+      });
+      return { ok: true };
+    });
+  });
+
 export const openCaseCountsFn = createServerFn({ method: "POST" })
   .validator((d: unknown) => d as { idToken: string })
   .handler(async ({ data }): Promise<OpenCountsResult> => {

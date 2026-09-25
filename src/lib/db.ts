@@ -714,6 +714,8 @@ export interface ReferralDoc {
   expiredAt?: number;
   connectedAt?: number;
   closedAt?: number;
+  /** עו"ד אישר שיצר קשר עם הלקוח אחרי החיבור (שלב 4). */
+  contactConfirmedAt?: number;
 }
 
 function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): ReferralDoc {
@@ -749,6 +751,7 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
     expiredAt: typeof r.expiredAt === "number" ? r.expiredAt : undefined,
     connectedAt: typeof r.connectedAt === "number" ? r.connectedAt : undefined,
     closedAt: typeof r.closedAt === "number" ? r.closedAt : undefined,
+    contactConfirmedAt: typeof r.contactConfirmedAt === "number" ? r.contactConfirmedAt : undefined,
   };
 }
 
@@ -1393,6 +1396,38 @@ export function watchMilestones(
   );
 }
 
+/*
+ * אחרי החיבור (שלב 4, 25/9/2026): אישור קשר של עו"ד, דיווח "לא חזרו
+ * אליי" של הלקוח, ושאילתת מצב האישור — כולן דרך פונקציות שרת, כדי
+ * שהיומן וההתראות ייכתבו ממקור אמין אחד.
+ */
+export async function confirmContact(caseId: string): Promise<void> {
+  const { confirmContactFn } = await import("./ai/intake.functions");
+  const { fbAuth } = await import("./firebase");
+  const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+  await confirmContactFn({ data: { caseId, idToken } });
+}
+
+export async function reportNoContact(caseId: string): Promise<void> {
+  const { reportNoContactFn } = await import("./ai/intake.functions");
+  const { fbAuth } = await import("./firebase");
+  const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+  await reportNoContactFn({ data: { caseId, idToken } });
+}
+
+/** האם עו"ד המחובר כבר אישר קשר — לפתיחת מסך עו"ד במצב הנכון. */
+export async function isContactConfirmed(caseId: string): Promise<boolean> {
+  const { fbAuth } = await import("./firebase");
+  const uid = fbAuth().currentUser?.uid;
+  if (!uid) return false;
+  try {
+    const snap = await getDoc(doc(fbDb(), "referrals", `${caseId}_${uid}`));
+    return snap.exists() && typeof (snap.data() as Record<string, unknown>).contactConfirmedAt === "number";
+  } catch {
+    return false;
+  }
+}
+
 /** עורך הדין הנבחר מסמן אבן דרך. מזהה המסמך הוא המפתח — סימון חוזר מעדכן. */
 export async function markMilestone(
   caseId: string,
@@ -1436,6 +1471,18 @@ export async function markMilestone(
       caseId,
     });
   }
+
+  /* פוש אמיתי + רשומת יומן — נכתבים בשרת; כשל שם לא מפיל את הסימון */
+  void (async () => {
+    try {
+      const { notifyMilestoneFn } = await import("./ai/intake.functions");
+      const { fbAuth } = await import("./firebase");
+      const idToken = (await fbAuth().currentUser?.getIdToken()) ?? "";
+      await notifyMilestoneFn({ data: { caseId, key, note: note?.trim() || "", idToken } });
+    } catch {
+      /* הפעמון כבר נכתב; הפוש הוא שדרוג, לא תנאי */
+    }
+  })();
 }
 
 /**

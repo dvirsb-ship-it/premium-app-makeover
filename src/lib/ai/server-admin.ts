@@ -1256,6 +1256,33 @@ async function remindDueReferrals(now: number): Promise<number> {
     } catch { /* ממשיכים */ }
   }
 
+  /* 5) חיבור בלי אישור קשר — 48 שעות (ערך שאישר דביר): נודניק לעו"ד */
+  for (const id of await adminQueryIds("referrals", "status", "connected")) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r || r.contactConfirmedAt || r.contactRemindedAt) continue;
+      const connectedAt = Number(r.connectedAt ?? 0);
+      if (!connectedAt || now - connectedAt < 2 * DAY_MS) continue;
+      await adminPatch(`referrals/${id}`, { contactRemindedAt: now });
+      await notify(String(r.lawyerId), {
+        title: "הלקוח שבחר בך ממתין לשיחה",
+        body: "עברו יומיים מהחיבור וטרם אישרת שנוצר קשר. שיחה קצרה — ואישור בלחיצה בתיק.",
+        link: `/lawyer-case/${String(r.caseId)}`,
+      }, "lawyerInterest");
+      await logCaseEvent(String(r.caseId), String(r.clientId), {
+        kind: "reminder_sent",
+        actor: "system",
+        titleKey: "evContactReminded",
+        heTitle: `שלחנו תזכורת לעו״ד ${String(r.lawyerName ?? "")}`,
+        bodyKey: "evContactRemindedBody",
+        heBody: "טרם אושר שנוצר קשר — ביקשנו ממנו להרים טלפון. עדיין שקט? ספרו לנו מתוך התיק.",
+        refId: id,
+        refName: String(r.lawyerName ?? ""),
+      });
+      sent++;
+    } catch { /* ממשיכים */ }
+  }
+
   return sent;
 }
 

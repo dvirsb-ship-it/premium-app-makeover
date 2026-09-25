@@ -10,6 +10,8 @@ import { useT } from "../lib/i18n";
 import { useRequireAuth } from "../lib/require-auth";
 import {
   markMilestone,
+  confirmContact,
+  isContactConfirmed,
   reconcileClosedCase,
   watchMilestones,
   MILESTONE_ORDER,
@@ -111,6 +113,14 @@ function LawyerCaseDetail() {
    * בכל פתיחה. לכן דווקא הסגירה מקבלת אישור.
    */
   const [confirmClose, setConfirmClose] = useState(false);
+
+  /* אישור "יצרתי קשר" — שלב 4: ההבטחה ללקוח שהוא לא ננטש אחרי החיבור */
+  const [contactOk, setContactOk] = useState<boolean | null>(null);
+  useEffect(() => {
+    let on = true;
+    void isContactConfirmed(caseId).then((v) => { if (on) setContactOk(v); });
+    return () => { on = false; };
+  }, [caseId]);
 
   function mark(key: MilestoneKey) {
     if (key === "closed" && !confirmClose) {
@@ -283,6 +293,27 @@ function LawyerCaseDetail() {
                 </button>
               </div>
             </div>
+
+            {contactOk === false && (
+              <div className="mt-4">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setContactOk(true);
+                    void confirmContact(caseId).catch(() => setContactOk(false));
+                  }}
+                  className="btn-gold tap flex w-full items-center justify-center gap-2 rounded-2xl py-3 text-sm font-bold"
+                >
+                  {t("lcContactBtn")}
+                </button>
+                <p className="mt-2 text-center text-[11.5px] leading-snug text-muted-foreground">
+                  {t("lcContactHint")}
+                </p>
+              </div>
+            )}
+            {contactOk === true && (
+              <p className="mt-3 text-center text-[12.5px] font-bold text-success-ink">{t("lcContactDone")}</p>
+            )}
           </div>
         </Page>
       </AppShell>
