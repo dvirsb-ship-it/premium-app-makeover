@@ -219,7 +219,33 @@ const appHandler: ServerEntry = {
        */
       if (new URL(request.url).pathname === "/__cron/journey") {
         const secret = process.env.CRON_SECRET;
-        if (!secret || request.headers.get("x-cron-key") !== secret) {
+        const keyOk = !!secret && request.headers.get("x-cron-key") === secret;
+        /*
+         * OIDC של Cloud Scheduler — אפס סודות: גוגל חותמת טוקן בשם
+         * חשבון שירות ייעודי, ואנחנו מאמתים מול tokeninfo את הקהל
+         * (ה-URL הזה), את הזהות המדויקת, ואת המנפיק. בלי הסוד ובלי
+         * הטוקן — אותו 404 שלא מאשר קיום.
+         */
+        const oidcOk = await (async () => {
+          const auth = request.headers.get("authorization") ?? "";
+          if (!auth.startsWith("Bearer ")) return false;
+          try {
+            const res = await fetch(
+              `https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(auth.slice(7))}`,
+            );
+            if (!res.ok) return false;
+            const info = (await res.json()) as Record<string, string>;
+            return (
+              info.aud === "https://app.justask.co.il/__cron/journey" &&
+              info.email === "cron-runner@justask-6bfb9.iam.gserviceaccount.com" &&
+              info.email_verified === "true" &&
+              (info.iss === "https://accounts.google.com" || info.iss === "accounts.google.com")
+            );
+          } catch {
+            return false;
+          }
+        })();
+        if (!keyOk && !oidcOk) {
           return new Response("Not found", { status: 404 });
         }
         const { runJourneySweep } = await import("./lib/ai/server-admin");
@@ -305,8 +331,9 @@ const appHandler: ServerEntry = {
        */
       void (async () => {
         try {
-          const { sweepDeletionsIfDue } = await import("./lib/ai/server-admin");
+          const { sweepDeletionsIfDue, journeySweepIfDue } = await import("./lib/ai/server-admin");
           await sweepDeletionsIfDue();
+          await journeySweepIfDue();
         } catch {
           /* ignore */
         }

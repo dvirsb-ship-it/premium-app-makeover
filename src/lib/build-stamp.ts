@@ -9,4 +9,4 @@
  *
  * מקודמת ידנית בכל פריסה — חלק מטקס ההטסה.
  */
-export const BUILD_STAMP = "2026-09-25T23:20Z";
+export const BUILD_STAMP = "2026-09-26T08:30Z";

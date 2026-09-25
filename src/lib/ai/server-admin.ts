@@ -1302,6 +1302,19 @@ export async function runJourneySweep(
   }
 }
 
+/*
+ * רכיבה על תנועה (26/9/2026): כל בקשה חיה מציתה בדיקת-זול מקומית;
+ * הנעילה האמיתית (5 דק) יושבת במסמך המערכת בתוך runJourneySweep.
+ * כך התזכורות והפקיעות מדויקות גם בלי Scheduler — וה-Scheduler,
+ * כשירוץ, פשוט יתפוס את הלילות השקטים.
+ */
+let journeyLocalCheck = 0;
+export async function journeySweepIfDue(now = Date.now()): Promise<void> {
+  if (now - journeyLocalCheck < 5 * 60 * 1000) return;
+  journeyLocalCheck = now;
+  await runJourneySweep(now);
+}
+
 const SWEEP_DOC = "system/deletionSweep";
 const SWEEP_EVERY_MS = 24 * 60 * 60 * 1000;
 let lastLocalCheck = 0;
