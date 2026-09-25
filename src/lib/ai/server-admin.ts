@@ -1139,16 +1139,137 @@ async function expireDueReferrals(now: number): Promise<{ names: number; shared:
  * נעילה של 5 דקות במסמך מערכת: שני מופעי Cloud Run שהתעוררו יחד לא
  * ירוצו שניהם. הסריקה היומית (sweepDeletionsIfDue) נשארת כרשת ביטחון.
  */
+/*
+ * סולם התזכורות (שלב 2, 25/9/2026, ערכים שאישר דביר): תזכורת אחת
+ * בדיוק לכל מצב-המתנה שחצה 24 שעות — לעו"ד שטרם בדק, ללקוח שטרם
+ * שיתף, לעו"ד שקרא ולא הגיש, וללקוח שיושב על הצעה. דגל על ההפניה
+ * מבטיח חד-פעמיות. ללקוח אין טיימר בשום מקום — התזכורת רכה, והיומן
+ * מספר לו שהמערכת טיפלה בזה ("לא נדרשת פעולה ממך").
+ */
+const DAY_MS = 24 * 60 * 60 * 1000;
+async function remindDueReferrals(now: number): Promise<number> {
+  let sent = 0;
+
+  /* 1) עו"ד שטרם בדק ניגוד — אחרי יממה, כל עוד החלון חי */
+  for (const id of await adminQueryIds("referrals", "status", "names_check")) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r || r.remindedAt) continue;
+      const created = Number(r.createdAt ?? 0);
+      const expires = Number(r.expiresAt ?? 0);
+      if (!created || now - created < DAY_MS || expires <= now) continue;
+      await adminPatch(`referrals/${id}`, { remindedAt: now });
+      await notify(String(r.lawyerId), {
+        title: "תזכורת: פנייה ממתינה לבדיקת ניגוד עניינים",
+        body: "מישהו בחר בך מהאינדקס אתמול. הבדיקה לוקחת דקה.",
+        link: "/lawyer",
+      }, "lawyerInterest");
+      await logCaseEvent(String(r.caseId), String(r.clientId), {
+        kind: "reminder_sent",
+        actor: "system",
+        titleKey: "evLawyerReminded",
+        heTitle: `שלחנו תזכורת עדינה לעו״ד ${String(r.lawyerName ?? "")}`,
+        bodyKey: "evLawyerRemindedBody",
+        heBody: "טרם התקבל מענה — טיפלנו בזה. לא נדרשת פעולה ממך.",
+        refId: id,
+        refName: String(r.lawyerName ?? ""),
+      });
+      sent++;
+    } catch { /* תזכורת אחת שנכשלה לא עוצרת את השאר */ }
+  }
+
+  /* 2) הלקוח טרם אישר שיתוף — אחרי יממה מ"אין ניגוד" */
+  for (const id of await adminQueryIds("referrals", "status", "cleared")) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r || r.clientRemindedAt) continue;
+      const responded = Number(r.respondedAt ?? 0);
+      if (!responded || now - responded < DAY_MS) continue;
+      await adminPatch(`referrals/${id}`, { clientRemindedAt: now });
+      await notify(String(r.clientId), {
+        title: "עורך הדין עדיין ממתין לך",
+        body: `עו״ד ${String(r.lawyerName ?? "")} אישר שאין ניגוד עניינים — נשאר רק לאשר את שיתוף הסיכום.`,
+        link: `/case/${String(r.caseId)}`,
+      }, "caseUpdates");
+      await logCaseEvent(String(r.caseId), String(r.clientId), {
+        kind: "client_nudge",
+        actor: "system",
+        titleKey: "evShareNudge",
+        heTitle: "תזכורת: הכדור אצלך",
+        bodyKey: "evShareNudgeBody",
+        heBody: `עו״ד ${String(r.lawyerName ?? "")} ממתין לאישור שיתוף הסיכום.`,
+        refId: id,
+        refName: String(r.lawyerName ?? ""),
+      });
+      sent++;
+    } catch { /* ממשיכים */ }
+  }
+
+  /* 3+4) אחרי שיתוף: עו"ד שקרא ולא הגיש (יממה) / לקוח שיושב על הצעה (יממה) */
+  for (const id of await adminQueryIds("referrals", "status", "details_shared")) {
+    try {
+      const r = await adminGetDoc(`referrals/${id}`);
+      if (!r) continue;
+      if (!r.offerAmount) {
+        if (r.sharedRemindedAt) continue;
+        const sharedAt = Number(r.sharedAt ?? r.respondedAt ?? 0);
+        if (!sharedAt || now - sharedAt < DAY_MS) continue;
+        await adminPatch(`referrals/${id}`, { sharedRemindedAt: now });
+        await notify(String(r.lawyerId), {
+          title: "תזכורת: הסיכום ממתין להצעתך",
+          body: "קראת את הסיכום אתמול. הגשת הצעה לוקחת שתי דקות — או סמן 'אינני זמין'.",
+          link: "/lawyer",
+        }, "lawyerInterest");
+        await logCaseEvent(String(r.caseId), String(r.clientId), {
+          kind: "reminder_sent",
+          actor: "system",
+          titleKey: "evLawyerReminded",
+          heTitle: `שלחנו תזכורת עדינה לעו״ד ${String(r.lawyerName ?? "")}`,
+          bodyKey: "evLawyerRemindedBody",
+          heBody: "טרם הוגשה הצעה — טיפלנו בזה. לא נדרשת פעולה ממך.",
+          refId: id,
+          refName: String(r.lawyerName ?? ""),
+        });
+        sent++;
+      } else {
+        if (r.offerRemindedAt) continue;
+        const offeredAt = Number(r.offeredAt ?? 0);
+        if (!offeredAt || now - offeredAt < DAY_MS) continue;
+        await adminPatch(`referrals/${id}`, { offerRemindedAt: now });
+        await notify(String(r.clientId), {
+          title: "הצעת שכר טרחה ממתינה להחלטתך",
+          body: `עו״ד ${String(r.lawyerName ?? "")} הגיש הצעה אתמול. אפשר להשוות ולבחור בקצב שלך.`,
+          link: `/case/${String(r.caseId)}`,
+        }, "caseUpdates");
+        await logCaseEvent(String(r.caseId), String(r.clientId), {
+          kind: "client_nudge",
+          actor: "system",
+          titleKey: "evOfferNudge",
+          heTitle: "תזכורת: יש הצעה שממתינה לך",
+          bodyKey: "evOfferNudgeBody",
+          heBody: `ההצעה של עו״ד ${String(r.lawyerName ?? "")} עדיין פתוחה. אין לחץ — היא לא נעלמת.`,
+          refId: id,
+          refName: String(r.lawyerName ?? ""),
+        });
+        sent++;
+      }
+    } catch { /* ממשיכים */ }
+  }
+
+  return sent;
+}
+
 const JOURNEY_SWEEP_DOC = "system/journeySweep";
 export async function runJourneySweep(
   now = Date.now(),
-): Promise<{ ok: boolean; expired?: { names: number; shared: number } }> {
+): Promise<{ ok: boolean; expired?: { names: number; shared: number }; reminded?: number }> {
   try {
     const cur = await adminGetDoc(JOURNEY_SWEEP_DOC);
     if (now - Number(cur?.lastRunAt ?? 0) < 5 * 60 * 1000) return { ok: false };
     await adminPatch(JOURNEY_SWEEP_DOC, { lastRunAt: now });
     const expired = await expireDueReferrals(now);
-    return { ok: true, expired };
+    const reminded = await remindDueReferrals(now);
+    return { ok: true, expired, reminded };
   } catch {
     return { ok: false };
   }
