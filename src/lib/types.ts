@@ -76,6 +76,8 @@ export interface Case {
   notifiedLawyers?: number;
   /** מתי הפונה משך את הפנייה — קובע כמה זמן היא נספרת במכסה. */
   withdrawnAt?: number;
+  /** מתי אושר הסיכום — היומן מסנתז ממנו רשומה לתיקים ותיקים. */
+  summaryApprovedAt?: number;
 }
 
 /** מודל שכר הטרחה. בנזקי גוף בישראל אחוזים מהפיצוי הם הנפוץ ביותר. */

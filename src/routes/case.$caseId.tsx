@@ -8,6 +8,7 @@ import { AppShell } from "../components/AppShell";
 import { CaseReferrals } from "../components/CaseReferrals";
 import { ConnectionCelebration } from "../components/ConnectionCelebration";
 import { useWhatsNewKey } from "../components/CaseWhatsNew";
+import { CaseJournal } from "../components/CaseJournal";
 import { JourneyGateway } from "../components/ClientJourney";
 import { TopBar } from "../components/TopBar";
 import { Page, Stagger, Rise } from "../components/motion";
@@ -302,6 +303,9 @@ function CaseDetail() {
           {(item.status === "awaiting_selection" || item.status === "connected") && (
             <CaseReferrals caseId={item.id} status={item.status} onConnected={setCelebrating} />
           )}
+
+          {/* יומן התיק — "מנהל התיק האישי" (שלב 3, 25/9/2026) */}
+          <CaseJournal caseDoc={item} />
 
           {/* שורת-השער למרכז המסלול — הקובייה המלאה ירדה גם מכאן (26/8) */}
           <div className="mt-5">

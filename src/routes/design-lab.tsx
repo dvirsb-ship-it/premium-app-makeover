@@ -1,4 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { CaseJournal } from "../components/CaseJournal";
+import type { Case } from "../lib/types";
 
 /*
  * מעבדת עיצוב — dev בלבד (25/9/2026).
@@ -95,6 +97,20 @@ function DesignLab() {
         <div className="note-gold rounded-2xl p-4 text-sm text-foreground">
           הערת מסמך על קלף — נגיעת הזהב של שפת המסמך נשארת.
         </div>
+
+        <div className="text-xl font-extrabold text-foreground">יומן התיק (סינתזה)</div>
+        <CaseJournal
+          caseDoc={{
+            id: "design-lab-fake",
+            title: "תאונת דרכים · מרץ 2026",
+            category: "injury",
+            summary: "",
+            createdAt: Date.now() - 26 * 60 * 60 * 1000,
+            status: "awaiting_selection",
+            interested: [],
+            summaryApprovedAt: Date.now() - 25 * 60 * 60 * 1000,
+          } as Case}
+        />
       </div>
     </div>
   );

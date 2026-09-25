@@ -214,6 +214,7 @@ function toCase(id: string, d: CaseDoc): Case {
     offers: d.offers,
     notifiedLawyers: d.notifiedLawyers,
     withdrawnAt: d.withdrawnAt,
+    summaryApprovedAt: d.summaryApprovedAt,
   };
 }
 
@@ -706,6 +707,13 @@ export interface ReferralDoc {
   closedReason?: "withdrawn" | "chosen";
   createdAt: number;
   expiresAt: number;
+  /* חותמות זמן — היומן מסנתז מהן רשומות לתיקים שקדמו לו (25/9/2026) */
+  respondedAt?: number;
+  sharedAt?: number;
+  offeredAt?: number;
+  expiredAt?: number;
+  connectedAt?: number;
+  closedAt?: number;
 }
 
 function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): ReferralDoc {
@@ -735,7 +743,63 @@ function refFromSnap(d: { id: string; data: () => Record<string, unknown> }): Re
         : undefined,
     createdAt: Number(r.createdAt ?? 0),
     expiresAt: Number(r.expiresAt ?? 0),
+    respondedAt: typeof r.respondedAt === "number" ? r.respondedAt : undefined,
+    sharedAt: typeof r.sharedAt === "number" ? r.sharedAt : undefined,
+    offeredAt: typeof r.offeredAt === "number" ? r.offeredAt : undefined,
+    expiredAt: typeof r.expiredAt === "number" ? r.expiredAt : undefined,
+    connectedAt: typeof r.connectedAt === "number" ? r.connectedAt : undefined,
+    closedAt: typeof r.closedAt === "number" ? r.closedAt : undefined,
   };
+}
+
+/*
+ * יומן התיק (25/9/2026) — רשומות "מנהל התיק האישי". נכתבות משרת בלבד
+ * (rules: write false); כאן רק מנוי קריאה לפונה. titleKey מתורגם בצד
+ * הלקוח עם refName; heTitle/heBody הם נוסח נפילה לגרסת לקוח שלא מכירה
+ * את המפתח.
+ */
+export interface CaseEventDoc {
+  id: string;
+  ts: number;
+  kind: string;
+  actor: "system" | "client" | "lawyer";
+  titleKey: string;
+  heTitle: string;
+  bodyKey?: string;
+  heBody?: string;
+  refId?: string;
+  refName?: string;
+  /* רשומה מסונתזת מקומית (לא קיימת בענן) — לתיקים שקדמו ליומן */
+  synthetic?: boolean;
+}
+
+export function watchCaseEvents(
+  caseId: string,
+  cb: (rows: CaseEventDoc[]) => void,
+  onError?: (err: unknown) => void,
+): () => void {
+  const q = query(collection(fbDb(), `cases/${caseId}/events`));
+  return onSnapshot(q, (snap) => {
+    cb(
+      snap.docs
+        .map((d) => {
+          const e = d.data() as Record<string, unknown>;
+          return {
+            id: d.id,
+            ts: Number(e.ts ?? 0),
+            kind: String(e.kind ?? ""),
+            actor: (e.actor === "client" || e.actor === "lawyer" ? e.actor : "system") as CaseEventDoc["actor"],
+            titleKey: String(e.titleKey ?? ""),
+            heTitle: String(e.heTitle ?? ""),
+            bodyKey: e.bodyKey ? String(e.bodyKey) : undefined,
+            heBody: e.heBody ? String(e.heBody) : undefined,
+            refId: e.refId ? String(e.refId) : undefined,
+            refName: e.refName ? String(e.refName) : undefined,
+          };
+        })
+        .sort((a, b) => a.ts - b.ts),
+    );
+  }, (err) => onError?.(err));
 }
 
 /** הפניות שהגיעו לעורך דין — רק מי שהפונה בחר בו רואה אותן. */
