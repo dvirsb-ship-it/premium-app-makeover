@@ -489,6 +489,45 @@ describe("פרטי קשר של עו״ד על התיק", () => {
   });
 });
 
+/* ---------- יומן התיק: קריאה לבעלים, כתיבה לשרת בלבד ---------- */
+
+describe("יומן התיק (events)", () => {
+  beforeEach(async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "cases/openCase/events/ev1"), {
+        ts: Date.now(),
+        clientId: "client1",
+        kind: "referral_sent",
+        titleKey: "evReferralSent",
+        heTitle: "שלחנו את שמות הצדדים",
+      });
+    });
+  });
+
+  it("בעל התיק קורא רשומה בודדת", async () => {
+    await assertSucceeds(getDoc(doc(as("client1"), "cases/openCase/events/ev1")));
+  });
+
+  it("בעל התיק שולף את היומן כרשימה — בלי where", async () => {
+    await assertSucceeds(getDocs(collection(as("client1"), "cases/openCase/events")));
+  });
+
+  it("משתמש זר אינו קורא", async () => {
+    await assertFails(getDoc(doc(as("lawyerOther"), "cases/openCase/events/ev1")));
+  });
+
+  it("הדפדפן אינו כותב ליומן — גם לא הבעלים", async () => {
+    await assertFails(
+      setDoc(doc(as("client1"), "cases/openCase/events/forged"), {
+        ts: Date.now(),
+        clientId: "client1",
+        kind: "connected",
+        heTitle: "רשומה מזויפת",
+      }),
+    );
+  });
+});
+
 /* ---------- אוספים שנכתבים בשרת בלבד ---------- */
 
 describe("נתונים שרק השרת כותב", () => {

@@ -169,6 +169,45 @@ export async function adminCreate(
   }
 }
 
+
+/**
+ * יומן התיק — רשומת אירוע אחת ב-cases/{caseId}/events (שלב 1 של
+ * "מנהל תיק אישי", 25/9/2026). נכתב משרת בלבד; הלקוח קורא לפי
+ * clientId שעל הרשומה. titleKey+refName נועדו לתרגום בצד הלקוח,
+ * ו-heTitle/heBody הם נוסח נפילה למקרה של גרסת לקוח ישנה.
+ */
+export async function logCaseEvent(
+  caseId: string,
+  clientId: string,
+  ev: {
+    kind: string;
+    actor: "system" | "client" | "lawyer";
+    titleKey: string;
+    heTitle: string;
+    bodyKey?: string;
+    heBody?: string;
+    refId?: string;
+    refName?: string;
+  },
+): Promise<void> {
+  try {
+    await adminCreate(`cases/${encodeURIComponent(caseId)}/events`, {
+      ts: Date.now(),
+      clientId,
+      kind: ev.kind,
+      actor: ev.actor,
+      titleKey: ev.titleKey,
+      heTitle: ev.heTitle,
+      bodyKey: ev.bodyKey ?? "",
+      heBody: ev.heBody ?? "",
+      refId: ev.refId ?? "",
+      refName: ev.refName ?? "",
+    });
+  } catch {
+    /* היומן מלווה — כשל רישום לעולם לא מפיל את הפעולה עצמה */
+  }
+}
+
 export async function adminPatch(
   path: string,
   fields: Record<string, Primitive>,
@@ -1026,13 +1065,25 @@ export async function runDueDeletions(
  * רוכבת על סריקת המחיקות היומית — דיוק של יום על חלון של יומיים
  * מספיק, כי שום זכות אינה תלויה בהודעה הזו.
  */
-async function expireDueReferrals(now: number): Promise<void> {
+async function expireDueReferrals(now: number): Promise<{ names: number; shared: number }> {
+  const counts = { names: 0, shared: 0 };
   const ids = await adminQueryIds("referrals", "status", "names_check");
   for (const id of ids) {
     try {
       const r = await adminGetDoc(`referrals/${id}`);
       if (!r || Number(r.expiresAt ?? 0) > now) continue;
       await adminPatch(`referrals/${id}`, { status: "expired", expiredAt: now });
+      counts.names++;
+      await logCaseEvent(String(r.caseId), String(r.clientId), {
+        kind: "referral_expired",
+        actor: "system",
+        titleKey: "evReferralExpired",
+        heTitle: `הפנייה לעו״ד ${String(r.lawyerName ?? "")} הסתיימה ללא מענה`,
+        bodyKey: "evReferralExpiredBody",
+        heBody: "המקום התפנה — אפשר לבחור עורך דין אחר מהאינדקס.",
+        refId: id,
+        refName: String(r.lawyerName ?? ""),
+      });
       await adminNotify(String(r.clientId), {
         type: "case_update",
         title: "פנייה לעורך דין פקעה",
@@ -1057,6 +1108,17 @@ async function expireDueReferrals(now: number): Promise<void> {
       const sharedAt = Number(r.sharedAt ?? r.respondedAt ?? 0);
       if (!sharedAt || now - sharedAt < 48 * 60 * 60 * 1000) continue;
       await adminPatch(`referrals/${id}`, { status: "expired", expiredAt: now });
+      counts.shared++;
+      await logCaseEvent(String(r.caseId), String(r.clientId), {
+        kind: "offer_window_expired",
+        actor: "system",
+        titleKey: "evOfferExpired",
+        heTitle: `עו״ד ${String(r.lawyerName ?? "")} לא הגיש הצעה`,
+        bodyKey: "evOfferExpiredBody",
+        heBody: "חלון ההצעה הסתיים. אפשר לבחור עורך דין אחר מהאינדקס.",
+        refId: id,
+        refName: String(r.lawyerName ?? ""),
+      });
       await adminNotify(String(r.clientId), {
         type: "case_update",
         title: "לא התקבלה הצעה בתוך 48 שעות",
@@ -1068,6 +1130,27 @@ async function expireDueReferrals(now: number): Promise<void> {
     } catch {
       /* פנייה אחת שנכשלה לא עוצרת את השאר */
     }
+  }
+  return counts;
+}
+
+/*
+ * סריקת המסלול — נקראת מ-Cloud Scheduler כל 15 דקות (‎/__cron/journey).
+ * נעילה של 5 דקות במסמך מערכת: שני מופעי Cloud Run שהתעוררו יחד לא
+ * ירוצו שניהם. הסריקה היומית (sweepDeletionsIfDue) נשארת כרשת ביטחון.
+ */
+const JOURNEY_SWEEP_DOC = "system/journeySweep";
+export async function runJourneySweep(
+  now = Date.now(),
+): Promise<{ ok: boolean; expired?: { names: number; shared: number } }> {
+  try {
+    const cur = await adminGetDoc(JOURNEY_SWEEP_DOC);
+    if (now - Number(cur?.lastRunAt ?? 0) < 5 * 60 * 1000) return { ok: false };
+    await adminPatch(JOURNEY_SWEEP_DOC, { lastRunAt: now });
+    const expired = await expireDueReferrals(now);
+    return { ok: true, expired };
+  } catch {
+    return { ok: false };
   }
 }
 

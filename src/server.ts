@@ -214,6 +214,21 @@ const appHandler: ServerEntry = {
       }
 
       /*
+       * סריקת המסלול — פקיעות מדויקות ותזכורות. Cloud Scheduler קורא
+       * כל 15 דקות; אותו סוד ואותו עיקרון 404 כמו המחיקות.
+       */
+      if (new URL(request.url).pathname === "/__cron/journey") {
+        const secret = process.env.CRON_SECRET;
+        if (!secret || request.headers.get("x-cron-key") !== secret) {
+          return new Response("Not found", { status: 404 });
+        }
+        const { runJourneySweep } = await import("./lib/ai/server-admin");
+        return Response.json(await runJourneySweep(), {
+          headers: { "cache-control": "no-store" },
+        });
+      }
+
+      /*
        * הודעת ההשקה לרשימת ההמתנה — פעולה חד-פעמית, ידנית, ביום שהאפליקציה
        * עולה. לא cron: אין תאריך ידוע מראש, ואין דבר גרוע יותר מהודעת
        * "אנחנו באוויר" שיוצאת יום לפני.

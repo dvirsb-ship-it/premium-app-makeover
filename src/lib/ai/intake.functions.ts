@@ -566,6 +566,18 @@ export const validateCaseFn = createServerFn({ method: "POST" })
         "caseUpdates",
       );
 
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(data.caseId, String(c.clientId), {
+          kind: "summary_ready",
+          actor: "system",
+          titleKey: "evSummaryReady",
+          heTitle: "הסיכום שלך מוכן",
+          bodyKey: "evSummaryReadyBody",
+          heBody: "עברו עליו, תקנו מה שצריך ואשרו — משם בוחרים עורך דין.",
+        });
+      }
+
       return result;
     });
   });
@@ -874,6 +886,20 @@ export const requestReferralFn = createServerFn({ method: "POST" })
         bodyKey: "notifRefNewBody",
       });
 
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(data.caseId, uid, {
+          kind: "referral_sent",
+          actor: "client",
+          titleKey: "evReferralSent",
+          heTitle: `שלחנו את שמות הצדדים לעו״ד ${String(profile?.name ?? "")}`,
+          bodyKey: "evReferralSentBody",
+          heBody: "בשלב הזה נחשפים שמות בלבד, לבדיקת ניגוד עניינים. רוב עורכי הדין עונים בתוך יום.",
+          refId: `${data.caseId}_${data.lawyerUid}`,
+          refName: String(profile?.name ?? ""),
+        });
+      }
+
       return { ok: true };
     });
   });
@@ -918,6 +944,19 @@ export const respondReferralFn = createServerFn({ method: "POST" })
         if (r.status !== "names_check") return { ok: false, reason: "not_pending" };
         if (Date.now() > Number(r.expiresAt ?? 0)) {
           await adminPatch(`referrals/${encodeURIComponent(data.referralId)}`, { status: "expired" });
+          {
+            const { logCaseEvent } = await import("./server-admin");
+            await logCaseEvent(String(r.caseId), String(r.clientId), {
+              kind: "referral_expired",
+              actor: "system",
+              titleKey: "evReferralExpired",
+              heTitle: `הפנייה לעו״ד ${String(r.lawyerName ?? "")} הסתיימה ללא מענה`,
+              bodyKey: "evReferralExpiredBody",
+              heBody: "המקום התפנה — אפשר לבחור עורך דין אחר מהאינדקס.",
+              refId: data.referralId,
+              refName: String(r.lawyerName ?? ""),
+            });
+          }
           return { ok: false, reason: "expired" };
         }
       }
@@ -999,6 +1038,42 @@ export const respondReferralFn = createServerFn({ method: "POST" })
               bodyKey: "notifRefDeclinedBody",
             },
       );
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        const name = String(r.lawyerName ?? "");
+        await logCaseEvent(String(r.caseId), String(r.clientId), shared
+          ? {
+              kind: "summary_shared",
+              actor: "system",
+              titleKey: "evSummaryAutoShared",
+              heTitle: `הסיכום שותף עם עו״ד ${name}`,
+              bodyKey: "evSummaryAutoSharedBody",
+              heBody: "אין ניגוד עניינים, ושיתפנו אוטומטית לפי אישורך מראש. נעדכן כשתגיע הצעה.",
+              refId: data.referralId,
+              refName: name,
+            }
+          : data.answer === "cleared"
+          ? {
+              kind: "referral_cleared",
+              actor: "lawyer",
+              titleKey: "evReferralCleared",
+              heTitle: `עו״ד ${name} אישר: אין ניגוד עניינים`,
+              bodyKey: "evReferralClearedBody",
+              heBody: "תורך — אישור שיתוף הסיכום.",
+              refId: data.referralId,
+              refName: name,
+            }
+          : {
+              kind: "referral_declined",
+              actor: "lawyer",
+              titleKey: "evReferralDeclined",
+              heTitle: `עו״ד ${name} אינו זמין לפנייה`,
+              bodyKey: "evReferralDeclinedBody",
+              heBody: "זה לא אומר דבר על המקרה. אפשר לבחור עורך דין אחר מהאינדקס.",
+              refId: data.referralId,
+              refName: name,
+            });
+      }
       return { ok: true };
     });
   });
@@ -1053,6 +1128,19 @@ export const shareSummaryFn = createServerFn({ method: "POST" })
         titleKey: "notifRefSharedTitle",
         bodyKey: "notifRefSharedBody",
       });
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(String(r.caseId), uid, {
+          kind: "summary_shared",
+          actor: "client",
+          titleKey: "evSummaryShared",
+          heTitle: `שיתפת את הסיכום עם עו״ד ${String(r.lawyerName ?? "")}`,
+          bodyKey: "evSummarySharedBody",
+          heBody: "הוא קורא את הסיכום העובדתי בלבד. נעדכן כשתגיע הצעה.",
+          refId: data.referralId,
+          refName: String(r.lawyerName ?? ""),
+        });
+      }
       return { ok: true };
     });
   });
@@ -1142,6 +1230,20 @@ export const submitReferralOfferFn = createServerFn({ method: "POST" })
         await adminUpdateCase(String(r.caseId), { firstOfferAt: Date.now() });
       }
 
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(String(r.caseId), String(r.clientId), {
+          kind: "offer_received",
+          actor: "lawyer",
+          titleKey: "evOfferReceived",
+          heTitle: `עו״ד ${String(profile?.name ?? "")} הגיש הצעת שכר טרחה`,
+          bodyKey: "evOfferReceivedBody",
+          heBody: "אפשר להשוות בין ההצעות זו לצד זו ולבחור.",
+          refId: data.referralId,
+          refName: String(profile?.name ?? ""),
+        });
+      }
+
       /*
        * פרטי הקשר של עורך הדין נכתבים לתת-האוסף שהחוקים כבר שומרים:
        * הפונה יקרא אותם רק אחרי שיבחר בו (chosenLawyerId). כך חילופי
@@ -1204,6 +1306,17 @@ export const approveSummaryFn = createServerFn({ method: "POST" })
       if (edited) fields.summary = stripContactInfo(edited).slice(0, 6000);
 
       await adminUpdateCase(data.caseId, fields);
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(data.caseId, uid, {
+          kind: "summary_approved",
+          actor: "client",
+          titleKey: "evSummaryApproved",
+          heTitle: "אישרת את הסיכום",
+          bodyKey: "evSummaryApprovedBody",
+          heBody: "מכאן אפשר לפנות לעורכי דין מהאינדקס — עד שלושה במקביל.",
+        });
+      }
       return { ok: true, category };
     });
   });
@@ -1275,6 +1388,17 @@ export const withdrawReferralsFn = createServerFn({ method: "POST" })
           closed++;
         }
       }
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        await logCaseEvent(data.caseId, uid, {
+          kind: "case_withdrawn",
+          actor: "client",
+          titleKey: "evCaseWithdrawn",
+          heTitle: "ביטלת את הפנייה",
+          bodyKey: "evCaseWithdrawnBody",
+          heBody: "כל הפניות שהיו פתוחות נסגרו אצל עורכי הדין בנוסח מכובד.",
+        });
+      }
       return { closed };
     });
   });
@@ -1293,6 +1417,21 @@ export const recordConnectionFn = createServerFn({ method: "POST" })
       const lawyerId = c.chosenLawyerId as string | undefined;
       if (!lawyerId) return { connections: 0 };
       const n = await recordConnection(lawyerId, data.caseId);
+
+      {
+        const { logCaseEvent } = await import("./server-admin");
+        const chosen = await adminGetDoc(`referrals/${encodeURIComponent(`${data.caseId}_${lawyerId}`)}`);
+        await logCaseEvent(data.caseId, uid, {
+          kind: "connected",
+          actor: "system",
+          titleKey: "evConnected",
+          heTitle: `נוצר חיבור עם עו״ד ${String(chosen?.lawyerName ?? "")}`,
+          bodyKey: "evConnectedBody",
+          heBody: "פרטי הקשר נחשפו לשני הצדדים. מכאן ההסכם נכרת ישירות ביניכם.",
+          refId: `${data.caseId}_${lawyerId}`,
+          refName: String(chosen?.lawyerName ?? ""),
+        });
+      }
 
       /*
        * ההפניה הנבחרת הופכת ל-connected — אחרת כרטיס "ההצעה הוגשה" נשאר

@@ -227,6 +227,18 @@ service cloud.firestore {
           )
         );
       }
+
+      /*
+       * יומן התיק (25/9/2026) — רשומות "מנהל התיק האישי". נכתבות משרת
+       * בלבד (Admin עוקף rules); ללקוח קריאה בלבד. הבעלות נבדקת דרך
+       * התיק ולא דרך resource.data — כדי ששאילתת רשימה (orderBy ts)
+       * תעבור בלי לכפות where על הלקוח.
+       */
+      match /events/{eventId} {
+        allow read: if signedIn()
+          && get(/databases/$(database)/documents/cases/$(caseId)).data.clientId == request.auth.uid;
+        allow write: if false;
+      }
     }
 
     // מדריך עורכי דין — פרופיל מקצועי ציבורי למחוברים (ללא פרטי קשר); כותב רק בעליו
