@@ -1081,4 +1081,7 @@ export const es: Partial<Record<StringKey, string>> = {
   lcJrOffered: "Presentaste una propuesta de honorarios",
   lcJrConnected: "El cliente te eligió — conexión creada",
   lcJrContact: "Confirmaste que hubo contacto",
+  refNoActive: "Nada pendiente de ti ahora ✓ Una consulta nueva aparecerá aquí, con notificación.",
+  refHistoryShow: "Mostrar historial ({n})",
+  refHistoryHide: "Ocultar historial",
 };

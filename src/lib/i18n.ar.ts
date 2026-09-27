@@ -1081,4 +1081,7 @@ export const ar: Partial<Record<StringKey, string>> = {
   lcJrOffered: "قدّمت عرض أتعاب",
   lcJrConnected: "العميل اختارك — تمّ الربط",
   lcJrContact: "أكّدت أن التواصل حدث",
+  refNoActive: "لا إحالات بانتظارك الآن ✓ ستظهر الإحالة الجديدة هنا مع إشعار.",
+  refHistoryShow: "عرض السجلّ ({n})",
+  refHistoryHide: "إخفاء السجلّ",
 };

@@ -1081,4 +1081,7 @@ export const ru: Partial<Record<StringKey, string>> = {
   lcJrOffered: "Вы подали предложение о гонораре",
   lcJrConnected: "Клиент выбрал вас — связь создана",
   lcJrContact: "Вы подтвердили, что связь состоялась",
+  refNoActive: "Сейчас ничего не ждёт вас ✓ Новое обращение появится здесь, с уведомлением.",
+  refHistoryShow: "Показать историю ({n})",
+  refHistoryHide: "Скрыть историю",
 };

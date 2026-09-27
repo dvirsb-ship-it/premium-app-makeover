@@ -36,6 +36,8 @@ export function LawyerReferrals({ uid }: { uid: string }) {
    * רואה "אין פניות כרגע" על כשל snapshot רגעי.
    */
   const [loadFailed, setLoadFailed] = useState(false);
+  /* היסטוריה מקופלת כברירת מחדל — הבית מציג רק מה שחי */
+  const [showHistory, setShowHistory] = useState(false);
 
   useEffect(
     () =>
@@ -138,13 +140,37 @@ export function LawyerReferrals({ uid }: { uid: string }) {
     return h >= 1 ? t("refTimeLeftH").replace("{h}", String(h)) : t("refTimeLeftSoon");
   }
 
-  return (
-    <div className="space-y-3">
-      {rows.map((r) => {
-        const expired =
-          r.status === "expired" ||
-          (r.status === "names_check" && Date.now() > r.expiresAt);
-        const status = legacyConnected.has(r.id) ? "connected" : r.status;
+  /*
+   * פעילות מול היסטוריה (27/9/2026, דביר מול המסך): הפיד השטוח ערבב
+   * פניות שנסגרו לפני חודש עם מה שדחוף עכשיו — "אני אפילו מבולבל".
+   * למעלה רק מה שחי, ממוין לפי השעון (הדדליין הקרוב ראשון); כל מה
+   * שנגמר — נבחרת / נסגרה / פקעה / השבת שאינך זמין — מקופל בהיסטוריה.
+   */
+  type Enriched = { r: ReferralDoc; expired: boolean; status: ReferralDoc["status"] };
+  const enriched: Enriched[] = rows.map((r) => ({
+    r,
+    expired:
+      r.status === "expired" ||
+      (r.status === "names_check" && Date.now() > r.expiresAt),
+    status: legacyConnected.has(r.id) ? "connected" : r.status,
+  }));
+  const isActive = (e: Enriched) =>
+    !e.expired &&
+    (e.status === "names_check" || e.status === "cleared" || e.status === "details_shared");
+  const deadlineOf = (e: Enriched) =>
+    e.status === "names_check"
+      ? e.r.expiresAt
+      : e.status === "details_shared" && !e.r.offerAmount && e.r.sharedAt
+        ? e.r.sharedAt + 48 * 3_600_000
+        : Number.POSITIVE_INFINITY;
+  const activeRows = enriched
+    .filter(isActive)
+    .sort((a, b) => deadlineOf(a) - deadlineOf(b) || b.r.createdAt - a.r.createdAt);
+  const doneAt = (e: Enriched) =>
+    e.r.connectedAt ?? e.r.closedAt ?? e.r.expiredAt ?? e.r.respondedAt ?? e.r.createdAt;
+  const historyRows = enriched.filter((e) => !isActive(e)).sort((a, b) => doneAt(b) - doneAt(a));
+
+  const renderCard = ({ r, expired, status }: Enriched) => {
         const ball =
           expired
             ? null
@@ -334,7 +360,30 @@ export function LawyerReferrals({ uid }: { uid: string }) {
             </div>
           </Rise>
         );
-      })}
+  };
+
+  return (
+    <div className="space-y-3">
+      {activeRows.map(renderCard)}
+      {activeRows.length === 0 && (
+        <p className="liquid-glass rounded-3xl p-5 text-center text-[13px] font-semibold text-muted-foreground">
+          {t("refNoActive")}
+        </p>
+      )}
+      {historyRows.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setShowHistory((v) => !v)}
+          aria-expanded={showHistory}
+          className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-border py-2.5 text-[12.5px] font-semibold text-muted-foreground transition active:scale-[0.99]"
+        >
+          {(showHistory ? t("refHistoryHide") : t("refHistoryShow")).replace(
+            "{n}",
+            String(historyRows.length),
+          )}
+        </button>
+      )}
+      {showHistory && historyRows.map(renderCard)}
     </div>
   );
 }

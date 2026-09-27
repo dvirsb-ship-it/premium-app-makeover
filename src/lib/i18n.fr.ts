@@ -1081,4 +1081,7 @@ export const fr: Partial<Record<StringKey, string>> = {
   lcJrOffered: "Vous avez soumis une proposition d'honoraires",
   lcJrConnected: "Le client vous a choisi — connexion créée",
   lcJrContact: "Vous avez confirmé la prise de contact",
+  refNoActive: "Rien en attente pour vous ✓ Une nouvelle demande apparaîtra ici, avec une notification.",
+  refHistoryShow: "Afficher l'historique ({n})",
+  refHistoryHide: "Masquer l'historique",
 };
